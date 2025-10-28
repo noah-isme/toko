@@ -7,6 +7,7 @@ import './globals.css';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
 import { cn } from '@/lib/utils';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { Toaster } from '@/shared/ui/toast';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body className={cn('min-h-screen bg-background font-sans antialiased', inter.variable)}>
         <MockServiceWorkerProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <ErrorBoundary>
+            <QueryProvider>{children}</QueryProvider>
+          </ErrorBoundary>
         </MockServiceWorkerProvider>
         <Toaster />
       </body>
