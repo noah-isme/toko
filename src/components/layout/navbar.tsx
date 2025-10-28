@@ -15,6 +15,7 @@ const navLinks = [
   { href: '/' as Route, label: 'Home' },
   { href: '/products' as Route, label: 'Products' },
   { href: '/cart' as Route, label: 'Cart' },
+  { href: '/orders' as Route, label: 'Orders' },
 ];
 
 export function Navbar() {

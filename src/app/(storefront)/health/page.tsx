@@ -1,10 +1,11 @@
 import { apiClient } from '@/lib/api/apiClient';
 import { productListSchema } from '@/lib/api/schemas';
+import { isMock } from '@/shared/config/isMock';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HealthPage() {
-  const isMocked = process.env.NEXT_PUBLIC_API_MOCKING !== 'false';
+  const isMocked = isMock();
 
   if (isMocked) {
     return (

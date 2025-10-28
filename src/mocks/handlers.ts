@@ -3,10 +3,9 @@ import { HttpResponse, http } from 'msw';
 
 import { checkoutHandlers } from './handlers.checkout';
 import { paymentHandlers } from './handlers.payment';
+import { apiPath } from './utils';
 
 import { addToCartInputSchema, Cart, Product } from '@/lib/api/schemas';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
 
 function createProduct(): Product {
   return {
@@ -62,8 +61,8 @@ recalculateCartTotals();
 (globalThis as { __tokoCartMock?: Cart }).__tokoCartMock = cart;
 
 export const handlers = [
-  http.get(`${API_URL}/products`, () => HttpResponse.json(products)),
-  http.get(`${API_URL}/products/:slug`, ({ params }) => {
+  http.get(apiPath('/products'), () => HttpResponse.json(products)),
+  http.get(apiPath('/products/:slug'), ({ params }) => {
     const product = products.find((item) => item.slug === params.slug);
     if (!product) {
       return HttpResponse.json({ message: 'Product not found' }, { status: 404 });
@@ -71,8 +70,8 @@ export const handlers = [
 
     return HttpResponse.json(product);
   }),
-  http.get(`${API_URL}/cart`, () => HttpResponse.json(cart)),
-  http.post(`${API_URL}/cart/items`, async ({ request }) => {
+  http.get(apiPath('/cart'), () => HttpResponse.json(cart)),
+  http.post(apiPath('/cart/items'), async ({ request }) => {
     const payload = await request.json();
     const parsed = addToCartInputSchema.safeParse(payload);
 
@@ -115,7 +114,7 @@ export const handlers = [
 
     return HttpResponse.json(cart);
   }),
-  http.get(`${API_URL}/auth/me`, () =>
+  http.get(apiPath('/auth/me'), () =>
     HttpResponse.json({
       id: faker.string.uuid(),
       email: faker.internet.email(),

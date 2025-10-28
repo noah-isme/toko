@@ -2,10 +2,15 @@ import { z } from 'zod';
 
 const DEFAULT_API_BASE_URL = 'http://localhost:8080/api/v1';
 
-export const baseURLFromEnv = () =>
-  process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== ''
-    ? process.env.NEXT_PUBLIC_API_URL
-    : DEFAULT_API_BASE_URL;
+export const baseURLFromEnv = () => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl || apiUrl === 'mock') {
+    return DEFAULT_API_BASE_URL;
+  }
+
+  return apiUrl;
+};
 
 type FetchWithCredsOptions<T> = Omit<RequestInit, 'body'> & {
   schema?: z.ZodType<T>;

@@ -1,6 +1,7 @@
 /** @jsxImportSource react */
 'use client';
 
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
@@ -57,6 +58,7 @@ function CheckoutSuccessContent() {
   }
 
   const totals = orderDraft?.totals ?? null;
+  const orderDetailHref = `/orders/${encodeURIComponent(orderId)}` as Route;
 
   return (
     <div className="space-y-8">
@@ -86,7 +88,7 @@ function CheckoutSuccessContent() {
         {totals ? <OrderSummary totals={totals} /> : null}
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild size="lg">
-            <Link href="/account">Lihat Pesanan</Link>
+            <Link href={orderDetailHref}>Lihat detail pesanan</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
             <Link href="/products">Belanja Lagi</Link>

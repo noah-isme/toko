@@ -6,13 +6,15 @@ const paymentProviderSchema = z.union([
   z.literal('manual'),
 ]);
 
+const optionalString = z.string().min(1).nullish();
+
 export const PaymentIntentSchema = z.object({
   orderId: z.string(),
   provider: paymentProviderSchema,
-  channel: z.string(),
-  token: z.string().optional(),
-  redirectUrl: z.string().url().optional(),
-  expiresAt: z.string().optional(),
+  channel: optionalString,
+  token: optionalString,
+  redirectUrl: z.string().url().nullish(),
+  expiresAt: z.string().nullish(),
 });
 
 export const PaymentStatusSchema = z.object({
@@ -31,7 +33,7 @@ export const PaymentStatusSchema = z.object({
 export const PaymentCreateBodySchema = z.object({
   orderId: z.string(),
   provider: paymentProviderSchema,
-  channel: z.string().optional(),
+  channel: z.string().min(1).optional(),
 });
 
 export type PaymentIntent = z.infer<typeof PaymentIntentSchema>;

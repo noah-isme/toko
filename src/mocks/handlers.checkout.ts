@@ -1,14 +1,14 @@
 import { HttpResponse, http } from 'msw';
 import { z } from 'zod';
 
+import { apiPath } from './utils';
+
 import {
   AddressSchema,
   OrderDraftSchema,
   ShippingOptionSchema,
   TotalsSchema,
 } from '@/entities/checkout/schemas';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
 
 const quoteRequestSchema = z.object({
   cartId: z.string().min(1),
@@ -75,7 +75,7 @@ function getCartTotals() {
 }
 
 export const checkoutHandlers = [
-  http.post(`${API_URL}/checkout/quote`, async ({ request }) => {
+  http.post(apiPath('/checkout/quote'), async ({ request }) => {
     const payload = await request.json();
     const parsed = quoteRequestSchema.safeParse(payload);
 
@@ -93,7 +93,7 @@ export const checkoutHandlers = [
 
     return HttpResponse.json(shippingOptionsSchema.parse(shippingOptions));
   }),
-  http.post(`${API_URL}/checkout/draft`, async ({ request }) => {
+  http.post(apiPath('/checkout/draft'), async ({ request }) => {
     const payload = await request.json();
     const parsed = draftRequestSchema.safeParse(payload);
 

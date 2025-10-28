@@ -1,13 +1,13 @@
 import { HttpResponse, http } from 'msw';
 import { z } from 'zod';
 
+import { apiPath } from './utils';
+
 import {
   PaymentCreateBodySchema,
   PaymentIntentSchema,
   PaymentStatusSchema,
 } from '@/entities/payment/schemas';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
 
 const statusAttempts = new Map<
   string,
@@ -34,7 +34,7 @@ function nextStatus(orderId: string) {
 }
 
 export const paymentHandlers = [
-  http.post(`${API_URL}/payments/intent`, async ({ request }) => {
+  http.post(apiPath('/payments/intent'), async ({ request }) => {
     const payload = await request.json();
     const parsed = PaymentCreateBodySchema.safeParse(payload);
 
@@ -64,7 +64,7 @@ export const paymentHandlers = [
 
     return HttpResponse.json(response);
   }),
-  http.get(`${API_URL}/payments/status`, async ({ request }) => {
+  http.get(apiPath('/payments/status'), async ({ request }) => {
     const url = new URL(request.url);
     const parsed = paymentStatusQuerySchema.safeParse(
       Object.fromEntries(url.searchParams.entries()),
