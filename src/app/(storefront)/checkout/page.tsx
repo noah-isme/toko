@@ -16,6 +16,7 @@ import {
   useShippingQuoteMutation,
 } from '@/entities/checkout/api/hooks';
 import type { Address, OrderDraft, ShippingOption } from '@/entities/checkout/api/hooks';
+import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { useCartQuery } from '@/lib/api/hooks';
 
 export default function CheckoutPage() {
@@ -119,8 +120,9 @@ export default function CheckoutPage() {
         shippingOptionId: selectedShippingOption.id,
       });
       setOrderDraft(draft);
-      const mockOrderId = `mock-${draft.cartId}`;
-      const encodedOrderId = encodeURIComponent(mockOrderId);
+      const orderId = draft.cartId;
+      saveOrderDraft(orderId, draft);
+      const encodedOrderId = encodeURIComponent(orderId);
       const reviewRoute = `/checkout/review?orderId=${encodedOrderId}` as Route;
       router.push(reviewRoute);
     } catch (error) {
