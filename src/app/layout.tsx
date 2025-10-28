@@ -7,6 +7,7 @@ import './globals.css';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
 import { cn } from '@/lib/utils';
+import { Toaster } from '@/shared/ui/toast';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <MockServiceWorkerProvider>
           <QueryProvider>{children}</QueryProvider>
         </MockServiceWorkerProvider>
+        <Toaster />
       </body>
     </html>
   );
