@@ -1,5 +1,9 @@
-import { setupWorker } from 'msw/browser';
+'use client';
 
 import { handlers } from './handlers';
 
-export const worker = setupWorker(...handlers);
+export async function createWorker() {
+  const moduleName = 'msw/browser';
+  const { setupWorker } = (await import(moduleName)) as typeof import('msw/browser');
+  return setupWorker(...handlers);
+}

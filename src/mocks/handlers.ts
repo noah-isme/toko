@@ -1,7 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
+import { checkoutHandlers } from './handlers.checkout';
+
 import { addToCartInputSchema, Cart, Product } from '@/lib/api/schemas';
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
 
@@ -55,6 +58,8 @@ function recalculateCartTotals() {
 }
 
 recalculateCartTotals();
+
+(globalThis as { __tokoCartMock?: Cart }).__tokoCartMock = cart;
 
 export const handlers = [
   http.get(`${API_URL}/products`, () => HttpResponse.json(products)),
@@ -117,4 +122,5 @@ export const handlers = [
       name: faker.person.fullName(),
     }),
   ),
+  ...checkoutHandlers,
 ];
