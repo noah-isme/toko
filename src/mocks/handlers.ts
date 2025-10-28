@@ -2,9 +2,9 @@ import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
 import { checkoutHandlers } from './handlers.checkout';
+import { paymentHandlers } from './handlers.payment';
 
 import { addToCartInputSchema, Cart, Product } from '@/lib/api/schemas';
-
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
 
@@ -123,4 +123,5 @@ export const handlers = [
     }),
   ),
   ...checkoutHandlers,
+  ...paymentHandlers,
 ];
