@@ -12,7 +12,8 @@ export function MockServiceWorkerProvider({ children }: Props) {
   useEffect(() => {
     async function startMockWorker() {
       if (process.env.NODE_ENV === 'development' && MSW_ENABLED) {
-        const { worker } = await import('@/mocks/browser');
+        const { createWorker } = await import('@/mocks/browser');
+        const worker = await createWorker();
         await worker.start({ onUnhandledRequest: 'bypass' });
       }
     }

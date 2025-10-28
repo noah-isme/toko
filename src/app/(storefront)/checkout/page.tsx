@@ -1,35 +1,221 @@
+'use client';
+
+import type { Route } from 'next';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+import { AddressForm } from './_components/AddressForm';
+import { OrderSummary } from './_components/OrderSummary';
+import { ShippingOptions } from './_components/ShippingOptions';
+
 import { Button } from '@/components/ui/button';
+import {
+  useCreateOrderDraftMutation,
+  useShippingQuoteMutation,
+} from '@/entities/checkout/api/hooks';
+import type { Address, OrderDraft, ShippingOption } from '@/entities/checkout/api/hooks';
+import { useCartQuery } from '@/lib/api/hooks';
 
 export default function CheckoutPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Checkout</h1>
-        <p className="text-sm text-muted-foreground">
-          This is a placeholder checkout form. Integrate payment and shipping workflows here.
-        </p>
+  const router = useRouter();
+  const { data: cart, isLoading: isCartLoading } = useCartQuery();
+  const shippingQuoteMutation = useShippingQuoteMutation();
+  const createOrderDraftMutation = useCreateOrderDraftMutation();
+
+  const [address, setAddress] = useState<Address | null>(null);
+  const [selectedShippingId, setSelectedShippingId] = useState<string | null>(null);
+  const [orderDraft, setOrderDraft] = useState<OrderDraft | null>(null);
+  const [storedCartId, setStoredCartId] = useState<string | null>(null);
+  const [storageChecked, setStorageChecked] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const existingCartId = window.localStorage.getItem('cartId');
+    if (existingCartId) {
+      setStoredCartId(existingCartId);
+    }
+    setStorageChecked(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    if (cart?.id) {
+      window.localStorage.setItem('cartId', cart.id);
+      setStoredCartId(cart.id);
+    }
+  }, [cart?.id]);
+
+  const activeCartId = cart?.id ?? storedCartId ?? null;
+
+  useEffect(() => {
+    const options = shippingQuoteMutation.data ?? [];
+    if (!options.length) {
+      return;
+    }
+    if (!options.some((option) => option.id === selectedShippingId)) {
+      setSelectedShippingId(options[0]?.id ?? null);
+    }
+  }, [shippingQuoteMutation.data, selectedShippingId]);
+
+  const selectedShippingOption = useMemo<ShippingOption | null>(() => {
+    if (!shippingQuoteMutation.data) {
+      return null;
+    }
+    return shippingQuoteMutation.data.find((option) => option.id === selectedShippingId) ?? null;
+  }, [shippingQuoteMutation.data, selectedShippingId]);
+
+  const computedTotals = useMemo(() => {
+    const subtotal = cart?.subtotal?.amount ?? orderDraft?.totals.subtotal ?? 0;
+    const discount = orderDraft?.totals.discount ?? 0;
+    const shipping = selectedShippingOption?.cost ?? orderDraft?.totals.shipping ?? 0;
+    const tax = orderDraft?.totals.tax ?? Math.round((subtotal - discount) * 0.11);
+    const total = orderDraft?.totals.total ?? subtotal - discount + tax + shipping;
+
+    return {
+      subtotal,
+      discount,
+      tax,
+      shipping,
+      total,
+    };
+  }, [cart?.subtotal?.amount, orderDraft, selectedShippingOption]);
+
+  const isQuoteLoading = shippingQuoteMutation.isPending;
+  const isDraftLoading = createOrderDraftMutation.isPending;
+
+  const handleAddressSubmit = async (values: Address) => {
+    if (!activeCartId) {
+      return;
+    }
+
+    try {
+      const result = await shippingQuoteMutation.mutateAsync({
+        cartId: activeCartId,
+        address: values,
+      });
+      setAddress(values);
+      setOrderDraft(null);
+      setSelectedShippingId(result[0]?.id ?? null);
+    } catch (error) {
+      console.error('Failed to fetch shipping options', error);
+    }
+  };
+
+  const handleCreateDraft = async () => {
+    if (!activeCartId || !address || !selectedShippingOption) {
+      return;
+    }
+
+    try {
+      const draft = await createOrderDraftMutation.mutateAsync({
+        cartId: activeCartId,
+        address,
+        shippingOptionId: selectedShippingOption.id,
+      });
+      setOrderDraft(draft);
+      const mockOrderId = `mock-${draft.cartId}`;
+      const encodedOrderId = encodeURIComponent(mockOrderId);
+      const reviewRoute = `/checkout/review?orderId=${encodedOrderId}` as Route;
+      router.push(reviewRoute);
+    } catch (error) {
+      console.error('Failed to create order draft', error);
+    }
+  };
+
+  if (!storageChecked || isCartLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <div className="h-6 w-32 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="h-64 animate-pulse rounded-lg border bg-muted" />
       </div>
-      <form className="grid gap-4 rounded-lg border p-6">
-        <fieldset className="grid gap-2">
-          <label className="text-sm font-medium">Shipping address</label>
-          <input
-            className="h-10 rounded-md border px-3"
-            placeholder="123 Mockingbird Lane"
-            autoComplete="street-address"
-          />
-        </fieldset>
-        <fieldset className="grid gap-2">
-          <label className="text-sm font-medium">Payment method</label>
-          <input
-            className="h-10 rounded-md border px-3"
-            placeholder="Card number"
-            autoComplete="cc-number"
-          />
-        </fieldset>
-        <Button type="button" size="lg">
-          Complete order
+    );
+  }
+
+  if (!activeCartId) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Checkout</h1>
+          <p className="text-sm text-muted-foreground">
+            Your cart is empty. Add products before proceeding to checkout.
+          </p>
+        </div>
+        <Button asChild size="lg">
+          <Link href="/products">Browse products</Link>
         </Button>
-      </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Checkout</h1>
+          <p className="text-sm text-muted-foreground">
+            Enter your shipping details to see available delivery options.
+          </p>
+        </div>
+        <section className="space-y-4 rounded-lg border p-6">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold">Shipping Address</h2>
+            <p className="text-sm text-muted-foreground">
+              We will use this address to calculate shipping costs.
+            </p>
+          </div>
+          <AddressForm
+            defaultValues={address ?? orderDraft?.address ?? undefined}
+            onSubmit={handleAddressSubmit}
+            isSubmitting={isQuoteLoading}
+          />
+          {shippingQuoteMutation.error ? (
+            <p className="text-sm text-destructive">{shippingQuoteMutation.error.error.message}</p>
+          ) : null}
+        </section>
+        {shippingQuoteMutation.data ? (
+          <section className="space-y-4 rounded-lg border p-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">Shipping Options</h2>
+              <p className="text-sm text-muted-foreground">
+                Choose the delivery service that suits you best.
+              </p>
+            </div>
+            <ShippingOptions
+              options={shippingQuoteMutation.data}
+              selectedId={selectedShippingId ?? undefined}
+              onChange={(id) => setSelectedShippingId(id)}
+              disabled={isDraftLoading}
+            />
+            {createOrderDraftMutation.error ? (
+              <p className="text-sm text-destructive">
+                {createOrderDraftMutation.error.error.message}
+              </p>
+            ) : null}
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                size="lg"
+                onClick={handleCreateDraft}
+                disabled={!selectedShippingOption || !address || isDraftLoading}
+              >
+                {isDraftLoading ? 'Processing...' : 'Proceed to Pay'}
+              </Button>
+            </div>
+          </section>
+        ) : null}
+      </div>
+      <aside>
+        <OrderSummary totals={computedTotals} />
+      </aside>
     </div>
   );
 }
