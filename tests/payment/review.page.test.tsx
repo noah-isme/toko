@@ -88,8 +88,10 @@ describe('CheckoutReviewPage', () => {
     await user.click(screen.getByRole('button', { name: /bayar sekarang/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: /lanjutkan ke pembayaran/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /lanjut ke pembayaran/i })).toBeInTheDocument();
     });
+
+    expect(screen.getByRole('button', { name: /buka pembayaran/i })).toBeInTheDocument();
 
     expect(screen.getByText(/mock-token-123/i)).toBeInTheDocument();
 

@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
+const DEFAULT_API_URL = 'http://localhost:8080/api/v1';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== 'mock'
+    ? process.env.NEXT_PUBLIC_API_URL
+    : DEFAULT_API_URL;
 
 interface ApiClientBaseOptions extends RequestInit {}
 
@@ -24,7 +28,8 @@ export async function apiClient<T = unknown>(
     requestHeaders.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const baseUrl = API_URL.replace(/\/$/, '');
+  const response = await fetch(`${baseUrl}${path}`, {
     ...init,
     headers: requestHeaders,
     credentials: 'include',

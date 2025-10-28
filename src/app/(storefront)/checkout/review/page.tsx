@@ -112,17 +112,46 @@ function CheckoutReviewContent() {
     }
   }, [createPaymentIntentMutation, orderId]);
 
+  const handleOpenPaymentGateway = useCallback(() => {
+    if (!paymentIntent) {
+      return;
+    }
+
+    const targetUrl = paymentIntent.redirectUrl ?? undefined;
+
+    if (targetUrl) {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.debug('Payment intent token received without redirectUrl', paymentIntent);
+    }
+
+    setPaymentError('URL pembayaran tidak tersedia. Silakan coba lagi.');
+  }, [paymentIntent, setPaymentError]);
+
   const handleStartWatcher = useCallback(() => {
     setStatusError(null);
     setFailedStatus(null);
     setWatcherActive(true);
   }, []);
 
+  const cartId = orderDraft?.cartId ?? cart?.id ?? null;
+
   const handleStatusPaid = useCallback(() => {
     const encodedOrderId = encodeURIComponent(orderId);
+
+    if (cartId) {
+      void queryClient.invalidateQueries({ queryKey: ['cart', cartId] });
+    }
+
     void queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
+    void queryClient.invalidateQueries({ queryKey: ['orders'] });
+    setWatcherActive(false);
     router.push(`/checkout/success?orderId=${encodedOrderId}`);
-  }, [orderId, queryClient, router]);
+  }, [cartId, orderId, queryClient, router]);
 
   const handleStatusFailed = useCallback((status: PaymentStatus['status']) => {
     setWatcherActive(false);
@@ -187,13 +216,20 @@ function CheckoutReviewContent() {
               >
                 {createPaymentIntentMutation.isPending ? 'Menghubungkan...' : 'Bayar Sekarang'}
               </Button>
-              {paymentIntent?.redirectUrl ? (
+              {paymentIntent?.redirectUrl || paymentIntent?.token ? (
                 <div className="flex flex-wrap gap-2">
-                  <Button asChild variant="secondary" size="sm">
-                    <a href={paymentIntent.redirectUrl} target="_blank" rel="noopener noreferrer">
-                      Lanjutkan ke Pembayaran
-                    </a>
-                  </Button>
+                  {paymentIntent?.redirectUrl ? (
+                    <Button asChild variant="secondary" size="sm">
+                      <a href={paymentIntent.redirectUrl} target="_blank" rel="noopener noreferrer">
+                        Lanjut ke Pembayaran
+                      </a>
+                    </Button>
+                  ) : null}
+                  {paymentIntent?.token ? (
+                    <Button type="button" size="sm" onClick={handleOpenPaymentGateway}>
+                      Buka Pembayaran
+                    </Button>
+                  ) : null}
                   <Button
                     type="button"
                     size="sm"

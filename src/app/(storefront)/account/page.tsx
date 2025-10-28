@@ -12,9 +12,14 @@ export default function AccountPage() {
           soon.
         </p>
       </div>
-      <Button asChild size="lg" variant="outline">
-        <Link href="/login">Sign in</Link>
-      </Button>
+      <div className="flex flex-wrap gap-3">
+        <Button asChild size="lg">
+          <Link href="/orders">Lihat pesanan</Link>
+        </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link href="/login">Sign in</Link>
+        </Button>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, type ReactNode } from 'react';
 
+import { isMock } from '@/shared/config/isMock';
+
 const MSW_ENABLED = process.env.NEXT_PUBLIC_API_MOCKING !== 'false';
 
 type Props = {
@@ -11,7 +13,8 @@ type Props = {
 export function MockServiceWorkerProvider({ children }: Props) {
   useEffect(() => {
     async function startMockWorker() {
-      if (process.env.NODE_ENV === 'development' && MSW_ENABLED) {
+      const isNonProduction = process.env.NODE_ENV !== 'production';
+      if (isNonProduction && MSW_ENABLED && isMock()) {
         const { createWorker } = await import('@/mocks/browser');
         const worker = await createWorker();
         await worker.start({ onUnhandledRequest: 'bypass' });
