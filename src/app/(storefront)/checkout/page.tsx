@@ -93,7 +93,7 @@ export default function CheckoutPage() {
   const isQuoteLoading = shippingQuoteMutation.isPending && !shippingQuoteMutation.data;
   const isDraftLoading = createOrderDraftMutation.isPending;
   const proceedLabel = isDraftLoading
-    ? 'Processing payment information'
+    ? 'Membuat draft pesanan…'
     : 'Proceed to pay and review your order';
 
   const handleAddressSubmit = async (values: Address) => {
@@ -132,7 +132,7 @@ export default function CheckoutPage() {
       const reviewRoute = `/checkout/review?orderId=${encodedOrderId}` as Route;
       router.push(reviewRoute);
     } catch (error) {
-      console.error('Failed to create order draft', error);
+      // handled by mutation callbacks
     }
   };
 
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
                 onClick={handleCreateDraft}
                 disabled={!selectedShippingOption || !address}
                 isLoading={isDraftLoading}
-                loadingLabel="Processing..."
+                loadingLabel="Membuat draft pesanan…"
               >
                 Proceed to Pay
               </GuardedButton>

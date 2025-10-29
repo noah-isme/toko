@@ -17,10 +17,11 @@ import {
   useCreatePaymentIntentMutation,
   usePaymentStatusQuery,
 } from '@/entities/payment/api/hooks';
-import type { PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
+import type { PaymentCreateBody, PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
 import { useCartQuery } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
+import { useToast } from '@/shared/ui/toast';
 
 const failureStatuses: Array<PaymentStatus['status']> = ['FAILED', 'EXPIRED', 'CANCELED'];
 
@@ -47,6 +48,7 @@ function CheckoutReviewContent() {
   const { data: cart } = useCartQuery();
   const queryClient = useQueryClient();
   const createPaymentIntentMutation = useCreatePaymentIntentMutation();
+  const { toast: pushToast } = useToast();
 
   useEffect(() => {
     if (!orderId) {
@@ -87,31 +89,46 @@ function CheckoutReviewContent() {
     ].filter(Boolean);
   }, [orderDraft?.address]);
 
-  const handlePayNow = useCallback(async () => {
-    if (!orderId) {
-      return;
-    }
-
-    setPaymentError(null);
-    setStatusError(null);
-    setFailedStatus(null);
-    setWatcherActive(false);
-
-    try {
-      const result = await createPaymentIntentMutation.mutateAsync({
+  const handlePayNow = useCallback(
+    async (override?: PaymentCreateBody) => {
+      const payload = override ?? {
         orderId,
         provider: 'midtrans',
         channel: 'snap',
-      });
-      setPaymentIntent(result);
-    } catch (error) {
-      const apiError = error as ApiError;
-      setPaymentIntent(null);
-      setPaymentError(
-        apiError?.error?.message ?? 'Tidak dapat membuat payment intent. Silakan coba lagi.',
-      );
-    }
-  }, [createPaymentIntentMutation, orderId]);
+      };
+
+      if (!payload.orderId) {
+        return;
+      }
+
+      setPaymentError(null);
+      setStatusError(null);
+      setFailedStatus(null);
+      setWatcherActive(false);
+
+      try {
+        const result = await createPaymentIntentMutation.mutateAsync(payload);
+        setPaymentIntent(result);
+      } catch (error) {
+        const apiError = error as ApiError;
+        setPaymentIntent(null);
+        setPaymentError(
+          apiError?.error?.message ?? 'Tidak dapat membuat payment intent. Silakan coba lagi.',
+        );
+      }
+    },
+    [createPaymentIntentMutation, orderId],
+  );
+
+  useEffect(() => {
+    createPaymentIntentMutation.registerRetryHandler((variables) => {
+      void handlePayNow(variables);
+    });
+
+    return () => {
+      createPaymentIntentMutation.registerRetryHandler(undefined);
+    };
+  }, [createPaymentIntentMutation, handlePayNow]);
 
   const handleOpenPaymentGateway = useCallback(() => {
     if (!paymentIntent) {
@@ -151,8 +168,13 @@ function CheckoutReviewContent() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
     void queryClient.invalidateQueries({ queryKey: ['orders'] });
     setWatcherActive(false);
+    pushToast({
+      id: `payment-success-${orderId}`,
+      title: 'Pembayaran berhasil',
+      variant: 'success',
+    });
     router.push(`/checkout/success?orderId=${encodedOrderId}`);
-  }, [cartId, orderId, queryClient, router]);
+  }, [cartId, orderId, pushToast, queryClient, router]);
 
   const handleStatusFailed = useCallback((status: PaymentStatus['status']) => {
     setWatcherActive(false);
@@ -214,7 +236,7 @@ function CheckoutReviewContent() {
                 size="lg"
                 onClick={handlePayNow}
                 isLoading={createPaymentIntentMutation.isPending}
-                loadingLabel="Menghubungkan..."
+                loadingLabel="Memproses pembayaran…"
               >
                 Bayar Sekarang
               </GuardedButton>
