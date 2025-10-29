@@ -1,32 +1,60 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
-import { EmptyState } from '@/components/empty-state';
 import { Price } from '@/components/price';
 import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { useAddToCartMutation, useProductQuery } from '@/lib/api/hooks';
+import { normalizeError } from '@/shared/lib/normalizeError';
+import { ProductDetailSkeleton } from '@/shared/ui/skeletons/ProductDetailSkeleton';
+import { useToast } from '@/shared/ui/toast';
+import { withErrorBoundary } from '@/shared/ui/withErrorBoundary';
 
 interface ProductDetailProps {
   slug: string;
 }
 
-export function ProductDetail({ slug }: ProductDetailProps) {
-  const { data, isLoading, error } = useProductQuery(slug);
+function ProductDetailContent({ slug }: ProductDetailProps) {
+  const { toast: pushToast } = useToast();
+  const { data, isLoading, isFetching, error } = useProductQuery(slug);
   const { mutate, isPending, error: addToCartError } = useAddToCartMutation();
 
-  if (isLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    pushToast({
+      variant: 'destructive',
+      title: 'Gagal memuat produk',
+      description: normalizeError(error),
+    });
+  }, [error, pushToast]);
+
+  useEffect(() => {
+    if (!addToCartError) {
+      return;
+    }
+
+    pushToast({
+      variant: 'destructive',
+      title: 'Gagal menambahkan ke keranjang',
+      description: normalizeError(addToCartError),
+    });
+  }, [addToCartError, pushToast]);
+
+  if (isLoading || (!data && isFetching)) {
+    return <ProductDetailSkeleton />;
   }
 
-  if (error || !data) {
-    return <EmptyState title="Product unavailable" description="We couldn't load this product." />;
+  if (error) {
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error('Produk tidak ditemukan');
   }
 
   const isOutOfStock = data.inventory <= 0;
@@ -78,3 +106,5 @@ export function ProductDetail({ slug }: ProductDetailProps) {
     </div>
   );
 }
+
+export const ProductDetail = withErrorBoundary(ProductDetailContent);

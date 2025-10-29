@@ -18,10 +18,13 @@ import {
 import type { Address, OrderDraft, ShippingOption } from '@/entities/checkout/api/hooks';
 import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { useCartQuery } from '@/lib/api/hooks';
+import { emptyCart } from '@/shared/ui/empty-presets';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { CheckoutSkeleton } from '@/shared/ui/skeletons/CheckoutSkeleton';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { data: cart, isLoading: isCartLoading } = useCartQuery();
+  const { data: cart, isLoading: isCartLoading, isFetching: isCartFetching } = useCartQuery();
   const shippingQuoteMutation = useShippingQuoteMutation();
   const createOrderDraftMutation = useCreateOrderDraftMutation();
 
@@ -87,7 +90,7 @@ export default function CheckoutPage() {
     };
   }, [cart?.subtotal?.amount, orderDraft, selectedShippingOption]);
 
-  const isQuoteLoading = shippingQuoteMutation.isPending;
+  const isQuoteLoading = shippingQuoteMutation.isPending && !shippingQuoteMutation.data;
   const isDraftLoading = createOrderDraftMutation.isPending;
 
   const handleAddressSubmit = async (values: Address) => {
@@ -130,32 +133,15 @@ export default function CheckoutPage() {
     }
   };
 
-  if (!storageChecked || isCartLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <div className="h-6 w-32 animate-pulse rounded bg-muted" />
-          <div className="h-4 w-48 animate-pulse rounded bg-muted" />
-        </div>
-        <div className="h-64 animate-pulse rounded-lg border bg-muted" />
-      </div>
-    );
+  const isCartBusy = isCartLoading || (!cart && isCartFetching);
+  const isCheckoutLoading = !storageChecked || isCartBusy || isQuoteLoading;
+
+  if (isCheckoutLoading) {
+    return <CheckoutSkeleton />;
   }
 
-  if (!activeCartId) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Checkout</h1>
-          <p className="text-sm text-muted-foreground">
-            Your cart is empty. Add products before proceeding to checkout.
-          </p>
-        </div>
-        <Button asChild size="lg">
-          <Link href="/products">Browse products</Link>
-        </Button>
-      </div>
-    );
+  if (!activeCartId || !cart || cart.items.length === 0) {
+    return <EmptyState {...emptyCart()} className="mx-auto max-w-lg" />;
   }
 
   return (

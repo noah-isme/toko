@@ -4,10 +4,14 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { EmptyState } from '@/components/empty-state';
 import { Price } from '@/components/price';
 import { Button } from '@/components/ui/button';
 import { useOrdersQuery } from '@/entities/orders/api/hooks';
+import { emptyOrders } from '@/shared/ui/empty-presets';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { OrdersTableSkeleton } from '@/shared/ui/skeletons/OrdersTableSkeleton';
+
+export { OrdersTableSkeleton } from '@/shared/ui/skeletons/OrdersTableSkeleton';
 
 const PAGE_SIZE = 10;
 
@@ -65,28 +69,6 @@ function StatusBadge({ label, value }: { label: string; value?: string | null })
   );
 }
 
-export function OrdersTableSkeleton() {
-  return (
-    <div className="space-y-3 rounded-lg border p-6">
-      <div className="flex items-center justify-between">
-        <div className="h-5 w-32 animate-pulse rounded bg-muted" />
-        <div className="h-8 w-48 animate-pulse rounded bg-muted" />
-      </div>
-      <div className="space-y-2">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="grid grid-cols-[2fr_2fr_2fr_2fr_auto] items-center gap-3">
-            <div className="h-4 w-28 animate-pulse rounded bg-muted" />
-            <div className="h-4 w-32 animate-pulse rounded bg-muted" />
-            <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-            <div className="h-6 w-40 animate-pulse rounded-full bg-muted" />
-            <div className="h-6 w-20 animate-pulse rounded bg-muted" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function OrdersPageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -138,25 +120,23 @@ export default function OrdersPageClient() {
       {ordersQuery.isLoading ? (
         <OrdersTableSkeleton />
       ) : ordersQuery.isError ? (
-        <EmptyState
-          title="Tidak dapat memuat pesanan"
-          description={ordersQuery.error?.error?.message ?? 'Coba muat ulang beberapa saat lagi.'}
-          action={{
-            label: 'Coba lagi',
-            onClick: () => {
+        <div className="flex flex-col items-center gap-4">
+          <EmptyState
+            title="Tidak dapat memuat pesanan"
+            description={ordersQuery.error?.error?.message ?? 'Coba muat ulang beberapa saat lagi.'}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
               void ordersQuery.refetch();
-            },
-          }}
-        />
+            }}
+          >
+            Coba lagi
+          </Button>
+        </div>
       ) : orders.length === 0 ? (
-        <EmptyState
-          title="Belum ada pesanan"
-          description="Setelah Anda menyelesaikan transaksi, pesanan akan muncul di sini."
-          action={{
-            label: 'Mulai belanja',
-            onClick: () => router.push('/products'),
-          }}
-        />
+        <EmptyState {...emptyOrders()} />
       ) : (
         <div className="space-y-4 rounded-lg border p-6">
           <div className="overflow-x-auto">

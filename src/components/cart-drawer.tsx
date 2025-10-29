@@ -1,10 +1,9 @@
 'use client';
 
-import { Loader2, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { EmptyState } from '@/components/empty-state';
 import { Price } from '@/components/price';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,11 +15,15 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useCartQuery } from '@/lib/api/hooks';
+import { emptyCart } from '@/shared/ui/empty-presets';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
-  const { data, isLoading } = useCartQuery();
+  const { data, isLoading, isFetching } = useCartQuery();
   const itemCount = data?.itemCount ?? 0;
+  const isBusy = isLoading || (!data && isFetching);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -40,15 +43,10 @@ export function CartDrawer() {
           <SheetTitle>Your cart</SheetTitle>
         </SheetHeader>
         <div className="flex-1 space-y-4 overflow-y-auto">
-          {isLoading ? (
-            <div className="flex h-full items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
+          {isBusy ? (
+            <CartSkeleton items={3} />
           ) : !data || data.items.length === 0 ? (
-            <EmptyState
-              title="Your cart is empty"
-              description="Browse products and add them to your cart."
-            />
+            <EmptyState {...emptyCart()} className="border-none bg-transparent" />
           ) : (
             <ul className="space-y-3">
               {data.items.map((item) => (
