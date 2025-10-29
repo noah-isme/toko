@@ -10,7 +10,6 @@ import { AddressForm } from './_components/AddressForm';
 import { OrderSummary } from './_components/OrderSummary';
 import { ShippingOptions } from './_components/ShippingOptions';
 
-import { Button } from '@/components/ui/button';
 import {
   useCreateOrderDraftMutation,
   useShippingQuoteMutation,
@@ -20,6 +19,7 @@ import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { useCartQuery } from '@/lib/api/hooks';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
+import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { CheckoutSkeleton } from '@/shared/ui/skeletons/CheckoutSkeleton';
 
 export default function CheckoutPage() {
@@ -192,15 +192,17 @@ export default function CheckoutPage() {
               </p>
             ) : null}
             <div className="flex justify-end">
-              <Button
+              <GuardedButton
                 type="button"
                 size="lg"
                 aria-label={proceedLabel}
                 onClick={handleCreateDraft}
-                disabled={!selectedShippingOption || !address || isDraftLoading}
+                disabled={!selectedShippingOption || !address}
+                isLoading={isDraftLoading}
+                loadingLabel="Processing..."
               >
-                {isDraftLoading ? 'Processing...' : 'Proceed to Pay'}
-              </Button>
+                Proceed to Pay
+              </GuardedButton>
             </div>
           </section>
         ) : null}

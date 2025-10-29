@@ -20,6 +20,7 @@ import {
 import type { PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
 import { useCartQuery } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
+import { GuardedButton } from '@/shared/ui/GuardedButton';
 
 const failureStatuses: Array<PaymentStatus['status']> = ['FAILED', 'EXPIRED', 'CANCELED'];
 
@@ -208,14 +209,15 @@ function CheckoutReviewContent() {
               </p>
             </div>
             <div className="space-y-3">
-              <Button
+              <GuardedButton
                 type="button"
                 size="lg"
                 onClick={handlePayNow}
-                disabled={createPaymentIntentMutation.isPending}
+                isLoading={createPaymentIntentMutation.isPending}
+                loadingLabel="Menghubungkan..."
               >
-                {createPaymentIntentMutation.isPending ? 'Menghubungkan...' : 'Bayar Sekarang'}
-              </Button>
+                Bayar Sekarang
+              </GuardedButton>
               {paymentIntent?.redirectUrl || paymentIntent?.token ? (
                 <div className="flex flex-wrap gap-2">
                   {paymentIntent?.redirectUrl ? (
