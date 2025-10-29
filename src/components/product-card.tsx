@@ -7,7 +7,7 @@ import { Price } from '@/components/price';
 import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAddToCartMutation } from '@/lib/api/hooks';
+import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { Product } from '@/lib/api/schemas';
 import { cn } from '@/lib/utils';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -19,11 +19,18 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className }: ProductCardProps) {
   const image = product.images[0];
-  const { mutate, isPending } = useAddToCartMutation();
+  const { mutate, isProductInFlight } = useAddToCartMutation();
   const isOutOfStock = product.inventory <= 0;
 
   const handleAddToCart = () => {
-    mutate({ productId: product.id, quantity: 1 });
+    mutate({
+      productId: product.id,
+      quantity: 1,
+      name: product.name,
+      price: product.price,
+      image: product.images[0] ?? null,
+      maxQuantity: product.inventory,
+    });
   };
 
   return (
@@ -62,8 +69,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
             variant="secondary"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
-            isLoading={isPending}
-            loadingLabel="Adding…"
+            isLoading={isProductInFlight(product.id)}
+            loadingLabel="Menambahkan…"
           >
             {isOutOfStock ? 'Out of stock' : 'Add to cart'}
           </GuardedButton>

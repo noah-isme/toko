@@ -56,6 +56,10 @@ describe('useAddToCartMutation', () => {
       await mutationResult.current.mutateAsync({
         productId: targetProduct!.id,
         quantity: 1,
+        name: targetProduct!.name,
+        price: targetProduct!.price,
+        image: targetProduct!.images[0] ?? null,
+        maxQuantity: targetProduct!.inventory,
       });
     });
 
