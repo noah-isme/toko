@@ -58,8 +58,8 @@ export function SearchBar({
   }, [storeTerm]);
 
   return (
-    <div className={cn('relative flex w-full max-w-lg items-center', className)}>
-      <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+    <div className={cn('relative flex w-full max-w-lg items-center', className)} role="search">
+      <Search aria-hidden="true" className="absolute left-3 h-4 w-4 text-muted-foreground" />
       <Input
         aria-label="Search products"
         className="pl-10"

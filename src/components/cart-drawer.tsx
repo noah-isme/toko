@@ -1,14 +1,16 @@
 'use client';
 
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 import { Price } from '@/components/price';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
+  SheetClose,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -24,13 +26,28 @@ export function CartDrawer() {
   const { data, isLoading, isFetching } = useCartQuery();
   const itemCount = data?.itemCount ?? 0;
   const isBusy = isLoading || (!data && isFetching);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const cartLabel = itemCount
+    ? `Open cart with ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`
+    : 'Open cart';
+
+  useEffect(() => {
+    if (open) {
+      previousFocusRef.current = document.activeElement as HTMLElement | null;
+    }
+  }, [open]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="relative gap-2">
-          <ShoppingCart className="h-5 w-5" />
-          <span className="hidden sm:inline">Cart</span>
+        <Button ref={triggerRef} aria-label={cartLabel} variant="ghost" className="relative gap-2">
+          <ShoppingCart aria-hidden="true" className="h-5 w-5" />
+          <span aria-hidden="true" className="sr-only sm:not-sr-only">
+            Cart
+          </span>
           {itemCount > 0 ? (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
               {itemCount}
@@ -38,10 +55,28 @@ export function CartDrawer() {
           ) : null}
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex flex-1 flex-col gap-4">
-        <SheetHeader>
-          <SheetTitle>Your cart</SheetTitle>
-        </SheetHeader>
+      <SheetContent
+        aria-describedby={descriptionId}
+        aria-labelledby={titleId}
+        className="flex flex-1 flex-col gap-4"
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          (previousFocusRef.current ?? triggerRef.current)?.focus();
+        }}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <SheetHeader className="flex-1">
+            <SheetTitle id={titleId}>Your cart</SheetTitle>
+            <SheetDescription id={descriptionId}>
+              Review the items in your shopping cart before checkout.
+            </SheetDescription>
+          </SheetHeader>
+          <SheetClose asChild>
+            <Button aria-label="Tutup" className="-mr-2 mt-1" size="icon" variant="ghost">
+              <X aria-hidden="true" className="h-4 w-4" />
+            </Button>
+          </SheetClose>
+        </div>
         <div className="flex-1 space-y-4 overflow-y-auto">
           {isBusy ? (
             <CartSkeleton items={3} />
