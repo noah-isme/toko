@@ -26,7 +26,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
   };
 
   return (
-    <Card className={cn('flex flex-col', className)}>
+    <Card
+      className={cn(
+        'flex flex-col focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background',
+        className,
+      )}
+    >
       <CardHeader className="space-y-3">
         <div className="relative aspect-square w-full overflow-hidden rounded-md border bg-muted">
           {image ? (

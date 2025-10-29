@@ -67,11 +67,13 @@ export function ProductsCatalog() {
         ) : filteredProducts.length === 0 ? (
           <EmptyState {...emptyProducts()} />
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" role="list">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <li key={product.id} className="list-none">
+                <ProductCard product={product} />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </section>
     </div>

@@ -10,6 +10,7 @@ import { CartDrawer } from '@/components/cart-drawer';
 import { Container } from '@/components/layout/container';
 import { SearchBar } from '@/components/search-bar';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/' as Route, label: 'Home' },
@@ -24,18 +25,25 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
       <Container className="flex h-16 items-center gap-6">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
+        <Link
+          href="/"
+          className={cn(
+            'rounded-md px-2 py-1 text-lg font-semibold tracking-tight',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          )}
+        >
           toko
         </Link>
         <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
-              className={
+              className={cn(
+                'rounded-md px-2 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 pathname === link.href
                   ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
               href={link.href}
             >
               {link.label}
@@ -48,9 +56,15 @@ export function Navbar() {
           </Suspense>
           <CartDrawer />
           <Button asChild variant="ghost">
-            <Link href="/account" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Account</span>
+            <Link
+              href="/account"
+              aria-label="Account"
+              className="flex items-center gap-2 focus-visible:outline-none"
+            >
+              <User aria-hidden="true" className="h-4 w-4" />
+              <span aria-hidden="true" className="sr-only sm:not-sr-only">
+                Account
+              </span>
             </Link>
           </Button>
         </div>

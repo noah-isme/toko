@@ -92,6 +92,9 @@ export default function CheckoutPage() {
 
   const isQuoteLoading = shippingQuoteMutation.isPending && !shippingQuoteMutation.data;
   const isDraftLoading = createOrderDraftMutation.isPending;
+  const proceedLabel = isDraftLoading
+    ? 'Processing payment information'
+    : 'Proceed to pay and review your order';
 
   const handleAddressSubmit = async (values: Address) => {
     if (!activeCartId) {
@@ -192,6 +195,7 @@ export default function CheckoutPage() {
               <Button
                 type="button"
                 size="lg"
+                aria-label={proceedLabel}
                 onClick={handleCreateDraft}
                 disabled={!selectedShippingOption || !address || isDraftLoading}
               >
