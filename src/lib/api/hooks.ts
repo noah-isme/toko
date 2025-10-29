@@ -1,9 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+
+export {
+  useAddToCartMutation,
+  useCartQuery,
+  useRemoveCartItemMutation,
+  useUpdateCartItemMutation,
+} from '@/entities/cart/hooks';
 
 import { apiClient } from './apiClient';
 import { queryKeys } from './queryKeys';
-import { addToCartInputSchema, cartSchema, productListSchema, productSchema } from './schemas';
-import type { AddToCartInput, Cart, Product, ProductList } from './schemas';
+import { productListSchema, productSchema } from './schemas';
+import type { Product, ProductList } from './schemas';
 
 export function useProductsQuery(params?: Record<string, string | number | boolean>) {
   return useQuery<ProductList>({
@@ -29,31 +36,5 @@ export function useProductQuery(slug: string) {
     queryKey: queryKeys.product(slug),
     queryFn: () => apiClient(`/products/${slug}`, { schema: productSchema }),
     enabled: Boolean(slug),
-  });
-}
-
-export function useCartQuery() {
-  return useQuery<Cart>({
-    queryKey: queryKeys.cart(),
-    queryFn: () => apiClient('/cart', { schema: cartSchema }),
-  });
-}
-
-export function useAddToCartMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation<Cart, Error, AddToCartInput>({
-    mutationFn: async (input) =>
-      apiClient('/cart/items', {
-        method: 'POST',
-        body: JSON.stringify(addToCartInputSchema.parse(input)),
-        schema: cartSchema,
-      }),
-    onSuccess: (cart) => {
-      queryClient.setQueryData(queryKeys.cart(), cart);
-    },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
-    },
   });
 }

@@ -5,7 +5,7 @@ import { checkoutHandlers } from './handlers.checkout';
 import { paymentHandlers } from './handlers.payment';
 import { apiPath } from './utils';
 
-import { addToCartInputSchema, Cart, Product } from '@/lib/api/schemas';
+import { addToCartInputSchema, updateCartItemInputSchema, Cart, Product } from '@/lib/api/schemas';
 
 function createProduct(): Product {
   return {
@@ -43,6 +43,7 @@ const cart: Cart = {
     quantity: faker.number.int({ min: 1, max: 3 }),
     price: product.price,
     image: product.images[0] ?? null,
+    maxQuantity: Math.max(1, product.inventory),
   })),
   subtotal: { amount: 0, currency: 'USD' },
   itemCount: 0,
@@ -99,6 +100,7 @@ export const handlers = [
 
     if (existingItem) {
       existingItem.quantity = Math.min(existingItem.quantity + safeQuantity, maxQuantity);
+      existingItem.maxQuantity = maxQuantity;
     } else {
       cart.items.push({
         id: faker.string.uuid(),
@@ -107,7 +109,49 @@ export const handlers = [
         quantity: safeQuantity,
         price: product.price,
         image: product.images[0] ?? null,
+        maxQuantity,
       });
+    }
+
+    recalculateCartTotals();
+
+    return HttpResponse.json(cart);
+  }),
+  http.patch(apiPath('/cart/items/:itemId'), async ({ params, request }) => {
+    const payload = await request.json();
+    const parsed = updateCartItemInputSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return HttpResponse.json(
+        { message: 'Invalid cart payload', issues: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+
+    const itemId = params.itemId as string;
+    const targetItem = cart.items.find((item) => item.id === itemId);
+
+    if (!targetItem) {
+      return HttpResponse.json({ message: 'Cart item not found' }, { status: 404 });
+    }
+
+    const product = products.find((item) => item.id === targetItem.productId);
+    const maxQuantity = Math.max(1, product?.inventory ?? targetItem.maxQuantity ?? 1);
+
+    targetItem.quantity = Math.min(Math.max(parsed.data.quantity, 1), maxQuantity);
+    targetItem.maxQuantity = maxQuantity;
+
+    recalculateCartTotals();
+
+    return HttpResponse.json(cart);
+  }),
+  http.delete(apiPath('/cart/items/:itemId'), ({ params }) => {
+    const itemId = params.itemId as string;
+    const initialLength = cart.items.length;
+    cart.items = cart.items.filter((item) => item.id !== itemId);
+
+    if (cart.items.length === initialLength) {
+      return HttpResponse.json({ message: 'Cart item not found' }, { status: 404 });
     }
 
     recalculateCartTotals();

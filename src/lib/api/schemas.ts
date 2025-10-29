@@ -27,6 +27,7 @@ export const cartItemSchema = z.object({
   quantity: z.number().int().min(1),
   price: priceSchema,
   image: z.string().url().nullable().optional(),
+  maxQuantity: z.number().int().min(1).optional(),
 });
 
 export const cartSchema = z.object({
@@ -47,9 +48,14 @@ export const addToCartInputSchema = z.object({
   quantity: z.number().int().min(1).max(99).default(1),
 });
 
+export const updateCartItemInputSchema = z.object({
+  quantity: z.number().int().min(1).max(99),
+});
+
 export type Product = z.infer<typeof productSchema>;
 export type ProductList = z.infer<typeof productListSchema>;
 export type Cart = z.infer<typeof cartSchema>;
 export type CartItem = z.infer<typeof cartItemSchema>;
 export type User = z.infer<typeof userSchema>;
 export type AddToCartInput = z.infer<typeof addToCartInputSchema>;
+export type UpdateCartItemInput = z.infer<typeof updateCartItemInputSchema>;

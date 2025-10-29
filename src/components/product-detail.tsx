@@ -5,7 +5,8 @@ import { useEffect } from 'react';
 
 import { Price } from '@/components/price';
 import { Rating } from '@/components/rating';
-import { useAddToCartMutation, useProductQuery } from '@/lib/api/hooks';
+import { useAddToCartMutation } from '@/entities/cart/hooks';
+import { useProductQuery } from '@/lib/api/hooks';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { ProductDetailSkeleton } from '@/shared/ui/skeletons/ProductDetailSkeleton';
@@ -19,7 +20,7 @@ interface ProductDetailProps {
 function ProductDetailContent({ slug }: ProductDetailProps) {
   const { toast: pushToast } = useToast();
   const { data, isLoading, isFetching, error } = useProductQuery(slug);
-  const { mutate, isPending, error: addToCartError } = useAddToCartMutation();
+  const { mutate, isProductInFlight } = useAddToCartMutation();
 
   useEffect(() => {
     if (!error) {
@@ -32,18 +33,6 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       description: normalizeError(error),
     });
   }, [error, pushToast]);
-
-  useEffect(() => {
-    if (!addToCartError) {
-      return;
-    }
-
-    pushToast({
-      variant: 'destructive',
-      title: 'Gagal menambahkan ke keranjang',
-      description: normalizeError(addToCartError),
-    });
-  }, [addToCartError, pushToast]);
 
   if (isLoading || (!data && isFetching)) {
     return <ProductDetailSkeleton />;
@@ -60,7 +49,14 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const isOutOfStock = data.inventory <= 0;
 
   const handleAddToCart = () => {
-    mutate({ productId: data.id, quantity: 1 });
+    mutate({
+      productId: data.id,
+      quantity: 1,
+      name: data.name,
+      price: data.price,
+      image: data.images[0] ?? null,
+      maxQuantity: data.inventory,
+    });
   };
 
   return (
@@ -97,16 +93,11 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             size="lg"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
-            isLoading={isPending}
-            loadingLabel="Adding…"
+            isLoading={isProductInFlight(data.id)}
+            loadingLabel="Menambahkan…"
           >
             {isOutOfStock ? 'Out of stock' : 'Add to cart'}
           </GuardedButton>
-          {addToCartError ? (
-            <p className="text-sm text-destructive" role="status" aria-live="polite">
-              {addToCartError.message}
-            </p>
-          ) : null}
         </div>
       </div>
     </div>
