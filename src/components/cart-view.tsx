@@ -1,34 +1,24 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-import { EmptyState } from '@/components/empty-state';
 import { Price } from '@/components/price';
 import { Button } from '@/components/ui/button';
 import { useCartQuery } from '@/lib/api/hooks';
+import { emptyCart } from '@/shared/ui/empty-presets';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
 
 export function CartView() {
-  const router = useRouter();
-  const { data, isLoading } = useCartQuery();
+  const { data, isLoading, isFetching } = useCartQuery();
+  const isBusy = isLoading || (!data && isFetching);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+  if (isBusy) {
+    return <CartSkeleton />;
   }
 
   if (!data || data.items.length === 0) {
-    return (
-      <EmptyState
-        title="Your cart is empty"
-        description="Add products to your cart to start checkout."
-        action={{ label: 'Browse products', onClick: () => router.push('/') }}
-      />
-    );
+    return <EmptyState {...emptyCart()} />;
   }
 
   return (

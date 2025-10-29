@@ -1,18 +1,20 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { EmptyState } from '@/components/empty-state';
 import { FilterSidebar } from '@/components/filter-sidebar';
 import { ProductCard } from '@/components/product-card';
 import { useProductsQuery } from '@/lib/api/hooks';
+import { emptyProducts } from '@/shared/ui/empty-presets';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 import { useSearchStore } from '@/stores/search-store';
 
 export function ProductsCatalog() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const searchTerm = useSearchStore((state) => state.term).toLowerCase();
-  const { data, isLoading } = useProductsQuery();
+  const { data, isLoading, isFetching } = useProductsQuery();
+  const showLoadingState = isLoading || (!data && isFetching);
 
   const filteredProducts = useMemo(() => {
     if (!data) {
@@ -60,15 +62,10 @@ export function ProductsCatalog() {
             </p>
           </div>
         </header>
-        {isLoading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
+        {showLoadingState ? (
+          <ProductCardSkeleton />
         ) : filteredProducts.length === 0 ? (
-          <EmptyState
-            title="No products found"
-            description="Try adjusting your search or filter selections."
-          />
+          <EmptyState {...emptyProducts()} />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {filteredProducts.map((product) => (
