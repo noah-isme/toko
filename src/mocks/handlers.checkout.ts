@@ -109,6 +109,20 @@ export const checkoutHandlers = [
       );
     }
 
+    const scenario = request.headers.get('x-mock-scenario');
+
+    if (scenario === 'draft-error' || parsed.data.notes === 'force-error') {
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'DRAFT_CREATION_FAILED',
+            message: 'Unable to create draft order at this time',
+          },
+        },
+        { status: 500 },
+      );
+    }
+
     const shippingOption = shippingOptions.find(
       (option) => option.id === parsed.data.shippingOptionId,
     );

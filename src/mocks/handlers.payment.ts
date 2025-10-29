@@ -50,6 +50,20 @@ export const paymentHandlers = [
       );
     }
 
+    const scenario = request.headers.get('x-mock-scenario');
+
+    if (scenario === 'intent-error' || parsed.data.channel === 'mock-error') {
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'PAYMENT_INTENT_FAILED',
+            message: 'Unable to create payment intent',
+          },
+        },
+        { status: 500 },
+      );
+    }
+
     const { orderId, provider, channel } = parsed.data;
     statusAttempts.set(orderId, { checks: 0, status: 'PENDING', provider });
 
@@ -83,6 +97,25 @@ export const paymentHandlers = [
     }
 
     const { orderId } = parsed.data;
+    const forcedStatus = url.searchParams.get('forceStatus');
+
+    if (
+      forcedStatus &&
+      ['PENDING', 'PAID', 'FAILED', 'EXPIRED', 'CANCELED'].includes(forcedStatus)
+    ) {
+      const status = forcedStatus as z.infer<typeof PaymentStatusSchema>['status'];
+      statusAttempts.set(orderId, { checks: 1, status, provider: 'midtrans' });
+
+      const response = PaymentStatusSchema.parse({
+        orderId,
+        status,
+        provider: 'midtrans',
+        raw: { forced: true },
+      });
+
+      return HttpResponse.json(response);
+    }
+
     const state = nextStatus(orderId);
 
     const response = PaymentStatusSchema.parse({
