@@ -5,9 +5,9 @@ import { useEffect } from 'react';
 
 import { Price } from '@/components/price';
 import { Rating } from '@/components/rating';
-import { Button } from '@/components/ui/button';
 import { useAddToCartMutation, useProductQuery } from '@/lib/api/hooks';
 import { normalizeError } from '@/shared/lib/normalizeError';
+import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { ProductDetailSkeleton } from '@/shared/ui/skeletons/ProductDetailSkeleton';
 import { useToast } from '@/shared/ui/toast';
 import { withErrorBoundary } from '@/shared/ui/withErrorBoundary';
@@ -93,9 +93,15 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
         <Price amount={data.price.amount} currency={data.price.currency} className="text-2xl" />
         <p className="text-muted-foreground">{data.description}</p>
         <div className="space-y-2">
-          <Button size="lg" onClick={handleAddToCart} disabled={isPending || isOutOfStock}>
-            {isOutOfStock ? 'Out of stock' : isPending ? 'Adding…' : 'Add to cart'}
-          </Button>
+          <GuardedButton
+            size="lg"
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+            isLoading={isPending}
+            loadingLabel="Adding…"
+          >
+            {isOutOfStock ? 'Out of stock' : 'Add to cart'}
+          </GuardedButton>
           {addToCartError ? (
             <p className="text-sm text-destructive" role="status" aria-live="polite">
               {addToCartError.message}

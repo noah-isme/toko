@@ -5,11 +5,11 @@ import React from 'react';
 import { useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AddressSchema } from '@/entities/checkout/schemas';
 import type { Address } from '@/entities/checkout/schemas';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
+import { GuardedButton } from '@/shared/ui/GuardedButton';
 
 export interface AddressFormProps {
   defaultValues?: Partial<Address>;
@@ -160,9 +160,15 @@ export function AddressForm({
         />
       </Field>
       <div className="flex justify-end">
-        <Button type="submit" size="lg" disabled={isSubmitting}>
-          {isSubmitting ? 'Loading...' : submitLabel}
-        </Button>
+        <GuardedButton
+          type="submit"
+          size="lg"
+          disabled={isSubmitting}
+          isLoading={isSubmitting}
+          loadingLabel={submitLabel}
+        >
+          {submitLabel}
+        </GuardedButton>
       </div>
     </form>
   );

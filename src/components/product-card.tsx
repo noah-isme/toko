@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { useAddToCartMutation } from '@/lib/api/hooks';
 import { Product } from '@/lib/api/schemas';
 import { cn } from '@/lib/utils';
+import { GuardedButton } from '@/shared/ui/GuardedButton';
 
 interface ProductCardProps {
   product: Product;
@@ -57,13 +58,15 @@ export function ProductCard({ product, className }: ProductCardProps) {
           className="text-lg"
         />
         <div className="flex flex-col gap-2">
-          <Button
+          <GuardedButton
             variant="secondary"
             onClick={handleAddToCart}
-            disabled={isPending || isOutOfStock}
+            disabled={isOutOfStock}
+            isLoading={isPending}
+            loadingLabel="Adding…"
           >
-            {isOutOfStock ? 'Out of stock' : isPending ? 'Adding…' : 'Add to cart'}
-          </Button>
+            {isOutOfStock ? 'Out of stock' : 'Add to cart'}
+          </GuardedButton>
           <Button asChild>
             <Link href={`/products/${product.slug}`}>View details</Link>
           </Button>
