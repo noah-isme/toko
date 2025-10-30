@@ -8,20 +8,48 @@ import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
 import { cn } from '@/lib/utils';
 import { RouteFocusHandler } from '@/shared/lib/useRouteFocus';
+import { abs, metadataBase, siteUrl } from '@/shared/seo/seo';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { SkipToContent } from '@/shared/ui/SkipToContent';
 import { Toaster } from '@/shared/ui/toast';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
-const appName = process.env.NEXT_PUBLIC_APP_NAME ?? 'Toko';
+const appName = 'toko';
+const defaultDescription = 'Modern modular storefront for the toko e-commerce experience.';
 
 export const metadata: Metadata = {
+  metadataBase,
   title: {
     default: appName,
-    template: `%s | ${appName}`,
+    template: '%s · toko',
   },
-  description: 'Modern modular storefront for the Toko e-commerce experience.',
+  description: defaultDescription,
+  icons: {
+    icon: [{ url: '/favicon.ico' }],
+    apple: [{ url: '/apple-touch-icon.png' }],
+  },
+  openGraph: {
+    type: 'website',
+    url: siteUrl,
+    title: appName,
+    siteName: appName,
+    description: defaultDescription,
+    images: [
+      {
+        url: abs('/api/og'),
+        width: 1200,
+        height: 630,
+        alt: 'toko default preview image',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: appName,
+    description: defaultDescription,
+    images: [abs('/api/og')],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

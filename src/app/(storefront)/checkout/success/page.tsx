@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
 import { clearOrderDraft, loadOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { cn } from '@/lib/utils';
+import { JsonLd } from '@/shared/seo/JsonLd';
+import { orderJsonLd } from '@/shared/seo/jsonld';
 
 export default function CheckoutSuccessPage() {
   return (
@@ -60,9 +62,23 @@ function CheckoutSuccessContent() {
 
   const totals = orderDraft?.totals ?? null;
   const orderDetailHref = `/orders/${encodeURIComponent(orderId)}` as Route;
+  const structuredData = totals
+    ? orderJsonLd({
+        orderId,
+        url: orderDetailHref,
+        total: totals.total,
+        acceptedOffers: [
+          {
+            name: 'Order total',
+            price: totals.total,
+          },
+        ],
+      })
+    : null;
 
   return (
     <div className="space-y-8">
+      <JsonLd id="order-jsonld" data={structuredData} />
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Pembayaran Berhasil 🎉</h1>
         <p className="text-sm text-muted-foreground">
