@@ -44,3 +44,23 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+@layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    .prm\:no-anim {
+      animation: none !important;
+      transition-duration: 1ms !important;
+    }
+
+    .prm\:no-anim *,
+    .prm\:no-anim::before,
+    .prm\:no-anim::after {
+      animation: none !important;
+      transition-duration: 1ms !important;
+    }
+
+    .prm\:no-transition {
+      transition: none !important;
+    }
+  }
+}

@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { AddressSchema } from '@/entities/checkout/schemas';
 import type { Address } from '@/entities/checkout/schemas';
+import { cn } from '@/lib/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 
@@ -194,7 +195,7 @@ function applyFieldA11y(name: string, errorId?: string) {
 
 function Field({ fieldId, label, error, errorId, children }: FieldProps) {
   return (
-    <div className="flex flex-col gap-2 text-sm font-medium">
+    <div className={cn('flex flex-col gap-2 text-sm font-medium', 'scroll-mt-28')}>
       <label htmlFor={fieldId}>{label}</label>
       {children}
       {error ? (

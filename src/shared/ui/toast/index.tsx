@@ -1,35 +1,84 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+
+import { resolveToastDuration, toastPolicy, type ToastVariant } from './policy';
 
 import { cn } from '@/lib/utils';
 
-type ToastVariant = 'default' | 'success' | 'destructive';
-
-type ToastAction = {
+type ToastActionConfig = {
   label: string;
-  onClick: () => void;
+  onClick: (dismiss: () => void) => void;
 };
 
 export type ToastOptions = {
   id?: string;
+  eventKey?: string;
   title?: string;
   description?: string;
   variant?: ToastVariant;
   duration?: number;
-  action?: ToastAction;
+  action?: ReactNode | ToastActionConfig;
 };
 
-type ToastState = Required<Pick<ToastOptions, 'id'>> & Omit<ToastOptions, 'id'>;
+type ToastState = Required<Pick<ToastOptions, 'id'>> &
+  Omit<ToastOptions, 'id'> & { eventKey?: string };
 
 type ToastListener = (state: ToastState[]) => void;
 
-const TOAST_LIMIT = 5;
-const DEFAULT_DURATION = 4000;
 const listeners = new Set<ToastListener>();
 const timeouts = new Map<string, ReturnType<typeof setTimeout>>();
+const eventKeyIndex = new Map<string, string>();
 let memoryState: ToastState[] = [];
+
+const ToastActionContext = createContext<{
+  toastId: string;
+  dismiss: (id?: string) => void;
+} | null>(null);
+
+function isActionConfig(action: ToastOptions['action']): action is ToastActionConfig {
+  if (!action || typeof action !== 'object') {
+    return false;
+  }
+
+  return (
+    'label' in action &&
+    typeof (action as ToastActionConfig).label === 'string' &&
+    'onClick' in action &&
+    typeof (action as ToastActionConfig).onClick === 'function'
+  );
+}
+
+function ToastActionButton({
+  action,
+  onDismiss,
+}: {
+  action: ToastActionConfig;
+  onDismiss: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        action.onClick(onDismiss);
+      }}
+      className="prm:no-anim rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground shadow transition-colors duration-150 ease-out hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {action.label}
+    </button>
+  );
+}
+
+export function useToastActionContext() {
+  const context = useContext(ToastActionContext);
+
+  if (!context) {
+    throw new Error('useToastActionContext must be used within a toast action.');
+  }
+
+  return context;
+}
 
 function createId() {
   return Math.random().toString(36).slice(2);
@@ -50,10 +99,17 @@ function subscribe(listener: ToastListener) {
 }
 
 function removeToast(id: string) {
+  const current = memoryState.find((toast) => toast.id === id);
   const timeout = timeouts.get(id);
   if (timeout) {
     clearTimeout(timeout);
     timeouts.delete(id);
+  }
+  if (current?.eventKey) {
+    const indexedId = eventKeyIndex.get(current.eventKey);
+    if (indexedId === id) {
+      eventKeyIndex.delete(current.eventKey);
+    }
   }
   memoryState = memoryState.filter((toast) => toast.id !== id);
   notify();
@@ -61,13 +117,30 @@ function removeToast(id: string) {
 
 function addToast(toast: ToastOptions) {
   const id = toast.id ?? createId();
-  const duration = toast.duration ?? DEFAULT_DURATION;
+  const duration = resolveToastDuration(toast.variant, toast.duration);
+  const eventKey =
+    toast.eventKey ??
+    toast.id ??
+    (toast.title || toast.description
+      ? `${toast.variant ?? 'default'}:${toast.title ?? ''}:${toast.description ?? ''}`
+      : undefined);
 
   removeToast(id);
-  memoryState = [...memoryState, { ...toast, id }];
+  if (eventKey) {
+    const existingId = eventKeyIndex.get(eventKey);
+    if (existingId && existingId !== id) {
+      removeToast(existingId);
+    }
+    eventKeyIndex.set(eventKey, id);
+  }
 
-  if (memoryState.length > TOAST_LIMIT) {
-    memoryState = memoryState.slice(memoryState.length - TOAST_LIMIT);
+  memoryState = [...memoryState, { ...toast, id, eventKey }];
+
+  if (memoryState.length > toastPolicy.maxConcurrent) {
+    const overflow = memoryState.length - toastPolicy.maxConcurrent;
+    const toRemove = memoryState.slice(0, overflow);
+    toRemove.forEach((item) => removeToast(item.id));
+    memoryState = memoryState.slice(-toastPolicy.maxConcurrent);
   }
 
   notify();
@@ -89,6 +162,7 @@ function clearToasts() {
     removeToast(id);
   }
   memoryState = [];
+  eventKeyIndex.clear();
   notify();
 }
 
@@ -125,13 +199,19 @@ export function Toaster() {
     <div
       aria-live="polite"
       role="status"
-      className="pointer-events-none fixed inset-x-0 top-2 z-50 flex flex-col items-center space-y-2 px-4"
+      className={cn(
+        'pointer-events-none fixed z-50 flex flex-col space-y-2 p-4',
+        toastPolicy.defaultPosition === 'top-right' && 'top-4 right-4 items-end',
+        toastPolicy.defaultPosition === 'top-left' && 'top-4 left-4 items-start',
+        toastPolicy.defaultPosition === 'bottom-right' && 'bottom-4 right-4 items-end',
+        toastPolicy.defaultPosition === 'bottom-left' && 'bottom-4 left-4 items-start',
+      )}
     >
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={cn(
-            'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border shadow-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border shadow-lg transition-all duration-200 ease-out prm:no-anim focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             variantStyles[toast.variant ?? 'default'],
           )}
         >
@@ -145,25 +225,22 @@ export function Toaster() {
             <button
               type="button"
               onClick={() => dismiss(toast.id)}
-              className="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="prm:no-anim rounded-md p-1 text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span className="sr-only">Tutup</span>
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           {toast.action ? (
-            <div className="flex justify-end border-t border-border/40 bg-black/5 p-3 dark:border-border/20 dark:bg-white/5">
-              <button
-                type="button"
-                onClick={() => {
-                  toast.action?.onClick();
-                  dismiss(toast.id);
-                }}
-                className="rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {toast.action.label}
-              </button>
-            </div>
+            <ToastActionContext.Provider value={{ toastId: toast.id, dismiss }}>
+              <div className="flex justify-end border-t border-border/40 bg-black/5 p-3 dark:border-border/20 dark:bg-white/5">
+                {isActionConfig(toast.action) ? (
+                  <ToastActionButton action={toast.action} onDismiss={() => dismiss(toast.id)} />
+                ) : (
+                  toast.action
+                )}
+              </div>
+            </ToastActionContext.Provider>
           ) : null}
         </div>
       ))}

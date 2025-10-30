@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
+const prefetchMock = vi.fn();
 let currentOrderId = 'order-guarded-1';
 
 vi.mock('next/navigation', async () => {
@@ -16,6 +17,7 @@ vi.mock('next/navigation', async () => {
     useRouter: () => ({
       push: pushMock,
       replace: replaceMock,
+      prefetch: prefetchMock,
     }),
     useSearchParams: () => new URLSearchParams(currentOrderId ? `orderId=${currentOrderId}` : ''),
   };
@@ -54,6 +56,7 @@ describe('Guarded checkout and payment flow', () => {
   beforeEach(() => {
     pushMock.mockClear();
     replaceMock.mockClear();
+    prefetchMock.mockClear();
     currentOrderId = 'order-guarded-1';
     (globalThis as { React?: typeof React }).React = React;
     window.localStorage.clear();
@@ -121,7 +124,7 @@ describe('Guarded checkout and payment flow', () => {
     await user.dblClick(proceedButton);
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalled();
+      expect(replaceMock).toHaveBeenCalled();
     });
 
     expect(draftCallCount).toBe(1);

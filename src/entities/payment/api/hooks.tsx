@@ -14,6 +14,7 @@ import {
 import { queryKeys } from '@/lib/api/queryKeys';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { useToast } from '@/shared/ui/toast';
+import { RetryToastAction } from '@/shared/ui/toast/RetryToastAction';
 
 const paymentStatusInputSchema = z.string().min(1, 'Order id is required');
 
@@ -60,6 +61,7 @@ export function useCreatePaymentIntentMutation() {
 
       const toastId = pushToast({
         id: `payment-intent-progress-${variables.orderId}`,
+        eventKey: `payment-intent-progress-${variables.orderId}`,
         title: 'Memproses pembayaran…',
         description: 'Menghubungkan ke penyedia pembayaran.',
         duration: Infinity,
@@ -84,6 +86,7 @@ export function useCreatePaymentIntentMutation() {
 
       pushToast({
         id: `payment-intent-success-${data.orderId}`,
+        eventKey: `payment-intent-success-${data.orderId}`,
         title: 'Pembayaran siap dilanjutkan',
         description: 'Buka halaman pembayaran untuk menyelesaikan transaksi.',
         variant: 'success',
@@ -102,17 +105,19 @@ export function useCreatePaymentIntentMutation() {
 
       pushToast({
         id: `payment-intent-error-${variables.orderId}`,
+        eventKey: `payment-intent-error-${variables.orderId}`,
         title: 'Gagal membuat pembayaran',
         description: normalizeError(error),
         variant: 'destructive',
-        action: retryHandlerRef.current
-          ? {
-              label: 'Coba lagi',
-              onClick: () => {
+        action:
+          retryHandlerRef.current && variables ? (
+            <RetryToastAction
+              onRetry={() => {
                 retryHandlerRef.current?.(variables);
-              },
-            }
-          : undefined,
+              }}
+              errorEventKey={`payment-intent-retry-error-${variables.orderId}`}
+            />
+          ) : undefined,
       });
     },
     onSettled: () => {

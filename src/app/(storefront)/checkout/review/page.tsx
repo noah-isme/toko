@@ -2,9 +2,10 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useId, useMemo, useState } from 'react';
 
 import { OrderSummary } from '../_components/OrderSummary';
 
@@ -20,6 +21,10 @@ import {
 import type { PaymentCreateBody, PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
 import { useCartQuery } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
+import { cn } from '@/lib/utils';
+import { getPayNowRule, normalizeDisabledMessage } from '@/shared/lib/disabledRules';
+import { DelayedLoader } from '@/shared/ui/DelayedLoader';
+import { DisabledHint } from '@/shared/ui/DisabledHint';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useToast } from '@/shared/ui/toast';
 
@@ -49,6 +54,7 @@ function CheckoutReviewContent() {
   const queryClient = useQueryClient();
   const createPaymentIntentMutation = useCreatePaymentIntentMutation();
   const { toast: pushToast } = useToast();
+  const payNowHintDomId = useId();
 
   useEffect(() => {
     if (!orderId) {
@@ -157,6 +163,22 @@ function CheckoutReviewContent() {
   }, []);
 
   const cartId = orderDraft?.cartId ?? cart?.id ?? null;
+  const successRoute = useMemo(() => {
+    if (!orderId) {
+      return '/checkout/success';
+    }
+
+    return `/checkout/success?orderId=${encodeURIComponent(orderId)}` as Route;
+  }, [orderId]);
+
+  const payNowRule = normalizeDisabledMessage(
+    getPayNowRule({
+      hasOrderDraft: Boolean(orderDraft),
+      hasOrderId: Boolean(orderId),
+      isProcessing: createPaymentIntentMutation.isPending,
+    }),
+  );
+  const payNowHintId = payNowRule.disabled ? payNowHintDomId : undefined;
 
   const handleStatusPaid = useCallback(() => {
     const encodedOrderId = encodeURIComponent(orderId);
@@ -202,7 +224,7 @@ function CheckoutReviewContent() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-[calc(env(safe-area-inset-bottom)+5rem)]">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Review Pesanan</h1>
         <p className="text-sm text-muted-foreground">
@@ -235,11 +257,34 @@ function CheckoutReviewContent() {
                 type="button"
                 size="lg"
                 onClick={handlePayNow}
+                disabled={payNowRule.disabled}
                 isLoading={createPaymentIntentMutation.isPending}
                 loadingLabel="Memproses pembayaran…"
+                aria-describedby={payNowHintId}
+                className="min-h-[44px] px-6"
+                onFocus={() => {
+                  if (typeof router.prefetch === 'function') {
+                    void router.prefetch(successRoute);
+                  }
+                }}
+                onMouseEnter={() => {
+                  if (typeof router.prefetch === 'function') {
+                    void router.prefetch(successRoute);
+                  }
+                }}
               >
                 Bayar Sekarang
               </GuardedButton>
+              <div className="flex justify-start">
+                <DelayedLoader
+                  active={createPaymentIntentMutation.isPending}
+                  label="Menghubungi penyedia pembayaran…"
+                  className="text-xs text-muted-foreground"
+                />
+              </div>
+              {payNowRule.disabled && payNowRule.message ? (
+                <DisabledHint id={payNowHintId} message={payNowRule.message} />
+              ) : null}
               {paymentIntent?.redirectUrl || paymentIntent?.token ? (
                 <div className="flex flex-wrap gap-2">
                   {paymentIntent?.redirectUrl ? (
@@ -326,9 +371,31 @@ function CheckoutReviewContent() {
             onError={handleStatusError}
           />
         </div>
-        <aside>
+        <aside id="checkout-review-summary" className="hidden lg:sticky lg:top-24 lg:block">
           <OrderSummary totals={totals} />
         </aside>
+      </div>
+      <div className="lg:hidden">
+        <div className="sticky bottom-0 z-40 -mx-4 flex items-center justify-between gap-4 border-t border-border/70 bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-[0_-12px_32px_rgba(15,23,42,0.12)] backdrop-blur">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Total pembayaran</p>
+            <p className="text-lg font-semibold">
+              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                totals.total,
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const target = document.getElementById('checkout-review-summary');
+              target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className="prm:no-anim inline-flex min-h-[44px] items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground shadow-sm transition-colors duration-150 ease-out hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Lihat rincian
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -338,15 +405,15 @@ function ReviewPageSkeleton() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <div className="h-6 w-40 animate-pulse rounded bg-muted" />
-        <div className="h-4 w-64 animate-pulse rounded bg-muted" />
+        <div className={cn('h-6 w-40 rounded bg-muted animate-pulse', 'prm:no-anim')} />
+        <div className={cn('h-4 w-64 rounded bg-muted animate-pulse', 'prm:no-anim')} />
       </div>
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-4">
-          <div className="h-40 animate-pulse rounded-lg border bg-muted" />
-          <div className="h-40 animate-pulse rounded-lg border bg-muted" />
+          <div className={cn('h-40 rounded-lg border bg-muted animate-pulse', 'prm:no-anim')} />
+          <div className={cn('h-40 rounded-lg border bg-muted animate-pulse', 'prm:no-anim')} />
         </div>
-        <div className="h-40 animate-pulse rounded-lg border bg-muted" />
+        <div className={cn('h-40 rounded-lg border bg-muted animate-pulse', 'prm:no-anim')} />
       </div>
     </div>
   );
