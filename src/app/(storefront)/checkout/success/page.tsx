@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
 import { clearOrderDraft, loadOrderDraft } from '@/entities/checkout/utils/draftStorage';
+import { cn } from '@/lib/utils';
 
 export default function CheckoutSuccessPage() {
   return (
@@ -102,9 +103,14 @@ function CheckoutSuccessContent() {
 function CheckoutSuccessSkeleton() {
   return (
     <div className="space-y-6 text-center">
-      <div className="mx-auto h-8 w-64 animate-pulse rounded bg-muted" />
-      <div className="mx-auto h-6 w-80 animate-pulse rounded bg-muted" />
-      <div className="mx-auto h-48 w-full max-w-2xl animate-pulse rounded-lg border bg-muted" />
+      <div className={cn('mx-auto h-8 w-64 rounded bg-muted animate-pulse', 'prm:no-anim')} />
+      <div className={cn('mx-auto h-6 w-80 rounded bg-muted animate-pulse', 'prm:no-anim')} />
+      <div
+        className={cn(
+          'mx-auto h-48 w-full max-w-2xl rounded-lg border bg-muted animate-pulse',
+          'prm:no-anim',
+        )}
+      />
     </div>
   );
 }

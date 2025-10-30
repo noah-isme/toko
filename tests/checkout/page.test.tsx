@@ -5,6 +5,8 @@ import React, { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const pushMock = vi.fn();
+const replaceMock = vi.fn();
+const prefetchMock = vi.fn();
 
 vi.mock('next/navigation', async () => {
   const actual = await vi.importActual<typeof import('next/navigation')>('next/navigation');
@@ -12,12 +14,17 @@ vi.mock('next/navigation', async () => {
     ...actual,
     useRouter: () => ({
       push: pushMock,
+      replace: replaceMock,
+      prefetch: prefetchMock,
     }),
   };
 });
 
 beforeEach(() => {
+  (globalThis as { React?: typeof React }).React = React;
   pushMock.mockClear();
+  replaceMock.mockClear();
+  prefetchMock.mockClear();
   window.localStorage.clear();
 });
 
@@ -74,8 +81,8 @@ describe('CheckoutPage', () => {
     await user.click(proceedButton);
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalled();
-      expect(pushMock.mock.calls[0][0]).toMatch(/\/checkout\/review\?orderId=/);
+      expect(replaceMock).toHaveBeenCalled();
+      expect(replaceMock.mock.calls[0][0]).toMatch(/\/checkout\/review\?orderId=/);
     });
   });
 });

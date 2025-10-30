@@ -11,7 +11,10 @@ export function BaseSkeleton({ className }: BaseSkeletonProps) {
     <React.Fragment>
       <div
         aria-hidden="true"
-        className={cn('pointer-events-none animate-pulse rounded bg-muted/50', className)}
+        className={cn(
+          'pointer-events-none animate-pulse prm:no-anim rounded bg-muted/50',
+          className,
+        )}
       />
     </React.Fragment>
   );

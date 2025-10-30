@@ -4,7 +4,7 @@ import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 
 import { AddressForm } from './_components/AddressForm';
 import { OrderSummary } from './_components/OrderSummary';
@@ -17,6 +17,9 @@ import {
 import type { Address, OrderDraft, ShippingOption } from '@/entities/checkout/api/hooks';
 import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { useCartQuery } from '@/lib/api/hooks';
+import { getCheckoutProceedRule, normalizeDisabledMessage } from '@/shared/lib/disabledRules';
+import { DelayedLoader } from '@/shared/ui/DelayedLoader';
+import { DisabledHint } from '@/shared/ui/DisabledHint';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -95,6 +98,15 @@ export default function CheckoutPage() {
   const proceedLabel = isDraftLoading
     ? 'Membuat draft pesanan…'
     : 'Proceed to pay and review your order';
+  const proceedRule = normalizeDisabledMessage(
+    getCheckoutProceedRule({
+      hasAddress: Boolean(address),
+      hasShippingOption: Boolean(selectedShippingOption),
+      isProcessing: isDraftLoading,
+    }),
+  );
+  const proceedHintDomId = useId();
+  const proceedHintId = proceedRule.disabled ? proceedHintDomId : undefined;
 
   const handleAddressSubmit = async (values: Address) => {
     if (!activeCartId) {
@@ -130,11 +142,18 @@ export default function CheckoutPage() {
       saveOrderDraft(orderId, draft);
       const encodedOrderId = encodeURIComponent(orderId);
       const reviewRoute = `/checkout/review?orderId=${encodedOrderId}` as Route;
-      router.push(reviewRoute);
+      router.replace(reviewRoute);
     } catch (error) {
       // handled by mutation callbacks
     }
   };
+
+  const orderSummaryId = 'checkout-order-summary';
+
+  const handleMobileSummaryFocus = useCallback(() => {
+    const target = document.getElementById(orderSummaryId);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [orderSummaryId]);
 
   const isCartBusy = isCartLoading || (!cart && isCartFetching);
   const isCheckoutLoading = !storageChecked || isCartBusy || isQuoteLoading;
@@ -148,68 +167,113 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Checkout</h1>
-          <p className="text-sm text-muted-foreground">
-            Enter your shipping details to see available delivery options.
-          </p>
-        </div>
-        <section className="space-y-4 rounded-lg border p-6">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Shipping Address</h2>
+    <div className="space-y-8 pb-[calc(env(safe-area-inset-bottom)+5rem)]">
+      <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold">Checkout</h1>
             <p className="text-sm text-muted-foreground">
-              We will use this address to calculate shipping costs.
+              Enter your shipping details to see available delivery options.
             </p>
           </div>
-          <AddressForm
-            defaultValues={address ?? orderDraft?.address ?? undefined}
-            onSubmit={handleAddressSubmit}
-            isSubmitting={isQuoteLoading}
-          />
-          {shippingQuoteMutation.error ? (
-            <p className="text-sm text-destructive">{shippingQuoteMutation.error.error.message}</p>
-          ) : null}
-        </section>
-        {shippingQuoteMutation.data ? (
           <section className="space-y-4 rounded-lg border p-6">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold">Shipping Options</h2>
+              <h2 className="text-lg font-semibold">Shipping Address</h2>
               <p className="text-sm text-muted-foreground">
-                Choose the delivery service that suits you best.
+                We will use this address to calculate shipping costs.
               </p>
             </div>
-            <ShippingOptions
-              options={shippingQuoteMutation.data}
-              selectedId={selectedShippingId ?? undefined}
-              onChange={(id) => setSelectedShippingId(id)}
-              disabled={isDraftLoading}
+            <AddressForm
+              defaultValues={address ?? orderDraft?.address ?? undefined}
+              onSubmit={handleAddressSubmit}
+              isSubmitting={isQuoteLoading}
             />
-            {createOrderDraftMutation.error ? (
+            {shippingQuoteMutation.error ? (
               <p className="text-sm text-destructive">
-                {createOrderDraftMutation.error.error.message}
+                {shippingQuoteMutation.error.error.message}
               </p>
             ) : null}
-            <div className="flex justify-end">
-              <GuardedButton
-                type="button"
-                size="lg"
-                aria-label={proceedLabel}
-                onClick={handleCreateDraft}
-                disabled={!selectedShippingOption || !address}
-                isLoading={isDraftLoading}
-                loadingLabel="Membuat draft pesanan…"
-              >
-                Proceed to Pay
-              </GuardedButton>
-            </div>
           </section>
-        ) : null}
+          {shippingQuoteMutation.data ? (
+            <section className="space-y-4 rounded-lg border p-6">
+              <div className="space-y-1">
+                <h2 className="text-lg font-semibold">Shipping Options</h2>
+                <p className="text-sm text-muted-foreground">
+                  Choose the delivery service that suits you best.
+                </p>
+              </div>
+              <ShippingOptions
+                options={shippingQuoteMutation.data}
+                selectedId={selectedShippingId ?? undefined}
+                onChange={(id) => setSelectedShippingId(id)}
+                disabled={isDraftLoading}
+              />
+              {createOrderDraftMutation.error ? (
+                <p className="text-sm text-destructive">
+                  {createOrderDraftMutation.error.error.message}
+                </p>
+              ) : null}
+              <div className="flex justify-end">
+                <GuardedButton
+                  type="button"
+                  size="lg"
+                  aria-label={proceedLabel}
+                  onClick={handleCreateDraft}
+                  disabled={proceedRule.disabled}
+                  isLoading={isDraftLoading}
+                  loadingLabel="Membuat draft pesanan…"
+                  aria-describedby={proceedHintId}
+                  className="min-h-[44px] px-6"
+                  onFocus={() => {
+                    if (typeof router.prefetch === 'function') {
+                      void router.prefetch('/checkout/review');
+                    }
+                  }}
+                  onMouseEnter={() => {
+                    if (typeof router.prefetch === 'function') {
+                      void router.prefetch('/checkout/review');
+                    }
+                  }}
+                >
+                  Proceed to Pay
+                </GuardedButton>
+              </div>
+              <div className="flex justify-end">
+                <DelayedLoader
+                  active={isDraftLoading}
+                  label="Menyiapkan ringkasan pesanan…"
+                  className="text-xs text-muted-foreground"
+                />
+              </div>
+              {proceedRule.disabled && proceedRule.message ? (
+                <DisabledHint id={proceedHintId} message={proceedRule.message} />
+              ) : null}
+            </section>
+          ) : null}
+        </div>
+        <aside id={orderSummaryId} className="hidden lg:sticky lg:top-24 lg:block">
+          <OrderSummary totals={computedTotals} />
+        </aside>
       </div>
-      <aside>
-        <OrderSummary totals={computedTotals} />
-      </aside>
+      <div className="lg:hidden">
+        <div className="sticky bottom-0 z-40 -mx-4 flex items-center justify-between gap-4 border-t border-border/70 bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-[0_-12px_32px_rgba(15,23,42,0.12)] backdrop-blur">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Total pembayaran</p>
+            <p className="text-lg font-semibold">
+              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                computedTotals.total,
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleMobileSummaryFocus}
+            className="prm:no-anim inline-flex min-h-[44px] items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground shadow-sm transition-colors duration-150 ease-out hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Lihat rincian
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

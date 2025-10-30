@@ -43,6 +43,10 @@ export function useRouteFocus() {
       const mainContent = document.getElementById('main-content');
       const heading = mainContent?.querySelector('h1');
 
+      if (mainContent) {
+        mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
       if (heading instanceof HTMLElement) {
         focusElement(heading);
         return;

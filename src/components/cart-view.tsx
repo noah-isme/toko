@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Price } from '@/components/price';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import {
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
 } from '@/lib/api/hooks';
+import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -18,7 +20,9 @@ export function CartView() {
   const { data, isLoading, isFetching } = useCartQuery();
   const updateItemMutation = useUpdateCartItemMutation();
   const removeItemMutation = useRemoveCartItemMutation();
+  const router = useRouter();
   const isBusy = isLoading || (!data && isFetching);
+  const isMutatingCart = updateItemMutation.isPending || removeItemMutation.isPending;
 
   if (isBusy) {
     return <CartSkeleton />;
@@ -30,7 +34,14 @@ export function CartView() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Shopping cart</h1>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold">Shopping cart</h1>
+        <DelayedLoader
+          active={isMutatingCart}
+          label="Menyimpan perubahan keranjang…"
+          className="text-xs sm:text-sm"
+        />
+      </div>
       <ul className="space-y-4">
         {data.items.map((item) => {
           const isUpdating =
@@ -99,7 +110,7 @@ export function CartView() {
                     disabled={isUpdating}
                     isLoading={removeItemMutation.isItemInFlight(item.id)}
                     loadingLabel="Menghapus…"
-                    className="ml-2"
+                    className="ml-2 min-h-[44px]"
                   >
                     Hapus
                   </GuardedButton>
@@ -118,7 +129,21 @@ export function CartView() {
           className="text-lg"
         />
       </div>
-      <Button asChild size="lg">
+      <Button
+        asChild
+        size="lg"
+        className="min-h-[44px] px-6"
+        onFocus={() => {
+          if (typeof router.prefetch === 'function') {
+            void router.prefetch('/checkout');
+          }
+        }}
+        onMouseEnter={() => {
+          if (typeof router.prefetch === 'function') {
+            void router.prefetch('/checkout');
+          }
+        }}
+      >
         <Link href="/checkout">Proceed to checkout</Link>
       </Button>
     </div>
