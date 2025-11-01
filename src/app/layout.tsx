@@ -8,6 +8,7 @@ import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
 import { cn } from '@/lib/utils';
 import { RouteFocusHandler } from '@/shared/lib/useRouteFocus';
+import DevVitalsOverlay from '@/shared/rum/DevVitalsOverlay';
 import { abs, metadataBase, siteUrl } from '@/shared/seo/seo';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { SkipToContent } from '@/shared/ui/SkipToContent';
@@ -69,6 +70,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </QueryProvider>
           </ErrorBoundary>
         </MockServiceWorkerProvider>
+        <Suspense fallback={null}>
+          <DevVitalsOverlay />
+        </Suspense>
         <Toaster />
       </body>
     </html>

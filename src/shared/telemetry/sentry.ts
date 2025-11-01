@@ -72,3 +72,6 @@ export const captureSentryMessage = (
 };
 
 export { Sentry };
+
+export const getSentryUser = (): { id?: string; username?: string; email?: string } | undefined =>
+  undefined;
