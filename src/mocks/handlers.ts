@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
 import { checkoutHandlers } from './handlers.checkout';
+import { favoritesHandlers } from './handlers.favorites';
 import { paymentHandlers } from './handlers.payment';
 import { apiPath } from './utils';
 
@@ -167,4 +168,5 @@ export const handlers = [
   ),
   ...checkoutHandlers,
   ...paymentHandlers,
+  ...favoritesHandlers,
 ];
