@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Price } from '@/components/price';
 import { Rating } from '@/components/rating';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
+import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { useProductQuery } from '@/lib/api/hooks';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -83,7 +84,10 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       </div>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">{data.name}</h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="text-3xl font-bold">{data.name}</h1>
+            <FavToggle productId={data.id} size="md" />
+          </div>
           <Rating value={data.rating} reviewCount={data.reviewCount} className="mt-2" />
         </div>
         <Price amount={data.price.amount} currency={data.price.currency} className="text-2xl" />

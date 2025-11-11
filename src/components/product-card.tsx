@@ -8,6 +8,7 @@ import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
+import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { Product } from '@/lib/api/schemas';
 import { cn } from '@/lib/utils';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -51,6 +52,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
               sizes="(min-width: 768px) 33vw, 100vw"
             />
           ) : null}
+          <div className="absolute right-2 top-2">
+            <FavToggle productId={product.id} size="sm" />
+          </div>
         </div>
         <CardTitle className="line-clamp-2 text-base">{product.name}</CardTitle>
         <Rating value={product.rating} reviewCount={product.reviewCount} />
