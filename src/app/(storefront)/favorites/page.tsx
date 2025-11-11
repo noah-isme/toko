@@ -1,10 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo } from 'react';
 
 import { ProductCard } from '@/components/product-card';
-import { Button } from '@/components/ui/button';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
 import { useProductsQuery } from '@/lib/api/hooks';
@@ -42,11 +40,8 @@ export default function FavoritesPage() {
         <EmptyState
           title="Belum ada favorit"
           description="Mulai tambahkan produk favorit Anda dengan menekan tombol hati pada produk."
-        >
-          <Button asChild>
-            <Link href="/products">Lihat Produk</Link>
-          </Button>
-        </EmptyState>
+          cta={{ label: 'Lihat Produk', href: '/products' }}
+        />
       </div>
     );
   }
