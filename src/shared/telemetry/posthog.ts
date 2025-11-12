@@ -1,5 +1,7 @@
 import posthog from 'posthog-js';
 
+import { recordTelemetryEvent } from './qa-channel';
+
 type PostHogClient = typeof posthog;
 
 let initialized = false;
@@ -48,6 +50,7 @@ export const capturePosthogEvent = (
   event: string,
   properties?: Record<string, unknown>,
 ) => {
+  recordTelemetryEvent(event, properties);
   const client = getPosthog();
 
   if (!client) {
@@ -56,4 +59,3 @@ export const capturePosthogEvent = (
 
   client.capture(event, properties);
 };
-
