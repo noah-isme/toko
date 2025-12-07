@@ -12,3 +12,6 @@ export interface Address {
   createdAt: string;
   updatedAt: string;
 }
+
+// Re-export from schemas for convenience
+export type { AddressInput, AddressUpdateInput } from './schemas';

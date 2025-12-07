@@ -76,39 +76,47 @@ export interface ResetPasswordRequest {
 }
 
 // ============================================================================
-// Address Types
+// Address Types (Raw API Format - snake_case)
 // ============================================================================
 
-export interface Address {
+/**
+ * Raw address response from API (snake_case format)
+ * Use Address from @/entities/address/types for app usage
+ */
+export interface ApiAddressResponse {
   id: string;
-  label: string;
-  receiverName: string;
+  full_name: string;
   phone: string;
-  country: string;
-  province: string;
+  line1: string;
+  line2?: string;
   city: string;
-  postalCode: string;
-  addressLine1: string;
-  addressLine2?: string;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
+  province: string;
+  postal_code: string;
+  country: string;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface CreateAddressRequest {
-  label: string;
-  receiver_name: string;
+/**
+ * Address creation request (snake_case for API)
+ */
+export interface ApiCreateAddressRequest {
+  full_name: string;
   phone: string;
-  country: string;
-  province: string;
+  line1: string;
+  line2?: string;
   city: string;
+  province: string;
   postal_code: string;
-  address_line1: string;
-  address_line2?: string;
+  country: string;
   is_default?: boolean;
 }
 
-export interface UpdateAddressRequest extends Partial<CreateAddressRequest> {}
+/**
+ * Address update request (snake_case for API)
+ */
+export interface ApiUpdateAddressRequest extends Partial<ApiCreateAddressRequest> {}
 
 // ============================================================================
 // Catalog Types
@@ -245,7 +253,7 @@ export interface CreateCartRequest {
 export interface CreateCartResponse {
   cartId: string;
   anonId: string;
-  voucher: string | null;
+  voucher?: string | null;
 }
 
 export interface AddCartItemRequest {

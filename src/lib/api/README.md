@@ -10,8 +10,28 @@ Complete TypeScript API client implementation for the Toko e-commerce platform.
 - ✅ Zustand store for cart management
 - ✅ Authentication context provider
 - ✅ Guest cart with merge functionality
+- ✅ **Data transformation layer** (snake_case ↔ camelCase)
+- ✅ **Unified type system** with entity types
 - ✅ Comprehensive error handling
 - ✅ Indonesian localization
+
+## Architecture
+
+The API layer uses a clean architecture with:
+
+1. **Services** (`/services`) - Direct API communication with backend
+2. **Mappers** (`/mappers`) - Transform between API format (snake_case) and app format (camelCase)
+3. **Types** (`/types.ts`) - Raw API contract types (e.g., `ApiAddressResponse`)
+4. **Entities** (`/entities`) - App domain models (e.g., `Address` from `@/entities/address`)
+5. **Hooks** (`/hooks.react-query.ts`) - React Query integration with entity types
+
+### Data Flow
+
+```
+API (snake_case) → Mapper → Entity (camelCase) → Components
+                    ↓
+              Type-safe transformation
+```
 
 ## API Services
 

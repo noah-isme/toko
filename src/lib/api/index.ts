@@ -82,5 +82,11 @@ export {
   PRICE_RANGES,
 } from './constants';
 
-// Types
+// Types (excluding Address - use from @/entities/address/types)
 export type * from './types';
+
+// Re-export Address types from entities
+export type { Address, AddressInput } from '@/entities/address/types';
+
+// Mappers
+export { mapAddressFromApi, mapAddressToApi, mapAddressUpdateToApi } from './mappers';

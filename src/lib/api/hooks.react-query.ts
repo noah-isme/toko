@@ -17,10 +17,10 @@ import type {
   UpdateCartItemRequest,
   ApplyVoucherRequest,
   CheckoutRequest,
-  CreateAddressRequest,
-  UpdateAddressRequest,
   ShippingQuoteRequest,
 } from './types';
+
+import type { AddressInput } from '@/entities/address/types';
 
 // ============================================================================
 // Query Keys
@@ -293,7 +293,7 @@ export function useCreateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateAddressRequest) => addressApi.createAddress(data),
+    mutationFn: (data: AddressInput) => addressApi.createAddress(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.address.list() });
     },
@@ -304,8 +304,13 @@ export function useUpdateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ addressId, data }: { addressId: string; data: UpdateAddressRequest }) =>
-      addressApi.updateAddress(addressId, data),
+    mutationFn: ({
+      addressId,
+      data,
+    }: {
+      addressId: string;
+      data: Partial<AddressInput> & { isDefault?: boolean };
+    }) => addressApi.updateAddress(addressId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.address.list() });
     },
