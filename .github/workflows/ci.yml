@@ -14,10 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Use Node.js 20.19.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20.19.x'
           cache: 'pnpm'
 
       - name: Setup pnpm
@@ -35,7 +35,7 @@ jobs:
         run: pnpm typecheck
 
       - name: Test
-        run: pnpm test -- --run
+        run: pnpm test:ci
 
       - name: Build
         run: pnpm build

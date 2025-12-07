@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 
 import { ProductDetail } from '@/components/product-detail';
+import { ReviewForm } from '@/entities/reviews/ui/ReviewForm';
+import { ReviewList } from '@/entities/reviews/ui/ReviewList';
+import { ReviewStats } from '@/entities/reviews/ui/ReviewStats';
 import { productSchema } from '@/lib/api/schemas';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
@@ -120,11 +123,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await fetchProduct(params.slug);
 
   const structuredData = productJsonLd(product ?? null);
+  const resolvedProductId = product?.id ?? params.slug;
 
   return (
     <>
       <JsonLd id="product-jsonld" data={structuredData} />
-      <ProductDetail slug={params.slug} />
+      <div className="space-y-12">
+        <ProductDetail slug={params.slug} />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
+          <ReviewStats productId={resolvedProductId} />
+          <ReviewForm productId={resolvedProductId} />
+        </div>
+        <ReviewList productId={resolvedProductId} pageSize={5} />
+      </div>
     </>
   );
 }

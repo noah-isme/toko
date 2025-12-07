@@ -1,9 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
+import { addressHandlers } from './handlers/addressHandlers';
+import { promoHandlers } from './handlers/promoHandlers';
 import { checkoutHandlers } from './handlers.checkout';
 import { favoritesHandlers } from './handlers.favorites';
 import { paymentHandlers } from './handlers.payment';
+import { reviewsHandlers } from './handlers.reviews';
 import { apiPath } from './utils';
 
 import { addToCartInputSchema, updateCartItemInputSchema, Cart, Product } from '@/lib/api/schemas';
@@ -167,6 +170,9 @@ export const handlers = [
     }),
   ),
   ...checkoutHandlers,
+  ...addressHandlers,
   ...paymentHandlers,
   ...favoritesHandlers,
+  ...promoHandlers,
+  ...reviewsHandlers,
 ];

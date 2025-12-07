@@ -6,23 +6,43 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 
-import { AddressForm } from './_components/AddressForm';
 import { OrderSummary } from './_components/OrderSummary';
 import { ShippingOptions } from './_components/ShippingOptions';
 
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useAddressListQuery } from '@/entities/address/hooks';
+import { getGuestAddressOwnerId } from '@/entities/address/storage';
+import type { Address as SavedAddress } from '@/entities/address/types';
+import { AddressBook } from '@/entities/address/ui/AddressBook';
+import type { CartWithPromo } from '@/entities/cart/cache';
 import {
   useCreateOrderDraftMutation,
   useShippingQuoteMutation,
 } from '@/entities/checkout/api/hooks';
-import type { Address, OrderDraft, ShippingOption } from '@/entities/checkout/api/hooks';
+import type {
+  Address as CheckoutAddress,
+  OrderDraft,
+  ShippingOption,
+} from '@/entities/checkout/api/hooks';
 import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
+import { PromoField } from '@/entities/promo/ui/PromoField';
 import { useCartQuery } from '@/lib/api/hooks';
+import { cn } from '@/lib/utils';
 import { getCheckoutProceedRule, normalizeDisabledMessage } from '@/shared/lib/disabledRules';
+import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { DisabledHint } from '@/shared/ui/DisabledHint';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
+import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { CheckoutSkeleton } from '@/shared/ui/skeletons/CheckoutSkeleton';
 
 export default function CheckoutPage() {
@@ -31,11 +51,20 @@ export default function CheckoutPage() {
   const shippingQuoteMutation = useShippingQuoteMutation();
   const createOrderDraftMutation = useCreateOrderDraftMutation();
 
-  const [address, setAddress] = useState<Address | null>(null);
   const [selectedShippingId, setSelectedShippingId] = useState<string | null>(null);
   const [orderDraft, setOrderDraft] = useState<OrderDraft | null>(null);
   const [storedCartId, setStoredCartId] = useState<string | null>(null);
   const [storageChecked, setStorageChecked] = useState(false);
+  const [addressOwnerId, setAddressOwnerId] = useState<string | null>(null);
+  const {
+    data: addresses = [],
+    isLoading: isAddressLoading,
+    isFetching: isAddressFetching,
+  } = useAddressListQuery(addressOwnerId);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(null);
+  const [addressAnnouncement, setAddressAnnouncement] = useState('');
+  const [isAddressManagerOpen, setAddressManagerOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -61,6 +90,64 @@ export default function CheckoutPage() {
   const activeCartId = cart?.id ?? storedCartId ?? null;
 
   useEffect(() => {
+    if (addressOwnerId || typeof window === 'undefined') {
+      return;
+    }
+    setAddressOwnerId(getGuestAddressOwnerId());
+  }, [addressOwnerId]);
+
+  const handleAddressSelection = useCallback(
+    async (address: SavedAddress, options: { announce?: boolean } = {}) => {
+      setSelectedAddressId(address.id);
+      setSelectedAddress(address);
+      setOrderDraft(null);
+      setSelectedShippingId(null);
+      if (options.announce !== false) {
+        setAddressAnnouncement(`Alamat ${address.fullName} dipilih`);
+      }
+      capturePosthogEvent('checkout_address_select', {
+        addressId: address.id,
+        country: address.country,
+        province: address.province,
+      });
+      if (!activeCartId) {
+        return;
+      }
+      try {
+        const result = await shippingQuoteMutation.mutateAsync({
+          cartId: activeCartId,
+          address: mapAddressToCheckout(address),
+        });
+        setSelectedShippingId(result[0]?.id ?? null);
+      } catch (error) {
+        console.error('Failed to refresh shipping quote', error);
+      }
+    },
+    [activeCartId, shippingQuoteMutation],
+  );
+
+  useEffect(() => {
+    if (!addresses.length) {
+      setSelectedAddress(null);
+      setSelectedAddressId(null);
+      return;
+    }
+
+    if (selectedAddressId) {
+      const existing = addresses.find((item) => item.id === selectedAddressId);
+      if (existing) {
+        setSelectedAddress(existing);
+        return;
+      }
+    }
+
+    const fallback = addresses.find((item) => item.isDefault) ?? addresses[0];
+    if (fallback) {
+      void handleAddressSelection(fallback, { announce: false });
+    }
+  }, [addresses, handleAddressSelection, selectedAddressId]);
+
+  useEffect(() => {
     const options = shippingQuoteMutation.data ?? [];
     if (!options.length) {
       return;
@@ -77,12 +164,18 @@ export default function CheckoutPage() {
     return shippingQuoteMutation.data.find((option) => option.id === selectedShippingId) ?? null;
   }, [shippingQuoteMutation.data, selectedShippingId]);
 
+  const promoAwareCart = cart as CartWithPromo | undefined;
+  const promoTotals = promoAwareCart?.totals;
   const computedTotals = useMemo(() => {
-    const subtotal = cart?.subtotal?.amount ?? orderDraft?.totals.subtotal ?? 0;
-    const discount = orderDraft?.totals.discount ?? 0;
-    const shipping = selectedShippingOption?.cost ?? orderDraft?.totals.shipping ?? 0;
-    const tax = orderDraft?.totals.tax ?? Math.round((subtotal - discount) * 0.11);
-    const total = orderDraft?.totals.total ?? subtotal - discount + tax + shipping;
+    const subtotal =
+      orderDraft?.totals.subtotal ?? promoTotals?.subtotal ?? cart?.subtotal?.amount ?? 0;
+    const discount = orderDraft?.totals.discount ?? promoTotals?.discount ?? 0;
+    const shipping =
+      orderDraft?.totals.shipping ?? promoTotals?.shipping ?? selectedShippingOption?.cost ?? 0;
+    const taxBase = Math.max(0, subtotal - discount);
+    const tax = orderDraft?.totals.tax ?? promoTotals?.tax ?? Math.round(taxBase * 0.11);
+    const total =
+      orderDraft?.totals.total ?? promoTotals?.total ?? subtotal - discount + tax + shipping;
 
     return {
       subtotal,
@@ -91,16 +184,15 @@ export default function CheckoutPage() {
       shipping,
       total,
     };
-  }, [cart?.subtotal?.amount, orderDraft, selectedShippingOption]);
+  }, [cart?.subtotal?.amount, orderDraft, promoTotals, selectedShippingOption]);
 
-  const isQuoteLoading = shippingQuoteMutation.isPending && !shippingQuoteMutation.data;
   const isDraftLoading = createOrderDraftMutation.isPending;
   const proceedLabel = isDraftLoading
     ? 'Membuat draft pesanan…'
     : 'Proceed to pay and review your order';
   const proceedRule = normalizeDisabledMessage(
     getCheckoutProceedRule({
-      hasAddress: Boolean(address),
+      hasAddress: Boolean(selectedAddress),
       hasShippingOption: Boolean(selectedShippingOption),
       isProcessing: isDraftLoading,
     }),
@@ -108,33 +200,15 @@ export default function CheckoutPage() {
   const proceedHintDomId = useId();
   const proceedHintId = proceedRule.disabled ? proceedHintDomId : undefined;
 
-  const handleAddressSubmit = async (values: Address) => {
-    if (!activeCartId) {
-      return;
-    }
-
-    try {
-      const result = await shippingQuoteMutation.mutateAsync({
-        cartId: activeCartId,
-        address: values,
-      });
-      setAddress(values);
-      setOrderDraft(null);
-      setSelectedShippingId(result[0]?.id ?? null);
-    } catch (error) {
-      console.error('Failed to fetch shipping options', error);
-    }
-  };
-
   const handleCreateDraft = async () => {
-    if (!activeCartId || !address || !selectedShippingOption) {
+    if (!activeCartId || !selectedAddress || !selectedShippingOption) {
       return;
     }
 
     try {
       const draft = await createOrderDraftMutation.mutateAsync({
         cartId: activeCartId,
-        address,
+        address: mapAddressToCheckout(selectedAddress),
         shippingOptionId: selectedShippingOption.id,
       });
       setOrderDraft(draft);
@@ -156,7 +230,7 @@ export default function CheckoutPage() {
   }, [orderSummaryId]);
 
   const isCartBusy = isCartLoading || (!cart && isCartFetching);
-  const isCheckoutLoading = !storageChecked || isCartBusy || isQuoteLoading;
+  const isCheckoutLoading = !storageChecked || isCartBusy;
 
   if (isCheckoutLoading) {
     return <CheckoutSkeleton />;
@@ -177,22 +251,69 @@ export default function CheckoutPage() {
             </p>
           </div>
           <section className="space-y-4 rounded-lg border p-6">
-            <div className="space-y-1">
-              <h2 className="text-lg font-semibold">Shipping Address</h2>
-              <p className="text-sm text-muted-foreground">
-                We will use this address to calculate shipping costs.
-              </p>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h2 className="text-lg font-semibold">Alamat pengiriman</h2>
+                <p className="text-sm text-muted-foreground">
+                  Pilih alamat untuk menghitung ongkir dan menyiapkan pesanan Anda.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAddressManagerOpen(true)}
+                >
+                  Kelola alamat
+                </Button>
+              </div>
             </div>
-            <AddressForm
-              defaultValues={address ?? orderDraft?.address ?? undefined}
-              onSubmit={handleAddressSubmit}
-              isSubmitting={isQuoteLoading}
-            />
+            {selectedAddress ? (
+              <SelectedAddressSummary
+                address={selectedAddress}
+                isLoading={shippingQuoteMutation.isPending}
+              />
+            ) : isAddressLoading ? (
+              <AddressSelectorSkeleton />
+            ) : (
+              <div className="rounded-lg border border-dashed border-muted-foreground/40 p-4 text-sm text-muted-foreground">
+                Belum ada alamat terpilih. Tambahkan alamat baru agar bisa melanjutkan checkout.
+                <div className="mt-3">
+                  <Button size="sm" onClick={() => setAddressManagerOpen(true)}>
+                    Tambah alamat
+                  </Button>
+                </div>
+              </div>
+            )}
+            {addresses.length > 0 ? (
+              <React.Fragment>
+                <AddressSelectionList
+                  addresses={addresses.slice(0, 2)}
+                  selectedId={selectedAddressId}
+                  onSelect={(address) => void handleAddressSelection(address)}
+                  isBusy={shippingQuoteMutation.isPending}
+                />
+                {addresses.length > 2 ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setAddressManagerOpen(true)}
+                  >
+                    Lihat semua alamat
+                  </Button>
+                ) : null}
+              </React.Fragment>
+            ) : null}
             {shippingQuoteMutation.error ? (
               <p className="text-sm text-destructive">
                 {shippingQuoteMutation.error.error.message}
               </p>
             ) : null}
+            <p aria-live="polite" className="sr-only">
+              {addressAnnouncement}
+            </p>
           </section>
           {shippingQuoteMutation.data ? (
             <section className="space-y-4 rounded-lg border p-6">
@@ -251,10 +372,20 @@ export default function CheckoutPage() {
             </section>
           ) : null}
         </div>
-        <aside id={orderSummaryId} className="hidden lg:sticky lg:top-24 lg:block">
-          <OrderSummary totals={computedTotals} />
+        <aside id={orderSummaryId} className="lg:sticky lg:top-24">
+          <div className="space-y-6">
+            <PromoField cartId={activeCartId} />
+            <OrderSummary totals={computedTotals} />
+          </div>
         </aside>
       </div>
+      <AddressManagerDialog
+        open={isAddressManagerOpen}
+        onOpenChange={setAddressManagerOpen}
+        ownerId={addressOwnerId}
+        selectedAddressId={selectedAddressId}
+        onSelect={handleAddressSelection}
+      />
       <div className="lg:hidden">
         <div className="sticky bottom-0 z-40 -mx-4 flex items-center justify-between gap-4 border-t border-border/70 bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-[0_-12px_32px_rgba(15,23,42,0.12)] backdrop-blur">
           <div className="space-y-1">
@@ -276,4 +407,176 @@ export default function CheckoutPage() {
       </div>
     </div>
   );
+}
+
+function AddressSelectionList({
+  addresses,
+  selectedId,
+  onSelect,
+  isBusy,
+}: {
+  addresses: SavedAddress[];
+  selectedId: string | null;
+  onSelect: (address: SavedAddress) => Promise<void> | void;
+  isBusy: boolean;
+}) {
+  if (!addresses.length) {
+    return null;
+  }
+
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      {addresses.map((address) => {
+        const isActive = selectedId === address.id;
+        return (
+          <button
+            key={address.id}
+            type="button"
+            role="radio"
+            aria-checked={isActive}
+            disabled={isBusy && isActive}
+            onClick={() => {
+              void onSelect(address);
+            }}
+            className={cn(
+              'text-left',
+              'rounded-lg border p-4 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+              isActive ? 'border-primary bg-primary/5 shadow-sm' : 'hover:border-primary/60',
+            )}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-semibold text-foreground">{address.fullName}</p>
+              {isActive ? <span className="text-xs font-medium text-primary">Dipakai</span> : null}
+            </div>
+            <p className="text-xs text-muted-foreground">{address.phone}</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {formatAddressText(
+                address.line1,
+                address.line2,
+                address.city,
+                address.province,
+                address.postalCode,
+              )}
+            </p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function SelectedAddressSummary({
+  address,
+  isLoading,
+}: {
+  address: SavedAddress;
+  isLoading: boolean;
+}) {
+  return (
+    <div className="rounded-lg border border-border/60 bg-muted/10 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-base font-semibold">{address.fullName}</p>
+          <p className="text-sm text-muted-foreground">{address.phone}</p>
+        </div>
+        {address.isDefault ? (
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            Alamat utama
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {formatAddressText(
+          address.line1,
+          address.line2,
+          address.city,
+          address.province,
+          address.postalCode,
+        )}
+      </p>
+      <DelayedLoader
+        active={isLoading}
+        label="Memuat opsi pengiriman…"
+        className="mt-2 text-xs text-muted-foreground"
+      />
+    </div>
+  );
+}
+
+function AddressSelectorSkeleton() {
+  return (
+    <div className="space-y-3 rounded-lg border border-dashed border-muted-foreground/40 p-4">
+      <BaseSkeleton className="h-5 w-1/3" />
+      <BaseSkeleton className="h-4 w-2/3" />
+      <BaseSkeleton className="h-3 w-full" />
+      <BaseSkeleton className="h-3 w-3/4" />
+    </div>
+  );
+}
+
+function AddressManagerDialog({
+  open,
+  onOpenChange,
+  ownerId,
+  selectedAddressId,
+  onSelect,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  ownerId: string | null;
+  selectedAddressId: string | null;
+  onSelect: (address: SavedAddress) => Promise<void> | void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Kelola alamat</DialogTitle>
+          <DialogDescription>
+            Pilih atau buat alamat baru, lalu gunakan untuk checkout.
+          </DialogDescription>
+        </DialogHeader>
+        <AddressBook
+          userIdOrGuestId={ownerId}
+          selectable
+          selectedAddressId={selectedAddressId}
+          onSelectAddress={async (address) => {
+            await onSelect(address);
+            onOpenChange(false);
+          }}
+          disableDeleteIds={selectedAddressId ? [selectedAddressId] : undefined}
+          deleteDisabledMessage="Alamat ini sedang digunakan saat checkout."
+          context="checkout"
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function mapAddressToCheckout(address: SavedAddress): CheckoutAddress {
+  return {
+    fullName: address.fullName,
+    phone: address.phone,
+    province: address.province,
+    city: address.city,
+    district: address.city,
+    postalCode: address.postalCode,
+    detail: formatAddressText(
+      address.line1,
+      address.line2,
+      address.city,
+      address.province,
+      address.postalCode,
+    ),
+  };
+}
+
+function formatAddressText(
+  line1: string,
+  line2: string | undefined,
+  city: string,
+  province: string,
+  postalCode: string,
+) {
+  return [line1, line2, `${city}, ${province}`, postalCode].filter(Boolean).join(' • ');
 }

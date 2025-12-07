@@ -41,7 +41,7 @@ function createQueryClient() {
 }
 
 describe('CheckoutPage', () => {
-  it('submits address, selects shipping, and proceeds to draft creation', async () => {
+  it('selects shipping option after address auto-load and proceeds to draft', async () => {
     const user = userEvent.setup();
     const queryClient = createQueryClient();
 
@@ -55,22 +55,12 @@ describe('CheckoutPage', () => {
       expect(screen.getByText('Checkout')).toBeInTheDocument();
     });
 
-    await user.type(screen.getByLabelText('Full Name'), 'Jane Doe');
-    await user.type(screen.getByLabelText('Phone'), '08123456789');
-    await user.type(screen.getByLabelText('Province'), 'DKI Jakarta');
-    await user.type(screen.getByLabelText('City'), 'Jakarta Selatan');
-    await user.type(screen.getByLabelText('District'), 'Kebayoran Baru');
-    await user.type(screen.getByLabelText('Postal Code'), '12120');
-    await user.type(screen.getByLabelText('Address Detail'), 'Jl. Senopati No. 12');
-
-    await user.click(screen.getByRole('button', { name: /get shipping options/i }));
-
     await waitFor(() => {
       expect(screen.getByText('Shipping Options')).toBeInTheDocument();
     });
 
-    const options = screen.getAllByRole('radio');
-    await user.click(options[1]);
+    const shippingChoice = screen.getByText(/JNE - YES/i).closest('label');
+    await user.click(shippingChoice!);
 
     const proceedButton = screen.getByRole('button', { name: /proceed to pay/i });
 

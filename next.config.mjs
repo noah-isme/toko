@@ -7,9 +7,7 @@ const mswBrowserEntry = path.join(__dirname, 'node_modules/msw/lib/browser/index
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    typedRoutes: true
-  },
+  typedRoutes: true,
   images: {
     remotePatterns: [
       {
@@ -19,6 +17,13 @@ const nextConfig = {
       }
     ]
   },
+  // Turbopack configuration (for Next.js 16+)
+  turbopack: {
+    resolveAlias: {
+      'msw/browser': mswBrowserEntry,
+    },
+  },
+  // Webpack configuration (for compatibility)
   webpack: (config) => {
     config.resolve.alias = config.resolve.alias ?? {};
     // Force Webpack to resolve the browser-only MSW entry even when Node conditions are present.

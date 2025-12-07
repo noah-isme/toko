@@ -26,7 +26,7 @@ type QAEnabledGlobal = typeof globalThis & {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __TOKO_QA_CHANNEL__?: QAChannel;
+  var __TOKO_QA_CHANNEL__: QAChannel | undefined;
 
   interface Window {
     __TOKO_QA_CHANNEL__?: QAChannel;

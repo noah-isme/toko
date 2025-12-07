@@ -34,7 +34,7 @@ type RetryHandler = ((variables: PaymentCreateBody) => void) | undefined;
 export function useCreatePaymentIntentMutation() {
   const queryClient = useQueryClient();
   const { toast: pushToast, dismiss } = useToast();
-  const retryHandlerRef = useRef<RetryHandler>();
+  const retryHandlerRef = useRef<RetryHandler>(undefined);
 
   const registerRetryHandler = useCallback((handler?: (variables: PaymentCreateBody) => void) => {
     retryHandlerRef.current = handler;

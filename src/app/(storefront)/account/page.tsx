@@ -16,6 +16,9 @@ export default function AccountPage() {
         <Button asChild size="lg">
           <Link href="/orders">Lihat pesanan</Link>
         </Button>
+        <Button asChild size="lg" variant="secondary">
+          <Link href="/account/addresses">Buku alamat</Link>
+        </Button>
         <Button asChild size="lg" variant="outline">
           <Link href="/login">Sign in</Link>
         </Button>

@@ -1,7 +1,26 @@
 import type { QueryClient } from '@tanstack/react-query';
 
+import type { Promo } from '@/entities/promo/types';
 import { queryKeys } from '@/lib/api/queryKeys';
 import type { Cart, CartItem } from '@/lib/api/schemas';
+
+export type CartTotalsPreview = {
+  subtotal?: number;
+  discount?: number;
+  tax?: number;
+  shipping?: number;
+  total?: number;
+};
+
+export type CartPromoInfo = Promo & {
+  discountValue?: number;
+  message?: string;
+};
+
+export type CartWithPromo = Cart & {
+  promoInfo?: CartPromoInfo;
+  totals?: CartTotalsPreview;
+};
 
 export function getCartQueryKey(cartId?: string) {
   if (cartId) {
@@ -49,4 +68,30 @@ export function patchCartItems(cart: Cart, patch: (items: CartItem[]) => CartIte
     subtotal: { ...cart.subtotal, amount: subtotalAmount },
     itemCount,
   } satisfies Cart;
+}
+
+export function cloneCartWithMeta(source: Cart): CartWithPromo {
+  const cartWithMeta = source as CartWithPromo;
+  return {
+    ...source,
+    items: source.items.map((item) => ({ ...item })),
+    promoInfo: cartWithMeta.promoInfo ? { ...cartWithMeta.promoInfo } : undefined,
+    totals: cartWithMeta.totals ? { ...cartWithMeta.totals } : undefined,
+  };
+}
+
+export function updateCartCache(
+  queryClient: QueryClient,
+  cartId: string | undefined,
+  updater: (draft: CartWithPromo) => CartWithPromo,
+) {
+  const current = readCartCache(queryClient, cartId);
+  if (!current) {
+    return undefined;
+  }
+
+  const draft = cloneCartWithMeta(current);
+  const next = updater(draft);
+  writeCartCache(queryClient, cartId, next);
+  return next;
 }

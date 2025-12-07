@@ -24,7 +24,7 @@ export function DelayedLoader({
   delayMs = DEFAULT_DELAY,
   className,
 }: DelayedLoaderProps) {
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

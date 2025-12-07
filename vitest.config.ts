@@ -10,9 +10,12 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    pool: 'forks',
     globals: true,
+    hookTimeout: 10_000,
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
+      provider: 'v8',
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
     },

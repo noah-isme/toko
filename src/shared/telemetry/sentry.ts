@@ -2,7 +2,10 @@ import * as Sentry from '@sentry/nextjs';
 
 import { recordBreadcrumb } from './qa-channel';
 
-type MinimalSentryClient = Pick<typeof Sentry, 'addBreadcrumb' | 'captureException' | 'captureMessage'>;
+type MinimalSentryClient = Pick<
+  typeof Sentry,
+  'addBreadcrumb' | 'captureException' | 'captureMessage'
+>;
 
 let initialized = false;
 let qaClient: MinimalSentryClient | null = null;
@@ -33,14 +36,21 @@ const getQAClient = (): MinimalSentryClient => {
   const captureException: MinimalSentryClient['captureException'] = (exception, captureContext) => {
     recordBreadcrumb({
       category: 'exception',
-      level: captureContext?.level ?? 'error',
+      level:
+        (typeof captureContext === 'object' && captureContext && 'level' in captureContext
+          ? captureContext.level
+          : undefined) ?? 'error',
       message: (exception instanceof Error && exception.message) || 'Unknown exception',
       data: {
-        context: captureContext,
+        context:
+          typeof captureContext === 'object' && captureContext && 'extra' in captureContext
+            ? captureContext.extra
+            : undefined,
         name: exception instanceof Error ? exception.name : undefined,
       },
       type: 'exception',
     });
+    return 'qa-mode-event-id';
   };
 
   const captureMessage: MinimalSentryClient['captureMessage'] = (message, captureContext) => {
@@ -52,10 +62,13 @@ const getQAClient = (): MinimalSentryClient => {
           : undefined) ?? 'info',
       message: typeof message === 'string' ? message : JSON.stringify(message),
       data: {
-        context: captureContext as Record<string, unknown> | undefined,
+        context: (typeof captureContext === 'object' && captureContext && 'extra' in captureContext
+          ? captureContext.extra
+          : undefined) as Record<string, unknown> | undefined,
       },
       type: 'message',
     });
+    return 'qa-mode-event-id';
   };
 
   qaClient = {
@@ -116,9 +129,14 @@ export const captureSentryException = (
 ) => {
   recordBreadcrumb({
     category: 'exception',
-    level: captureContext?.level ?? 'error',
+    level:
+      (typeof captureContext === 'object' && captureContext && 'level' in captureContext
+        ? captureContext.level
+        : undefined) ?? 'error',
     message: exception instanceof Error ? exception.message : String(exception),
-    data: captureContext?.extra as Record<string, unknown> | undefined,
+    data: (typeof captureContext === 'object' && captureContext && 'extra' in captureContext
+      ? captureContext.extra
+      : undefined) as Record<string, unknown> | undefined,
     type: 'exception',
   });
   const client = getSentry();
@@ -141,7 +159,9 @@ export const captureSentryMessage = (
         ? (captureContext.level as string)
         : undefined) ?? 'info',
     message: typeof message === 'string' ? message : String(message),
-    data: captureContext?.extra as Record<string, unknown> | undefined,
+    data: (typeof captureContext === 'object' && captureContext && 'extra' in captureContext
+      ? captureContext.extra
+      : undefined) as Record<string, unknown> | undefined,
     type: 'message',
   });
   const client = getSentry();
