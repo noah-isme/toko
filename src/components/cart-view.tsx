@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { Price } from '@/components/price';
 import { Button } from '@/components/ui/button';
+import { PromoField } from '@/entities/promo/ui/PromoField';
 import {
   useCartQuery,
   useRemoveCartItemMutation,
@@ -31,6 +32,8 @@ export function CartView() {
   if (!data || data.items.length === 0) {
     return <EmptyState {...emptyCart()} />;
   }
+
+  const cartId = data.id;
 
   return (
     <div className="space-y-6">
@@ -121,6 +124,9 @@ export function CartView() {
           );
         })}
       </ul>
+
+      <PromoField cartId={cartId} />
+
       <div className="flex items-center justify-between rounded-lg border bg-card p-4">
         <span className="text-sm text-muted-foreground">Subtotal</span>
         <Price

@@ -1,11 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
+import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
+import { useToast } from '@/shared/ui/toast';
 
 interface LoginForm {
   email: string;
@@ -13,15 +17,26 @@ interface LoginForm {
 }
 
 export default function LoginPage() {
-  const { register, handleSubmit, formState } = useForm<LoginForm>({
+  const router = useRouter();
+  const { login, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const { register, handleSubmit, formState, setError } = useForm<LoginForm>({
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = (values: LoginForm) => {
-    console.log('login submit', values);
+  const onSubmit = async (values: LoginForm) => {
+    try {
+      await login(values);
+      toast({ variant: 'success', description: 'Login successful!' });
+      router.push('/');
+    } catch (error) {
+      const message = getErrorMessage(error);
+      setError('root', { message });
+      toast({ variant: 'destructive', description: message });
+    }
   };
 
   const emailError = formState.errors.email?.message;
@@ -78,8 +93,8 @@ export default function LoginPage() {
             </p>
           ) : null}
         </div>
-        <Button className="w-full" disabled={formState.isSubmitting} type="submit">
-          Sign in
+        <Button className="w-full" disabled={formState.isSubmitting || authLoading} type="submit">
+          {formState.isSubmitting || authLoading ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
       <p className="text-center text-sm text-muted-foreground">

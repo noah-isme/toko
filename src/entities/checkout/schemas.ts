@@ -30,6 +30,7 @@ export const OrderDraftSchema = z.object({
   cartId: z.string().min(1, 'Cart id is required'),
   address: AddressSchema,
   shippingOption: ShippingOptionSchema,
+  paymentMethod: z.string().optional(),
   notes: z.string().optional(),
   totals: TotalsSchema,
 });

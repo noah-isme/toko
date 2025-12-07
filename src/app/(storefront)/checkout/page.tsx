@@ -7,6 +7,7 @@ import React from 'react';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 
 import { OrderSummary } from './_components/OrderSummary';
+import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
 import { ShippingOptions } from './_components/ShippingOptions';
 
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ import type {
 import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { PromoField } from '@/entities/promo/ui/PromoField';
 import { useCartQuery } from '@/lib/api/hooks';
+import type { PaymentMethod } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { getCheckoutProceedRule, normalizeDisabledMessage } from '@/shared/lib/disabledRules';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
@@ -52,6 +54,7 @@ export default function CheckoutPage() {
   const createOrderDraftMutation = useCreateOrderDraftMutation();
 
   const [selectedShippingId, setSelectedShippingId] = useState<string | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
   const [orderDraft, setOrderDraft] = useState<OrderDraft | null>(null);
   const [storedCartId, setStoredCartId] = useState<string | null>(null);
   const [storageChecked, setStorageChecked] = useState(false);
@@ -195,13 +198,16 @@ export default function CheckoutPage() {
       hasAddress: Boolean(selectedAddress),
       hasShippingOption: Boolean(selectedShippingOption),
       isProcessing: isDraftLoading,
-    }),
+    }) ||
+      (!selectedPaymentMethod
+        ? { disabled: true, message: 'Pilih metode pembayaran terlebih dahulu' }
+        : null),
   );
   const proceedHintDomId = useId();
   const proceedHintId = proceedRule.disabled ? proceedHintDomId : undefined;
 
   const handleCreateDraft = async () => {
-    if (!activeCartId || !selectedAddress || !selectedShippingOption) {
+    if (!activeCartId || !selectedAddress || !selectedShippingOption || !selectedPaymentMethod) {
       return;
     }
 
@@ -210,6 +216,7 @@ export default function CheckoutPage() {
         cartId: activeCartId,
         address: mapAddressToCheckout(selectedAddress),
         shippingOptionId: selectedShippingOption.id,
+        paymentMethod: selectedPaymentMethod,
       });
       setOrderDraft(draft);
       const orderId = draft.cartId;
@@ -316,19 +323,36 @@ export default function CheckoutPage() {
             </p>
           </section>
           {shippingQuoteMutation.data ? (
-            <section className="space-y-4 rounded-lg border p-6">
-              <div className="space-y-1">
-                <h2 className="text-lg font-semibold">Shipping Options</h2>
-                <p className="text-sm text-muted-foreground">
-                  Choose the delivery service that suits you best.
-                </p>
-              </div>
-              <ShippingOptions
-                options={shippingQuoteMutation.data}
-                selectedId={selectedShippingId ?? undefined}
-                onChange={(id) => setSelectedShippingId(id)}
-                disabled={isDraftLoading}
-              />
+            <>
+              <section className="space-y-4 rounded-lg border p-6">
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold">Shipping Options</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Choose the delivery service that suits you best.
+                  </p>
+                </div>
+                <ShippingOptions
+                  options={shippingQuoteMutation.data}
+                  selectedId={selectedShippingId ?? undefined}
+                  onChange={(id) => setSelectedShippingId(id)}
+                  disabled={isDraftLoading}
+                />
+              </section>
+
+              <section className="space-y-4 rounded-lg border p-6">
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold">Payment Method</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Select how you want to pay for your order.
+                  </p>
+                </div>
+                <PaymentMethodSelector
+                  selectedMethod={selectedPaymentMethod}
+                  onSelect={setSelectedPaymentMethod}
+                  disabled={isDraftLoading}
+                />
+              </section>
+
               {createOrderDraftMutation.error ? (
                 <p className="text-sm text-destructive">
                   {createOrderDraftMutation.error.error.message}
@@ -369,7 +393,7 @@ export default function CheckoutPage() {
               {proceedRule.disabled && proceedRule.message ? (
                 <DisabledHint id={proceedHintId} message={proceedRule.message} />
               ) : null}
-            </section>
+            </>
           ) : null}
         </div>
         <aside id={orderSummaryId} className="lg:sticky lg:top-24">

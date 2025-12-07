@@ -18,6 +18,7 @@ const orderDraftInputSchema = z.object({
   cartId: z.string().min(1, 'Cart id is required'),
   address: AddressSchema,
   shippingOptionId: z.string().min(1, 'Shipping option id is required'),
+  paymentMethod: z.string().optional(),
   notes: z.string().optional(),
 });
 

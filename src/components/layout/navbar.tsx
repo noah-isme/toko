@@ -1,6 +1,6 @@
 'use client';
 
-import { User } from 'lucide-react';
+import { User, LogIn, LogOut } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,8 +8,16 @@ import { Suspense } from 'react';
 
 import { CartDrawer } from '@/components/cart-drawer';
 import { Container } from '@/components/layout/container';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { SearchBar } from '@/components/search-bar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
@@ -21,6 +29,7 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
@@ -55,18 +64,42 @@ export function Navbar() {
             <SearchBar className="hidden md:flex" />
           </Suspense>
           <CartDrawer />
-          <Button asChild variant="ghost">
-            <Link
-              href="/account"
-              aria-label="Account"
-              className="flex items-center gap-2 focus-visible:outline-none"
-            >
-              <User aria-hidden="true" className="h-4 w-4" />
-              <span aria-hidden="true" className="sr-only sm:not-sr-only">
-                Account
-              </span>
-            </Link>
-          </Button>
+          {isAuthenticated && user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <User aria-hidden="true" className="h-4 w-4" />
+                  <span className="sr-only sm:not-sr-only">{user.name}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/account">Account</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/orders">Orders</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/account/addresses">Addresses</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/favorites">Favorites</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => logout()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild variant="ghost">
+              <Link href="/login" className="flex items-center gap-2">
+                <LogIn aria-hidden="true" className="h-4 w-4" />
+                <span className="sr-only sm:not-sr-only">Sign in</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </Container>
       <div className="border-t bg-muted/30 py-3 md:hidden">

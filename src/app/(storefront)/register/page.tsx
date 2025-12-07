@@ -1,11 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
+import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
+import { useToast } from '@/shared/ui/toast';
 
 interface RegisterForm {
   name: string;
@@ -14,7 +18,10 @@ interface RegisterForm {
 }
 
 export default function RegisterPage() {
-  const { register, handleSubmit, formState } = useForm<RegisterForm>({
+  const router = useRouter();
+  const { register: registerUser, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const { register, handleSubmit, formState, setError } = useForm<RegisterForm>({
     defaultValues: {
       name: '',
       email: '',
@@ -22,8 +29,16 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = (values: RegisterForm) => {
-    console.log('register submit', values);
+  const onSubmit = async (values: RegisterForm) => {
+    try {
+      await registerUser(values);
+      toast({ variant: 'success', description: 'Account created successfully!' });
+      router.push('/');
+    } catch (error) {
+      const message = getErrorMessage(error);
+      setError('root', { message });
+      toast({ variant: 'destructive', description: message });
+    }
   };
 
   const nameError = formState.errors.name?.message;
@@ -98,8 +113,8 @@ export default function RegisterPage() {
             </p>
           ) : null}
         </div>
-        <Button className="w-full" disabled={formState.isSubmitting} type="submit">
-          Register
+        <Button className="w-full" disabled={formState.isSubmitting || authLoading} type="submit">
+          {formState.isSubmitting || authLoading ? 'Creating account...' : 'Register'}
         </Button>
       </form>
       <p className="text-center text-sm text-muted-foreground">

@@ -4,6 +4,7 @@ import { ReactNode, Suspense } from 'react';
 
 import './globals.css';
 
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
 import { cn } from '@/lib/utils';
@@ -64,9 +65,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </Suspense>
           <ErrorBoundary>
             <QueryProvider>
-              <div id="main-content" tabIndex={-1}>
-                {children}
-              </div>
+              <AuthProvider>
+                <div id="main-content" tabIndex={-1}>
+                  {children}
+                </div>
+              </AuthProvider>
             </QueryProvider>
           </ErrorBoundary>
         </MockServiceWorkerProvider>
