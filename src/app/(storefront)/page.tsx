@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { BrandsSection } from '@/components/brands-section';
 import { CategoriesSection } from '@/components/categories-section';
 import { ProductsCatalog } from '@/components/products-catalog';
 import { JsonLd } from '@/shared/seo/JsonLd';
@@ -43,6 +44,7 @@ export default function HomePage() {
       <JsonLd id="website-jsonld" data={websiteJsonLd()} />
       <div className="space-y-12">
         <CategoriesSection />
+        <BrandsSection />
         <ProductsCatalog />
       </div>
     </>

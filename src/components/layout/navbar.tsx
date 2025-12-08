@@ -9,7 +9,7 @@ import { Suspense } from 'react';
 import { CartDrawer } from '@/components/cart-drawer';
 import { Container } from '@/components/layout/container';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { SearchBar } from '@/components/search-bar';
+import { SearchAutocomplete } from '@/components/search-autocomplete';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -61,7 +61,7 @@ export function Navbar() {
         </nav>
         <div className="ml-auto flex flex-1 items-center justify-end gap-3">
           <Suspense fallback={null}>
-            <SearchBar className="hidden md:flex" />
+            <SearchAutocomplete className="hidden md:flex" />
           </Suspense>
           <CartDrawer />
           {isAuthenticated && user ? (
@@ -105,7 +105,7 @@ export function Navbar() {
       <div className="border-t bg-muted/30 py-3 md:hidden">
         <Container>
           <Suspense fallback={null}>
-            <SearchBar />
+            <SearchAutocomplete />
           </Suspense>
         </Container>
       </div>

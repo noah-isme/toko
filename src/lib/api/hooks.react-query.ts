@@ -114,19 +114,21 @@ export function useBrands() {
   });
 }
 
-export function useProducts(filters?: ProductFilters) {
+export function useProducts(filters?: ProductFilters, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: queryKeys.catalog.products(filters),
     queryFn: () => catalogApi.getProducts(filters),
     staleTime: 60 * 1000, // 1 minute
+    ...options,
   });
 }
 
-export function useProduct(slug: string) {
+export function useProduct(slug: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: queryKeys.catalog.product(slug),
     queryFn: () => catalogApi.getProduct(slug),
     staleTime: 60 * 1000, // 1 minute
+    ...options,
   });
 }
 
