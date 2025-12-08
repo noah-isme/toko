@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { FilterSidebar } from '@/components/filter-sidebar';
 import { Pagination } from '@/components/pagination';
 import { ProductCard } from '@/components/product-card';
+import { ProductSort, type SortOption } from '@/components/product-sort';
 import { Button } from '@/components/ui/button';
 import { useProductsQuery } from '@/lib/api/hooks';
 import { emptyProducts } from '@/shared/ui/empty-presets';
@@ -17,16 +18,18 @@ const ITEMS_PER_PAGE = 12;
 export function ProductsCatalog() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const searchTerm = useSearchStore((state) => state.term).toLowerCase();
   const { data, isLoading, isFetching, error } = useProductsQuery();
   const showLoadingState = isLoading || (!data && isFetching);
 
-  const filteredProducts = useMemo(() => {
+  const filteredAndSortedProducts = useMemo(() => {
     if (!data) {
       return [];
     }
 
-    return data.filter((product) => {
+    // Filter products
+    const filtered = data.filter((product) => {
       const matchesSearch = searchTerm
         ? product.name.toLowerCase().includes(searchTerm) ||
           product.description.toLowerCase().includes(searchTerm)
@@ -36,15 +39,36 @@ export function ProductsCatalog() {
         product.categories.some((category) => selectedCategories.includes(category));
       return matchesSearch && matchesCategory;
     });
-  }, [data, searchTerm, selectedCategories]);
+
+    // Sort products
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'price-asc':
+          return a.price.amount - b.price.amount;
+        case 'price-desc':
+          return b.price.amount - a.price.amount;
+        case 'rating':
+          return (b.rating || 0) - (a.rating || 0);
+        case 'newest':
+        default:
+          return 0; // Keep original order (assuming API returns newest first)
+      }
+    });
+
+    return sorted;
+  }, [data, searchTerm, selectedCategories, sortBy]);
 
   const paginatedProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    return filteredProducts.slice(startIndex, endIndex);
-  }, [filteredProducts, currentPage]);
+    return filteredAndSortedProducts.slice(startIndex, endIndex);
+  }, [filteredAndSortedProducts, currentPage]);
 
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE);
 
   const categories = useMemo(
     () => (data ? data.flatMap((product) => product.categories) : []),
@@ -57,7 +81,12 @@ export function ProductsCatalog() {
         ? current.filter((item) => item !== category)
         : [...current, category],
     );
-    setCurrentPage(1); // Reset to first page when filter changes
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (value: SortOption) => {
+    setSortBy(value);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
@@ -73,14 +102,15 @@ export function ProductsCatalog() {
         onToggleCategory={toggleCategory}
       />
       <section className="flex-1 space-y-6">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold">Featured products</h1>
             <p className="text-sm text-muted-foreground">
-              {filteredProducts.length} products available
+              {filteredAndSortedProducts.length} products available
               {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
             </p>
           </div>
+          <ProductSort value={sortBy} onChange={handleSortChange} />
         </header>
         {showLoadingState ? (
           <ProductCardSkeleton />
@@ -94,7 +124,7 @@ export function ProductsCatalog() {
               <Button onClick={() => window.location.reload()}>Retry</Button>
             </div>
           </div>
-        ) : filteredProducts.length === 0 ? (
+        ) : filteredAndSortedProducts.length === 0 ? (
           <EmptyState {...emptyProducts()} />
         ) : (
           <>

@@ -1,9 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect } from 'react';
 
 import { Price } from '@/components/price';
+import { ProductImageGallery } from '@/components/product-image-gallery';
 import { Rating } from '@/components/rating';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
@@ -63,17 +63,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       <div className="space-y-4">
-        <div className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
-          {data.images[0] ? (
-            <Image
-              src={data.images[0]}
-              alt={data.name}
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-            />
-          ) : null}
-        </div>
+        <ProductImageGallery images={data.images} productName={data.name} />
         <div className="flex gap-2 text-sm text-muted-foreground">
           {data.categories.map((category) => (
             <span key={category} className="rounded-full bg-muted px-3 py-1 capitalize">

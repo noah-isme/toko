@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
+import { PasswordStrength } from '@/components/password-strength';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,23 +16,40 @@ interface RegisterForm {
   name: string;
   email: string;
   password: string;
+  confirmPassword: string;
 }
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register: registerUser, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
-  const { register, handleSubmit, formState, setError } = useForm<RegisterForm>({
+  const { register, handleSubmit, formState, setError, watch } = useForm<RegisterForm>({
     defaultValues: {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
+  const password = watch('password');
+
   const onSubmit = async (values: RegisterForm) => {
+    // Validate password match
+    if (values.password !== values.confirmPassword) {
+      setError('confirmPassword', { message: 'Passwords do not match' });
+      return;
+    }
+
+    // Validate password strength (minimum requirements)
+    if (values.password.length < 8) {
+      setError('password', { message: 'Password must be at least 8 characters' });
+      return;
+    }
+
     try {
-      await registerUser(values);
+      const { confirmPassword: _confirmPassword, ...registerData } = values;
+      await registerUser(registerData);
       toast({ variant: 'success', description: 'Account created successfully!' });
       router.push('/');
     } catch (error) {
@@ -47,6 +65,8 @@ export default function RegisterPage() {
   const emailErrorId = emailError ? 'email-error' : undefined;
   const passwordError = formState.errors.password?.message;
   const passwordErrorId = passwordError ? 'password-error' : undefined;
+  const confirmPasswordError = formState.errors.confirmPassword?.message;
+  const confirmPasswordErrorId = confirmPasswordError ? 'confirm-password-error' : undefined;
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
@@ -101,7 +121,10 @@ export default function RegisterPage() {
             Password
           </label>
           <Input
-            {...register('password', { required: 'Password is required' })}
+            {...register('password', {
+              required: 'Password is required',
+              minLength: { value: 8, message: 'Password must be at least 8 characters' },
+            })}
             {...fieldA11y('password', passwordErrorId)}
             type="password"
             autoComplete="new-password"
@@ -110,6 +133,26 @@ export default function RegisterPage() {
           {passwordError ? (
             <p className="text-xs text-destructive" id={passwordErrorId} role="alert">
               {passwordError}
+            </p>
+          ) : null}
+          <PasswordStrength password={password} />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="confirmPassword">
+            Confirm Password
+          </label>
+          <Input
+            {...register('confirmPassword', {
+              required: 'Please confirm your password',
+            })}
+            {...fieldA11y('confirmPassword', confirmPasswordErrorId)}
+            type="password"
+            autoComplete="new-password"
+            required
+          />
+          {confirmPasswordError ? (
+            <p className="text-xs text-destructive" id={confirmPasswordErrorId} role="alert">
+              {confirmPasswordError}
             </p>
           ) : null}
         </div>

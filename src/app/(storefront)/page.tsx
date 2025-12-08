@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { CategoriesSection } from '@/components/categories-section';
 import { ProductsCatalog } from '@/components/products-catalog';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { orgJsonLd, websiteJsonLd } from '@/shared/seo/jsonld';
@@ -40,7 +41,10 @@ export default function HomePage() {
     <>
       <JsonLd id="organization-jsonld" data={orgJsonLd()} />
       <JsonLd id="website-jsonld" data={websiteJsonLd()} />
-      <ProductsCatalog />
+      <div className="space-y-12">
+        <CategoriesSection />
+        <ProductsCatalog />
+      </div>
     </>
   );
 }
