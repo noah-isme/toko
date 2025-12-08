@@ -17,6 +17,7 @@ interface RegisterForm {
   email: string;
   password: string;
   confirmPassword: string;
+  acceptTerms: boolean;
 }
 
 export default function RegisterPage() {
@@ -29,6 +30,7 @@ export default function RegisterPage() {
       email: '',
       password: '',
       confirmPassword: '',
+      acceptTerms: false,
     },
   });
 
@@ -47,8 +49,18 @@ export default function RegisterPage() {
       return;
     }
 
+    // Validate terms acceptance
+    if (!values.acceptTerms) {
+      setError('acceptTerms', { message: 'You must accept the terms and conditions' });
+      return;
+    }
+
     try {
-      const { confirmPassword: _confirmPassword, ...registerData } = values;
+      const {
+        confirmPassword: _confirmPassword,
+        acceptTerms: _acceptTerms,
+        ...registerData
+      } = values;
       await registerUser(registerData);
       toast({ variant: 'success', description: 'Account created successfully!' });
       router.push('/');
@@ -67,6 +79,7 @@ export default function RegisterPage() {
   const passwordErrorId = passwordError ? 'password-error' : undefined;
   const confirmPasswordError = formState.errors.confirmPassword?.message;
   const confirmPasswordErrorId = confirmPasswordError ? 'confirm-password-error' : undefined;
+  const acceptTermsError = formState.errors.acceptTerms?.message;
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
@@ -153,6 +166,42 @@ export default function RegisterPage() {
           {confirmPasswordError ? (
             <p className="text-xs text-destructive" id={confirmPasswordErrorId} role="alert">
               {confirmPasswordError}
+            </p>
+          ) : null}
+        </div>
+        <div className="space-y-2">
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              {...register('acceptTerms', {
+                required: 'You must accept the terms and conditions',
+              })}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            />
+            <span className="text-muted-foreground">
+              I agree to the{' '}
+              <a
+                href="/terms"
+                className="font-medium text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Terms and Conditions
+              </a>{' '}
+              and{' '}
+              <a
+                href="/privacy"
+                className="font-medium text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+            </span>
+          </label>
+          {acceptTermsError ? (
+            <p className="text-xs text-destructive" role="alert">
+              {acceptTermsError}
             </p>
           ) : null}
         </div>

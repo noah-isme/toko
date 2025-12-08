@@ -17,6 +17,8 @@ const ITEMS_PER_PAGE = 12;
 
 export function ProductsCatalog() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000000]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const searchTerm = useSearchStore((state) => state.term).toLowerCase();
@@ -37,7 +39,12 @@ export function ProductsCatalog() {
       const matchesCategory =
         selectedCategories.length === 0 ||
         product.categories.some((category) => selectedCategories.includes(category));
-      return matchesSearch && matchesCategory;
+      const productBrand = (product as any).brand || (product as any).brandName || '';
+      const matchesBrand =
+        selectedBrands.length === 0 || (productBrand && selectedBrands.includes(productBrand));
+      const matchesPrice =
+        product.price.amount >= priceRange[0] && product.price.amount <= priceRange[1];
+      return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
     });
 
     // Sort products
@@ -60,7 +67,7 @@ export function ProductsCatalog() {
     });
 
     return sorted;
-  }, [data, searchTerm, selectedCategories, sortBy]);
+  }, [data, searchTerm, selectedCategories, selectedBrands, priceRange, sortBy]);
 
   const paginatedProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -75,12 +82,39 @@ export function ProductsCatalog() {
     [data],
   );
 
+  const brands = useMemo(
+    () =>
+      data
+        ? data
+            .map((product) => (product as any).brand || (product as any).brandName)
+            .filter(Boolean)
+        : [],
+    [data],
+  ) as string[];
+
+  const maxPrice = useMemo(() => {
+    if (!data || data.length === 0) return 10000000;
+    return Math.max(...data.map((p) => p.price.amount));
+  }, [data]);
+
   const toggleCategory = (category: string) => {
     setSelectedCategories((current) =>
       current.includes(category)
         ? current.filter((item) => item !== category)
         : [...current, category],
     );
+    setCurrentPage(1);
+  };
+
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands((current) =>
+      current.includes(brand) ? current.filter((item) => item !== brand) : [...current, brand],
+    );
+    setCurrentPage(1);
+  };
+
+  const handlePriceRangeChange = (value: [number, number]) => {
+    setPriceRange(value);
     setCurrentPage(1);
   };
 
@@ -100,6 +134,12 @@ export function ProductsCatalog() {
         categories={categories}
         selectedCategories={selectedCategories}
         onToggleCategory={toggleCategory}
+        brands={brands}
+        selectedBrands={selectedBrands}
+        onToggleBrand={toggleBrand}
+        priceRange={[0, maxPrice]}
+        priceRangeValue={priceRange}
+        onPriceRangeChange={handlePriceRangeChange}
       />
       <section className="flex-1 space-y-6">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

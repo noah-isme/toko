@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/components/providers/AuthProvider';
+import { RecentOrders } from '@/components/recent-orders';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/shared/ui/toast';
 
@@ -53,25 +54,40 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">Welcome, {user.name}</h1>
         <p className="text-sm text-muted-foreground">{user.email}</p>
       </div>
-      <div className="flex flex-wrap gap-3">
-        <Button asChild size="lg">
-          <Link href="/orders">View Orders</Link>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Button asChild size="lg" className="h-auto py-6">
+          <Link href="/orders" className="flex flex-col items-center gap-2">
+            <span className="text-2xl">📦</span>
+            <span>View Orders</span>
+          </Link>
         </Button>
-        <Button asChild size="lg" variant="secondary">
-          <Link href="/account/addresses">Manage Addresses</Link>
+        <Button asChild size="lg" variant="secondary" className="h-auto py-6">
+          <Link href="/account/addresses" className="flex flex-col items-center gap-2">
+            <span className="text-2xl">📍</span>
+            <span>Manage Addresses</span>
+          </Link>
         </Button>
-        <Button asChild size="lg" variant="outline">
-          <Link href="/favorites">Favorites</Link>
+        <Button asChild size="lg" variant="outline" className="h-auto py-6">
+          <Link href="/favorites" className="flex flex-col items-center gap-2">
+            <span className="text-2xl">❤️</span>
+            <span>Favorites</span>
+          </Link>
         </Button>
-        <Button size="lg" variant="ghost" onClick={handleLogout}>
-          Logout
+        <Button size="lg" variant="ghost" onClick={handleLogout} className="h-auto py-6">
+          <span className="flex flex-col items-center gap-2">
+            <span className="text-2xl">🚪</span>
+            <span>Logout</span>
+          </span>
         </Button>
       </div>
+
+      <RecentOrders limit={5} />
     </div>
   );
 }
