@@ -87,7 +87,7 @@ export function FilterSidebar({
   return (
     <>
       <div className="hidden w-64 shrink-0 lg:block">
-        <div className="sticky top-24 space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+        <div className="sticky top-24 space-y-4 overflow-hidden rounded-lg border bg-card p-4 shadow-sm">
           <h3 className="text-base font-semibold">Filters</h3>
           {filterContent}
         </div>

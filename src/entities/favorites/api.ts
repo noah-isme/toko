@@ -1,22 +1,36 @@
-import type { FavoriteItem, FavoritesResponse } from './types';
+import { mapApiFavoriteToFavorite } from './mappers';
+import type { ApiFavoriteItem, FavoriteItem, ToggleFavoriteResponse } from './types';
 
 import { apiClient } from '@/lib/api/apiClient';
 
-
+/**
+ * List user's favorites (requires authentication)
+ */
 export async function listFavorites(): Promise<FavoriteItem[]> {
-  const response = await apiClient<FavoritesResponse>('/favorites');
-  return response.items;
+  // Backend returns raw array
+  const response = await apiClient<ApiFavoriteItem[]>('/favorites', {
+    requiresAuth: true,
+  });
+  return response.map(mapApiFavoriteToFavorite);
 }
 
-export async function addFavorite(productId: string): Promise<void> {
-  await apiClient('/favorites', {
+/**
+ * Toggle favorite status (requires authentication)
+ * Returns { favorited: true } if added, { favorited: false } if removed
+ */
+export async function toggleFavorite(productId: string): Promise<ToggleFavoriteResponse> {
+  return apiClient<ToggleFavoriteResponse>('/favorites', {
     method: 'POST',
     body: JSON.stringify({ productId }),
+    requiresAuth: true,
   });
 }
 
-export async function removeFavorite(productId: string): Promise<void> {
-  await apiClient(`/favorites/${productId}`, {
-    method: 'DELETE',
+/**
+ * Check if product is favorited (requires authentication)
+ */
+export async function checkFavoriteStatus(productId: string): Promise<ToggleFavoriteResponse> {
+  return apiClient<ToggleFavoriteResponse>(`/favorites/${productId}`, {
+    requiresAuth: true,
   });
 }

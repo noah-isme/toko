@@ -8,10 +8,13 @@ import type { FavoriteItem } from '@/entities/favorites/types';
 const favorites: FavoriteItem[] = [];
 
 export const favoritesHandlers = [
+  // GET /favorites - list all favorites
   http.get(apiPath('/favorites'), () => {
-    return HttpResponse.json({ items: favorites });
+    // Backend returns raw array
+    return HttpResponse.json(favorites);
   }),
 
+  // POST /favorites - toggle favorite
   http.post(apiPath('/favorites'), async ({ request }) => {
     const payload = await request.json();
 
@@ -25,30 +28,31 @@ export const favoritesHandlers = [
       return HttpResponse.json({ message: 'Invalid productId' }, { status: 400 });
     }
 
-    const exists = favorites.some((item) => item.productId === productId);
-    if (exists) {
-      return HttpResponse.json({ message: 'Product already in favorites' }, { status: 409 });
-    }
-
-    favorites.push({
-      productId,
-      addedAt: new Date().toISOString(),
-    });
-
-    return HttpResponse.json({ message: 'Added to favorites' }, { status: 201 });
-  }),
-
-  http.delete(apiPath('/favorites/:productId'), ({ params }) => {
-    const { productId } = params as { productId: string };
-
     const index = favorites.findIndex((item) => item.productId === productId);
 
-    if (index === -1) {
-      return HttpResponse.json({ message: 'Favorite not found' }, { status: 404 });
+    if (index !== -1) {
+      // Remove if exists
+      favorites.splice(index, 1);
+      return HttpResponse.json({ favorited: false }, { status: 200 });
     }
 
-    favorites.splice(index, 1);
+    // Add if not exists
+    favorites.push({
+      productId,
+      productName: faker.commerce.productName(),
+      productSlug: productId,
+      price: faker.number.int({ min: 10000, max: 1000000 }),
+      imageUrl: faker.image.url(),
+      createdAt: new Date().toISOString(),
+    });
 
-    return HttpResponse.json({ message: 'Removed from favorites' }, { status: 200 });
+    return HttpResponse.json({ favorited: true }, { status: 200 });
+  }),
+
+  // GET /favorites/:productId - check favorite status
+  http.get(apiPath('/favorites/:productId'), ({ params }) => {
+    const { productId } = params as { productId: string };
+    const favorited = favorites.some((item) => item.productId === productId);
+    return HttpResponse.json({ favorited }, { status: 200 });
   }),
 ];

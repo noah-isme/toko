@@ -4,13 +4,15 @@ import { ProductDetail } from '@/components/product-detail';
 import { ReviewForm } from '@/entities/reviews/ui/ReviewForm';
 import { ReviewList } from '@/entities/reviews/ui/ReviewList';
 import { ReviewStats } from '@/entities/reviews/ui/ReviewStats';
+import { mapApiProductToProduct } from '@/lib/api/mappers/product';
 import { productSchema } from '@/lib/api/schemas';
+import type { ApiProduct, ApiResponse } from '@/lib/api/types';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical } from '@/shared/seo/seo';
 
 interface ProductPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function fetchProduct(slug: string) {
@@ -29,8 +31,8 @@ async function fetchProduct(slug: string) {
       return null;
     }
 
-    const data = await response.json();
-    return productSchema.parse(data);
+    const json = (await response.json()) as ApiResponse<ApiProduct>;
+    return mapApiProductToProduct(json.data);
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line no-console
@@ -50,10 +52,11 @@ function humanizeSlug(slug: string) {
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const product = await fetchProduct(params.slug);
+  const { slug } = await params;
+  const product = await fetchProduct(slug);
   if (!product) {
-    const fallbackTitle = humanizeSlug(params.slug) || 'Product';
-    const canonical = getCanonical(`/products/${params.slug}`);
+    const fallbackTitle = humanizeSlug(slug) || 'Product';
+    const canonical = getCanonical(`/products/${slug}`);
     const ogImage = abs(`/api/og?title=${encodeURIComponent(fallbackTitle)}`);
 
     return {
@@ -120,16 +123,17 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await fetchProduct(params.slug);
+  const { slug } = await params;
+  const product = await fetchProduct(slug);
 
   const structuredData = productJsonLd(product ?? null);
-  const resolvedProductId = product?.id ?? params.slug;
+  const resolvedProductId = product?.id ?? slug;
 
   return (
     <>
       <JsonLd id="product-jsonld" data={structuredData} />
       <div className="space-y-12">
-        <ProductDetail slug={params.slug} />
+        <ProductDetail slug={slug} />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
           <ReviewStats productId={resolvedProductId} />
           <ReviewForm productId={resolvedProductId} />

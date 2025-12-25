@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useReducer, useRef } from 'react';
 
-import { addFavorite, listFavorites, removeFavorite } from './api';
+import { listFavorites, toggleFavorite } from './api';
 import { getFavoritesQueryKey } from './keys';
 import { getGuestId, readGuestFavorites, writeGuestFavorites } from './storage';
-import type { FavoriteItem } from './types';
+import type { FavoriteItem, ToggleFavoriteResponse } from './types';
 
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
@@ -62,13 +62,19 @@ function invalidateFavoritesQueries(queryClient: QueryClient, userIdOrGuestId?: 
   void queryClient.invalidateQueries({ queryKey: getFavoritesQueryKey(userIdOrGuestId) });
 }
 
-export function useFavoritesQuery(userIdOrGuestId?: string) {
+export function useFavoritesQuery(userIdOrGuestId?: string, isAuthenticated = false) {
   return useQuery<FavoriteItem[]>({
     queryKey: getFavoritesQueryKey(userIdOrGuestId),
     queryFn: async () => {
+      // If not authenticated, return guest favorites from local storage
+      if (!isAuthenticated) {
+        return readGuestFavorites();
+      }
+
       try {
         return await listFavorites();
       } catch (error) {
+        // Fallback to guest favorites on error
         const guestFavorites = readGuestFavorites();
         if (guestFavorites.length > 0) {
           return guestFavorites;
@@ -85,30 +91,16 @@ export function useAddFavoriteMutation(userIdOrGuestId?: string) {
   const { toast } = useToast();
   const { add, remove, has } = useInFlightRegistry();
 
-  const mutation = useMutation<void, Error, string, MutationContext>({
+  const mutation = useMutation<ToggleFavoriteResponse, Error, string, MutationContext>({
     mutationFn: async (productId: string) => {
       const sentry = getSentry();
       sentry?.addBreadcrumb({
         category: 'favorites',
-        message: `Adding favorite: ${productId}`,
+        message: `Toggling favorite (add): ${productId}`,
         level: 'info',
       });
 
-      try {
-        await addFavorite(productId);
-      } catch (error) {
-        const currentFavorites = readFavoritesCache(queryClient, userIdOrGuestId) ?? [];
-        const exists = currentFavorites.some((item) => item.productId === productId);
-        if (!exists) {
-          const newFavorites = [
-            ...currentFavorites,
-            { productId, addedAt: new Date().toISOString() },
-          ];
-          writeFavoritesCache(queryClient, userIdOrGuestId, newFavorites);
-          writeGuestFavorites(newFavorites);
-        }
-        throw error;
-      }
+      return toggleFavorite(productId);
     },
     onMutate: async (productId) => {
       await cancelFavoritesQueries(queryClient, userIdOrGuestId);
@@ -117,45 +109,41 @@ export function useAddFavoriteMutation(userIdOrGuestId?: string) {
       const exists = previousFavorites.some((item) => item.productId === productId);
 
       if (!exists) {
-        const optimisticFavorites = [
-          ...previousFavorites,
-          { productId, addedAt: new Date().toISOString() },
-        ];
+        // Optimistic add with placeholder data
+        const optimisticItem: FavoriteItem = {
+          productId,
+          productName: 'Loading...',
+          productSlug: productId,
+          price: 0,
+          imageUrl: '',
+          createdAt: new Date().toISOString(),
+        };
+        const optimisticFavorites = [...previousFavorites, optimisticItem];
         writeFavoritesCache(queryClient, userIdOrGuestId, optimisticFavorites);
-        writeGuestFavorites(optimisticFavorites);
       }
 
       return { previousFavorites } satisfies MutationContext;
     },
-    onSuccess: (_data, productId) => {
-      capturePosthogEvent('fav_add', { productId });
-      toast({
-        id: `fav-${productId}-add-success`,
-        title: 'Ditambahkan ke favorit',
-        variant: 'success',
-      });
+    onSuccess: (data, productId) => {
+      if (data.favorited) {
+        capturePosthogEvent('fav_add', { productId });
+        toast({
+          id: `fav-${productId}-add-success`,
+          title: 'Ditambahkan ke favorit',
+          variant: 'success',
+        });
+      }
     },
     onError: (error, productId, context) => {
       writeFavoritesCache(queryClient, userIdOrGuestId, context?.previousFavorites);
-      if (context?.previousFavorites) {
-        writeGuestFavorites(context.previousFavorites);
-      }
 
       const message = normalizeError(error);
-      if (message.includes('409') || message.toLowerCase().includes('already')) {
-        toast({
-          id: `fav-${productId}-add-info`,
-          title: 'Sudah ada di favorit',
-          variant: 'default',
-        });
-      } else {
-        toast({
-          id: `fav-${productId}-add-error`,
-          title: 'Gagal menambahkan ke favorit',
-          description: message,
-          variant: 'destructive',
-        });
-      }
+      toast({
+        id: `fav-${productId}-add-error`,
+        title: 'Gagal menambahkan ke favorit',
+        description: message,
+        variant: 'destructive',
+      });
     },
     onSettled: () => {
       invalidateFavoritesQueries(queryClient, userIdOrGuestId);
@@ -193,24 +181,16 @@ export function useRemoveFavoriteMutation(userIdOrGuestId?: string) {
   const { toast } = useToast();
   const { add, remove, has } = useInFlightRegistry();
 
-  const mutation = useMutation<void, Error, string, MutationContext>({
+  const mutation = useMutation<ToggleFavoriteResponse, Error, string, MutationContext>({
     mutationFn: async (productId: string) => {
       const sentry = getSentry();
       sentry?.addBreadcrumb({
         category: 'favorites',
-        message: `Removing favorite: ${productId}`,
+        message: `Toggling favorite (remove): ${productId}`,
         level: 'info',
       });
 
-      try {
-        await removeFavorite(productId);
-      } catch (error) {
-        const currentFavorites = readFavoritesCache(queryClient, userIdOrGuestId) ?? [];
-        const newFavorites = currentFavorites.filter((item) => item.productId !== productId);
-        writeFavoritesCache(queryClient, userIdOrGuestId, newFavorites);
-        writeGuestFavorites(newFavorites);
-        throw error;
-      }
+      return toggleFavorite(productId);
     },
     onMutate: async (productId) => {
       await cancelFavoritesQueries(queryClient, userIdOrGuestId);
@@ -219,39 +199,29 @@ export function useRemoveFavoriteMutation(userIdOrGuestId?: string) {
       const optimisticFavorites = previousFavorites.filter((item) => item.productId !== productId);
 
       writeFavoritesCache(queryClient, userIdOrGuestId, optimisticFavorites);
-      writeGuestFavorites(optimisticFavorites);
 
       return { previousFavorites } satisfies MutationContext;
     },
-    onSuccess: (_data, productId) => {
-      capturePosthogEvent('fav_remove', { productId });
-      toast({
-        id: `fav-${productId}-remove-success`,
-        title: 'Dihapus dari favorit',
-        variant: 'success',
-      });
+    onSuccess: (data, productId) => {
+      if (!data.favorited) {
+        capturePosthogEvent('fav_remove', { productId });
+        toast({
+          id: `fav-${productId}-remove-success`,
+          title: 'Dihapus dari favorit',
+          variant: 'success',
+        });
+      }
     },
     onError: (error, productId, context) => {
       writeFavoritesCache(queryClient, userIdOrGuestId, context?.previousFavorites);
-      if (context?.previousFavorites) {
-        writeGuestFavorites(context.previousFavorites);
-      }
 
       const message = normalizeError(error);
-      if (message.includes('404') || message.toLowerCase().includes('not found')) {
-        toast({
-          id: `fav-${productId}-remove-info`,
-          title: 'Sudah tidak ada di favorit',
-          variant: 'default',
-        });
-      } else {
-        toast({
-          id: `fav-${productId}-remove-error`,
-          title: 'Gagal menghapus dari favorit',
-          description: message,
-          variant: 'destructive',
-        });
-      }
+      toast({
+        id: `fav-${productId}-remove-error`,
+        title: 'Gagal menghapus dari favorit',
+        description: message,
+        variant: 'destructive',
+      });
     },
     onSettled: () => {
       invalidateFavoritesQueries(queryClient, userIdOrGuestId);
@@ -284,8 +254,12 @@ export function useRemoveFavoriteMutation(userIdOrGuestId?: string) {
   );
 }
 
-export function useIsFavorite(productId: string, userIdOrGuestId?: string): boolean {
-  const { data } = useFavoritesQuery(userIdOrGuestId);
+export function useIsFavorite(
+  productId: string,
+  userIdOrGuestId?: string,
+  isAuthenticated = false,
+): boolean {
+  const { data } = useFavoritesQuery(userIdOrGuestId, isAuthenticated);
   return useMemo(() => {
     if (!data) return false;
     return data.some((item) => item.productId === productId);

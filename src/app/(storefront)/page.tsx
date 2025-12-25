@@ -1,52 +1,33 @@
-import type { Metadata } from 'next';
+'use client';
 
-import { BrandsSection } from '@/components/brands-section';
-import { CategoriesSection } from '@/components/categories-section';
-import { ProductsCatalog } from '@/components/products-catalog';
+import { LandingPage } from '@/components/landing-page';
+import { useAuth } from '@/components/providers/AuthProvider';
+import { UserHome } from '@/components/user-home';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { orgJsonLd, websiteJsonLd } from '@/shared/seo/jsonld';
-import { abs, getCanonical } from '@/shared/seo/seo';
 
-const pageTitle = 'Home';
-const pageDescription = 'Welcome to toko — discover modern commerce components for your store.';
-const canonical = getCanonical('/');
-const ogImage = abs('/api/og');
-
-export const metadata: Metadata = {
-  title: pageTitle,
-  description: pageDescription,
-  alternates: {
-    canonical,
-    languages: {
-      'en-US': canonical,
-      'id-ID': canonical,
-    },
-  },
-  openGraph: {
-    title: pageTitle,
-    description: pageDescription,
-    url: canonical,
-    type: 'website',
-    images: [{ url: ogImage }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: pageTitle,
-    description: pageDescription,
-    images: [ogImage],
-  },
-};
-
+/**
+ * Main home page that renders:
+ * - LandingPage for guests/unauthenticated users
+ * - UserHome for authenticated users
+ */
 export default function HomePage() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Show loading skeleton while checking auth
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <>
       <JsonLd id="organization-jsonld" data={orgJsonLd()} />
       <JsonLd id="website-jsonld" data={websiteJsonLd()} />
-      <div className="space-y-12">
-        <CategoriesSection />
-        <BrandsSection />
-        <ProductsCatalog />
-      </div>
+      {isAuthenticated ? <UserHome /> : <LandingPage />}
     </>
   );
 }

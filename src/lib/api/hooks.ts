@@ -1,5 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { apiClient } from './apiClient';
+import { mapApiProductToProduct } from './mappers/product';
+import { queryKeys } from './queryKeys';
+import { productSchema } from './schemas';
+import type { Product, ProductList } from './schemas';
+import type { ApiProduct, ApiProductListResponse, ApiResponse } from './types';
+
 export {
   useAddToCartMutation,
   useCartQuery,
@@ -7,26 +14,24 @@ export {
   useUpdateCartItemMutation,
 } from '@/entities/cart/hooks';
 
-import { apiClient } from './apiClient';
-import { queryKeys } from './queryKeys';
-import { productListSchema, productSchema } from './schemas';
-import type { Product, ProductList } from './schemas';
-
 export function useProductsQuery(params?: Record<string, string | number | boolean>) {
   return useQuery<ProductList>({
     queryKey: queryKeys.products(params),
-    queryFn: () => {
+    queryFn: async () => {
+      let path = '/products';
       if (params) {
         const searchParams = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
           searchParams.set(key, String(value));
         });
-        return apiClient(`/products?${searchParams.toString()}`, {
-          schema: productListSchema,
-        });
+        path += `?${searchParams.toString()}`;
       }
 
-      return apiClient('/products', { schema: productListSchema });
+      // Fetch raw data (ApiProductListResponse)
+      const response = await apiClient<ApiProductListResponse>(path);
+
+      // Map to Entity (Product[])
+      return response.data.map(mapApiProductToProduct);
     },
   });
 }
@@ -34,7 +39,10 @@ export function useProductsQuery(params?: Record<string, string | number | boole
 export function useProductQuery(slug: string) {
   return useQuery<Product>({
     queryKey: queryKeys.product(slug),
-    queryFn: () => apiClient(`/products/${slug}`, { schema: productSchema }),
+    queryFn: async () => {
+      const response = await apiClient<ApiResponse<ApiProduct>>(`/products/${slug}`);
+      return mapApiProductToProduct(response.data);
+    },
     enabled: Boolean(slug),
   });
 }

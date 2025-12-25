@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { useAddFavoriteMutation, useIsFavorite, useRemoveFavoriteMutation } from '../hooks';
 import { getGuestId } from '../storage';
 
+import { useAuth } from '@/components/providers/AuthProvider';
 import { cn } from '@/lib/utils';
 
 interface FavToggleProps {
@@ -16,8 +17,9 @@ interface FavToggleProps {
 }
 
 export function FavToggle({ productId, size = 'md', className, userIdOrGuestId }: FavToggleProps) {
+  const { isAuthenticated } = useAuth();
   const userId = userIdOrGuestId ?? getGuestId() ?? undefined;
-  const isFavorite = useIsFavorite(productId, userId);
+  const isFavorite = useIsFavorite(productId, userId, isAuthenticated);
   const { mutate: addFavorite, isProductInFlight: isAddInFlight } = useAddFavoriteMutation(userId);
   const { mutate: removeFavorite, isProductInFlight: isRemoveInFlight } =
     useRemoveFavoriteMutation(userId);

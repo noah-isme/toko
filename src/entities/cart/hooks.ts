@@ -169,10 +169,13 @@ function invalidateCartQueries(queryClient: QueryClient, cartId?: string) {
   }
 }
 
-export function useCartQuery(cartId?: string) {
+export function useCartQuery(cartId?: string, anonId?: string) {
   return useQuery<Cart>({
     queryKey: getCartQueryKey(cartId),
-    queryFn: () => apiClient('/cart', { schema: cartSchema }),
+    queryFn: () => {
+      const path = anonId ? `/carts?anonId=${encodeURIComponent(anonId)}` : '/carts';
+      return apiClient(path, { schema: cartSchema });
+    },
   });
 }
 
@@ -184,7 +187,7 @@ export function useAddToCartMutation() {
     (variables) => `add:${variables.productId}`,
     {
       mutationFn: async ({ productId, quantity }) =>
-        apiClient('/cart/items', {
+        apiClient('/carts/items', {
           method: 'POST',
           body: JSON.stringify(addToCartInputSchema.parse({ productId, quantity })),
           schema: cartSchema,
@@ -269,7 +272,7 @@ export function useUpdateCartItemMutation() {
     (variables) => `update:${variables.itemId}`,
     {
       mutationFn: async ({ itemId, quantity }) =>
-        apiClient(`/cart/items/${itemId}`, {
+        apiClient(`/carts/items/${itemId}`, {
           method: 'PATCH',
           body: JSON.stringify(updateCartItemInputSchema.parse({ quantity })),
           schema: cartSchema,
@@ -342,7 +345,7 @@ export function useRemoveCartItemMutation() {
     (variables) => `remove:${variables.itemId}`,
     {
       mutationFn: async ({ itemId }) =>
-        apiClient(`/cart/items/${itemId}`, {
+        apiClient(`/carts/items/${itemId}`, {
           method: 'DELETE',
           schema: cartSchema,
         }),

@@ -67,3 +67,24 @@ export const reviewCreateInputSchema = z.object({
 });
 
 export type ReviewCreateInput = z.infer<typeof reviewCreateInputSchema>;
+
+// Raw API types (snake_case from backend)
+export interface ApiReview {
+  id: string;
+  product_id: string;
+  user_id: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiReviewStats {
+  total_reviews: number;
+  average_rating: number;
+  count_5_star: number;
+  count_4_star: number;
+  count_3_star: number;
+  count_2_star: number;
+  count_1_star: number;
+}

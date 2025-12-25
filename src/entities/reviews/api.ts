@@ -1,7 +1,10 @@
 import { z, type ZodType } from 'zod';
 
+import { mapApiReviewToReview, mapApiReviewStatsToReviewStats } from './mappers';
 import { reviewCreateInputSchema } from './types';
 import type {
+  ApiReview,
+  ApiReviewStats,
   Review,
   ReviewCreateInput,
   ReviewListParams,
@@ -124,13 +127,26 @@ export async function listReviews(
 ): Promise<ReviewListResponse> {
   const parsedProductId = productIdSchema.parse(productId);
   const path = buildReviewListPath(parsedProductId, params);
-  return apiClient(path, { schema: reviewListResponseSchema });
+
+  // Backend returns raw array
+  const apiReviews = await apiClient<ApiReview[]>(path);
+
+  return {
+    data: apiReviews.map(mapApiReviewToReview),
+    meta: {
+      page: params?.page ?? 1,
+      pageSize: params?.pageSize ?? 10,
+    },
+  };
 }
 
 export async function getReviewStats(productId: string): Promise<ReviewStats> {
   const parsedProductId = productIdSchema.parse(productId);
   const path = `/products/${encodeURIComponent(parsedProductId)}/reviews/stats`;
-  return apiClient(path, { schema: reviewStatsSchema });
+
+  // Backend returns snake_case stats
+  const apiStats = await apiClient<ApiReviewStats>(path);
+  return mapApiReviewStatsToReviewStats(parsedProductId, apiStats);
 }
 
 export async function createReview(
@@ -140,10 +156,15 @@ export async function createReview(
   const parsedProductId = productIdSchema.parse(productId);
   const parsedPayload = reviewCreateInputSchema.parse(payload);
 
+  // Backend expects { rating, comment } - map body to comment
   const response = await apiClient(`/products/${encodeURIComponent(parsedProductId)}/reviews`, {
     method: 'POST',
-    body: JSON.stringify(parsedPayload),
+    body: JSON.stringify({
+      rating: parsedPayload.rating,
+      comment: parsedPayload.body,
+    }),
     schema: reviewCreateResponseSchema,
+    requiresAuth: true,
   });
 
   return {

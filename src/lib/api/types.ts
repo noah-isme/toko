@@ -119,6 +119,32 @@ export interface ApiCreateAddressRequest {
 export interface ApiUpdateAddressRequest extends Partial<ApiCreateAddressRequest> {}
 
 // ============================================================================
+// Catalog Types (Raw API Format)
+// ============================================================================
+
+export interface ApiProduct {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  price: number;
+  compareAt?: number;
+  inStock?: boolean;
+  thumbnail?: string;
+  badges?: string[];
+  rating?: number;
+  reviewCount?: number;
+  categoryId?: string;
+  brand?: string;
+  brandName?: string;
+}
+
+export interface ApiProductListResponse {
+  data: ApiProduct[];
+  pagination: Pagination;
+}
+
+// ============================================================================
 // Catalog Types
 // ============================================================================
 
