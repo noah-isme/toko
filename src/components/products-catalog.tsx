@@ -1,12 +1,22 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useEffect, useMemo, useState } from 'react';
 
-import { FilterSidebar } from '@/components/filter-sidebar';
 import { Pagination } from '@/components/pagination';
 import { ProductCard } from '@/components/product-card';
-import { ProductSort, type SortOption } from '@/components/product-sort';
+import type { SortOption } from '@/components/product-sort';
 import { Button } from '@/components/ui/button';
+
+const FilterSidebar = dynamic(() => import('@/components/filter-sidebar').then(mod => mod.FilterSidebar), {
+  ssr: false,
+  loading: () => <div className="hidden h-screen w-64 shrink-0 rounded-xl border bg-card lg:block" />,
+});
+
+const ProductSort = dynamic(() => import('@/components/product-sort').then(mod => mod.ProductSort), {
+  ssr: false,
+  loading: () => <div className="h-10 w-[200px] rounded-md border bg-card" />,
+});
 import { useProductsQuery } from '@/lib/api/hooks';
 import { emptyProducts } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -30,20 +40,22 @@ export function ProductsCatalog() {
       return [];
     }
 
-    // Filter products
+    // Filter products (using API Contract fields)
     const filtered = data.filter((product) => {
       const matchesSearch = searchTerm
-        ? product.name.toLowerCase().includes(searchTerm) ||
-          product.description.toLowerCase().includes(searchTerm)
+        ? product.title.toLowerCase().includes(searchTerm) ||
+        (product.description?.toLowerCase().includes(searchTerm) ?? false)
         : true;
       const matchesCategory =
         selectedCategories.length === 0 ||
-        product.categories.some((category) => selectedCategories.includes(category));
-      const productBrand = (product as any).brand || (product as any).brandName || '';
+        (product.categoryId && selectedCategories.includes(product.categoryId)) ||
+        (product.categoryName && selectedCategories.includes(product.categoryName.toLowerCase()));
       const matchesBrand =
-        selectedBrands.length === 0 || (productBrand && selectedBrands.includes(productBrand));
+        selectedBrands.length === 0 ||
+        (product.brandId && selectedBrands.includes(product.brandId)) ||
+        (product.brandName && selectedBrands.includes(product.brandName.toLowerCase()));
       const matchesPrice =
-        product.price.amount >= priceRange[0] && product.price.amount <= priceRange[1];
+        product.price >= priceRange[0] && product.price <= priceRange[1];
       return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
     });
 
@@ -51,13 +63,13 @@ export function ProductsCatalog() {
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'name-asc':
-          return a.name.localeCompare(b.name);
+          return a.title.localeCompare(b.title);
         case 'name-desc':
-          return b.name.localeCompare(a.name);
+          return b.title.localeCompare(a.title);
         case 'price-asc':
-          return a.price.amount - b.price.amount;
+          return a.price - b.price;
         case 'price-desc':
-          return b.price.amount - a.price.amount;
+          return b.price - a.price;
         case 'rating':
           return (b.rating || 0) - (a.rating || 0);
         case 'newest':
@@ -78,24 +90,30 @@ export function ProductsCatalog() {
   const totalPages = Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE);
 
   const categories = useMemo(
-    () => (data ? data.flatMap((product) => product.categories) : []),
+    () => (data ? [...new Set(data.map((product) => product.categoryName).filter(Boolean))] : []),
     [data],
-  );
+  ) as string[];
 
   const brands = useMemo(
     () =>
       data
-        ? data
-            .map((product) => (product as any).brand || (product as any).brandName)
-            .filter(Boolean)
+        ? [...new Set(data.map((product) => product.brandName).filter(Boolean))]
         : [],
     [data],
   ) as string[];
 
   const maxPrice = useMemo(() => {
-    if (!data || data.length === 0) return 10000000;
-    return Math.max(...data.map((p) => p.price.amount));
+    if (!data || data.length === 0) return 0;
+    return Math.max(...data.map((p) => p.price));
   }, [data]);
+
+  // Effect to update local price range when data (and thus maxPrice) loads for the first time
+  useEffect(() => {
+    if (maxPrice > 0 && priceRange[1] === 10000000) {
+      setPriceRange([0, maxPrice]);
+    }
+  }, [maxPrice]);
+
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((current) =>
@@ -137,7 +155,7 @@ export function ProductsCatalog() {
         brands={brands}
         selectedBrands={selectedBrands}
         onToggleBrand={toggleBrand}
-        priceRange={[0, maxPrice]}
+        priceRange={[0, maxPrice || 10000000]}
         priceRangeValue={priceRange}
         onPriceRangeChange={handlePriceRangeChange}
       />

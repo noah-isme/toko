@@ -24,31 +24,32 @@ export function BrandFilter({
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
-      <h4 className="text-sm font-semibold">Brands</h4>
-      <div className="space-y-2">
-        {uniqueBrands.map((brand) => {
-          const checked = selectedBrands.includes(brand);
-          return (
-            <label
-              key={brand}
+    <div className={cn('space-y-3', className)}>
+      {uniqueBrands.map((brand) => {
+        const checked = selectedBrands.includes(brand);
+        return (
+          <label
+            key={brand}
+            className="flex cursor-pointer items-center gap-3 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <div
               className={cn(
-                'flex cursor-pointer items-center gap-2 rounded-md p-2 text-sm transition-colors',
-                'hover:bg-accent',
-                checked && 'bg-accent',
+                'flex h-4 w-4 items-center justify-center rounded border border-primary',
+                checked ? 'bg-primary text-primary-foreground' : 'bg-background',
               )}
             >
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                checked={checked}
-                onChange={() => onToggleBrand(brand)}
-              />
-              <span className={cn(checked && 'font-medium')}>{brand}</span>
-            </label>
-          );
-        })}
-      </div>
+              {checked && <div className="h-2 w-2 rounded-full bg-current" />}
+            </div>
+            <input
+              type="checkbox"
+              className="hidden"
+              checked={checked}
+              onChange={() => onToggleBrand(brand)}
+            />
+            <span>{brand}</span>
+          </label>
+        );
+      })}
     </div>
   );
 }

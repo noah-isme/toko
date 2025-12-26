@@ -46,7 +46,7 @@ const sheetVariants = cva(
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
-    VariantProps<typeof sheetVariants>
+  VariantProps<typeof sheetVariants>
 >(({ side = 'right', className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
@@ -55,6 +55,8 @@ const SheetContent = React.forwardRef<
       className={cn(sheetVariants({ side }), className)}
       {...props}
     >
+      {/* Fallback title for accessibility - visually hidden with sr-only */}
+      <DialogPrimitive.Title className="sr-only">Panel</DialogPrimitive.Title>
       {children}
     </DialogPrimitive.Content>
   </SheetPortal>

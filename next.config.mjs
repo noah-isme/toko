@@ -13,6 +13,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cdn.example',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**'
       }
     ]
   }

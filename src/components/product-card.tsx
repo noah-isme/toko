@@ -15,6 +15,7 @@ import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { Product } from '@/lib/api/schemas';
 import { cn } from '@/lib/utils';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
+import { useCartStore } from '@/stores/cart-store';
 
 interface ProductCardProps {
   product: Product;
@@ -22,20 +23,39 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
-  const image = product.images[0];
+  // Use API Contract fields: imageUrl (primary), title, price, stock, inStock
+  const image = product.imageUrl || (product.images && product.images[0]) || '';
+  const isOutOfStock = !product.inStock || product.stock <= 0;
+
   const { mutate, isProductInFlight } = useAddToCartMutation();
-  const isOutOfStock = product.inventory <= 0;
+  const { cartId, initGuestCart } = useCartStore();
   const [showQuickView, setShowQuickView] = useState(false);
 
-  const handleAddToCart = () => {
-    mutate({
+  const handleAddToCart = async () => {
+    // Ensure cart exists before adding
+    if (!cartId) {
+      await initGuestCart();
+    }
+
+    // Get the latest cartId from store (may have been set by initGuestCart)
+    const currentCartId = useCartStore.getState().cartId;
+
+    if (!currentCartId) {
+      console.error('Failed to create cart');
+      return;
+    }
+
+    const payload = {
       productId: product.id,
       quantity: 1,
-      name: product.name,
-      price: product.price,
-      image: product.images[0] ?? null,
-      maxQuantity: product.inventory,
-    });
+      name: product.title,
+      price: { amount: product.price, currency: product.currency || 'IDR' },
+      image: image,
+      maxQuantity: product.stock,
+      cartId: currentCartId,
+    };
+
+    mutate(payload);
   };
 
   return (
@@ -51,7 +71,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             {image ? (
               <Image
                 src={image}
-                alt={product.name}
+                alt={product.title}
                 fill
                 className="object-cover"
                 sizes="(min-width: 768px) 33vw, 100vw"
@@ -70,16 +90,16 @@ export function ProductCard({ product, className }: ProductCardProps) {
               Quick View
             </Button>
           </div>
-          <CardTitle className="line-clamp-2 text-base">{product.name}</CardTitle>
-          <Rating value={product.rating} reviewCount={product.reviewCount} />
+          <CardTitle className="line-clamp-2 text-base">{product.title}</CardTitle>
+          <Rating value={product.rating ?? 0} reviewCount={product.reviewCount ?? 0} />
         </CardHeader>
         <CardContent className="flex-1 space-y-2 text-sm text-muted-foreground">
-          <p className="line-clamp-3">{product.description}</p>
+          <p className="line-clamp-3">{product.description || 'No description available'}</p>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
           <Price
-            amount={product.price.amount}
-            currency={product.price.currency}
+            amount={product.price}
+            currency={product.currency || 'IDR'}
             className="text-lg"
           />
           <div className="flex flex-col gap-2">

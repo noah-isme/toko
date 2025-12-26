@@ -58,33 +58,40 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[] | null | undefined) {
   } as const;
 }
 
+// Updated to match API Contract v0.2.0
 export interface ProductJsonLdInput
   extends Pick<
     Product,
-    'id' | 'name' | 'slug' | 'description' | 'price' | 'images' | 'inventory' | 'categories'
+    'id' | 'title' | 'slug' | 'description' | 'price' | 'imageUrl' | 'images' | 'stock' | 'inStock' | 'categoryName'
   > {
   brand?: string;
+  brandName?: string;
   url?: string;
 }
 
 export function productJsonLd(product: ProductJsonLdInput | null | undefined) {
-  if (!product || !product.price || typeof product.price.amount !== 'number') {
+  if (!product || typeof product.price !== 'number') {
     return null;
   }
 
   const priceCurrency = 'IDR';
   const productUrl = product.url ?? abs(`/products/${product.slug}`);
   const availability =
-    product.inventory > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
-  const images = Array.isArray(product.images)
-    ? product.images.filter(Boolean).map((image) => abs(image))
-    : [];
+    product.inStock && product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+
+  // Combine imageUrl and images array
+  const allImages: string[] = [];
+  if (product.imageUrl) allImages.push(product.imageUrl);
+  if (Array.isArray(product.images)) {
+    allImages.push(...product.images.filter(Boolean));
+  }
+  const images = allImages.map((image) => abs(image));
 
   const offers = {
     '@type': 'Offer',
     url: productUrl,
     priceCurrency,
-    price: Number.isFinite(product.price.amount) ? product.price.amount.toFixed(2) : undefined,
+    price: Number.isFinite(product.price) ? product.price.toFixed(2) : undefined,
     availability,
     itemCondition: 'https://schema.org/NewCondition',
   };
@@ -96,16 +103,16 @@ export function productJsonLd(product: ProductJsonLdInput | null | undefined) {
   return {
     '@context': SCHEMA_CONTEXT,
     '@type': 'Product',
-    name: product.name,
+    name: product.title, // API Contract uses 'title'
     description: product.description,
     sku: product.id,
     url: productUrl,
     image: images.length ? images : undefined,
     brand: {
       '@type': 'Brand',
-      name: product.brand ?? 'toko',
+      name: product.brandName ?? product.brand ?? 'toko',
     },
-    category: product.categories?.length ? product.categories.join(', ') : undefined,
+    category: product.categoryName,
     offers,
   } as const;
 }
@@ -139,17 +146,17 @@ export function orderJsonLd(order: OrderJsonLdInput | null | undefined) {
       price: entry?.price?.toFixed(2),
       itemOffered: entry?.name
         ? {
-            '@type': 'Product',
-            name: entry.name,
-            sku: entry.sku,
-          }
+          '@type': 'Product',
+          name: entry.name,
+          sku: entry.sku,
+        }
         : undefined,
       acceptedPaymentMethod: 'https://schema.org/CreditCard',
       eligibleQuantity: entry?.quantity
         ? {
-            '@type': 'QuantitativeValue',
-            value: entry.quantity,
-          }
+          '@type': 'QuantitativeValue',
+          value: entry.quantity,
+        }
         : undefined,
     }));
 

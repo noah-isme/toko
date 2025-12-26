@@ -1,12 +1,14 @@
 'use client';
 
-import { User, LogIn, LogOut } from 'lucide-react';
+import { User, LogIn, LogOut, ShoppingCart } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 
-import { CartDrawer } from '@/components/cart-drawer';
+
+
 import { Container } from '@/components/layout/container';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { SearchAutocomplete } from '@/components/search-autocomplete';
@@ -19,6 +21,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+
+const CartDrawer = dynamic(() => import('@/components/cart-drawer').then((mod) => mod.CartDrawer), {
+  ssr: false,
+  loading: () => (
+    <Button variant="ghost" className="relative gap-2">
+      <ShoppingCart aria-hidden="true" className="h-5 w-5" />
+      <span aria-hidden="true" className="sr-only sm:not-sr-only">
+        Cart
+      </span>
+    </Button>
+  ),
+});
 
 const navLinks = [
   { href: '/' as Route, label: 'Home' },

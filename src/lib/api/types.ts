@@ -116,7 +116,7 @@ export interface ApiCreateAddressRequest {
 /**
  * Address update request (snake_case for API)
  */
-export interface ApiUpdateAddressRequest extends Partial<ApiCreateAddressRequest> {}
+export interface ApiUpdateAddressRequest extends Partial<ApiCreateAddressRequest> { }
 
 // ============================================================================
 // Catalog Types (Raw API Format)
@@ -182,42 +182,31 @@ export interface ProductVariant {
   attributes: Record<string, string>;
 }
 
+// Product interface matching API Contract v0.2.0 (line 354-386)
 export interface Product {
   id: string;
   title: string;
   slug: string;
-  description: string;
+  description?: string;
   price: number;
   originalPrice?: number;
   discountPercent?: number;
   currency: string;
-  categoryId: string;
-  categoryName: string;
+  categoryId?: string;
+  categoryName?: string;
   brandId?: string;
   brandName?: string;
-  imageUrl: string;
+  imageUrl?: string; // Primary image
   images?: string[];
   stock: number;
   inStock: boolean;
   rating?: number;
   reviewCount?: number;
   tags?: string[];
-  createdAt: string;
+  createdAt?: string;
 }
 
-export interface ProductDetail
-  extends Omit<Product, 'categoryId' | 'categoryName' | 'brandId' | 'brandName' | 'images'> {
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  brand?: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  images: ProductImage[];
+export interface ProductDetail extends Product {
   variants?: ProductVariant[];
   specifications?: Record<string, string>;
   weight?: number;
@@ -225,7 +214,7 @@ export interface ProductDetail
   updatedAt: string;
 }
 
-export type ProductSortOption = 'price:asc' | 'price:desc' | 'title:asc' | 'title:desc';
+export type ProductSortOption = 'price:asc' | 'price:desc' | 'name:asc' | 'name:desc';
 
 export interface ProductFilters {
   q?: string;

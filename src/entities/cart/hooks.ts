@@ -13,6 +13,8 @@ import {
   type Cart,
   type CartItem,
 } from '@/lib/api/schemas';
+import type { ApiResponse, Cart as ApiCart } from '@/lib/api/types';
+import { mapApiCartToCart } from '@/lib/api/mappers/cart';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { useToast } from '@/shared/ui/toast';
 
@@ -172,9 +174,10 @@ function invalidateCartQueries(queryClient: QueryClient, cartId?: string) {
 export function useCartQuery(cartId?: string, anonId?: string) {
   return useQuery<Cart>({
     queryKey: getCartQueryKey(cartId),
-    queryFn: () => {
+    queryFn: async () => {
       const path = anonId ? `/carts?anonId=${encodeURIComponent(anonId)}` : '/carts';
-      return apiClient(path, { schema: cartSchema });
+      const response = await apiClient<ApiResponse<ApiCart>>(path);
+      return mapApiCartToCart(response.data);
     },
   });
 }
@@ -186,12 +189,23 @@ export function useAddToCartMutation() {
   const mutation = useGuardedMutation<Cart, Error, AddCartItemVariables, MutationContext>(
     (variables) => `add:${variables.productId}`,
     {
-      mutationFn: async ({ productId, quantity }) =>
-        apiClient('/carts/items', {
+      mutationFn: async ({ productId, quantity, cartId }) => {
+        if (!cartId) {
+          throw new Error('Cart ID is required to add items');
+        }
+        if (!productId) {
+          throw new Error('Product ID is required to add items');
+        }
+        const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}/items`, {
           method: 'POST',
-          body: JSON.stringify(addToCartInputSchema.parse({ productId, quantity })),
-          schema: cartSchema,
-        }),
+          body: JSON.stringify(addToCartInputSchema.parse({ productId, qty: quantity })),
+          // Schema removed because we handle wrapped response manually
+        });
+
+        // Map, then validate frontend schema
+        const mappedCart = mapApiCartToCart(response.data);
+        return cartSchema.parse(mappedCart);
+      },
       onMutate: async (variables) => {
         const { productId, quantity, name, price, image, maxQuantity, cartId } = variables;
         await cancelCartQueries(queryClient, cartId);
@@ -271,12 +285,16 @@ export function useUpdateCartItemMutation() {
   const mutation = useGuardedMutation<Cart, Error, UpdateCartItemVariables, MutationContext>(
     (variables) => `update:${variables.itemId}`,
     {
-      mutationFn: async ({ itemId, quantity }) =>
-        apiClient(`/carts/items/${itemId}`, {
+      mutationFn: async ({ itemId, quantity, cartId }) => {
+        if (!cartId) {
+          throw new Error('Cart ID is required to update items');
+        }
+        return apiClient(`/carts/${cartId}/items/${itemId}`, {
           method: 'PATCH',
-          body: JSON.stringify(updateCartItemInputSchema.parse({ quantity })),
+          body: JSON.stringify(updateCartItemInputSchema.parse({ qty: quantity })),
           schema: cartSchema,
-        }),
+        });
+      },
       onMutate: async (variables) => {
         const { itemId, quantity, maxQuantity, cartId } = variables;
         await cancelCartQueries(queryClient, cartId);
@@ -344,11 +362,15 @@ export function useRemoveCartItemMutation() {
   const mutation = useGuardedMutation<Cart, Error, RemoveCartItemVariables, MutationContext>(
     (variables) => `remove:${variables.itemId}`,
     {
-      mutationFn: async ({ itemId }) =>
-        apiClient(`/carts/items/${itemId}`, {
+      mutationFn: async ({ itemId, cartId }) => {
+        if (!cartId) {
+          throw new Error('Cart ID is required to remove items');
+        }
+        return apiClient(`/carts/${cartId}/items/${itemId}`, {
           method: 'DELETE',
           schema: cartSchema,
-        }),
+        });
+      },
       onMutate: async (variables) => {
         const { itemId, cartId } = variables;
         await cancelCartQueries(queryClient, cartId);

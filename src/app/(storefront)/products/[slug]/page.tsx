@@ -85,16 +85,16 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     };
   }
 
-  const title = product.name;
+  const title = product.title;
   const description = product.description;
   const canonical = getCanonical(`/products/${product.slug}`);
   const productUrl = abs(`/products/${product.slug}`);
   const ogImages = product.images?.length
     ? product.images.map((image, index) => ({
-        url: abs(image),
-        alt: `${product.name} image ${index + 1}`,
-      }))
-    : [{ url: abs('/api/og?title=' + encodeURIComponent(product.name)) }];
+      url: abs(image),
+      alt: `${product.title} image ${index + 1}`,
+    }))
+    : [{ url: abs('/api/og?title=' + encodeURIComponent(product.title)) }];
 
   return {
     title,

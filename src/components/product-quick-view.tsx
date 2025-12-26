@@ -60,6 +60,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
       <DialogContent className="max-w-4xl">
         {isLoading ? (
           <div className="space-y-4">
+            <DialogTitle className="sr-only">Loading product details</DialogTitle>
             <Skeleton className="h-8 w-3/4" />
             <div className="grid gap-6 md:grid-cols-2">
               <Skeleton className="aspect-square w-full" />
@@ -95,34 +96,22 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
               {/* Product Details */}
               <div className="flex flex-col space-y-4">
                 {/* Rating */}
-                {product.rating && (
-                  <Rating value={product.rating} reviewCount={product.reviewCount} />
+                {product.rating !== undefined && (
+                  <Rating value={product.rating} reviewCount={product.reviewCount || 0} />
                 )}
 
                 {/* Price */}
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">{formatCurrency(product.price)}</span>
-                    {product.originalPrice && product.originalPrice > product.price && (
-                      <span className="text-lg text-muted-foreground line-through">
-                        {formatCurrency(product.originalPrice)}
-                      </span>
-                    )}
-                  </div>
-                  {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="text-sm font-medium text-green-600">
-                      Save{' '}
-                      {Math.round(
-                        ((product.originalPrice - product.price) / product.originalPrice) * 100,
-                      )}
-                      %
+                    <span className="text-3xl font-bold">
+                      {formatCurrency(product.price)}
                     </span>
-                  )}
+                  </div>
                 </div>
 
                 {/* Stock Status */}
                 <div>
-                  {product.stock > 0 ? (
+                  {product.inStock && product.stock > 0 ? (
                     <span className="text-sm text-green-600">
                       In Stock ({product.stock} available)
                     </span>
@@ -132,7 +121,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                 </div>
 
                 {/* Description */}
-                <p className="line-clamp-4 text-sm text-muted-foreground">{product.description}</p>
+                <p className="line-clamp-4 text-sm text-muted-foreground">{product.description || 'No description available'}</p>
 
                 {/* Quantity & Actions */}
                 <div className="space-y-3">
@@ -149,7 +138,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                     <Button
                       className="flex-1"
                       onClick={handleAddToCart}
-                      disabled={product.stock === 0 || addToCart.isPending}
+                      disabled={!product.inStock || product.stock === 0 || addToCart.isPending}
                     >
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       {addToCart.isPending ? 'Adding...' : 'Add to Cart'}
@@ -172,7 +161,10 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
             </div>
           </>
         ) : (
-          <div className="py-8 text-center text-muted-foreground">Product not found</div>
+          <div className="py-8 text-center text-muted-foreground">
+            <DialogTitle className="sr-only">Product not found</DialogTitle>
+            Product not found
+          </div>
         )}
       </DialogContent>
     </Dialog>
