@@ -133,7 +133,7 @@ test.describe('Checkout address flow', () => {
       await openCheckout(page);
 
       // Proceed button should be disabled or show hint
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
 
       // Either disabled or has a hint tooltip
       const isDisabled = await proceedButton.isDisabled();
@@ -156,7 +156,7 @@ test.describe('Checkout address flow', () => {
       await selectShipping(page);
 
       // Proceed button should be enabled
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       await expect(proceedButton).toBeEnabled({ timeout: 15_000 });
     });
   });
@@ -237,7 +237,7 @@ test.describe('Checkout address flow', () => {
       expect(shippingLabel.length).toBeGreaterThan(0);
 
       // Proceed button should now be enabled
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       await expect(proceedButton).toBeEnabled({ timeout: 15_000 });
     });
   });

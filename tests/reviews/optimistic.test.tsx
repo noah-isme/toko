@@ -191,7 +191,7 @@ describe('reviews hooks optimistic updates', () => {
     server.use(
       http.post(apiPath('/reviews/:reviewId/vote'), async ({ request }) => {
         await delay(80);
-        const payload = await request.json();
+        const payload = await request.json() as { dir: 'up' | 'down' };
         return HttpResponse.json(
           {
             helpfulCount: baseHelpful + (payload.dir === 'up' ? 1 : 0),

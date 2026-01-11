@@ -1,4 +1,5 @@
 import type { WebVitalMetric } from './vitals';
+export type { WebVitalMetric };
 
 import { capturePosthogEvent, getPosthog } from '@/shared/telemetry/posthog';
 import { captureSentryMessage, getSentryUser } from '@/shared/telemetry/sentry';

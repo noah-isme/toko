@@ -35,7 +35,50 @@ export const OrderDraftSchema = z.object({
   totals: TotalsSchema,
 });
 
+// Checkout Schema matching the user's new requirement
+export const CheckoutSchema = z.object({
+  cartId: z.string().min(1, 'Invalid Cart ID'),
+  shippingAddressId: z.string().min(1, 'Please select a shipping address'),
+  shippingService: z.string().min(1, 'Please select a shipping service'),
+  shippingCost: z.number().min(0),
+  paymentMethod: z.enum([
+    'bank_transfer',
+    'virtual_account',
+    'credit_card',
+    'ewallet_gopay',
+    'ewallet_ovo',
+    'ewallet_dana'
+  ]),
+  notes: z.string().max(500).optional(),
+});
+
+export const CheckoutResponseSchema = z.preprocess(
+  (val: any) => {
+    if (!val || typeof val !== 'object') return val;
+    return {
+      orderId: val.orderId || val.order_id || val.id,
+      orderNumber: val.orderNumber || val.order_number || val.order_no || 'ORD-UNKNOWN',
+      status: val.status || 'pending',
+      total: typeof val.total === 'number' ? val.total :
+        typeof val.total_amount === 'number' ? val.total_amount :
+          typeof val.amount === 'number' ? val.amount : 0,
+      paymentUrl: val.paymentUrl || val.payment_url || val.redirect_url,
+      paymentExpiry: val.paymentExpiry || val.payment_expiry || val.expiry_time,
+    };
+  },
+  z.object({
+    orderId: z.string(),
+    orderNumber: z.string(),
+    status: z.string(),
+    total: z.number(),
+    paymentUrl: z.string().optional(),
+    paymentExpiry: z.string().optional(),
+  })
+);
+
 export type Address = z.infer<typeof AddressSchema>;
 export type ShippingOption = z.infer<typeof ShippingOptionSchema>;
 export type Totals = z.infer<typeof TotalsSchema>;
 export type OrderDraft = z.infer<typeof OrderDraftSchema>;
+export type CheckoutPayload = z.infer<typeof CheckoutSchema>;
+export type CheckoutResponse = z.infer<typeof CheckoutResponseSchema>;

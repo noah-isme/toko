@@ -1,16 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HttpResponse, http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { mockAddressHandlers } from '../address/utils';
-
 import CheckoutPage from '@/app/(storefront)/checkout/page';
+import { writeGuestAddresses } from '@/entities/address/storage';
 import type { Address } from '@/entities/address/types';
-import { server } from '@/mocks/server';
-import { apiPath } from '@/mocks/utils';
 
 const replaceMock = vi.fn();
 const prefetchMock = vi.fn();
@@ -40,6 +36,7 @@ function createQueryClient() {
 describe('CheckoutPage address selection', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
     replaceMock.mockClear();
   });
 
@@ -72,7 +69,7 @@ describe('CheckoutPage address selection', () => {
         updatedAt: new Date().toISOString(),
       },
     ];
-    mockAddressHandlers(seed);
+    writeGuestAddresses(seed);
 
     const user = userEvent.setup();
     const queryClient = createQueryClient();
@@ -87,13 +84,13 @@ describe('CheckoutPage address selection', () => {
       expect(screen.getByText('Alamat pengiriman')).toBeInTheDocument();
     });
 
+    // pick alternative address from inline list
+    const secondaryAddress = screen.getByRole('radio', { name: /secondary user/i });
+    await user.click(secondaryAddress);
+
     await waitFor(() => {
       expect(screen.getByText('Shipping Options')).toBeInTheDocument();
     });
-
-    // pick alternative address from inline list
-    const secondaryAddress = screen.getByRole('radio', { name: /secondary/i });
-    await user.click(secondaryAddress);
 
     await waitFor(() => {
       expect(screen.getByText(/Bandung/i)).toBeInTheDocument();
@@ -101,8 +98,6 @@ describe('CheckoutPage address selection', () => {
   });
 
   it('disables checkout when no address is available', async () => {
-    server.use(http.get(apiPath('/addresses'), () => HttpResponse.json([])));
-
     const queryClient = createQueryClient();
     const Wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
@@ -114,8 +109,7 @@ describe('CheckoutPage address selection', () => {
       expect(screen.getByText(/Belum ada alamat terpilih/i)).toBeInTheDocument();
     });
 
-    const proceedButton = screen.getByRole('button', { name: /proceed to pay/i });
-    expect(proceedButton).toBeDisabled();
-    expect(screen.getByText(/Lengkapi alamat pengiriman/i)).toBeInTheDocument();
+    expect(screen.queryByText('Shipping Options')).toBeNull();
+    expect(screen.queryByRole('button', { name: /bayar sekarang/i })).toBeNull();
   });
 });

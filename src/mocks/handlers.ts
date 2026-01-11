@@ -11,6 +11,7 @@ import { authHandlers } from './handlers/authHandlers';
 import { apiPath } from './utils';
 
 import { addToCartInputSchema, updateCartItemInputSchema, Cart, Product } from '@/lib/api/schemas';
+import type { Cart as ApiCart } from '@/lib/api/types';
 
 function createProduct(): Product {
   const stock = faker.number.int({ min: 0, max: 50 });
@@ -90,6 +91,40 @@ recalculateCartTotals();
 
 (globalThis as { __tokoCartMock?: Cart }).__tokoCartMock = cart;
 
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function mapCartToApiCart(): ApiCart {
+  return {
+    id: cart.id,
+    anonId: null,
+    voucher: null,
+    currency: cart.subtotal.currency,
+    pricing: {
+      subtotal: cart.subtotal.amount,
+      discount: 0,
+      tax: 0,
+      shipping: 0,
+      total: cart.subtotal.amount,
+    },
+    items: cart.items.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      title: item.name,
+      slug: slugify(item.name),
+      qty: item.quantity,
+      unitPrice: item.price.amount,
+      subtotal: item.price.amount * item.quantity,
+      imageUrl: item.image ?? undefined,
+    })),
+  };
+}
+
 export const handlers = [
   http.get(apiPath('/categories'), () => HttpResponse.json({ data: SEED_CATEGORIES })),
   http.get(apiPath('/brands'), () => HttpResponse.json({ data: SEED_BRANDS })),
@@ -125,6 +160,8 @@ export const handlers = [
     return HttpResponse.json({ data: product });
   }),
   http.get(apiPath('/cart'), () => HttpResponse.json(cart)),
+  http.get(apiPath('/carts'), () => HttpResponse.json({ data: mapCartToApiCart() })),
+  http.get(apiPath('/carts/:cartId'), () => HttpResponse.json({ data: mapCartToApiCart() })),
   http.post(apiPath('/cart/items'), async ({ request }) => {
     const payload = await request.json();
     const parsed = addToCartInputSchema.safeParse(payload);
@@ -170,6 +207,51 @@ export const handlers = [
 
     return HttpResponse.json(cart);
   }),
+  http.post(apiPath('/carts/:cartId/items'), async ({ request }) => {
+    const payload = await request.json();
+    const parsed = addToCartInputSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return HttpResponse.json(
+        { message: 'Invalid cart payload', issues: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+
+    const { productId, qty } = parsed.data;
+    const product = products.find((item) => item.id === productId);
+
+    if (!product) {
+      return HttpResponse.json({ message: 'Product not found' }, { status: 404 });
+    }
+
+    if (!product.inStock || product.stock <= 0) {
+      return HttpResponse.json({ message: 'Product is out of stock' }, { status: 409 });
+    }
+
+    const existingItem = cart.items.find((item) => item.productId === productId);
+    const maxQuantity = Math.max(1, product.stock);
+    const safeQuantity = Math.min(qty, maxQuantity);
+
+    if (existingItem) {
+      existingItem.quantity = Math.min(existingItem.quantity + safeQuantity, maxQuantity);
+      existingItem.maxQuantity = maxQuantity;
+    } else {
+      cart.items.push({
+        id: faker.string.uuid(),
+        productId,
+        name: product.title,
+        quantity: safeQuantity,
+        price: { amount: product.price, currency: product.currency },
+        image: product.imageUrl ?? null,
+        maxQuantity,
+      });
+    }
+
+    recalculateCartTotals();
+
+    return HttpResponse.json({ data: mapCartToApiCart() });
+  }),
   http.patch(apiPath('/cart/items/:itemId'), async ({ params, request }) => {
     const payload = await request.json();
     const parsed = updateCartItemInputSchema.safeParse(payload);
@@ -198,6 +280,38 @@ export const handlers = [
 
     return HttpResponse.json(cart);
   }),
+  http.patch(apiPath('/carts/:cartId/items/:itemId'), async ({ params, request }) => {
+    const payload = await request.json();
+    const parsed = updateCartItemInputSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return HttpResponse.json(
+        { message: 'Invalid cart payload', issues: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+
+    const { itemId } = params;
+    const item = cart.items.find((entry) => entry.id === itemId);
+
+    if (!item) {
+      return HttpResponse.json({ message: 'Cart item not found' }, { status: 404 });
+    }
+
+    item.quantity = parsed.data.qty;
+
+    if (item.maxQuantity && item.quantity > item.maxQuantity) {
+      item.quantity = item.maxQuantity;
+    }
+
+    if (item.quantity < 1) {
+      item.quantity = 1;
+    }
+
+    recalculateCartTotals();
+
+    return HttpResponse.json(cart);
+  }),
   http.delete(apiPath('/cart/items/:itemId'), ({ params }) => {
     const itemId = params.itemId as string;
     const initialLength = cart.items.length;
@@ -207,6 +321,19 @@ export const handlers = [
       return HttpResponse.json({ message: 'Cart item not found' }, { status: 404 });
     }
 
+    recalculateCartTotals();
+
+    return HttpResponse.json(cart);
+  }),
+  http.delete(apiPath('/carts/:cartId/items/:itemId'), ({ params }) => {
+    const { itemId } = params;
+    const itemIndex = cart.items.findIndex((entry) => entry.id === itemId);
+
+    if (itemIndex === -1) {
+      return HttpResponse.json({ message: 'Cart item not found' }, { status: 404 });
+    }
+
+    cart.items.splice(itemIndex, 1);
     recalculateCartTotals();
 
     return HttpResponse.json(cart);

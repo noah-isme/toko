@@ -4,11 +4,13 @@
  */
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { setAccessToken, getAccessToken } from '../../lib/api/apiClient';
-import { authApi } from '../../lib/api/services';
+import { authApi, cartApi } from '../../lib/api/services';
 import type { User, LoginRequest, RegisterRequest } from '../../lib/api/types';
+import { queryKeys } from '../../lib/api/queryKeys';
 import { useCartStore } from '../../stores/cart-store';
 
 interface AuthContextValue {
@@ -27,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const mergeGuestCart = useCartStore((state) => state.mergeGuestCart);
+  const queryClient = useQueryClient();
 
   // Check for existing session on mount
   useEffect(() => {
@@ -35,8 +38,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (token) {
         try {
-          const currentUser = await authApi.getCurrentUser();
+          // Parallel fetch: Get User & Get Active Cart
+          const [currentUser, activeCart] = await Promise.all([
+            authApi.getCurrentUser(),
+            cartApi.getActiveCart().catch(() => null), // Gracefully handle if no active cart
+          ]);
+
           setUser(currentUser);
+
+          // If server returns an active cart, force-update our store
+          if (activeCart?.id) {
+            useCartStore.getState().setCartId(activeCart.id);
+          }
+
+          // Ensure cart is synced after initialization
+          await queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
         } catch (error) {
           // Token is invalid, clear it
           setAccessToken(null);
@@ -75,6 +91,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Merge guest cart after login
       await mergeGuestCart();
+
+      // Invalidate cart queries to ensure UI syncs with new user's cart
+      await queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Merge guest cart after registration
       await mergeGuestCart();
+
+      // Invalidate cart queries
+      await queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
     } finally {
       setIsLoading(false);
     }
@@ -101,6 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Clear cart on logout
       useCartStore.getState().clearCart();
+
+      // Remove cart queries to clear sensitive data and ensure fresh state
+      queryClient.removeQueries({ queryKey: queryKeys.cart() });
     } finally {
       setIsLoading(false);
     }

@@ -32,7 +32,7 @@ export function UserHome() {
       {/* Quick Access */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <QuickAccessCard
-          href="/orders"
+          href="/account/orders"
           icon={Package}
           title="Pesanan Saya"
           description="Lihat status dan riwayat pesanan"
@@ -71,7 +71,7 @@ export function UserHome() {
 }
 
 interface QuickAccessCardProps {
-  href: '/orders' | '/favorites' | '/cart' | '/products';
+  href: '/account/orders' | '/favorites' | '/cart' | '/products';
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;

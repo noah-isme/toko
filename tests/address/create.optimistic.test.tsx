@@ -55,6 +55,7 @@ describe('address create mutation', () => {
         province: 'Jawa Barat',
         postalCode: '40111',
         country: 'ID',
+        clientRequestId: 'req-1',
       });
     });
 
@@ -119,6 +120,7 @@ describe('address create mutation', () => {
         province: 'DIY',
         postalCode: '55111',
         country: 'ID',
+        clientRequestId: 'req-2',
       });
     });
 

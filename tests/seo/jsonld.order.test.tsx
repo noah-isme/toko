@@ -9,7 +9,7 @@ describe('order JSON-LD', () => {
   it('serializes order information with order number and total', () => {
     const data = orderJsonLd({
       orderId: 'ORDER-2024',
-      url: '/orders/ORDER-2024',
+      url: '/order/confirmation/ORDER-2024',
       total: 325000,
       acceptedOffers: [
         {

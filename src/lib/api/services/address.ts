@@ -64,14 +64,13 @@ export const addressApi = {
   /**
    * Delete address
    */
-  async deleteAddress(addressId: string): Promise<{ message: string }> {
-    const response = await apiClient<ApiResponse<{ message: string }>>(
+  async deleteAddress(addressId: string): Promise<void> {
+    await apiClient(
       `/users/me/addresses/${addressId}`,
       {
         method: 'DELETE',
         requiresAuth: true,
       },
     );
-    return response.data;
   },
 };

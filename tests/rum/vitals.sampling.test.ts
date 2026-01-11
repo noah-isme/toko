@@ -18,7 +18,7 @@ describe('RUM sampling', () => {
   const originalSessionStorage = window.sessionStorage;
 
   beforeEach(() => {
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
     process.env.NEXT_PUBLIC_POSTHOG_KEY = 'ph-key';
     process.env.NEXT_PUBLIC_RUM_DEST = 'posthog';
     process.env.NEXT_PUBLIC_RUM_SAMPLE = '0.1';
@@ -26,7 +26,7 @@ describe('RUM sampling', () => {
   });
 
   afterEach(async () => {
-    process.env.NODE_ENV = originalEnv;
+    vi.unstubAllEnvs();
     delete process.env.NEXT_PUBLIC_POSTHOG_KEY;
     delete process.env.NEXT_PUBLIC_RUM_DEST;
     delete process.env.NEXT_PUBLIC_RUM_SAMPLE;

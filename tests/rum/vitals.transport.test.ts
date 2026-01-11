@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { RumMetricPayload, WebVitalMetric } from '@/shared/rum/transport';
 
 const capturePosthogEvent = vi.fn();
 const getPosthog = vi.fn(() => ({
@@ -23,7 +24,7 @@ describe('reportWebVital transport', () => {
 
   beforeEach(() => {
     originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    vi.stubEnv('NODE_ENV', 'development');
     process.env.NEXT_PUBLIC_POSTHOG_KEY = 'ph-key';
     process.env.NEXT_PUBLIC_SENTRY_DSN = 'sentry-dsn';
     process.env.NEXT_PUBLIC_RUM_DEST = 'both';
@@ -78,7 +79,7 @@ describe('reportWebVital transport', () => {
     transportModule.__resetRumInternalState();
 
     vi.resetAllMocks();
-    process.env.NODE_ENV = originalEnv;
+    vi.unstubAllEnvs();
     delete process.env.NEXT_PUBLIC_POSTHOG_KEY;
     delete process.env.NEXT_PUBLIC_SENTRY_DSN;
     delete process.env.NEXT_PUBLIC_RUM_DEST;
@@ -93,18 +94,20 @@ describe('reportWebVital transport', () => {
       payloads.push(payload);
     });
 
-    const metric = {
+    const metric: WebVitalMetric = {
       name: 'LCP',
       value: 2500,
       delta: 2500,
+      id: 'v1-id',
+      entries: [],
       rating: 'good',
       navigationType: 'navigate',
-    } as const;
+    };
 
     transportModule.reportWebVital(metric);
 
     expect(payloads).toHaveLength(1);
-    const payload = payloads[0] as transportModule.RumMetricPayload;
+    const payload = payloads[0] as RumMetricPayload;
 
     expect(payload.metric).toBe('LCP');
     expect(payload.value).toBe(2500);
@@ -135,7 +138,7 @@ describe('reportWebVital transport', () => {
   });
 
   it('skips transport in test environments', async () => {
-    process.env.NODE_ENV = 'test';
+    vi.stubEnv('NODE_ENV', 'test');
 
     const transportModule = await import('@/shared/rum/transport');
 

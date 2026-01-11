@@ -85,10 +85,10 @@ export interface ResetPasswordRequest {
  */
 export interface ApiAddressResponse {
   id: string;
-  full_name: string;
+  receiver_name: string;
   phone: string;
-  line1: string;
-  line2?: string;
+  address_line1: string;
+  address_line2?: string;
   city: string;
   province: string;
   postal_code: string;
@@ -102,10 +102,10 @@ export interface ApiAddressResponse {
  * Address creation request (snake_case for API)
  */
 export interface ApiCreateAddressRequest {
-  full_name: string;
+  receiver_name: string;
   phone: string;
-  line1: string;
-  line2?: string;
+  address_line1: string;
+  address_line2?: string;
   city: string;
   province: string;
   postal_code: string;

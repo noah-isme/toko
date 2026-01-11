@@ -175,8 +175,12 @@ export function useCartQuery(cartId?: string, anonId?: string) {
   return useQuery<Cart>({
     queryKey: getCartQueryKey(cartId),
     queryFn: async () => {
+      if (cartId) {
+        const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}`, { requiresAuth: true });
+        return mapApiCartToCart(response.data);
+      }
       const path = anonId ? `/carts?anonId=${encodeURIComponent(anonId)}` : '/carts';
-      const response = await apiClient<ApiResponse<ApiCart>>(path);
+      const response = await apiClient<ApiResponse<ApiCart>>(path, { requiresAuth: true });
       return mapApiCartToCart(response.data);
     },
   });
@@ -200,6 +204,7 @@ export function useAddToCartMutation() {
           method: 'POST',
           body: JSON.stringify(addToCartInputSchema.parse({ productId, qty: quantity })),
           // Schema removed because we handle wrapped response manually
+          requiresAuth: true,
         });
 
         // Map, then validate frontend schema
@@ -293,6 +298,7 @@ export function useUpdateCartItemMutation() {
           method: 'PATCH',
           body: JSON.stringify(updateCartItemInputSchema.parse({ qty: quantity })),
           schema: cartSchema,
+          requiresAuth: true,
         });
       },
       onMutate: async (variables) => {
@@ -369,6 +375,7 @@ export function useRemoveCartItemMutation() {
         return apiClient(`/carts/${cartId}/items/${itemId}`, {
           method: 'DELETE',
           schema: cartSchema,
+          requiresAuth: true,
         });
       },
       onMutate: async (variables) => {

@@ -22,6 +22,21 @@ const draftRequestSchema = z.object({
   notes: z.string().optional(),
 });
 
+const shippingQuoteRequestSchema = z.object({
+  destination: z.string().min(1),
+  courier: z.string().min(1),
+  weightGram: z.number().positive(),
+});
+
+const checkoutRequestSchema = z.object({
+  cartId: z.string().min(1),
+  shippingAddressId: z.string().min(1),
+  shippingService: z.string().min(1),
+  shippingCost: z.number().nonnegative(),
+  paymentMethod: z.string().min(1),
+  notes: z.string().optional(),
+});
+
 const shippingOptions = [
   {
     id: 'reg',
@@ -47,6 +62,30 @@ const shippingOptions = [
 ] satisfies z.infer<typeof ShippingOptionSchema>[];
 
 const shippingOptionsSchema = z.array(ShippingOptionSchema);
+
+const shippingRates = [
+  {
+    service: 'REG',
+    description: 'Regular Service',
+    cost: 15000,
+    etd: '2-3 days',
+    note: '',
+  },
+  {
+    service: 'YES',
+    description: 'Yakin Esok Sampai',
+    cost: 35000,
+    etd: '1 day',
+    note: '',
+  },
+  {
+    service: 'OKE',
+    description: 'Ongkos Kirim Ekonomis',
+    cost: 10000,
+    etd: '4-5 days',
+    note: '',
+  },
+];
 
 function getCartTotals() {
   const globalScope = globalThis as {
@@ -75,6 +114,57 @@ function getCartTotals() {
 }
 
 export const checkoutHandlers = [
+  http.post(apiPath('/carts/:cartId/quote/shipping'), async ({ request }) => {
+    const payload = await request.json();
+    const parsed = shippingQuoteRequestSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'INVALID_SHIPPING_QUOTE',
+            message: 'Shipping quote payload is invalid',
+          },
+        },
+        { status: 400 },
+      );
+    }
+
+    return HttpResponse.json({ data: shippingRates });
+  }),
+  http.post(apiPath('/checkout'), async ({ request }) => {
+    const payload = await request.json();
+    const parsed = checkoutRequestSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'INVALID_CHECKOUT',
+            message: 'Checkout payload is invalid',
+          },
+        },
+        { status: 400 },
+      );
+    }
+
+    const { subtotal, discount } = getCartTotals();
+    const tax = Math.round((subtotal - discount) * 0.11);
+    const total = subtotal - discount + tax + parsed.data.shippingCost;
+    const orderId = `order-${Date.now()}`;
+    const orderNumber = `ORD-${Date.now()}`;
+
+    return HttpResponse.json({
+      data: {
+        orderId,
+        orderNumber,
+        status: 'pending_payment',
+        total,
+        currency: 'IDR',
+        paymentMethod: parsed.data.paymentMethod,
+      },
+    });
+  }),
   http.post(apiPath('/checkout/quote'), async ({ request }) => {
     const payload = await request.json();
     const parsed = quoteRequestSchema.safeParse(payload);

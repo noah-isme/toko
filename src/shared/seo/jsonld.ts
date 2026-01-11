@@ -136,7 +136,7 @@ export function orderJsonLd(order: OrderJsonLdInput | null | undefined) {
   }
 
   const priceCurrency = 'IDR';
-  const orderUrl = order.url ?? abs(`/orders/${encodeURIComponent(order.orderId)}`);
+  const orderUrl = order.url ?? abs(`/order/confirmation/${encodeURIComponent(order.orderId)}`);
 
   const acceptedOffer = (order.acceptedOffers ?? [])
     .filter((entry) => Number.isFinite(entry?.price))

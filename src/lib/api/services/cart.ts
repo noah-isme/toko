@@ -131,4 +131,15 @@ export const cartApi = {
     });
     return response.data;
   },
+
+  /**
+   * Get active cart (implicit)
+   */
+  async getActiveCart(): Promise<Cart> {
+    const response = await apiClient<ApiResponse<Cart>>('/carts', {
+      method: 'GET',
+      requiresAuth: true,
+    });
+    return response.data;
+  },
 };

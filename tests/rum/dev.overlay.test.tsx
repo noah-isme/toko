@@ -22,13 +22,13 @@ describe('DevVitalsOverlay', () => {
   const originalEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
-    process.env.NODE_ENV = 'development';
+    vi.stubEnv('NODE_ENV', 'development');
     process.env.NEXT_PUBLIC_RUM_DEST = 'none';
     process.env.NEXT_PUBLIC_RUM_SAMPLE = '1';
   });
 
   afterEach(async () => {
-    process.env.NODE_ENV = originalEnv;
+    vi.unstubAllEnvs();
     delete process.env.NEXT_PUBLIC_RUM_DEST;
     delete process.env.NEXT_PUBLIC_RUM_SAMPLE;
     const transportModule = await import('@/shared/rum/transport');

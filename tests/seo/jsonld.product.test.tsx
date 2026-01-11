@@ -9,13 +9,14 @@ describe('product JSON-LD', () => {
   it('renders structured product data with price information', () => {
     const data = productJsonLd({
       id: 'prod-123',
-      name: 'Wireless Headphones',
+      title: 'Wireless Headphones',
       slug: 'wireless-headphones',
       description: 'Premium wireless headphones with noise cancelling.',
-      price: { amount: 1500000, currency: 'IDR' },
+      price: 1500000,
       images: ['https://example.com/assets/headphones.png'],
-      inventory: 12,
-      categories: ['electronics'],
+      stock: 12,
+      inStock: true,
+
     });
 
     const { container } = render(<JsonLd data={data} />);

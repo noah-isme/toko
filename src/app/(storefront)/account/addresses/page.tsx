@@ -4,18 +4,26 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { getGuestAddressOwnerId } from '@/entities/address/storage';
 import { AddressBook } from '@/entities/address/ui/AddressBook';
 
 export default function AccountAddressesPage() {
+  const { user } = useAuth();
   const [ownerId, setOwnerId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    // If user is logged in, use their ID
+    if (user) {
+      setOwnerId(user.id);
       return;
     }
-    setOwnerId(getGuestAddressOwnerId());
-  }, []);
+
+    // Otherwise check for guest ID
+    if (typeof window !== 'undefined') {
+      setOwnerId(getGuestAddressOwnerId());
+    }
+  }, [user]);
 
   return (
     <div className="space-y-6">

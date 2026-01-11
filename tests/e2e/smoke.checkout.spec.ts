@@ -44,7 +44,7 @@ async function applyPromo(page: Page, code: string) {
 }
 
 async function proceedToReview(page: Page) {
-  const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+  const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
   await expect(proceedButton).toBeEnabled({ timeout: 15_000 });
   await proceedButton.click();
   await expect(page).toHaveURL(/\/checkout\/review/);
@@ -63,8 +63,8 @@ async function completePaymentFlow(page: Page) {
 async function waitForTelemetryEvent(page: Page, eventName: string) {
   await page.waitForFunction(
     ([key, name]) => {
-      const channel = (window as typeof window & { [QA_CHANNEL_KEY]?: { telemetry?: Array<{ event: string }> } })[key];
-      return Boolean(channel?.telemetry?.some((entry) => entry.event === name));
+      const channel = (window as any)[QA_CHANNEL_KEY];
+      return Boolean(channel?.telemetry?.some((entry: any) => entry.event === name));
     },
     [QA_CHANNEL_KEY, eventName],
   );
@@ -73,8 +73,8 @@ async function waitForTelemetryEvent(page: Page, eventName: string) {
 async function waitForBreadcrumb(page: Page, category: string) {
   await page.waitForFunction(
     ([key, target]) => {
-      const channel = (window as typeof window & { [QA_CHANNEL_KEY]?: { breadcrumbs?: Array<{ category?: string }> } })[key];
-      return Boolean(channel?.breadcrumbs?.some((crumb) => crumb.category === target));
+      const channel = (window as any)[QA_CHANNEL_KEY];
+      return Boolean(channel?.breadcrumbs?.some((crumb: any) => crumb.category === target));
     },
     [QA_CHANNEL_KEY, category],
   );
@@ -83,7 +83,7 @@ async function waitForBreadcrumb(page: Page, category: string) {
 async function getQAEntries<T extends 'telemetry' | 'breadcrumbs'>(page: Page, key: T) {
   return page.evaluate(
     ([channelKey, bucket]) => {
-      const channel = (window as typeof window & { [QA_CHANNEL_KEY]?: Record<T, unknown[]> })[channelKey];
+      const channel = (window as any)[QA_CHANNEL_KEY];
       return (channel?.[bucket] as unknown[]) ?? [];
     },
     [QA_CHANNEL_KEY, key],

@@ -62,7 +62,7 @@ export default function AccountPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Button asChild size="lg" className="h-auto py-6">
-          <Link href="/orders" className="flex flex-col items-center gap-2">
+          <Link href="/account/orders" className="flex flex-col items-center gap-2">
             <span className="text-2xl">📦</span>
             <span>View Orders</span>
           </Link>

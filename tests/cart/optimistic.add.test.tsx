@@ -74,10 +74,10 @@ describe('cart optimistic add mutation', () => {
       mutationResult.current.mutate({
         productId: availableProduct!.id,
         quantity: 1,
-        name: availableProduct!.name,
-        price: availableProduct!.price,
+        name: availableProduct!.title,
+        price: { amount: availableProduct!.price, currency: availableProduct!.currency },
         image: availableProduct!.images[0] ?? null,
-        maxQuantity: availableProduct!.inventory,
+        maxQuantity: availableProduct!.stock,
       });
     });
 
@@ -115,7 +115,7 @@ describe('cart optimistic add mutation', () => {
 
     const fallbackProduct = productsResult.current.data!.find(
       (product) =>
-        product.inventory > 0 && !initialCart.items.some((item) => item.productId === product.id),
+        product.stock > 0 && !initialCart.items.some((item) => item.productId === product.id),
     );
 
     expect(fallbackProduct).toBeDefined();
@@ -135,10 +135,10 @@ describe('cart optimistic add mutation', () => {
       mutationResult.current.mutate({
         productId: fallbackProduct!.id,
         quantity: 1,
-        name: fallbackProduct!.name,
-        price: fallbackProduct!.price,
+        name: fallbackProduct!.title,
+        price: { amount: fallbackProduct!.price, currency: fallbackProduct!.currency },
         image: fallbackProduct!.images[0] ?? null,
-        maxQuantity: fallbackProduct!.inventory,
+        maxQuantity: fallbackProduct!.stock,
         cartId: initialCart.id,
       });
     });

@@ -150,7 +150,7 @@ function CheckoutReviewContent() {
 
     if (process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line no-console
-      console.debug('Payment intent token received without redirectUrl', paymentIntent);
+
     }
 
     setPaymentError('URL pembayaran tidak tersedia. Silakan coba lagi.');
@@ -352,9 +352,8 @@ function CheckoutReviewContent() {
                 </Button>
                 <Button asChild size="sm" variant="ghost">
                   <Link
-                    href={`/checkout/failed?orderId=${encodeURIComponent(orderId)}${
-                      failedStatus ? `&status=${failedStatus}` : ''
-                    }`}
+                    href={`/checkout/failed?orderId=${encodeURIComponent(orderId)}${failedStatus ? `&status=${failedStatus}` : ''
+                      }`}
                   >
                     Lihat Detail
                   </Link>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   useAddressListQuery,
@@ -67,15 +67,17 @@ export function AddressBook({
   className,
   context = 'account',
 }: AddressBookProps) {
-  const ownerId = useMemo(() => {
-    if (userIdOrGuestId) {
-      return userIdOrGuestId;
+  const [internalGuestId, setInternalGuestId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check for guest ID only on client-side after mount to avoid hydration mismatch
+    const guestId = getGuestAddressOwnerId();
+    if (guestId) {
+      setInternalGuestId(guestId);
     }
-    if (typeof window === 'undefined') {
-      return null;
-    }
-    return getGuestAddressOwnerId();
-  }, [userIdOrGuestId]);
+  }, []);
+
+  const ownerId = userIdOrGuestId ?? internalGuestId;
 
   const {
     data: addresses = [],
@@ -260,7 +262,7 @@ function CreateAddressSheet({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[85vh] overflow-y-auto sm:h-auto sm:max-w-xl">
+      <SheetContent side="bottom" className="h-[85vh] overflow-y-auto sm:h-auto sm:max-w-4xl">
         <SheetHeader>
           <SheetTitle>Tambah alamat</SheetTitle>
           <SheetDescription>Lengkapi detail alamat pengiriman Anda.</SheetDescription>

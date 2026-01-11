@@ -1,8 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { MapPin } from 'lucide-react';
+
+import { LocationPicker } from '@/components/ui/location-picker';
+import { Button } from '@/components/ui/button';
 
 import { addressInputSchema, type AddressInput } from '../schemas';
 
@@ -10,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
-
+import { useToast } from '@/shared/ui/toast';
 
 interface AddressFormProps {
   defaultValues?: Partial<AddressInput>;
@@ -30,6 +34,7 @@ export function AddressForm({
   cancelLabel = 'Batal',
 }: AddressFormProps) {
   const formId = useId();
+  const { toast: pushToast } = useToast();
   const form = useForm<AddressInput>({
     resolver: zodResolver(addressInputSchema),
     mode: 'onBlur',
@@ -46,6 +51,9 @@ export function AddressForm({
     },
   });
 
+  const [showMap, setShowMap] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
   useEffect(() => {
     if (defaultValues) {
       form.reset({
@@ -61,6 +69,41 @@ export function AddressForm({
       });
     }
   }, [defaultValues, form]);
+
+  const handleLocationSelect = async (lat: number, lng: number) => {
+    setIsGeocoding(true);
+    try {
+      const response = await fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`);
+
+      if (!response.ok) throw new Error('Failed to fetch address');
+
+      const data = await response.json();
+      const address = data.address;
+
+      // Map Nominatim fields to our schema
+      if (address) {
+        form.setValue('line1', address.road || address.suburb || '');
+        form.setValue('city', address.city || address.town || address.village || address.county || '');
+        form.setValue('province', address.state || '');
+        form.setValue('postalCode', address.postcode || '');
+
+        // Helper to clear error if value exists
+        if (address.road) form.clearErrors('line1');
+        if (address.city || address.town) form.clearErrors('city');
+        if (address.state) form.clearErrors('province');
+        if (address.postcode) form.clearErrors('postalCode');
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      pushToast({
+        title: 'Gagal mengambil alamat',
+        description: 'Coba lagi atau isi alamat secara manual.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await onSubmit(addressInputSchema.parse(values));
@@ -83,6 +126,41 @@ export function AddressForm({
           {errors.root.message}
         </div>
       ) : null}
+
+      <div className="space-y-4 rounded-lg border p-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <h3 className="font-medium">Lokasi Peta</h3>
+            <p className="text-sm text-muted-foreground">
+              Pilih lokasi di peta untuk mengisi alamat otomatis
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant={showMap ? "secondary" : "outline"}
+            onClick={() => setShowMap(!showMap)}
+            className="gap-2"
+          >
+            <MapPin className="h-4 w-4" />
+            {showMap ? 'Tutup Peta' : 'Buka Peta'}
+          </Button>
+        </div>
+
+        {showMap && (
+          <div className="animate-in fade-in zoom-in-95 duration-200">
+            <LocationPicker
+              onPositionChange={handleLocationSelect}
+              className="border-border shadow-sm"
+            />
+            {isGeocoding && (
+              <p className="mt-2 text-xs text-muted-foreground animate-pulse">
+                Mengambil detail alamat...
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label="Nama penerima"

@@ -11,6 +11,7 @@ import {
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
 } from '@/lib/api/hooks';
+import { useCartStore } from '@/stores/cart-store';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -18,7 +19,8 @@ import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
 
 export function CartView() {
-  const { data, isLoading, isFetching } = useCartQuery();
+  const cartId = useCartStore((state) => state.cartId);
+  const { data, isLoading, isFetching } = useCartQuery(cartId || undefined);
   const updateItemMutation = useUpdateCartItemMutation();
   const removeItemMutation = useRemoveCartItemMutation();
   const router = useRouter();
@@ -33,7 +35,7 @@ export function CartView() {
     return <EmptyState {...emptyCart()} />;
   }
 
-  const cartId = data.id;
+
 
   return (
     <div className="space-y-6">
@@ -125,7 +127,7 @@ export function CartView() {
         })}
       </ul>
 
-      <PromoField cartId={cartId} />
+      <PromoField cartId={cartId || data.id} />
 
       <div className="flex items-center justify-between rounded-lg border bg-card p-4">
         <span className="text-sm text-muted-foreground">Subtotal</span>

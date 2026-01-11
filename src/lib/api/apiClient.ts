@@ -87,8 +87,11 @@ export async function apiClient<T = unknown>(
 
   if (requiresAuth) {
     const token = getAccessToken();
+
     if (token) {
       requestHeaders.set('Authorization', `Bearer ${token}`);
+    } else {
+      console.warn('[ApiClient] Warning: requiresAuth is true but no token found for path:', path);
     }
   }
 

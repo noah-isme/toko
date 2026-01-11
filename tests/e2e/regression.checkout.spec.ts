@@ -22,7 +22,7 @@ test.describe('Checkout regressions', () => {
     await openCheckout(page);
     await chooseQuickAddress(page);
 
-    const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+    const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
 
     let draftAttempts = 0;
     await page.route(DRAFT_ROUTE, async (route) => {

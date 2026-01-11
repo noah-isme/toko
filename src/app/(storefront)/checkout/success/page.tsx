@@ -62,19 +62,19 @@ function CheckoutSuccessContent() {
   }
 
   const totals = orderDraft?.totals ?? null;
-  const orderDetailHref = `/orders/${encodeURIComponent(orderId)}` as Route;
+  const orderDetailHref = `/order/confirmation/${encodeURIComponent(orderId)}` as Route;
   const structuredData = totals
     ? orderJsonLd({
-        orderId,
-        url: orderDetailHref,
-        total: totals.total,
-        acceptedOffers: [
-          {
-            name: 'Order total',
-            price: totals.total,
-          },
-        ],
-      })
+      orderId,
+      url: orderDetailHref,
+      total: totals.total,
+      acceptedOffers: [
+        {
+          name: 'Order total',
+          price: totals.total,
+        },
+      ],
+    })
     : null;
 
   return (

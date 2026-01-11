@@ -38,7 +38,7 @@ const navLinks = [
   { href: '/' as Route, label: 'Home' },
   { href: '/products' as Route, label: 'Products' },
   { href: '/cart' as Route, label: 'Cart' },
-  { href: '/orders' as Route, label: 'Orders' },
+  { href: '/account/orders' as Route, label: 'Orders' },
 ];
 
 export function Navbar() {
@@ -91,7 +91,7 @@ export function Navbar() {
                   <Link href="/account">Account</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/orders">Orders</Link>
+                  <Link href="/account/orders">Orders</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/account/addresses">Addresses</Link>

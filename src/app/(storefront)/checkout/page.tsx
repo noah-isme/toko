@@ -11,6 +11,7 @@ import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
 import { ShippingOptions } from './_components/ShippingOptions';
 
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/providers/AuthProvider';
 import {
   Dialog,
   DialogContent,
@@ -24,15 +25,13 @@ import type { Address as SavedAddress } from '@/entities/address/types';
 import { AddressBook } from '@/entities/address/ui/AddressBook';
 import type { CartWithPromo } from '@/entities/cart/cache';
 import {
-  useCreateOrderDraftMutation,
+  useCheckoutMutation,
   useShippingQuoteMutation,
 } from '@/entities/checkout/api/hooks';
 import type {
   Address as CheckoutAddress,
-  OrderDraft,
   ShippingOption,
 } from '@/entities/checkout/api/hooks';
-import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { PromoField } from '@/entities/promo/ui/PromoField';
 import { useCartQuery } from '@/lib/api/hooks';
 import type { PaymentMethod } from '@/lib/api/types';
@@ -46,23 +45,26 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { CheckoutSkeleton } from '@/shared/ui/skeletons/CheckoutSkeleton';
+import { useCartStore } from '@/stores/cart-store';
 
 export default function CheckoutPage() {
+  const { user } = useAuth();
   const router = useRouter();
-  const { data: cart, isLoading: isCartLoading, isFetching: isCartFetching } = useCartQuery();
+  const storedCartId = useCartStore((state) => state.cartId);
+  const { data: cart, isLoading: isCartLoading, isFetching: isCartFetching } = useCartQuery(
+    storedCartId || undefined,
+  );
   const shippingQuoteMutation = useShippingQuoteMutation();
-  const createOrderDraftMutation = useCreateOrderDraftMutation();
+  const checkoutMutation = useCheckoutMutation();
 
   const [selectedShippingId, setSelectedShippingId] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
-  const [orderDraft, setOrderDraft] = useState<OrderDraft | null>(null);
-  const [storedCartId, setStoredCartId] = useState<string | null>(null);
+  const [localStoredCartId, setLocalStoredCartId] = useState<string | null>(null);
   const [storageChecked, setStorageChecked] = useState(false);
   const [addressOwnerId, setAddressOwnerId] = useState<string | null>(null);
   const {
     data: addresses = [],
     isLoading: isAddressLoading,
-    isFetching: isAddressFetching,
   } = useAddressListQuery(addressOwnerId);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(null);
@@ -75,7 +77,7 @@ export default function CheckoutPage() {
     }
     const existingCartId = window.localStorage.getItem('cartId');
     if (existingCartId) {
-      setStoredCartId(existingCartId);
+      setLocalStoredCartId(existingCartId);
     }
     setStorageChecked(true);
   }, []);
@@ -86,24 +88,29 @@ export default function CheckoutPage() {
     }
     if (cart?.id) {
       window.localStorage.setItem('cartId', cart.id);
-      setStoredCartId(cart.id);
+      setLocalStoredCartId(cart.id);
     }
   }, [cart?.id]);
 
-  const activeCartId = cart?.id ?? storedCartId ?? null;
+  const activeCartId = cart?.id ?? storedCartId ?? localStoredCartId ?? null;
 
   useEffect(() => {
-    if (addressOwnerId || typeof window === 'undefined') {
+    // If user is logged in, use their ID
+    if (user) {
+      setAddressOwnerId(user.id);
       return;
     }
-    setAddressOwnerId(getGuestAddressOwnerId());
-  }, [addressOwnerId]);
+
+    // Otherwise check for guest ID
+    if (typeof window !== 'undefined') {
+      setAddressOwnerId(getGuestAddressOwnerId());
+    }
+  }, [user]);
 
   const handleAddressSelection = useCallback(
     async (address: SavedAddress, options: { announce?: boolean } = {}) => {
       setSelectedAddressId(address.id);
       setSelectedAddress(address);
-      setOrderDraft(null);
       setSelectedShippingId(null);
       if (options.announce !== false) {
         setAddressAnnouncement(`Alamat ${address.fullName} dipilih`);
@@ -170,15 +177,12 @@ export default function CheckoutPage() {
   const promoAwareCart = cart as CartWithPromo | undefined;
   const promoTotals = promoAwareCart?.totals;
   const computedTotals = useMemo(() => {
-    const subtotal =
-      orderDraft?.totals.subtotal ?? promoTotals?.subtotal ?? cart?.subtotal?.amount ?? 0;
-    const discount = orderDraft?.totals.discount ?? promoTotals?.discount ?? 0;
-    const shipping =
-      orderDraft?.totals.shipping ?? promoTotals?.shipping ?? selectedShippingOption?.cost ?? 0;
+    const subtotal = promoTotals?.subtotal ?? cart?.subtotal?.amount ?? 0;
+    const discount = promoTotals?.discount ?? 0;
+    const shipping = promoTotals?.shipping ?? selectedShippingOption?.cost ?? 0;
     const taxBase = Math.max(0, subtotal - discount);
-    const tax = orderDraft?.totals.tax ?? promoTotals?.tax ?? Math.round(taxBase * 0.11);
-    const total =
-      orderDraft?.totals.total ?? promoTotals?.total ?? subtotal - discount + tax + shipping;
+    const tax = promoTotals?.tax ?? Math.round(taxBase * 0.11);
+    const total = promoTotals?.total ?? subtotal - discount + tax + shipping;
 
     return {
       subtotal,
@@ -187,45 +191,50 @@ export default function CheckoutPage() {
       shipping,
       total,
     };
-  }, [cart?.subtotal?.amount, orderDraft, promoTotals, selectedShippingOption]);
+  }, [cart?.subtotal?.amount, promoTotals, selectedShippingOption]);
 
-  const isDraftLoading = createOrderDraftMutation.isPending;
-  const proceedLabel = isDraftLoading
-    ? 'Membuat draft pesanan…'
-    : 'Proceed to pay and review your order';
+  const isProcessing = checkoutMutation.isPending;
+  const proceedLabel = isProcessing
+    ? 'Memproses pesanan…'
+    : 'Bayar Sekarang';
   const proceedRule = normalizeDisabledMessage(
     getCheckoutProceedRule({
       hasAddress: Boolean(selectedAddress),
       hasShippingOption: Boolean(selectedShippingOption),
-      isProcessing: isDraftLoading,
+      isProcessing: isProcessing,
     }) ||
-      (!selectedPaymentMethod
-        ? { disabled: true, message: 'Pilih metode pembayaran terlebih dahulu' }
-        : null),
+    (!selectedPaymentMethod
+      ? { disabled: true, message: 'Pilih metode pembayaran terlebih dahulu' }
+      : null),
   );
   const proceedHintDomId = useId();
   const proceedHintId = proceedRule.disabled ? proceedHintDomId : undefined;
 
-  const handleCreateDraft = async () => {
+  const handleCheckout = async () => {
     if (!activeCartId || !selectedAddress || !selectedShippingOption || !selectedPaymentMethod) {
       return;
     }
 
     try {
-      const draft = await createOrderDraftMutation.mutateAsync({
+      const result = await checkoutMutation.mutateAsync({
         cartId: activeCartId,
-        address: mapAddressToCheckout(selectedAddress),
-        shippingOptionId: selectedShippingOption.id,
+        shippingAddressId: selectedAddress.id,
+        shippingService: selectedShippingOption.id,
+        shippingCost: selectedShippingOption.cost,
         paymentMethod: selectedPaymentMethod,
       });
-      setOrderDraft(draft);
-      const orderId = draft.cartId;
-      saveOrderDraft(orderId, draft);
-      const encodedOrderId = encodeURIComponent(orderId);
-      const reviewRoute = `/checkout/review?orderId=${encodedOrderId}` as Route;
-      router.replace(reviewRoute);
+
+      if (result.paymentUrl) {
+        window.location.href = result.paymentUrl;
+      } else {
+        const orderId = result.orderId;
+        const encodedOrderId = encodeURIComponent(orderId);
+        const confirmationRoute = `/order/confirmation/${encodedOrderId}` as Route;
+        router.replace(confirmationRoute);
+      }
     } catch (error) {
       // handled by mutation callbacks
+      console.error('Checkout error', error);
     }
   };
 
@@ -315,7 +324,7 @@ export default function CheckoutPage() {
             ) : null}
             {shippingQuoteMutation.error ? (
               <p className="text-sm text-destructive">
-                {shippingQuoteMutation.error.error.message}
+                {shippingQuoteMutation.error.message}
               </p>
             ) : null}
             <p aria-live="polite" className="sr-only">
@@ -335,7 +344,7 @@ export default function CheckoutPage() {
                   options={shippingQuoteMutation.data}
                   selectedId={selectedShippingId ?? undefined}
                   onChange={(id) => setSelectedShippingId(id)}
-                  disabled={isDraftLoading}
+                  disabled={isProcessing}
                 />
               </section>
 
@@ -349,13 +358,13 @@ export default function CheckoutPage() {
                 <PaymentMethodSelector
                   selectedMethod={selectedPaymentMethod}
                   onSelect={setSelectedPaymentMethod}
-                  disabled={isDraftLoading}
+                  disabled={isProcessing}
                 />
               </section>
 
-              {createOrderDraftMutation.error ? (
+              {checkoutMutation.error ? (
                 <p className="text-sm text-destructive">
-                  {createOrderDraftMutation.error.error.message}
+                  {checkoutMutation.error.message}
                 </p>
               ) : null}
               <div className="flex justify-end">
@@ -363,10 +372,10 @@ export default function CheckoutPage() {
                   type="button"
                   size="lg"
                   aria-label={proceedLabel}
-                  onClick={handleCreateDraft}
+                  onClick={handleCheckout}
                   disabled={proceedRule.disabled}
-                  isLoading={isDraftLoading}
-                  loadingLabel="Membuat draft pesanan…"
+                  isLoading={isProcessing}
+                  loadingLabel="Memproses pesanan…"
                   aria-describedby={proceedHintId}
                   className="min-h-[44px] px-6"
                   onFocus={() => {
@@ -380,13 +389,13 @@ export default function CheckoutPage() {
                     }
                   }}
                 >
-                  Proceed to Pay
+                  Bayar Sekarang
                 </GuardedButton>
               </div>
               <div className="flex justify-end">
                 <DelayedLoader
-                  active={isDraftLoading}
-                  label="Menyiapkan ringkasan pesanan…"
+                  active={isProcessing}
+                  label="Menghubungkan ke gateway pembayaran…"
                   className="text-xs text-muted-foreground"
                 />
               </div>

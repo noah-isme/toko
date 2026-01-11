@@ -125,7 +125,7 @@ export async function applyPromo(page: Page, code: string) {
  * Proceed from checkout to review page
  */
 export async function proceedToReview(page: Page) {
-  const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+  const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
   await expect(proceedButton).toBeEnabled({ timeout: 15_000 });
   await proceedButton.click();
   await expect(page).toHaveURL(/\/checkout\/review/);

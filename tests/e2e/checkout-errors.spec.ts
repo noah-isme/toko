@@ -40,7 +40,7 @@ test.describe('Checkout error handling', () => {
       });
 
       // Click proceed
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       await proceedButton.click();
 
       // Should show error toast
@@ -117,7 +117,7 @@ test.describe('Checkout error handling', () => {
       const hasError = await shippingError.isVisible().catch(() => false);
 
       // Or proceed button should be disabled
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       const isDisabled = await proceedButton.isDisabled();
 
       // Either shows error or disables proceed
@@ -215,7 +215,7 @@ test.describe('Checkout error handling', () => {
       const hasWarning = await stockWarning.isVisible().catch(() => false);
 
       // Proceed button may be disabled
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       const isButtonPresent = await proceedButton.isVisible().catch(() => false);
 
       // Either shows warning or adjusts UI
@@ -240,7 +240,7 @@ test.describe('Checkout error handling', () => {
         });
       });
 
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       await proceedButton.click();
 
       // Should show login prompt or redirect to login
@@ -274,7 +274,7 @@ test.describe('Checkout error handling', () => {
         });
       });
 
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       await proceedButton.click();
 
       // Should show price change warning
@@ -306,7 +306,7 @@ test.describe('Checkout error handling', () => {
         });
       });
 
-      const proceedButton = page.getByRole('button', { name: /Proceed to pay/i });
+      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       await proceedButton.click();
 
       // Wait for error state

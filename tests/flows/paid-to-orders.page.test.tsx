@@ -116,6 +116,6 @@ describe('paid flow redirects to orders', () => {
     render(<CheckoutSuccessPage />);
 
     const detailLink = await screen.findByRole('link', { name: /lihat detail pesanan/i });
-    expect(detailLink.getAttribute('href')).toContain(`/orders/${currentOrderId}`);
+    expect(detailLink.getAttribute('href')).toContain(`/order/confirmation/${currentOrderId}`);
   });
 });

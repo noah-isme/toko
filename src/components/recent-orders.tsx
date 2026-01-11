@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import type { Route } from 'next';
 
 import { useOrders } from '@/lib/api';
 import { ORDER_STATUS_LABELS, formatCurrency, formatDate } from '@/lib/api';
@@ -49,7 +50,7 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Recent Orders</h2>
         {orders.length >= limit && (
-          <Link href="/orders" className="text-sm font-medium text-primary hover:underline">
+          <Link href="/account/orders" className="text-sm font-medium text-primary hover:underline">
             View all →
           </Link>
         )}
@@ -63,7 +64,7 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
           return (
             <Link
               key={order.id}
-              href={`/orders/${order.id}`}
+              href={`/order/confirmation/${order.id}` as Route}
               className="block rounded-lg border bg-card p-4 transition-shadow hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-4">

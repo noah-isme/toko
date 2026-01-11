@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { HttpResponse, http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -26,9 +27,14 @@ beforeEach(() => {
   replaceMock.mockClear();
   prefetchMock.mockClear();
   window.localStorage.clear();
+  window.sessionStorage.clear();
 });
 
 import CheckoutPage from '@/app/(storefront)/checkout/page';
+import { writeGuestAddresses } from '@/entities/address/storage';
+import type { Address } from '@/entities/address/types';
+import { server } from '@/mocks/server';
+import { apiPath } from '@/mocks/utils';
 
 function createQueryClient() {
   return new QueryClient({
@@ -41,7 +47,37 @@ function createQueryClient() {
 }
 
 describe('CheckoutPage', () => {
-  it('selects shipping option after address auto-load and proceeds to draft', async () => {
+  it('selects shipping option and proceeds to confirmation', async () => {
+    const seed: Address[] = [
+      {
+        id: 'addr-primary',
+        fullName: 'Primary User',
+        phone: '0811111111',
+        line1: 'Jl. Utama',
+        city: 'Jakarta',
+        province: 'DKI Jakarta',
+        postalCode: '12120',
+        country: 'ID',
+        isDefault: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+    writeGuestAddresses(seed);
+
+    server.use(
+      http.post(apiPath('/checkout'), () =>
+        HttpResponse.json({
+          data: {
+            orderId: 'order-checkout-1',
+            orderNumber: 'ORD-0001',
+            status: 'pending_payment',
+            total: 250000,
+          },
+        }),
+      ),
+    );
+
     const user = userEvent.setup();
     const queryClient = createQueryClient();
 
@@ -55,14 +91,15 @@ describe('CheckoutPage', () => {
       expect(screen.getByText('Checkout')).toBeInTheDocument();
     });
 
+    await user.click(screen.getByRole('radio', { name: /primary user/i }));
+
     await waitFor(() => {
       expect(screen.getByText('Shipping Options')).toBeInTheDocument();
     });
 
-    const shippingChoice = screen.getByText(/JNE - YES/i).closest('label');
-    await user.click(shippingChoice!);
+    await user.click(screen.getByRole('button', { name: /transfer bank/i }));
 
-    const proceedButton = screen.getByRole('button', { name: /proceed to pay/i });
+    const proceedButton = screen.getByRole('button', { name: /bayar sekarang/i });
 
     await waitFor(() => {
       expect(proceedButton).toBeEnabled();
@@ -71,8 +108,7 @@ describe('CheckoutPage', () => {
     await user.click(proceedButton);
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalled();
-      expect(replaceMock.mock.calls[0][0]).toMatch(/\/checkout\/review\?orderId=/);
+      expect(replaceMock).toHaveBeenCalledWith('/order/confirmation/order-checkout-1');
     });
   });
 });

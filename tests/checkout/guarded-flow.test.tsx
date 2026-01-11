@@ -26,7 +26,9 @@ vi.mock('next/navigation', async () => {
 import CheckoutPage from '@/app/(storefront)/checkout/page';
 import CheckoutReviewPage from '@/app/(storefront)/checkout/review/page';
 import { OrderDraftSchema } from '@/entities/checkout/schemas';
-import { PaymentIntentSchema, PaymentStatusSchema } from '@/entities/payment/schemas';
+import { writeGuestAddresses } from '@/entities/address/storage';
+import type { Address } from '@/entities/address/types';
+import { PaymentIntentSchema, PaymentStatusSchema, type PaymentCreateBody } from '@/entities/payment/schemas';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
 import { Toaster } from '@/shared/ui/toast';
@@ -63,39 +65,43 @@ describe('Guarded checkout and payment flow', () => {
     window.sessionStorage.clear();
   });
 
-  it('prevents duplicate draft submission and shows success feedback', async () => {
+  it('prevents duplicate checkout submission and shows success feedback', async () => {
     const user = userEvent.setup();
     const queryClient = createQueryClient();
     const Wrapper = createWrapper(queryClient);
 
-    let draftCallCount = 0;
+    const seed: Address[] = [
+      {
+        id: 'addr-primary',
+        fullName: 'Primary User',
+        phone: '0811111111',
+        line1: 'Jl. Utama',
+        city: 'Jakarta',
+        province: 'DKI Jakarta',
+        postalCode: '12120',
+        country: 'ID',
+        isDefault: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+    writeGuestAddresses(seed);
+
+    let checkoutCallCount = 0;
 
     server.use(
-      http.post(apiPath('/checkout/draft'), async ({ request }) => {
-        draftCallCount += 1;
-        const payload = await request.json();
+      http.post(apiPath('/checkout'), async () => {
+        checkoutCallCount += 1;
         await new Promise((resolve) => setTimeout(resolve, 75));
 
-        return HttpResponse.json(
-          OrderDraftSchema.parse({
-            cartId: payload.cartId,
-            address: payload.address,
-            shippingOption: {
-              id: payload.shippingOptionId,
-              courier: 'Test Courier',
-              service: 'Express',
-              etd: '1 Hari',
-              cost: 20000,
-            },
-            totals: {
-              subtotal: 200000,
-              discount: 0,
-              tax: 22000,
-              shipping: 20000,
-              total: 242000,
-            },
-          }),
-        );
+        return HttpResponse.json({
+          data: {
+            orderId: 'order-guarded-1',
+            orderNumber: 'ORD-GUARDED-1',
+            status: 'pending_payment',
+            total: 242000,
+          },
+        });
       }),
     );
 
@@ -105,32 +111,26 @@ describe('Guarded checkout and payment flow', () => {
       expect(screen.getByText('Checkout')).toBeInTheDocument();
     });
 
-    await user.type(screen.getByLabelText('Full Name'), 'Jane Doe');
-    await user.type(screen.getByLabelText('Phone'), '08123456789');
-    await user.type(screen.getByLabelText('Province'), 'DKI Jakarta');
-    await user.type(screen.getByLabelText('City'), 'Jakarta Selatan');
-    await user.type(screen.getByLabelText('District'), 'Kebayoran Baru');
-    await user.type(screen.getByLabelText('Postal Code'), '12120');
-    await user.type(screen.getByLabelText('Address Detail'), 'Jl. Senopati No. 12');
-
-    await user.click(screen.getByRole('button', { name: /get shipping options/i }));
+    await user.click(screen.getByRole('radio', { name: /primary user/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Shipping Options')).toBeInTheDocument();
     });
 
-    const proceedButton = screen.getByRole('button', { name: /proceed to pay/i });
+    await user.click(screen.getByRole('button', { name: /transfer bank/i }));
+
+    const proceedButton = screen.getByRole('button', { name: /bayar sekarang/i });
 
     await user.dblClick(proceedButton);
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalled();
+      expect(replaceMock).toHaveBeenCalledWith('/order/confirmation/order-guarded-1');
     });
 
-    expect(draftCallCount).toBe(1);
+    expect(checkoutCallCount).toBe(1);
 
     await waitFor(() => {
-      expect(screen.getByText('Draft pesanan berhasil dibuat')).toBeInTheDocument();
+      expect(screen.getByText('Pesanan berhasil dibuat!')).toBeInTheDocument();
     });
   });
 
@@ -177,7 +177,7 @@ describe('Guarded checkout and payment flow', () => {
     server.use(
       http.post(apiPath('/payments/intent'), async ({ request }) => {
         paymentCalls += 1;
-        const payload = await request.json();
+        const payload = await request.json() as PaymentCreateBody;
 
         if (paymentCalls === 1) {
           return HttpResponse.json(

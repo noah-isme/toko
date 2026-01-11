@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
-import { OrderDetailSchema, OrderListItemSchema, type OrderDetail } from '../schemas';
-
-import { fetchWithCreds, type ApiError } from '@/entities/checkout/api/client';
+import { apiClient, ApiClientError } from '@/lib/api/apiClient';
+import { type ApiResponse } from '@/lib/api/types';
 import { queryKeys } from '@/lib/api/queryKeys';
+import { OrderDetailSchema, OrderListItemSchema, type OrderDetail, type OrderListItem } from '../schemas';
 
 const ordersQueryParamsSchema = z.object({
   status: z.string().optional(),
@@ -14,23 +14,18 @@ const ordersQueryParamsSchema = z.object({
 
 const ordersListResponseSchema = z.object({
   data: z.array(OrderListItemSchema),
-  meta: z
-    .object({
-      page: z.number().int().nonnegative().default(1),
-      limit: z.number().int().positive().default(10),
-      total: z.number().int().nonnegative().optional(),
-      totalPages: z.number().int().nonnegative().optional(),
-    })
-    .default({ page: 1, limit: 10 }),
+  pagination: z.object({
+    page: z.number().int().nonnegative().default(1),
+    perPage: z.number().int().positive().default(10),
+    totalItems: z.number().int().nonnegative().optional(),
+  }).optional() // Make pagination optional as some responses might lack it
 });
 
 export type OrdersQueryParams = z.infer<typeof ordersQueryParamsSchema>;
 export type OrdersListResponse = z.infer<typeof ordersListResponseSchema>;
 
-const orderIdSchema = z.string().min(1, 'orderId is required');
-
 export function useOrdersQuery(params?: OrdersQueryParams) {
-  return useQuery<OrdersListResponse, ApiError>({
+  return useQuery<OrdersListResponse, ApiClientError>({
     queryKey: queryKeys.orders(params ?? {}),
     queryFn: async () => {
       const filters = ordersQueryParamsSchema.parse(params ?? {});
@@ -43,19 +38,30 @@ export function useOrdersQuery(params?: OrdersQueryParams) {
       });
 
       const queryString = searchParams.toString();
-      const path = queryString ? `/orders?${queryString}` : '/orders';
-      return fetchWithCreds(path, { schema: ordersListResponseSchema });
+      const response = await apiClient<ApiResponse<any>>(
+        queryString ? `/orders?${queryString}` : '/orders',
+        { requiresAuth: true }
+      );
+
+      // Map API response to our schema structure if needed, or parse directly
+      // Contract says response is { data: [...], pagination: {...} }
+      return ordersListResponseSchema.parse(response);
     },
   });
 }
 
 export function useOrderQuery(orderId: string) {
-  return useQuery<OrderDetail, ApiError>({
+  return useQuery<OrderDetail, ApiClientError>({
     queryKey: queryKeys.order(orderId),
     enabled: Boolean(orderId),
     queryFn: async () => {
-      const parsed = orderIdSchema.parse(orderId);
-      return fetchWithCreds(`/orders/${parsed}`, { schema: OrderDetailSchema });
+      const response = await apiClient<ApiResponse<any>>(`/orders/${orderId}`, {
+        requiresAuth: true
+      });
+      // Contract says response is { data: { ... } }
+      return OrderDetailSchema.parse(response.data);
     },
   });
 }
+
+

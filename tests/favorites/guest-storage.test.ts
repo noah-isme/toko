@@ -25,8 +25,22 @@ describe('guest favorites storage', () => {
 
   it('writes and reads favorites from localStorage', () => {
     const favorites: FavoriteItem[] = [
-      { productId: 'prod-1', addedAt: '2024-01-01T00:00:00Z' },
-      { productId: 'prod-2', addedAt: '2024-01-02T00:00:00Z' },
+      {
+        productId: 'prod-1',
+        productName: 'Product 1',
+        productSlug: 'prod-1',
+        price: 10000,
+        imageUrl: 'http://img.com/1',
+        createdAt: '2024-01-01T00:00:00Z',
+      },
+      {
+        productId: 'prod-2',
+        productName: 'Product 2',
+        productSlug: 'prod-2',
+        price: 20000,
+        imageUrl: 'http://img.com/2',
+        createdAt: '2024-01-02T00:00:00Z',
+      },
     ];
 
     const success = writeGuestFavorites(favorites);
@@ -43,7 +57,14 @@ describe('guest favorites storage', () => {
 
   it('filters out invalid favorites when reading', () => {
     const invalidData = [
-      { productId: 'valid-1', addedAt: '2024-01-01T00:00:00Z' },
+      {
+        productId: 'valid-1',
+        productName: 'Valid 1',
+        productSlug: 'valid-1',
+        price: 10000,
+        imageUrl: 'http://img.com/1',
+        createdAt: '2024-01-01T00:00:00Z',
+      },
       { productId: 123, addedAt: '2024-01-02T00:00:00Z' },
       { invalid: 'object' },
       null,
@@ -53,7 +74,16 @@ describe('guest favorites storage', () => {
     localStorage.setItem('toko:favorites:guest', JSON.stringify(invalidData));
 
     const retrieved = readGuestFavorites();
-    expect(retrieved).toEqual([{ productId: 'valid-1', addedAt: '2024-01-01T00:00:00Z' }]);
+    expect(retrieved).toEqual([
+      {
+        productId: 'valid-1',
+        productName: 'Valid 1',
+        productSlug: 'valid-1',
+        price: 10000,
+        imageUrl: 'http://img.com/1',
+        createdAt: '2024-01-01T00:00:00Z',
+      },
+    ]);
   });
 
   it('handles corrupt JSON gracefully', () => {
@@ -65,13 +95,41 @@ describe('guest favorites storage', () => {
 
   it('merges guest favorites with server favorites', () => {
     const serverFavorites: FavoriteItem[] = [
-      { productId: 'server-1', addedAt: '2024-01-01T00:00:00Z' },
-      { productId: 'server-2', addedAt: '2024-01-02T00:00:00Z' },
+      {
+        productId: 'server-1',
+        productName: 'Server 1',
+        productSlug: 'server-1',
+        price: 10000,
+        imageUrl: 'http://img.com/s1',
+        createdAt: '2024-01-01T00:00:00Z',
+      },
+      {
+        productId: 'server-2',
+        productName: 'Server 2',
+        productSlug: 'server-2',
+        price: 20000,
+        imageUrl: 'http://img.com/s2',
+        createdAt: '2024-01-02T00:00:00Z',
+      },
     ];
 
     const guestFavorites: FavoriteItem[] = [
-      { productId: 'guest-1', addedAt: '2024-01-03T00:00:00Z' },
-      { productId: 'server-1', addedAt: '2024-01-04T00:00:00Z' },
+      {
+        productId: 'guest-1',
+        productName: 'Guest 1',
+        productSlug: 'guest-1',
+        price: 30000,
+        imageUrl: 'http://img.com/g1',
+        createdAt: '2024-01-03T00:00:00Z',
+      },
+      {
+        productId: 'server-1',
+        productName: 'Server 1',
+        productSlug: 'server-1',
+        price: 10000,
+        imageUrl: 'http://img.com/s1',
+        createdAt: '2024-01-04T00:00:00Z',
+      },
     ];
 
     writeGuestFavorites(guestFavorites);
@@ -84,12 +142,19 @@ describe('guest favorites storage', () => {
     expect(merged.some((f) => f.productId === 'guest-1')).toBe(true);
 
     const serverOneEntry = merged.find((f) => f.productId === 'server-1');
-    expect(serverOneEntry?.addedAt).toBe('2024-01-01T00:00:00Z');
+    expect(serverOneEntry?.createdAt).toBe('2024-01-01T00:00:00Z');
   });
 
   it('returns server favorites when no guest favorites exist', () => {
     const serverFavorites: FavoriteItem[] = [
-      { productId: 'server-1', addedAt: '2024-01-01T00:00:00Z' },
+      {
+        productId: 'server-1',
+        productName: 'Server 1',
+        productSlug: 'server-1',
+        price: 10000,
+        imageUrl: 'http://img.com/s1',
+        createdAt: '2024-01-01T00:00:00Z',
+      },
     ];
 
     const merged = mergeGuestFavorites(serverFavorites);
@@ -97,13 +162,22 @@ describe('guest favorites storage', () => {
   });
 
   it('handles storage quota exceeded gracefully', () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
 
     vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
       throw new DOMException('Quota exceeded', 'QuotaExceededError');
     });
 
-    const favorites: FavoriteItem[] = [{ productId: 'test', addedAt: '2024-01-01T00:00:00Z' }];
+    const favorites: FavoriteItem[] = [
+      {
+        productId: 'test',
+        productName: 'Test',
+        productSlug: 'test',
+        price: 1000,
+        imageUrl: 'http://img.com/test',
+        createdAt: '2024-01-01T00:00:00Z',
+      },
+    ];
     const success = writeGuestFavorites(favorites);
 
     expect(success).toBe(false);
