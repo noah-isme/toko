@@ -1,4 +1,5 @@
 import { act, fireEvent, render } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 
@@ -65,7 +66,18 @@ describe('checkout transitions', () => {
   });
 
   it('prefetches checkout route when CTA is focused', () => {
-    const { getByRole } = render(<CartView />);
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+    const { getByRole } = render(
+      <QueryClientProvider client={queryClient}>
+        <CartView />
+      </QueryClientProvider>
+    );
 
     const cta = getByRole('link', { name: /proceed to checkout/i });
     fireEvent.focus(cta);

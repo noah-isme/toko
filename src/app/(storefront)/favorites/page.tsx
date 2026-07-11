@@ -1,12 +1,15 @@
 'use client';
 
 import { useMemo } from 'react';
+import { HeartCrack, HeartOff } from 'lucide-react';
 
 import { ProductCard } from '@/components/product-card';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
 import { useProductsQuery } from '@/lib/api/hooks';
 import { EmptyState } from '@/shared/ui/EmptyState';
+import { emptyFavorites, emptyFavoritesUnavailable } from '@/shared/ui/empty-presets';
+import { FavoritesGridSkeleton } from '@/shared/ui/skeletons/FavoritesGridSkeleton';
 
 export default function FavoritesPage() {
   const userId = getGuestId() ?? undefined;
@@ -24,11 +27,7 @@ export default function FavoritesPage() {
     return (
       <div className="container py-8">
         <h1 className="mb-8 text-3xl font-bold">Favorit Saya</h1>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-96 animate-pulse rounded-lg bg-muted" />
-          ))}
-        </div>
+        <FavoritesGridSkeleton />
       </div>
     );
   }
@@ -37,11 +36,7 @@ export default function FavoritesPage() {
     return (
       <div className="container py-8">
         <h1 className="mb-8 text-3xl font-bold">Favorit Saya</h1>
-        <EmptyState
-          title="Belum ada favorit"
-          description="Mulai tambahkan produk favorit Anda dengan menekan tombol hati pada produk."
-          cta={{ label: 'Lihat Produk', href: '/products' }}
-        />
+        <EmptyState icon={<HeartOff aria-hidden="true" />} {...emptyFavorites()} />
       </div>
     );
   }
@@ -56,11 +51,7 @@ export default function FavoritesPage() {
       </div>
 
       {favoriteProducts.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 text-center">
-          <p className="text-muted-foreground">
-            Produk favorit tidak tersedia saat ini. Mungkin sudah tidak dijual lagi.
-          </p>
-        </div>
+        <EmptyState icon={<HeartCrack aria-hidden="true" />} {...emptyFavoritesUnavailable()} />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {favoriteProducts.map((product) => (

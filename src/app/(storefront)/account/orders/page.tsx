@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useOrdersQuery } from '@/entities/orders/api/hooks';
 import type { OrderListItem } from '@/entities/orders/schemas';
 import { EmptyState } from '@/shared/ui/EmptyState';
+import { emptyOrders } from '@/shared/ui/empty-presets';
 import { ShoppingBag } from 'lucide-react';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
@@ -42,14 +43,7 @@ export default function OrderHistoryPage() {
     if (orders.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-                <EmptyState
-                    icon={<ShoppingBag />}
-                    title="Belum ada pesanan"
-                    description="Anda belum melakukan transaksi apapun."
-                />
-                <Button asChild className="mt-4">
-                    <Link href="/">Mulai Belanja</Link>
-                </Button>
+                <EmptyState icon={<ShoppingBag aria-hidden="true" />} {...emptyOrders()} />
             </div>
         );
     }
@@ -112,7 +106,7 @@ function OrderCard({ order }: { order: OrderListItem }) {
                         </Button>
                     )}
                     <Button asChild variant="outline" size="sm">
-                        <Link href={`/order/confirmation/${order.id}`}>Detail</Link>
+                        <Link href={`/account/orders/${order.id}`}>Detail</Link>
                     </Button>
                 </div>
             </div>

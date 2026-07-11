@@ -42,6 +42,7 @@ export interface User {
   name: string;
   email: string;
   emailVerified?: boolean;
+  phone?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -73,6 +74,32 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
   token: string;
   newPassword: string;
+}
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
+export interface UpdateProfileRequest {
+  name: string;
+  phone?: string;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
+export interface SessionInfo {
+  id: string;
+  device: string;
+  ipAddress: string;
+  location?: string;
+  lastActive: string;
+  current: boolean;
 }
 
 // ============================================================================

@@ -59,7 +59,7 @@ export function readGuestFavorites(): FavoriteItem[] {
         item &&
         typeof item === 'object' &&
         typeof item.productId === 'string' &&
-        typeof item.addedAt === 'string',
+        typeof item.createdAt === 'string',
     );
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {

@@ -53,6 +53,8 @@ const SheetContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
+      tabIndex={-1}
+      aria-modal="true"
       {...props}
     >
       {/* Fallback title for accessibility - visually hidden with sr-only */}

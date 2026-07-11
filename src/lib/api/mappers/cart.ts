@@ -18,7 +18,7 @@ export function mapApiCartItemToCartItem(apiItem: ApiCartItem, currency: string)
 }
 
 export function mapApiCartToCart(apiCart: ApiCart): Cart {
-    return {
+    const baseCart = {
         id: apiCart.id,
         items: apiCart.items.map((item) => mapApiCartItemToCartItem(item, apiCart.currency)),
         subtotal: {
@@ -27,4 +27,21 @@ export function mapApiCartToCart(apiCart: ApiCart): Cart {
         },
         itemCount: apiCart.items.reduce((acc, item) => acc + item.qty, 0),
     };
+
+    if (apiCart.voucher) {
+        (baseCart as any).promoInfo = {
+            code: apiCart.voucher.code,
+            discountType: apiCart.voucher.discountType,
+            value: apiCart.voucher.value,
+            label: apiCart.voucher.label,
+            discountValue: apiCart.pricing.discount,
+        };
+        (baseCart as any).totals = {
+            subtotal: apiCart.pricing.subtotal - apiCart.pricing.discount,
+            discount: apiCart.pricing.discount,
+            total: apiCart.pricing.total,
+        };
+    }
+
+    return baseCart;
 }

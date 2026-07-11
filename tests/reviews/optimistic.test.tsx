@@ -4,19 +4,21 @@ import { HttpResponse, delay, http } from 'msw';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const capturePosthogEvent = vi.fn();
-const captureSentryException = vi.fn();
-const addBreadcrumb = vi.fn();
+const { mockCapturePosthogEvent, mockCaptureSentryException, mockAddBreadcrumb } = vi.hoisted(() => ({
+  mockCapturePosthogEvent: vi.fn(),
+  mockCaptureSentryException: vi.fn(),
+  mockAddBreadcrumb: vi.fn(),
+}));
 
 vi.mock('@/shared/telemetry/posthog', () => ({
-  capturePosthogEvent,
+  capturePosthogEvent: mockCapturePosthogEvent,
   getPosthog: vi.fn(() => null),
 }));
 
 vi.mock('@/shared/telemetry/sentry', () => ({
-  captureSentryException,
+  captureSentryException: mockCaptureSentryException,
   getSentry: () => ({
-    addBreadcrumb,
+    addBreadcrumb: mockAddBreadcrumb,
   }),
 }));
 
@@ -49,9 +51,9 @@ describe('reviews hooks optimistic updates', () => {
   const productId = 'product-optimistic';
 
   beforeEach(() => {
-    capturePosthogEvent.mockClear();
-    captureSentryException.mockClear();
-    addBreadcrumb.mockClear();
+    mockCapturePosthogEvent.mockClear();
+    mockCaptureSentryException.mockClear();
+    mockAddBreadcrumb.mockClear();
   });
 
   it('optimistically inserts a pending review and updates stats before the server responds', async () => {
@@ -75,9 +77,14 @@ describe('reviews hooks optimistic updates', () => {
     });
     const initialStats = statsResult.current.data!;
 
+    let resolveCreate!: () => void;
+    const createBlocker = new Promise<void>((resolve) => {
+      resolveCreate = resolve;
+    });
+
     server.use(
       http.post(apiPath('/products/:productId/reviews'), async () => {
-        await delay(100);
+        await createBlocker;
         return HttpResponse.json({ id: 'server-review', status: 'pending' }, { status: 201 });
       }),
     );
@@ -86,11 +93,17 @@ describe('reviews hooks optimistic updates', () => {
       wrapper: Wrapper,
     });
 
-    await act(async () => {
+    act(() => {
       mutationResult.current.mutate({
         rating: 5,
         body: 'Produk ini sangat membantu aktivitas saya sehari-hari.',
       });
+    });
+
+    // Wait for onMutate to run (optimistic update in cache) before server responds
+    await waitFor(() => {
+      const list = listResult.current.data;
+      expect(list?.data[0].id).toMatch(/^temp-/);
     });
 
     const optimisticList = listResult.current.data!;
@@ -102,14 +115,17 @@ describe('reviews hooks optimistic updates', () => {
     expect(optimisticStats.totalCount).toBe(initialStats.totalCount + 1);
     expect(optimisticStats.distribution[5]).toBe(initialStats.distribution[5] + 1);
 
+    // Unblock the server response
+    act(() => { resolveCreate(); });
+
     await waitFor(() => {
       expect(mutationResult.current.isSuccess).toBe(true);
     });
 
-    expect(addBreadcrumb).toHaveBeenCalledWith(
+    expect(mockAddBreadcrumb).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'review:create', category: 'reviews' }),
     );
-    expect(capturePosthogEvent).toHaveBeenCalledWith(
+    expect(mockCapturePosthogEvent).toHaveBeenCalledWith(
       'review_submit',
       expect.objectContaining({
         productId,
@@ -163,8 +179,8 @@ describe('reviews hooks optimistic updates', () => {
 
     expect(listResult.current.data).toEqual(baselineList);
     expect(statsResult.current.data).toEqual(baselineStats);
-    expect(capturePosthogEvent).not.toHaveBeenCalled();
-    expect(captureSentryException).toHaveBeenCalledWith(
+    expect(mockCapturePosthogEvent).not.toHaveBeenCalled();
+    expect(mockCaptureSentryException).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
         tags: expect.objectContaining({ action: 'create', feature: 'reviews' }),
@@ -188,14 +204,18 @@ describe('reviews hooks optimistic updates', () => {
     const targetReviewId = targetReview.id;
     const baseHelpful = targetReview.helpfulCount;
 
+    let resolveVote!: () => void;
+    const voteBlocker = new Promise<void>((resolve) => {
+      resolveVote = resolve;
+    });
+
     server.use(
-      http.post(apiPath('/reviews/:reviewId/vote'), async ({ request }) => {
-        await delay(80);
-        const payload = await request.json() as { dir: 'up' | 'down' };
+      http.post(apiPath('/reviews/:reviewId/vote'), async () => {
+        await voteBlocker;
         return HttpResponse.json(
           {
-            helpfulCount: baseHelpful + (payload.dir === 'up' ? 1 : 0),
-            myVote: payload.dir === 'up' ? 'up' : null,
+            helpfulCount: baseHelpful + 1,
+            myVote: 'up',
           },
           { status: 200 },
         );
@@ -206,8 +226,15 @@ describe('reviews hooks optimistic updates', () => {
       wrapper: Wrapper,
     });
 
-    await act(async () => {
+    act(() => {
       mutationResult.current.mutate('up');
+    });
+
+    // Wait for onMutate optimistic update in cache before server responds
+    await waitFor(() => {
+      const list = listResult.current.data;
+      const r = list?.data.find((rv) => rv.id === targetReviewId);
+      expect(r?.helpfulCount).toBe(baseHelpful + 1);
     });
 
     const optimisticReview = listResult.current.data!.data.find(
@@ -216,14 +243,17 @@ describe('reviews hooks optimistic updates', () => {
     expect(optimisticReview?.helpfulCount).toBe(baseHelpful + 1);
     expect(optimisticReview?.myVote).toBe('up');
 
+    // Unblock the server response
+    act(() => { resolveVote(); });
+
     await waitFor(() => {
       expect(mutationResult.current.isSuccess).toBe(true);
     });
 
-    expect(addBreadcrumb).toHaveBeenCalledWith(
+    expect(mockAddBreadcrumb).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'review:vote', category: 'reviews' }),
     );
-    expect(capturePosthogEvent).toHaveBeenCalledWith(
+    expect(mockCapturePosthogEvent).toHaveBeenCalledWith(
       'review_vote',
       expect.objectContaining({ reviewId: targetReviewId, direction: 'up' }),
     );
@@ -269,7 +299,7 @@ describe('reviews hooks optimistic updates', () => {
     );
     expect(revertedReview?.helpfulCount).toBe(baseHelpful);
     expect(revertedReview?.myVote).toBe(targetReview.myVote ?? null);
-    expect(captureSentryException).toHaveBeenCalledWith(
+    expect(mockCaptureSentryException).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
         tags: expect.objectContaining({ action: 'vote', feature: 'reviews' }),

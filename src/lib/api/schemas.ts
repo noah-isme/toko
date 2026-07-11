@@ -56,6 +56,8 @@ export const userSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   name: z.string().optional(),
+  emailVerified: z.boolean().optional(),
+  phone: z.string().optional(),
 });
 
 // API Contract uses `qty` instead of `quantity`, and includes optional variantId

@@ -66,7 +66,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <ErrorBoundary>
             <QueryProvider>
               <AuthProvider>
-                <div id="main-content" tabIndex={-1}>
+                <div
+                  id="main-content"
+                  tabIndex={-1}
+                  role="main"
+                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
                   {children}
                 </div>
               </AuthProvider>

@@ -2,13 +2,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { HttpResponse, delay, http } from 'msw';
 import React, { type ReactNode } from 'react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
   useAddFavoriteMutation,
   useFavoritesQuery,
   useRemoveFavoriteMutation,
 } from '@/entities/favorites/hooks';
+import { setAccessToken } from '@/lib/api/apiClient';
+import { mockFavorites } from '@/mocks/handlers.favorites';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
 
@@ -29,12 +31,16 @@ function withQueryClient(client: QueryClient) {
 }
 
 describe('favorites optimistic mutations', () => {
+  beforeEach(() => {
+    setAccessToken('mock-access-token');
+    mockFavorites.length = 0;
+  });
   it('adds favorite optimistically before server responds', async () => {
     const queryClient = createQueryClient();
     const Wrapper = withQueryClient(queryClient);
     const testProductId = 'test-product-123';
 
-    const { result: favoritesResult } = renderHook(() => useFavoritesQuery('guest'), {
+    const { result: favoritesResult } = renderHook(() => useFavoritesQuery('guest', true), {
       wrapper: Wrapper,
     });
 
@@ -47,8 +53,16 @@ describe('favorites optimistic mutations', () => {
     server.use(
       http.post(apiPath('/favorites'), async ({ request }) => {
         await delay(100);
-        const body = await request.json();
-        return HttpResponse.json({ message: 'Added to favorites' }, { status: 201 });
+        const body = (await request.json()) as { productId: string };
+        mockFavorites.push({
+          productId: body.productId,
+          productName: 'Mock Product',
+          productSlug: body.productId,
+          price: 10000,
+          imageUrl: 'https://mock.image',
+          createdAt: new Date().toISOString(),
+        });
+        return HttpResponse.json({ favorited: true }, { status: 200 });
       }),
     );
 
@@ -90,7 +104,7 @@ describe('favorites optimistic mutations', () => {
       expect(addMutationResult.current.isSuccess).toBe(true);
     });
 
-    const { result: favoritesResult } = renderHook(() => useFavoritesQuery('guest'), {
+    const { result: favoritesResult } = renderHook(() => useFavoritesQuery('guest', true), {
       wrapper: Wrapper,
     });
 
@@ -103,9 +117,14 @@ describe('favorites optimistic mutations', () => {
     const initialCount = favoritesResult.current.data!.length;
 
     server.use(
-      http.delete(apiPath('/favorites/:productId'), async () => {
+      http.delete(apiPath('/favorites/:productId'), async ({ params }) => {
         await delay(100);
-        return HttpResponse.json({ message: 'Removed from favorites' }, { status: 200 });
+        const { productId } = params as { productId: string };
+        const index = mockFavorites.findIndex((fav) => fav.productId === productId);
+        if (index !== -1) {
+          mockFavorites.splice(index, 1);
+        }
+        return HttpResponse.json({ favorited: false }, { status: 200 });
       }),
     );
 
@@ -164,7 +183,7 @@ describe('favorites optimistic mutations', () => {
     const Wrapper = withQueryClient(queryClient);
     const testProductId = 'test-error-rollback';
 
-    const { result: favoritesResult } = renderHook(() => useFavoritesQuery('guest'), {
+    const { result: favoritesResult } = renderHook(() => useFavoritesQuery('guest', true), {
       wrapper: Wrapper,
     });
 

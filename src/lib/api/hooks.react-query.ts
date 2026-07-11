@@ -274,6 +274,7 @@ export function useCancelOrder() {
 export function useShipment(orderId: string) {
   return useQuery({
     queryKey: queryKeys.orders.shipment(orderId),
+    enabled: Boolean(orderId),
     queryFn: () => ordersApi.getShipment(orderId),
     staleTime: 60 * 1000, // 1 minute
   });

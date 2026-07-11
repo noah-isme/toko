@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Filter, X } from 'lucide-react';
+import { ChevronDown, Filter } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { BrandFilter } from '@/components/brand-filter';
@@ -20,6 +20,13 @@ interface FilterSidebarProps {
   priceRange?: [number, number];
   priceRangeValue?: [number, number];
   onPriceRangeChange?: (value: [number, number]) => void;
+  ratingFilter?: number | null;
+  onRatingChange?: (value: number | null) => void;
+  inStockOnly?: boolean;
+  onToggleInStock?: (value: boolean) => void;
+  discountOnly?: boolean;
+  onToggleDiscount?: (value: boolean) => void;
+  onClearFilters?: () => void;
 }
 
 function FilterSection({
@@ -60,6 +67,13 @@ export function FilterSidebar({
   priceRange = [0, 10000000],
   priceRangeValue = [0, 10000000],
   onPriceRangeChange,
+  ratingFilter = null,
+  onRatingChange,
+  inStockOnly = false,
+  onToggleInStock,
+  discountOnly = false,
+  onToggleDiscount,
+  onClearFilters,
 }: FilterSidebarProps) {
   const [open, setOpen] = useState(false);
   const uniqueCategories = useMemo(() => Array.from(new Set(categories)).sort(), [categories]);
@@ -67,6 +81,9 @@ export function FilterSidebar({
   const hasActiveFilters =
     selectedCategories.length > 0 ||
     selectedBrands.length > 0 ||
+    Boolean(ratingFilter) ||
+    inStockOnly ||
+    discountOnly ||
     (priceRangeValue &&
       (priceRangeValue[0] !== priceRange[0] || priceRangeValue[1] !== priceRange[1]));
 
@@ -81,6 +98,82 @@ export function FilterSidebar({
             value={priceRangeValue}
             onChange={onPriceRangeChange}
           />
+        </FilterSection>
+      )}
+
+      {(onRatingChange || onToggleInStock || onToggleDiscount) && (
+        <FilterSection title="Rating & Availability">
+          <div className="space-y-3 text-sm text-muted-foreground">
+            {onRatingChange ? (
+              <div className="space-y-2">
+                {[4, 3, 2].map((value) => {
+                  const isActive = ratingFilter === value;
+                  return (
+                    <label
+                      key={`rating-${value}`}
+                      className="flex cursor-pointer items-center gap-3 hover:text-foreground"
+                    >
+                      <div
+                        className={cn(
+                          'flex h-4 w-4 items-center justify-center rounded-full border border-primary',
+                          isActive ? 'bg-primary text-primary-foreground' : 'bg-background',
+                        )}
+                      >
+                        {isActive ? <div className="h-2 w-2 rounded-full bg-current" /> : null}
+                      </div>
+                      <input
+                        type="radio"
+                        className="hidden"
+                        checked={isActive}
+                        onChange={() => onRatingChange?.(isActive ? null : value)}
+                      />
+                      <span>{value}★ ke atas</span>
+                    </label>
+                  );
+                })}
+              </div>
+            ) : null}
+            <div className="space-y-2">
+              {onToggleInStock ? (
+                <label className="flex cursor-pointer items-center gap-3 hover:text-foreground">
+                  <div
+                    className={cn(
+                      'flex h-4 w-4 items-center justify-center rounded border border-primary',
+                      inStockOnly ? 'bg-primary text-primary-foreground' : 'bg-background',
+                    )}
+                  >
+                    {inStockOnly ? <div className="h-2 w-2 rounded-full bg-current" /> : null}
+                  </div>
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={inStockOnly}
+                    onChange={() => onToggleInStock(!inStockOnly)}
+                  />
+                  <span>Stok tersedia saja</span>
+                </label>
+              ) : null}
+              {onToggleDiscount ? (
+                <label className="flex cursor-pointer items-center gap-3 hover:text-foreground">
+                  <div
+                    className={cn(
+                      'flex h-4 w-4 items-center justify-center rounded border border-primary',
+                      discountOnly ? 'bg-primary text-primary-foreground' : 'bg-background',
+                    )}
+                  >
+                    {discountOnly ? <div className="h-2 w-2 rounded-full bg-current" /> : null}
+                  </div>
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={discountOnly}
+                    onChange={() => onToggleDiscount(!discountOnly)}
+                  />
+                  <span>Promo saja</span>
+                </label>
+              ) : null}
+            </div>
+          </div>
         </FilterSection>
       )}
 
@@ -140,13 +233,9 @@ export function FilterSidebar({
                 variant="ghost"
                 size="sm"
                 className="h-auto p-0 text-xs text-muted-foreground hover:text-primary"
-                onClick={() => {
-                  // This is a visual-only reset handler placeholder.
-                  // Real implementation would depend on how parent handles state reset.
-                  // For now user has to manually uncheck.
-                }}
+                onClick={() => onClearFilters?.()}
               >
-                Reset
+                Clear all
               </Button>
             )}
           </div>
@@ -166,7 +255,12 @@ export function FilterSidebar({
             <SheetTitle>Filters</SheetTitle>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto pr-6">{filterContent}</div>
-          <div className="border-t pt-4">
+          <div className="space-y-3 border-t pt-4">
+            {hasActiveFilters ? (
+              <Button variant="ghost" className="w-full" onClick={() => onClearFilters?.()}>
+                Clear all
+              </Button>
+            ) : null}
             <Button className="w-full" onClick={() => setOpen(false)}>
               Show Results
             </Button>

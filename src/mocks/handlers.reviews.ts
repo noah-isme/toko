@@ -120,21 +120,22 @@ export const reviewsHandlers = [
     const start = (page - 1) * pageSize;
     const paginated = sorted.slice(start, start + pageSize);
 
-    return HttpResponse.json({
-      data: paginated,
-      meta: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / pageSize)),
-      },
-    });
+    return HttpResponse.json(paginated);
   }),
 
   http.get(apiPath('/products/:productId/reviews/stats'), ({ params }) => {
     const productId = (params.productId as string) ?? 'unknown';
     ensureReviews(productId);
-    return HttpResponse.json(calculateStats(productId));
+    const stats = calculateStats(productId);
+    return HttpResponse.json({
+      total_reviews: stats.totalCount,
+      average_rating: stats.averageRating,
+      count_1_star: stats.distribution[1],
+      count_2_star: stats.distribution[2],
+      count_3_star: stats.distribution[3],
+      count_4_star: stats.distribution[4],
+      count_5_star: stats.distribution[5],
+    });
   }),
 
   http.post(apiPath('/products/:productId/reviews'), async ({ request, params }) => {

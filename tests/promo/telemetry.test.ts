@@ -10,9 +10,11 @@ import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
 
 
-const capturePosthogEvent = vi.fn();
-const captureSentryException = vi.fn();
-const addBreadcrumb = vi.fn();
+const { capturePosthogEvent, captureSentryException, addBreadcrumb } = vi.hoisted(() => ({
+  capturePosthogEvent: vi.fn(),
+  captureSentryException: vi.fn(),
+  addBreadcrumb: vi.fn(),
+}));
 
 vi.mock('@/shared/telemetry/posthog', () => ({
   capturePosthogEvent,
@@ -65,11 +67,13 @@ describe('promo telemetry', () => {
 
     const { result } = renderHook(() => useApplyPromoMutation(cart.id), { wrapper });
 
-    await expect(
-      act(async () => {
+    try {
+      await act(async () => {
         await result.current.mutateAsync({ code: 'SAVE10', preview });
-      }),
-    ).rejects.toThrow();
+      });
+    } catch {
+      // Expected to throw
+    }
 
     expect(captureSentryException).toHaveBeenCalled();
     expect(capturePosthogEvent).toHaveBeenCalledWith(

@@ -38,7 +38,7 @@ import { normalizeError } from '@/shared/lib/normalizeError';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
-import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
+import { AddressListSkeleton } from '@/shared/ui/skeletons/AddressListSkeleton';
 
 
 
@@ -193,7 +193,7 @@ export function AddressBook({
         </div>
       ) : null}
       {isLoading ? (
-        <AddressSkeletonGrid />
+        <AddressListSkeleton />
       ) : showEmptyState ? (
         <div className="space-y-4">
           <EmptyState
@@ -355,25 +355,6 @@ function DeleteConfirmationDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function AddressSkeletonGrid() {
-  return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={`address-skeleton-${index}`} className="space-y-3 rounded-lg border p-4">
-          <BaseSkeleton className="h-5 w-1/3" />
-          <BaseSkeleton className="h-4 w-2/3" />
-          <BaseSkeleton className="h-3 w-full" />
-          <BaseSkeleton className="h-3 w-3/4" />
-          <div className="flex gap-2">
-            <BaseSkeleton className="h-9 w-24" />
-            <BaseSkeleton className="h-9 w-20" />
-          </div>
-        </div>
-      ))}
-    </div>
   );
 }
 

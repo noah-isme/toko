@@ -47,7 +47,7 @@ describe('promo validation and apply flow', () => {
     await user.type(screen.getByLabelText(/masukkan kode/i), 'SAVE10');
     await user.click(screen.getByRole('button', { name: /terapkan/i }));
 
-    expect(await screen.findByText(/diskon/i)).toHaveTextContent('Diskon:');
+    expect(await screen.findByText(/^Diskon:/)).toHaveTextContent('Diskon:');
     expect(screen.getByText(/Menerapkan promo/i)).toBeInTheDocument();
 
     await waitFor(() => {

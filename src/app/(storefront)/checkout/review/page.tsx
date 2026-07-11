@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { OrderSummary } from '../_components/OrderSummary';
 
@@ -49,12 +49,19 @@ function CheckoutReviewContent() {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [failedStatus, setFailedStatus] = useState<PaymentStatus['status'] | null>(null);
   const [watcherActive, setWatcherActive] = useState(false);
+  const [manualCheckToken, setManualCheckToken] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
 
   const { data: cart } = useCartQuery();
   const queryClient = useQueryClient();
   const createPaymentIntentMutation = useCreatePaymentIntentMutation();
   const { toast: pushToast } = useToast();
   const payNowHintDomId = useId();
+  const supportLink = useMemo(
+    () =>
+      `mailto:support@toko.com?subject=${encodeURIComponent(`Bantuan pembayaran ${orderId}`)}`,
+    [orderId],
+  );
 
   useEffect(() => {
     if (!orderId) {
@@ -66,6 +73,20 @@ function CheckoutReviewContent() {
       setOrderDraft(storedDraft);
     }
   }, [orderId]);
+
+  useEffect(() => {
+    if (!paymentIntent?.expiresAt) {
+      return;
+    }
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [paymentIntent?.expiresAt]);
+
+  useEffect(() => {
+    if (orderId && orderDraft) {
+      setWatcherActive(true);
+    }
+  }, [orderDraft, orderId]);
 
   const totals = useMemo(() => {
     if (orderDraft?.totals) {
@@ -80,6 +101,14 @@ function CheckoutReviewContent() {
 
     return { subtotal, discount, shipping, tax, total };
   }, [cart?.subtotal?.amount, orderDraft?.totals]);
+
+  const paymentExpiryTime = paymentIntent?.expiresAt
+    ? new Date(paymentIntent.expiresAt).getTime()
+    : null;
+  const countdownLabel = paymentExpiryTime ? formatCountdown(paymentExpiryTime - now) : null;
+  const paymentExpired = paymentExpiryTime !== null && paymentExpiryTime - now <= 0;
+  const pendingTooLong =
+    paymentExpiryTime !== null && paymentExpiryTime - now < 15 * 60 * 1000;
 
   const addressLines = useMemo(() => {
     if (!orderDraft?.address) {
@@ -160,6 +189,7 @@ function CheckoutReviewContent() {
     setStatusError(null);
     setFailedStatus(null);
     setWatcherActive(true);
+    setManualCheckToken((prev) => prev + 1);
   }, []);
 
   const cartId = orderDraft?.cartId ?? cart?.id ?? null;
@@ -206,12 +236,24 @@ function CheckoutReviewContent() {
         ? 'Pembayaran dibatalkan. Silakan mulai ulang proses pembayaran.'
         : `Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`,
     );
-  }, []);
+    pushToast({
+      id: `payment-failed-${orderId}`,
+      title: 'Pembayaran belum berhasil',
+      description: `Status pembayaran: ${status}`,
+      variant: 'destructive',
+    });
+  }, [orderId, pushToast]);
 
   const handleStatusError = useCallback((message: string) => {
     setWatcherActive(false);
     setStatusError(message);
-  }, []);
+    pushToast({
+      id: `payment-status-error-${orderId}`,
+      title: 'Gagal memeriksa pembayaran',
+      description: message,
+      variant: 'destructive',
+    });
+  }, [orderId, pushToast]);
 
   if (!orderId) {
     return (
@@ -315,6 +357,28 @@ function CheckoutReviewContent() {
                   {new Date(paymentIntent.expiresAt).toLocaleString('id-ID')}.
                 </p>
               ) : null}
+              {countdownLabel ? (
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                  {paymentExpired ? (
+                    <p>Waktu pembayaran telah berakhir. Silakan buat ulang pembayaran.</p>
+                  ) : (
+                    <p>
+                      Sisa waktu pembayaran:{' '}
+                      <span className="font-semibold">{countdownLabel}</span>
+                    </p>
+                  )}
+                  <p className="mt-1 text-[11px] text-amber-800">
+                    Pastikan Anda menyelesaikan pembayaran sebelum batas waktu.
+                  </p>
+                  {pendingTooLong ? (
+                    <p className="mt-2">
+                      <a href={supportLink} className="font-medium underline">
+                        Hubungi CS
+                      </a>
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
               {paymentIntent?.token ? (
                 <p className="text-xs text-muted-foreground">
                   Token pembayaran: <span className="font-mono">{paymentIntent.token}</span>
@@ -365,6 +429,7 @@ function CheckoutReviewContent() {
           <PaymentStatusWatcher
             orderId={orderId}
             active={watcherActive}
+            manualCheckToken={manualCheckToken}
             onPaid={handleStatusPaid}
             onFailed={handleStatusFailed}
             onError={handleStatusError}
@@ -418,9 +483,20 @@ function ReviewPageSkeleton() {
   );
 }
 
+function formatCountdown(ms: number) {
+  const safeMs = Math.max(0, ms);
+  const totalSeconds = Math.floor(safeMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+}
+
 interface PaymentStatusWatcherProps {
   orderId: string;
   active: boolean;
+  manualCheckToken: number;
   onPaid: () => void;
   onFailed: (status: PaymentStatus['status']) => void;
   onError: (message: string) => void;
@@ -429,11 +505,19 @@ interface PaymentStatusWatcherProps {
 function PaymentStatusWatcher({
   orderId,
   active,
+  manualCheckToken,
   onPaid,
   onFailed,
   onError,
 }: PaymentStatusWatcherProps) {
   const statusQuery = usePaymentStatusQuery(orderId, { enabled: active && Boolean(orderId) });
+  const initialCheckTokenRef = useRef(manualCheckToken);
+
+  useEffect(() => {
+    if (active) {
+      initialCheckTokenRef.current = manualCheckToken;
+    }
+  }, [active, manualCheckToken]);
 
   useEffect(() => {
     if (!active) {
@@ -459,6 +543,17 @@ function PaymentStatusWatcher({
       onError('Tidak dapat memeriksa status pembayaran. Silakan coba lagi.');
     }
   }, [active, onError, statusQuery.isError]);
+
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+    if (manualCheckToken > initialCheckTokenRef.current) {
+      void statusQuery.refetch();
+    }
+  }, [manualCheckToken, active, statusQuery]);
+
+
 
   if (!active) {
     return null;

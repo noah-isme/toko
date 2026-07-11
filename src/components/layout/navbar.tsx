@@ -4,14 +4,11 @@ import { User, LogIn, LogOut, ShoppingCart } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
-
-
+import { Suspense } from 'react';
 
 import { Container } from '@/components/layout/container';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { SearchAutocomplete } from '@/components/search-autocomplete';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -33,6 +30,14 @@ const CartDrawer = dynamic(() => import('@/components/cart-drawer').then((mod) =
     </Button>
   ),
 });
+
+const SearchAutocomplete = dynamic(
+  () => import('@/components/search-autocomplete').then((mod) => mod.SearchAutocomplete),
+  {
+    ssr: false,
+    loading: () => <div className="h-10 w-full max-w-lg rounded-md border bg-muted/20" />,
+  },
+);
 
 const navLinks = [
   { href: '/' as Route, label: 'Home' },
@@ -89,6 +94,9 @@ export function Navbar() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
                   <Link href="/account">Account</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/account/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/account/orders">Orders</Link>

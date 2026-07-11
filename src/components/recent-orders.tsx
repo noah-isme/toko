@@ -64,7 +64,7 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
           return (
             <Link
               key={order.id}
-              href={`/order/confirmation/${order.id}` as Route}
+              href={`/account/orders/${order.id}` as Route}
               className="block rounded-lg border bg-card p-4 transition-shadow hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-4">

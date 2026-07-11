@@ -1,12 +1,12 @@
 'use client';
 
 import { Eye } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { Price } from '@/components/price';
-import { ProductQuickView } from '@/components/product-quick-view';
 import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +16,14 @@ import { Product } from '@/lib/api/schemas';
 import { cn } from '@/lib/utils';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useCartStore } from '@/stores/cart-store';
+
+const ProductQuickView = dynamic(
+  () => import('@/components/product-quick-view').then((mod) => mod.ProductQuickView),
+  { ssr: false },
+);
+
+const blurPlaceholder =
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+';
 
 interface ProductCardProps {
   product: Product;
@@ -75,6 +83,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 fill
                 className="object-cover"
                 sizes="(min-width: 768px) 33vw, 100vw"
+                placeholder="blur"
+                blurDataURL={blurPlaceholder}
               />
             ) : null}
             <div className="absolute right-2 top-2">
@@ -118,11 +128,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </div>
         </CardFooter>
       </Card>
-      <ProductQuickView
-        slug={product.slug}
-        isOpen={showQuickView}
-        onClose={() => setShowQuickView(false)}
-      />
+      {showQuickView ? (
+        <ProductQuickView
+          slug={product.slug}
+          isOpen={showQuickView}
+          onClose={() => setShowQuickView(false)}
+        />
+      ) : null}
     </>
   );
 }

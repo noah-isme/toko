@@ -89,9 +89,12 @@ describe('cart optimistic remove mutation', () => {
     const cart = cartResult.current.data as Cart;
     const targetItem = cart.items[0]!;
 
+    let resolveRemoveError!: () => void;
+    const removeErrorBlocker = new Promise<void>((resolve) => { resolveRemoveError = resolve; });
+
     server.use(
-      http.delete(apiPath('/cart/items/:itemId'), async () => {
-        await delay(100);
+      http.delete(apiPath('/carts/:cartId/items/:itemId'), async () => {
+        await removeErrorBlocker;
         return HttpResponse.json({ message: 'Unable to delete' }, { status: 500 });
       }),
     );
@@ -100,7 +103,7 @@ describe('cart optimistic remove mutation', () => {
       wrapper: Wrapper,
     });
 
-    await act(async () => {
+    act(() => {
       removeResult.current.mutate({ itemId: targetItem.id, cartId: cart.id });
     });
 
@@ -108,6 +111,9 @@ describe('cart optimistic remove mutation', () => {
       const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
       expect(optimisticCart?.items.some((item) => item.id === targetItem.id)).toBe(false);
     });
+
+    // Unblock server with error
+    act(() => { resolveRemoveError(); });
 
     await waitFor(() => {
       expect(removeResult.current.isError).toBe(true);

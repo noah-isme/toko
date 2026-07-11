@@ -1,9 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { apiClient, ApiClientError } from '@/lib/api/apiClient';
 import { type ApiResponse } from '@/lib/api/types';
 import { queryKeys } from '@/lib/api/queryKeys';
+import { ordersApi } from '@/lib/api/services';
 import { OrderDetailSchema, OrderListItemSchema, type OrderDetail, type OrderListItem } from '../schemas';
 
 const ordersQueryParamsSchema = z.object({
@@ -14,12 +15,19 @@ const ordersQueryParamsSchema = z.object({
 
 const ordersListResponseSchema = z.object({
   data: z.array(OrderListItemSchema),
+  meta: z.object({
+    page: z.number().int().nonnegative().default(1),
+    limit: z.number().int().positive().default(10),
+    total: z.number().int().nonnegative().optional(),
+    totalPages: z.number().int().nonnegative().optional(),
+  }).optional(),
+  // Support legacy 'pagination' field too
   pagination: z.object({
     page: z.number().int().nonnegative().default(1),
     perPage: z.number().int().positive().default(10),
     totalItems: z.number().int().nonnegative().optional(),
-  }).optional() // Make pagination optional as some responses might lack it
-});
+  }).optional(),
+}).passthrough();
 
 export type OrdersQueryParams = z.infer<typeof ordersQueryParamsSchema>;
 export type OrdersListResponse = z.infer<typeof ordersListResponseSchema>;
@@ -58,10 +66,21 @@ export function useOrderQuery(orderId: string) {
       const response = await apiClient<ApiResponse<any>>(`/orders/${orderId}`, {
         requiresAuth: true
       });
-      // Contract says response is { data: { ... } }
-      return OrderDetailSchema.parse(response.data);
+      // Contract says response is { data: { ... } } or direct object
+      const payload = response?.data ?? response;
+      return OrderDetailSchema.parse(payload);
     },
   });
 }
 
+export function useCancelOrderMutation(orderId: string) {
+  const queryClient = useQueryClient();
 
+  return useMutation({
+    mutationFn: () => ordersApi.cancelOrder(orderId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.order(orderId) });
+      await queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+}

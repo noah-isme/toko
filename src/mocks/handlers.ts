@@ -100,17 +100,20 @@ function slugify(value: string) {
 }
 
 function mapCartToApiCart(): ApiCart {
+  const discount = (cart as any).discount || 0;
+  const voucher = (cart as any).voucher || null;
+
   return {
     id: cart.id,
     anonId: null,
-    voucher: null,
+    voucher: voucher,
     currency: cart.subtotal.currency,
     pricing: {
       subtotal: cart.subtotal.amount,
-      discount: 0,
+      discount: discount,
       tax: 0,
       shipping: 0,
-      total: cart.subtotal.amount,
+      total: Math.max(0, cart.subtotal.amount - discount),
     },
     items: cart.items.map((item) => ({
       id: item.id,
@@ -162,6 +165,40 @@ export const handlers = [
   http.get(apiPath('/cart'), () => HttpResponse.json(cart)),
   http.get(apiPath('/carts'), () => HttpResponse.json({ data: mapCartToApiCart() })),
   http.get(apiPath('/carts/:cartId'), () => HttpResponse.json({ data: mapCartToApiCart() })),
+  http.get(apiPath('/orders/:orderId/shipment'), ({ params }) =>
+    HttpResponse.json({
+      data: {
+        orderId: params.orderId,
+        trackingNumber: faker.string.alphanumeric(12).toUpperCase(),
+        courier: 'JNE',
+        service: 'REG',
+        status: 'in_transit',
+        statusLabel: 'Dalam Perjalanan',
+        estimatedDelivery: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2).toISOString(),
+        shippedAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+        tracking: [
+          {
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+            status: 'picked_up',
+            location: 'Jakarta',
+            description: 'Paket diambil oleh kurir.',
+          },
+          {
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+            status: 'in_transit',
+            location: 'Bandung',
+            description: 'Paket dalam perjalanan ke kota tujuan.',
+          },
+          {
+            timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+            status: 'on_delivery',
+            location: 'Bandung',
+            description: 'Paket sedang diantar ke alamat tujuan.',
+          },
+        ],
+      },
+    }),
+  ),
   http.post(apiPath('/cart/items'), async ({ request }) => {
     const payload = await request.json();
     const parsed = addToCartInputSchema.safeParse(payload);
@@ -344,6 +381,8 @@ export const handlers = [
         id: faker.string.uuid(),
         email: faker.internet.email(),
         name: faker.person.fullName(),
+        emailVerified: faker.datatype.boolean(),
+        phone: faker.phone.number(),
       }
     }),
   ),

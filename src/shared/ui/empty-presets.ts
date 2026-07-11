@@ -33,3 +33,53 @@ export function emptyOrders(): EmptyStateProps {
     },
   };
 }
+
+export function emptyFavorites(): EmptyStateProps {
+  return {
+    title: 'Belum ada favorit',
+    description:
+      'Simpan produk favorit Anda untuk membandingkan harga dan kembali berbelanja lebih cepat.',
+    cta: {
+      label: 'Jelajahi produk',
+      href: '/products',
+    },
+  };
+}
+
+export function emptyFavoritesUnavailable(): EmptyStateProps {
+  return {
+    title: 'Favorit tidak tersedia',
+    description:
+      'Sebagian produk favorit Anda sudah tidak dijual. Coba cari produk serupa yang masih tersedia.',
+    cta: {
+      label: 'Cari produk lain',
+      href: '/products',
+    },
+  };
+}
+
+export function emptySearchResults(query?: string): EmptyStateProps {
+  return {
+    title: 'Hasil pencarian tidak ditemukan',
+    description: query
+      ? `Kami tidak menemukan produk untuk "${query}". Coba kata kunci lain atau hapus beberapa filter.`
+      : 'Kami tidak menemukan produk dengan kata kunci tersebut. Coba kata kunci lain.',
+    cta: {
+      label: 'Lihat semua produk',
+      href: '/products',
+    },
+  };
+}
+
+export function emptyCategoryProducts(categories?: string[]): EmptyStateProps {
+  const label =
+    categories && categories.length > 0 ? `Kategori ${categories.join(', ')}` : 'Kategori ini';
+  return {
+    title: 'Produk belum tersedia',
+    description: `${label} belum memiliki produk. Coba lihat kategori lain untuk menemukan produk serupa.`,
+    cta: {
+      label: 'Jelajahi kategori lain',
+      href: '/products',
+    },
+  };
+}

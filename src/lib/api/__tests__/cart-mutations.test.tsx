@@ -60,6 +60,7 @@ describe('useAddToCartMutation', () => {
         price: { amount: targetProduct!.price, currency: targetProduct!.currency },
         image: targetProduct!.images[0] ?? null,
         maxQuantity: targetProduct!.stock,
+        cartId: initialCart.id,
       });
     });
 

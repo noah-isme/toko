@@ -42,6 +42,8 @@ const DialogContent = React.forwardRef<
         'fixed z-50 grid w-full gap-4 rounded-b-lg border bg-background p-6 shadow-lg duration-200 sm:max-w-lg sm:rounded-lg',
         className,
       )}
+      tabIndex={-1}
+      aria-modal="true"
       {...props}
     >
       {children}

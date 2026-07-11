@@ -28,7 +28,7 @@ export function mockAddressHandlers(initial: Address[]) {
   let counter = 0;
 
   server.use(
-    http.get(apiPath('/addresses'), () => HttpResponse.json(store)),
+    http.get(apiPath('/addresses'), () => HttpResponse.json({ data: store })),
     http.post(apiPath('/addresses'), async ({ request }) => {
       await delay(25);
       const payload = (await request.json()) as AddressInput;
@@ -48,7 +48,7 @@ export function mockAddressHandlers(initial: Address[]) {
       }
 
       store = [newAddress, ...store];
-      return HttpResponse.json(newAddress, { status: 201 });
+      return HttpResponse.json({ data: newAddress }, { status: 201 });
     }),
     http.patch(apiPath('/addresses/:id'), async ({ params, request }) => {
       await delay(25);
@@ -73,7 +73,7 @@ export function mockAddressHandlers(initial: Address[]) {
         }));
       }
 
-      return HttpResponse.json(store.find((address) => address.id === id));
+      return HttpResponse.json({ data: store.find((address) => address.id === id) });
     }),
     http.delete(apiPath('/addresses/:id'), async ({ params }) => {
       await delay(25);
@@ -88,7 +88,7 @@ export function mockAddressHandlers(initial: Address[]) {
         store[0] = { ...store[0], isDefault: true };
       }
 
-      return HttpResponse.json(null, { status: 204 });
+      return new HttpResponse(null, { status: 204 });
     }),
     http.post(apiPath('/addresses/:id/default'), async ({ params }) => {
       await delay(20);
@@ -104,7 +104,7 @@ export function mockAddressHandlers(initial: Address[]) {
         updatedAt: address.id === id ? new Date().toISOString() : address.updatedAt,
       }));
 
-      return HttpResponse.json(store.find((address) => address.id === id));
+      return HttpResponse.json({ data: store.find((address) => address.id === id) });
     }),
   );
 

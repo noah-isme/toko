@@ -5,13 +5,21 @@ import { apiPath } from './utils';
 
 import type { FavoriteItem } from '@/entities/favorites/types';
 
-const favorites: FavoriteItem[] = [];
+export const mockFavorites: FavoriteItem[] = [];
 
 export const favoritesHandlers = [
   // GET /favorites - list all favorites
   http.get(apiPath('/favorites'), () => {
-    // Backend returns raw array
-    return HttpResponse.json(favorites);
+    // Map camelCase mockFavorites to snake_case ApiFavoriteItem
+    const apiFavorites = mockFavorites.map((item) => ({
+      product_id: item.productId,
+      product_name: item.productName,
+      product_slug: item.productSlug,
+      price: item.price,
+      image_url: item.imageUrl,
+      created_at: item.createdAt,
+    }));
+    return HttpResponse.json(apiFavorites);
   }),
 
   // POST /favorites - toggle favorite
@@ -28,16 +36,16 @@ export const favoritesHandlers = [
       return HttpResponse.json({ message: 'Invalid productId' }, { status: 400 });
     }
 
-    const index = favorites.findIndex((item) => item.productId === productId);
+    const index = mockFavorites.findIndex((item) => item.productId === productId);
 
     if (index !== -1) {
       // Remove if exists
-      favorites.splice(index, 1);
+      mockFavorites.splice(index, 1);
       return HttpResponse.json({ favorited: false }, { status: 200 });
     }
 
     // Add if not exists
-    favorites.push({
+    mockFavorites.push({
       productId,
       productName: faker.commerce.productName(),
       productSlug: productId,
@@ -52,7 +60,7 @@ export const favoritesHandlers = [
   // GET /favorites/:productId - check favorite status
   http.get(apiPath('/favorites/:productId'), ({ params }) => {
     const { productId } = params as { productId: string };
-    const favorited = favorites.some((item) => item.productId === productId);
+    const favorited = mockFavorites.some((item) => item.productId === productId);
     return HttpResponse.json({ favorited }, { status: 200 });
   }),
 ];

@@ -21,6 +21,7 @@ interface AuthContextValue {
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateProfile: (data: { name: string; phone?: string }) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -141,6 +142,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: { name: string; phone?: string }) => {
+    const updatedUser = await authApi.updateProfile(data);
+    setUser(updatedUser);
+    return updatedUser;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -151,6 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         refreshUser,
+        updateProfile,
       }}
     >
       {children}

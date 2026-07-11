@@ -132,7 +132,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
               type="submit"
               size="sm"
               className="w-full sm:w-auto"
-              disabled={isBusy || Boolean(appliedPromo) || !normalizedCode}
+              disabled={isBusy || Boolean(appliedPromo)}
               isLoading={applyMutation.isPending}
               loadingLabel="Menerapkan promo…"
             >

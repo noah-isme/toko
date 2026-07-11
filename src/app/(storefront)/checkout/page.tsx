@@ -4,7 +4,7 @@ import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { OrderSummary } from './_components/OrderSummary';
 import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
@@ -30,8 +30,10 @@ import {
 } from '@/entities/checkout/api/hooks';
 import type {
   Address as CheckoutAddress,
+  OrderDraft,
   ShippingOption,
 } from '@/entities/checkout/api/hooks';
+import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { PromoField } from '@/entities/promo/ui/PromoField';
 import { useCartQuery } from '@/lib/api/hooks';
 import type { PaymentMethod } from '@/lib/api/types';
@@ -59,6 +61,9 @@ export default function CheckoutPage() {
 
   const [selectedShippingId, setSelectedShippingId] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [isUsingCachedQuote, setIsUsingCachedQuote] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
   const [localStoredCartId, setLocalStoredCartId] = useState<string | null>(null);
   const [storageChecked, setStorageChecked] = useState(false);
   const [addressOwnerId, setAddressOwnerId] = useState<string | null>(null);
@@ -70,6 +75,8 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(null);
   const [addressAnnouncement, setAddressAnnouncement] = useState('');
   const [isAddressManagerOpen, setAddressManagerOpen] = useState(false);
+  const [lastQuoteUpdatedAt, setLastQuoteUpdatedAt] = useState<number | null>(null);
+  const lastQuoteKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -93,6 +100,26 @@ export default function CheckoutPage() {
   }, [cart?.id]);
 
   const activeCartId = cart?.id ?? storedCartId ?? localStoredCartId ?? null;
+  const cartSignature = useMemo(() => {
+    if (!cart?.items?.length) {
+      return '';
+    }
+
+    return [...cart.items]
+      .map((item) => `${item.productId}:${item.quantity}`)
+      .sort()
+      .join('|');
+  }, [cart?.items]);
+  const quoteStorageKey = useMemo(() => {
+    if (!activeCartId || !selectedAddress) {
+      return null;
+    }
+    return `checkout:shipping-quote:${activeCartId}:${selectedAddress.id}`;
+  }, [activeCartId, selectedAddress]);
+  const checkoutDraftKey = useMemo(
+    () => (activeCartId ? `checkout:step:${activeCartId}` : null),
+    [activeCartId],
+  );
 
   useEffect(() => {
     // If user is logged in, use their ID
@@ -107,11 +134,154 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!quoteStorageKey || typeof window === 'undefined') {
+      setShippingOptions([]);
+      setIsUsingCachedQuote(false);
+      return;
+    }
+
+    const raw = window.sessionStorage.getItem(quoteStorageKey);
+    if (!raw) {
+      setShippingOptions([]);
+      setIsUsingCachedQuote(false);
+      return;
+    }
+
+    try {
+      const cached = JSON.parse(raw) as {
+        cartSignature?: string;
+        updatedAt?: number;
+        options?: ShippingOption[];
+      };
+      if (cached.cartSignature && cached.cartSignature !== cartSignature) {
+        setShippingOptions([]);
+        setIsUsingCachedQuote(false);
+        return;
+      }
+      if (Array.isArray(cached.options) && cached.options.length > 0) {
+        setShippingOptions(cached.options);
+        setLastQuoteUpdatedAt(cached.updatedAt ?? null);
+        setIsUsingCachedQuote(true);
+      } else {
+        setShippingOptions([]);
+        setIsUsingCachedQuote(false);
+      }
+    } catch (error) {
+      setShippingOptions([]);
+      setIsUsingCachedQuote(false);
+    }
+  }, [cartSignature, quoteStorageKey]);
+
+  useEffect(() => {
+    if (!checkoutDraftKey || typeof window === 'undefined') {
+      setDraftLoaded(true);
+      return;
+    }
+
+    const raw = window.sessionStorage.getItem(checkoutDraftKey);
+    if (!raw) {
+      setDraftLoaded(true);
+      return;
+    }
+
+    try {
+      const draft = JSON.parse(raw) as {
+        addressId?: string;
+        shippingId?: string;
+        paymentMethod?: PaymentMethod;
+      };
+
+      if (!selectedAddressId && draft.addressId) {
+        setSelectedAddressId(draft.addressId);
+      }
+      if (!selectedShippingId && draft.shippingId) {
+        setSelectedShippingId(draft.shippingId);
+      }
+      if (!selectedPaymentMethod && draft.paymentMethod) {
+        setSelectedPaymentMethod(draft.paymentMethod);
+      }
+    } catch (error) {
+      // ignore invalid draft payload
+    } finally {
+      setDraftLoaded(true);
+    }
+  }, [checkoutDraftKey, selectedAddressId, selectedPaymentMethod, selectedShippingId]);
+
+  useEffect(() => {
+    if (!checkoutDraftKey || typeof window === 'undefined' || !draftLoaded) {
+      return;
+    }
+
+    const payload = {
+      addressId: selectedAddressId ?? undefined,
+      shippingId: selectedShippingId ?? undefined,
+      paymentMethod: selectedPaymentMethod ?? undefined,
+      updatedAt: Date.now(),
+    };
+
+    const hasAnyValue = Boolean(
+      payload.addressId || payload.shippingId || payload.paymentMethod,
+    );
+
+    if (hasAnyValue) {
+      window.sessionStorage.setItem(checkoutDraftKey, JSON.stringify(payload));
+    } else {
+      window.sessionStorage.removeItem(checkoutDraftKey);
+    }
+  }, [
+    checkoutDraftKey,
+    draftLoaded,
+    selectedAddressId,
+    selectedPaymentMethod,
+    selectedShippingId,
+  ]);
+
+  const requestShippingQuote = useCallback(
+    async (address: SavedAddress, options: { selectDefault?: boolean } = {}) => {
+      if (!activeCartId) {
+        return;
+      }
+
+      lastQuoteKeyRef.current = `${activeCartId}:${address.id}:${cartSignature}`;
+      try {
+        const result = await shippingQuoteMutation.mutateAsync({
+          cartId: activeCartId,
+          address: mapAddressToCheckout(address),
+        });
+        const updatedAt = Date.now();
+        setShippingOptions(result);
+        setLastQuoteUpdatedAt(updatedAt);
+        setIsUsingCachedQuote(false);
+        if (typeof window !== 'undefined') {
+          const storageKey = `checkout:shipping-quote:${activeCartId}:${address.id}`;
+          window.sessionStorage.setItem(
+            storageKey,
+            JSON.stringify({
+              cartSignature,
+              updatedAt,
+              options: result,
+            }),
+          );
+        }
+        if (options.selectDefault) {
+          setSelectedShippingId(result[0]?.id ?? null);
+        }
+      } catch (error) {
+        console.error('Failed to refresh shipping quote', error);
+      }
+    },
+    [activeCartId, cartSignature, shippingQuoteMutation],
+  );
+
   const handleAddressSelection = useCallback(
     async (address: SavedAddress, options: { announce?: boolean } = {}) => {
       setSelectedAddressId(address.id);
       setSelectedAddress(address);
       setSelectedShippingId(null);
+      setLastQuoteUpdatedAt(null);
+      setShippingOptions([]);
+      setIsUsingCachedQuote(false);
       if (options.announce !== false) {
         setAddressAnnouncement(`Alamat ${address.fullName} dipilih`);
       }
@@ -123,23 +293,44 @@ export default function CheckoutPage() {
       if (!activeCartId) {
         return;
       }
-      try {
-        const result = await shippingQuoteMutation.mutateAsync({
-          cartId: activeCartId,
-          address: mapAddressToCheckout(address),
-        });
-        setSelectedShippingId(result[0]?.id ?? null);
-      } catch (error) {
-        console.error('Failed to refresh shipping quote', error);
-      }
+      await requestShippingQuote(address, { selectDefault: true });
     },
-    [activeCartId, shippingQuoteMutation],
+    [activeCartId, requestShippingQuote],
   );
 
   useEffect(() => {
+    if (!selectedAddress || !activeCartId) {
+      setLastQuoteUpdatedAt(null);
+      return;
+    }
+
+    if (shippingQuoteMutation.isPending) {
+      return;
+    }
+
+    const nextKey = `${activeCartId}:${selectedAddress.id}:${cartSignature}`;
+    if (lastQuoteKeyRef.current === nextKey) {
+      return;
+    }
+
+    void requestShippingQuote(selectedAddress);
+  }, [
+    activeCartId,
+    cartSignature,
+    requestShippingQuote,
+    selectedAddress,
+    shippingQuoteMutation.isPending,
+  ]);
+
+  useEffect(() => {
     if (!addresses.length) {
+      if (isAddressLoading) {
+        return;
+      }
       setSelectedAddress(null);
       setSelectedAddressId(null);
+      setShippingOptions([]);
+      setIsUsingCachedQuote(false);
       return;
     }
 
@@ -155,24 +346,24 @@ export default function CheckoutPage() {
     if (fallback) {
       void handleAddressSelection(fallback, { announce: false });
     }
-  }, [addresses, handleAddressSelection, selectedAddressId]);
+  }, [addresses, handleAddressSelection, isAddressLoading, selectedAddressId]);
 
   useEffect(() => {
-    const options = shippingQuoteMutation.data ?? [];
+    const options = shippingOptions;
     if (!options.length) {
       return;
     }
     if (!options.some((option) => option.id === selectedShippingId)) {
       setSelectedShippingId(options[0]?.id ?? null);
     }
-  }, [shippingQuoteMutation.data, selectedShippingId]);
+  }, [selectedShippingId, shippingOptions]);
 
   const selectedShippingOption = useMemo<ShippingOption | null>(() => {
-    if (!shippingQuoteMutation.data) {
+    if (!shippingOptions.length) {
       return null;
     }
-    return shippingQuoteMutation.data.find((option) => option.id === selectedShippingId) ?? null;
-  }, [shippingQuoteMutation.data, selectedShippingId]);
+    return shippingOptions.find((option) => option.id === selectedShippingId) ?? null;
+  }, [selectedShippingId, shippingOptions]);
 
   const promoAwareCart = cart as CartWithPromo | undefined;
   const promoTotals = promoAwareCart?.totals;
@@ -192,6 +383,16 @@ export default function CheckoutPage() {
       total,
     };
   }, [cart?.subtotal?.amount, promoTotals, selectedShippingOption]);
+
+  const lastQuoteLabel = useMemo(() => {
+    if (!lastQuoteUpdatedAt) {
+      return null;
+    }
+    return new Intl.DateTimeFormat('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(lastQuoteUpdatedAt));
+  }, [lastQuoteUpdatedAt]);
 
   const isProcessing = checkoutMutation.isPending;
   const proceedLabel = isProcessing
@@ -223,6 +424,18 @@ export default function CheckoutPage() {
         shippingCost: selectedShippingOption.cost,
         paymentMethod: selectedPaymentMethod,
       });
+
+      const draft: OrderDraft = {
+        cartId: activeCartId,
+        address: mapAddressToCheckout(selectedAddress),
+        shippingOption: selectedShippingOption,
+        paymentMethod: selectedPaymentMethod,
+        totals: computedTotals,
+      };
+      saveOrderDraft(result.orderId, draft);
+      if (checkoutDraftKey && typeof window !== 'undefined') {
+        window.sessionStorage.removeItem(checkoutDraftKey);
+      }
 
       if (result.paymentUrl) {
         window.location.href = result.paymentUrl;
@@ -331,17 +544,39 @@ export default function CheckoutPage() {
               {addressAnnouncement}
             </p>
           </section>
-          {shippingQuoteMutation.data ? (
+          {shippingOptions.length > 0 ? (
             <>
               <section className="space-y-4 rounded-lg border p-6">
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold">Shipping Options</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Choose the delivery service that suits you best.
-                  </p>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <h2 className="text-lg font-semibold">Shipping Options</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Choose the delivery service that suits you best.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedAddress && activeCartId) {
+                        void requestShippingQuote(selectedAddress);
+                      }
+                    }}
+                    disabled={!selectedAddress || !activeCartId || shippingQuoteMutation.isPending}
+                  >
+                    {shippingQuoteMutation.isPending ? 'Memperbarui...' : 'Perbarui ongkir'}
+                  </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {shippingQuoteMutation.isPending
+                    ? 'Menghitung ulang ongkir...'
+                    : lastQuoteLabel
+                      ? `${isUsingCachedQuote ? 'Ongkir terakhir' : 'Ongkir diperbarui'} ${lastQuoteLabel}`
+                      : 'Ongkir diperbarui otomatis saat alamat atau keranjang berubah.'}
+                </p>
                 <ShippingOptions
-                  options={shippingQuoteMutation.data}
+                  options={shippingOptions}
                   selectedId={selectedShippingId ?? undefined}
                   onChange={(id) => setSelectedShippingId(id)}
                   disabled={isProcessing}

@@ -11,6 +11,11 @@ import type {
   User,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  VerifyEmailRequest,
+  ResendVerificationRequest,
+  UpdateProfileRequest,
+  MessageResponse,
+  SessionInfo,
 } from '../types';
 
 export const authApi = {
@@ -75,7 +80,7 @@ export const authApi = {
    * Request password reset email
    */
   async forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {
-    const response = await apiClient<ApiResponse<{ message: string }>>('/auth/password/forgot', {
+    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/password/forgot', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -86,9 +91,65 @@ export const authApi = {
    * Reset password with token
    */
   async resetPassword(data: ResetPasswordRequest): Promise<{ message: string }> {
-    const response = await apiClient<ApiResponse<{ message: string }>>('/auth/password/reset', {
+    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/password/reset', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+    return response.data;
+  },
+
+  /**
+   * Verify email address with token
+   */
+  async verifyEmail(data: VerifyEmailRequest): Promise<MessageResponse> {
+    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/email/verify', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.data;
+  },
+
+  /**
+   * Resend verification email
+   */
+  async resendVerification(data: ResendVerificationRequest): Promise<MessageResponse> {
+    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/email/resend', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.data;
+  },
+
+  /**
+   * Update current user profile
+   */
+  async updateProfile(data: UpdateProfileRequest): Promise<User> {
+    const response = await apiClient<ApiResponse<User>>('/users/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+    return response.data;
+  },
+
+  /**
+   * Get active sessions for current user
+   */
+  async getSessions(): Promise<SessionInfo[]> {
+    const response = await apiClient<ApiResponse<SessionInfo[]>>('/auth/sessions', {
+      method: 'GET',
+      requiresAuth: true,
+    });
+    return response.data;
+  },
+
+  /**
+   * Logout all sessions
+   */
+  async logoutAllSessions(): Promise<MessageResponse> {
+    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/logout/all', {
+      method: 'POST',
+      requiresAuth: true,
     });
     return response.data;
   },

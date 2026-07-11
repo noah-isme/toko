@@ -5,6 +5,9 @@ import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
+const blurPlaceholder =
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+';
+
 interface ProductImageGalleryProps {
   images: string[];
   productName: string;
@@ -58,6 +61,8 @@ export function ProductImageGallery({ images, productName, className }: ProductI
           className={cn('object-cover transition-transform duration-300', isZoomed && 'scale-150')}
           sizes="(min-width: 1024px) 50vw, 100vw"
           priority={selectedIndex === 0}
+          placeholder="blur"
+          blurDataURL={blurPlaceholder}
         />
         {images.length > 1 && (
           <div className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white backdrop-blur-sm">
@@ -93,6 +98,8 @@ export function ProductImageGallery({ images, productName, className }: ProductI
                 fill
                 className="object-cover"
                 sizes="80px"
+                placeholder="blur"
+                blurDataURL={blurPlaceholder}
               />
             </button>
           ))}

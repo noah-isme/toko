@@ -46,3 +46,14 @@ export function useProductQuery(slug: string) {
     enabled: Boolean(slug),
   });
 }
+
+export function useRelatedProductsQuery(slug: string) {
+  return useQuery<ProductList>({
+    queryKey: queryKeys.relatedProducts(slug),
+    queryFn: async () => {
+      const response = await apiClient<ApiResponse<ApiProduct[]>>(`/products/${slug}/related`);
+      return response.data.map(mapApiProductToProduct);
+    },
+    enabled: Boolean(slug),
+  });
+}

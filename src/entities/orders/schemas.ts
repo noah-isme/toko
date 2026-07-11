@@ -59,6 +59,7 @@ export const OrderListItemSchema = z.preprocess((val: any) => {
   if (!val || typeof val !== 'object') return val;
   return {
     ...val,
+    status: val.status || val.paymentStatus || val.fulfillmentStatus || val.payment_status || val.fulfillment_status || '',
     statusLabel: val.statusLabel || val.status_label || val.status,
     orderNumber: val.orderNumber || val.order_number || val.number || '',
     paymentMethod: val.paymentMethod || val.payment_method,
@@ -72,7 +73,7 @@ export const OrderListItemSchema = z.preprocess((val: any) => {
 }, z.object({
   id: z.string(),
   orderNumber: z.string(),
-  status: z.string(),
+  status: z.string().default(''),
   statusLabel: z.string().optional(),
   total: robustNumber,
   currency: z.string(),

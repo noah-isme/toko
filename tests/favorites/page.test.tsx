@@ -45,10 +45,10 @@ describe('favorites page', () => {
     });
 
     expect(
-      screen.getByText(/Mulai tambahkan produk favorit Anda dengan menekan tombol hati/),
+      screen.getByText(/Simpan produk favorit Anda untuk membandingkan harga/i),
     ).toBeInTheDocument();
 
-    const ctaLink = screen.getByRole('link', { name: /Lihat Produk/i });
+    const ctaLink = screen.getByRole('link', { name: /Jelajahi produk/i });
     expect(ctaLink).toBeInTheDocument();
     expect(ctaLink).toHaveAttribute('href', '/products');
   });

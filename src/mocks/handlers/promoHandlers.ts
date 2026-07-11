@@ -75,10 +75,16 @@ function evaluatePromo(code: string) {
   };
 }
 
-function persistCartDiscount(discountValue: number | undefined) {
+function persistCartDiscount(discountValue: number | undefined, promo?: any) {
   const cart = getCartMock();
   if (cart) {
-    cart.discount = discountValue ?? 0;
+    (cart as any).discount = discountValue ?? 0;
+    (cart as any).voucher = promo ? {
+      code: promo.code,
+      discountType: promo.discountType,
+      value: promo.value,
+      label: promo.label,
+    } : null;
   }
 }
 
@@ -98,7 +104,7 @@ export const promoHandlers = [
 
     const evaluation = evaluatePromo(body.code);
     if (!evaluation.valid) {
-      return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 422 });
+      return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 200 });
     }
 
     const { promo, appliedSubtotal, finalTotal, message } = evaluation;
@@ -124,7 +130,7 @@ export const promoHandlers = [
       return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 422 });
     }
 
-    persistCartDiscount(evaluation.discountValue);
+    persistCartDiscount(evaluation.discountValue, evaluation.promo);
     return HttpResponse.json({
       valid: true,
       promo: evaluation.promo,

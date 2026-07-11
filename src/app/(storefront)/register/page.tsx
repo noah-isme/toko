@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
-import { useToast } from '@/shared/ui/toast';
+import { GuardedButton } from '@/shared/ui/GuardedButton';
+import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
 
 interface RegisterForm {
   name: string;
@@ -23,7 +24,6 @@ interface RegisterForm {
 export default function RegisterPage() {
   const router = useRouter();
   const { register: registerUser, isLoading: authLoading } = useAuth();
-  const { toast } = useToast();
   const { register, handleSubmit, formState, setError, watch } = useForm<RegisterForm>({
     defaultValues: {
       name: '',
@@ -32,29 +32,13 @@ export default function RegisterPage() {
       confirmPassword: '',
       acceptTerms: false,
     },
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const password = watch('password');
 
   const onSubmit = async (values: RegisterForm) => {
-    // Validate password match
-    if (values.password !== values.confirmPassword) {
-      setError('confirmPassword', { message: 'Passwords do not match' });
-      return;
-    }
-
-    // Validate password strength (minimum requirements)
-    if (values.password.length < 8) {
-      setError('password', { message: 'Password must be at least 8 characters' });
-      return;
-    }
-
-    // Validate terms acceptance
-    if (!values.acceptTerms) {
-      setError('acceptTerms', { message: 'You must accept the terms and conditions' });
-      return;
-    }
-
     try {
       const {
         confirmPassword: _confirmPassword,
@@ -62,12 +46,10 @@ export default function RegisterPage() {
         ...registerData
       } = values;
       await registerUser(registerData);
-      toast({ variant: 'success', description: 'Account created successfully!' });
       router.push('/');
     } catch (error) {
       const message = getErrorMessage(error);
       setError('root', { message });
-      toast({ variant: 'destructive', description: message });
     }
   };
 
@@ -80,6 +62,11 @@ export default function RegisterPage() {
   const confirmPasswordError = formState.errors.confirmPassword?.message;
   const confirmPasswordErrorId = confirmPasswordError ? 'confirm-password-error' : undefined;
   const acceptTermsError = formState.errors.acceptTerms?.message;
+  const showLoadingState = authLoading && !formState.isSubmitting;
+
+  if (showLoadingState) {
+    return <AuthFormSkeleton />;
+  }
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
@@ -87,7 +74,11 @@ export default function RegisterPage() {
         <h1 className="text-2xl font-bold">Create an account</h1>
         <p className="text-sm text-muted-foreground">Start shopping with toko today.</p>
       </div>
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="space-y-4"
+        onSubmit={handleSubmit(onSubmit)}
+        aria-busy={formState.isSubmitting || authLoading ? 'true' : undefined}
+      >
         {formState.errors.root?.message ? (
           <div
             role="alert"
@@ -117,7 +108,13 @@ export default function RegisterPage() {
             Email
           </label>
           <Input
-            {...register('email', { required: 'Email is required' })}
+            {...register('email', {
+              required: 'Email is required',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Please enter a valid email address',
+              },
+            })}
             {...fieldA11y('email', emailErrorId)}
             type="email"
             autoComplete="email"
@@ -137,6 +134,10 @@ export default function RegisterPage() {
             {...register('password', {
               required: 'Password is required',
               minLength: { value: 8, message: 'Password must be at least 8 characters' },
+              pattern: {
+                value: /^(?=.*[A-Za-z])(?=.*\d).+$/,
+                message: 'Use letters and numbers for a stronger password',
+              },
             })}
             {...fieldA11y('password', passwordErrorId)}
             type="password"
@@ -157,6 +158,8 @@ export default function RegisterPage() {
           <Input
             {...register('confirmPassword', {
               required: 'Please confirm your password',
+              validate: (value) =>
+                value === password || 'Passwords do not match',
             })}
             {...fieldA11y('confirmPassword', confirmPasswordErrorId)}
             type="password"
@@ -205,9 +208,14 @@ export default function RegisterPage() {
             </p>
           ) : null}
         </div>
-        <Button className="w-full" disabled={formState.isSubmitting || authLoading} type="submit">
-          {formState.isSubmitting || authLoading ? 'Creating account...' : 'Register'}
-        </Button>
+        <GuardedButton
+          className="w-full"
+          type="submit"
+          isLoading={formState.isSubmitting || authLoading}
+          loadingLabel="Creating account..."
+        >
+          Register
+        </GuardedButton>
       </form>
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{' '}

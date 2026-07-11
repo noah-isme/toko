@@ -3,7 +3,7 @@ import { NewsletterSignup } from '@/components/newsletter-signup';
 
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/30 text-sm text-muted-foreground">
+    <footer className="border-t bg-muted/30 pb-24 text-sm text-muted-foreground md:pb-0">
       <Container className="py-12">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <div className="lg:col-span-1">

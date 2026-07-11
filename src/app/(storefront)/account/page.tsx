@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { RecentOrders } from '@/components/recent-orders';
 import { Button } from '@/components/ui/button';
+import { AccountDashboardSkeleton } from '@/shared/ui/skeletons/AccountDashboardSkeleton';
 import { useToast } from '@/shared/ui/toast';
 
 export default function AccountPage() {
@@ -16,7 +17,6 @@ export default function AccountPage() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast({ variant: 'success', description: 'Logged out successfully' });
       router.push('/');
     } catch (error) {
       toast({ variant: 'destructive', description: 'Failed to logout' });
@@ -24,14 +24,7 @@ export default function AccountPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Account</h1>
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+    return <AccountDashboardSkeleton />;
   }
 
   if (!isAuthenticated || !user) {
@@ -58,22 +51,36 @@ export default function AccountPage() {
       <div>
         <h1 className="text-2xl font-bold">Welcome, {user.name}</h1>
         <p className="text-sm text-muted-foreground">{user.email}</p>
+        {user.emailVerified === false ? (
+          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            Email Anda belum terverifikasi.{' '}
+            <Link href="/verify-email" className="font-medium text-amber-700 underline">
+              Verifikasi sekarang
+            </Link>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Button asChild size="lg" className="h-auto py-6">
+          <Link href="/account/profile" className="flex flex-col items-center gap-2">
+            <span className="text-2xl">👤</span>
+            <span>Profile</span>
+          </Link>
+        </Button>
+        <Button asChild size="lg" variant="secondary" className="h-auto py-6">
           <Link href="/account/orders" className="flex flex-col items-center gap-2">
             <span className="text-2xl">📦</span>
             <span>View Orders</span>
           </Link>
         </Button>
-        <Button asChild size="lg" variant="secondary" className="h-auto py-6">
+        <Button asChild size="lg" variant="outline" className="h-auto py-6">
           <Link href="/account/addresses" className="flex flex-col items-center gap-2">
             <span className="text-2xl">📍</span>
             <span>Manage Addresses</span>
           </Link>
         </Button>
-        <Button asChild size="lg" variant="outline" className="h-auto py-6">
+        <Button asChild size="lg" variant="ghost" className="h-auto py-6">
           <Link href="/favorites" className="flex flex-col items-center gap-2">
             <span className="text-2xl">❤️</span>
             <span>Favorites</span>

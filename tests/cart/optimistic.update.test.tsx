@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook, waitFor } from '@testing-library/react';
-import { delay, http } from 'msw';
+import { HttpResponse, act, renderHook, waitFor } from '@testing-library/react';
+import { http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 
@@ -44,14 +44,17 @@ describe('cart optimistic update mutation', () => {
 
     const originalUpdateHandler = handlers.find(
       (handler) =>
-        handler.info?.method === 'PATCH' && handler.info?.path === apiPath('/cart/items/:itemId'),
+        handler.info?.method === 'PATCH' && handler.info?.path === apiPath('/carts/:cartId/items/:itemId'),
     );
 
     expect(originalUpdateHandler).toBeDefined();
 
+    let resolveUpdate!: () => void;
+    const updateBlocker = new Promise<void>((resolve) => { resolveUpdate = resolve; });
+
     server.use(
-      http.patch(apiPath('/cart/items/:itemId'), async (...args) => {
-        await delay(120);
+      http.patch(apiPath('/carts/:cartId/items/:itemId'), async (...args) => {
+        await updateBlocker;
         return (originalUpdateHandler as any).resolver(...args);
       }),
     );
@@ -60,13 +63,14 @@ describe('cart optimistic update mutation', () => {
       wrapper: Wrapper,
     });
 
-    await act(async () => {
+    act(() => {
       updateResult.current.mutate({
         itemId: targetItem.id,
         quantity: initialQuantity + 2,
         maxQuantity: targetItem.maxQuantity,
         cartId: cart.id,
       });
+      // Second call - should be guarded (ignored)
       updateResult.current.mutate({
         itemId: targetItem.id,
         quantity: initialQuantity + 3,
@@ -75,11 +79,20 @@ describe('cart optimistic update mutation', () => {
       });
     });
 
+    await waitFor(() => {
+      const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+      const optimisticItem = optimisticCart?.items.find((item) => item.id === targetItem.id);
+      expect(optimisticItem?.quantity).toBe(initialQuantity + 2);
+    });
+
     const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
     const optimisticItem = optimisticCart?.items.find((item) => item.id === targetItem.id);
     expect(optimisticItem?.quantity).toBe(initialQuantity + 2);
 
     expect(updateResult.current.isItemInFlight(targetItem.id)).toBe(true);
+
+    // Unblock the server response
+    act(() => { resolveUpdate(); });
 
     await waitFor(() => {
       expect(updateResult.current.isSuccess).toBe(true);

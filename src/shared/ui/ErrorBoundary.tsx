@@ -62,6 +62,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       return (
         <div
           role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
           className="flex flex-col items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-sm text-foreground"
         >
           <div className="space-y-1">

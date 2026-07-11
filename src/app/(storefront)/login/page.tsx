@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
-import { useToast } from '@/shared/ui/toast';
+import { GuardedButton } from '@/shared/ui/GuardedButton';
+import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
 
 interface LoginForm {
   email: string;
@@ -19,23 +20,22 @@ interface LoginForm {
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading: authLoading } = useAuth();
-  const { toast } = useToast();
   const { register, handleSubmit, formState, setError } = useForm<LoginForm>({
     defaultValues: {
       email: '',
       password: '',
     },
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const onSubmit = async (values: LoginForm) => {
     try {
       await login(values);
-      toast({ variant: 'success', description: 'Login successful!' });
       router.push('/');
     } catch (error) {
       const message = getErrorMessage(error);
       setError('root', { message });
-      toast({ variant: 'destructive', description: message });
     }
   };
 
@@ -43,6 +43,11 @@ export default function LoginPage() {
   const emailErrorId = emailError ? 'email-error' : undefined;
   const passwordError = formState.errors.password?.message;
   const passwordErrorId = passwordError ? 'password-error' : undefined;
+  const showLoadingState = authLoading && !formState.isSubmitting;
+
+  if (showLoadingState) {
+    return <AuthFormSkeleton />;
+  }
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
@@ -50,7 +55,11 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold">Welcome back</h1>
         <p className="text-sm text-muted-foreground">Sign in to continue to your account.</p>
       </div>
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="space-y-4"
+        onSubmit={handleSubmit(onSubmit)}
+        aria-busy={formState.isSubmitting || authLoading ? 'true' : undefined}
+      >
         {formState.errors.root?.message ? (
           <div
             role="alert"
@@ -64,7 +73,13 @@ export default function LoginPage() {
             Email
           </label>
           <Input
-            {...register('email', { required: 'Email is required' })}
+            {...register('email', {
+              required: 'Email is required',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Please enter a valid email address',
+              },
+            })}
             {...fieldA11y('email', emailErrorId)}
             type="email"
             autoComplete="email"
@@ -77,11 +92,19 @@ export default function LoginPage() {
           ) : null}
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="password">
-            Password
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium" htmlFor="password">
+              Password
+            </label>
+            <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <Input
-            {...register('password', { required: 'Password is required' })}
+            {...register('password', {
+              required: 'Password is required',
+              minLength: { value: 8, message: 'Password must be at least 8 characters' },
+            })}
             {...fieldA11y('password', passwordErrorId)}
             type="password"
             autoComplete="current-password"
@@ -93,9 +116,14 @@ export default function LoginPage() {
             </p>
           ) : null}
         </div>
-        <Button className="w-full" disabled={formState.isSubmitting || authLoading} type="submit">
-          {formState.isSubmitting || authLoading ? 'Signing in...' : 'Sign in'}
-        </Button>
+        <GuardedButton
+          className="w-full"
+          type="submit"
+          isLoading={formState.isSubmitting || authLoading}
+          loadingLabel="Signing in..."
+        >
+          Sign in
+        </GuardedButton>
       </form>
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}

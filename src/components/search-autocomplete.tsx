@@ -21,6 +21,7 @@ export function SearchAutocomplete({
 }: SearchAutocompleteProps) {
   const router = useRouter();
   const params = useSearchParams();
+  const paramsString = params.toString();
   const [value, setValue] = useState(() => params.get('q') ?? '');
   const [isOpen, setIsOpen] = useState(false);
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -43,6 +44,11 @@ export function SearchAutocomplete({
 
     return () => clearTimeout(timer);
   }, [value]);
+
+  useEffect(() => {
+    const nextValue = params.get('q') ?? '';
+    setValue(nextValue);
+  }, [paramsString]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -109,6 +115,8 @@ export function SearchAutocomplete({
                           src={product.imageUrl}
                           alt={product.title}
                           className="h-10 w-10 rounded object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                       )}
                       <div className="flex-1 overflow-hidden">

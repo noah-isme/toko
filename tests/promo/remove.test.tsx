@@ -27,6 +27,11 @@ describe('promo removal', () => {
     server.use(
       http.post(apiPath('/cart/:cartId/promo/remove'), async () => {
         await delay(400);
+        const mockCart = (globalThis as any).__tokoCartMock;
+        if (mockCart) {
+          mockCart.discount = 0;
+          mockCart.voucher = null;
+        }
         return HttpResponse.json({ valid: false, message: 'Kode promo dihapus' });
       }),
     );
@@ -49,6 +54,8 @@ describe('promo removal', () => {
     await waitFor(() => {
       expect(screen.queryByText(/Menghapus kode promo/i)).not.toBeInTheDocument();
     });
+
+    expect(screen.getByText('Masukkan kode promo untuk mendapatkan diskon.')).toBeInTheDocument();
   });
 
   it('rolls back promo when removal fails', async () => {
