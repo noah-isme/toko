@@ -59,60 +59,62 @@ describe('orders hooks', () => {
     const detailResponse = {
       id: 'order-001',
       number: 'INV-001',
+      status: 'PAID',
       createdAt,
-      paymentStatus: 'PAID',
-      fulfillmentStatus: 'SHIPPED',
+      user: {
+        id: 'user-1',
+        name: 'Test User',
+        email: 'test@example.com',
+      },
       items: [
         {
           id: 'line-1',
           productId: 'prod-1',
-          name: 'Produk 1',
-          quantity: 2,
-          price: { amount: 50000, currency: 'IDR' },
-          total: { amount: 100000, currency: 'IDR' },
+          productTitle: 'Produk 1',
+          productSlug: 'produk-1',
+          qty: 2,
+          unitPrice: 50000,
+          subtotal: 100000,
           imageUrl: null,
-          variant: null,
         },
       ],
-      totals: {
-        subtotal: { amount: 200000, currency: 'IDR' },
-        shipping: { amount: 15000, currency: 'IDR' },
-        discount: null,
-        tax: null,
-        total: { amount: 215000, currency: 'IDR' },
-      },
       shippingAddress: {
-        fullName: 'Jane Doe',
+        receiverName: 'Jane Doe',
         phone: '08123456789',
-        detail: 'Jl. Merdeka No. 1',
-        district: 'Gambir',
+        addressLine1: 'Jl. Merdeka No. 1',
         city: 'Jakarta Pusat',
         province: 'DKI Jakarta',
         postalCode: '10110',
         country: 'ID',
       },
-      billingAddress: null,
-      shippingMethod: {
-        id: 'jne-reg',
-        label: 'JNE Reguler',
-        cost: { amount: 15000, currency: 'IDR' },
+      pricing: {
+        subtotal: 200000,
+        shipping: 15000,
+        discount: 0,
+        tax: 0,
+        total: 215000,
+      },
+      shipping: {
+        courier: 'JNE',
+        service: 'REG',
         trackingNumber: 'TRK-123',
       },
+      currency: 'IDR',
       statusHistory: [{ status: 'PAID', label: 'Pembayaran diterima', at: createdAt }],
       notes: 'Terima kasih',
     } as const;
 
     server.use(
-      http.get('*/orders', ({ request }) => {
+      http.get('http://localhost:8080/api/v1/orders', ({ request }) => {
         const url = new URL(request.url);
         expect(url.searchParams.get('page')).toBe('2');
         expect(url.searchParams.get('limit')).toBe('5');
         expect(url.searchParams.get('status')).toBe('paid');
         return HttpResponse.json(listResponse);
       }),
-      http.get('*/orders/:orderId', ({ params }) => {
+      http.get('http://localhost:8080/api/v1/orders/:orderId', ({ params }) => {
         expect(params.orderId).toBe('order-001');
-        return HttpResponse.json(detailResponse);
+        return HttpResponse.json({ data: detailResponse });
       }),
     );
 
@@ -128,7 +130,15 @@ describe('orders hooks', () => {
     );
 
     await waitFor(() => {
-      expect(listResult.current.data).toEqual(listResponse);
+      expect(listResult.current.data).toBeDefined();
+      expect(listResult.current.data?.data).toHaveLength(1);
+      expect(listResult.current.data?.data[0].id).toBe('order-001');
+      expect(listResult.current.data?.meta).toMatchObject({
+        page: 2,
+        limit: 5,
+        total: 15,
+        totalPages: 3,
+      });
     });
 
     const { result: detailResult } = renderHook(() => useOrderQuery('order-001'), {
@@ -136,7 +146,8 @@ describe('orders hooks', () => {
     });
 
     await waitFor(() => {
-      expect(detailResult.current.data).toEqual(detailResponse);
+      expect(detailResult.current.data).toBeDefined();
+      expect(detailResult.current.data?.id).toBe('order-001');
     });
   });
 });

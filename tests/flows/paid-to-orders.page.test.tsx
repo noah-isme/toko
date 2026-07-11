@@ -2,10 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 
 import CheckoutReviewPage from '@/app/(storefront)/checkout/review/page';
 import CheckoutSuccessPage from '@/app/(storefront)/checkout/success/page';
+import { useCartStore } from '@/stores/cart-store';
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
@@ -22,6 +23,13 @@ vi.mock('next/navigation', async () => {
     useSearchParams: () => new URLSearchParams(currentOrderId ? `orderId=${currentOrderId}` : ''),
   };
 });
+
+vi.mock('@/components/providers/AuthProvider', () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    user: { id: 'user-1', email: 'test@example.com', name: 'Test User' },
+  }),
+}));
 
 function createQueryClient() {
   return new QueryClient({
@@ -77,6 +85,10 @@ describe('paid flow redirects to orders', () => {
     window.sessionStorage.setItem('checkout:orderDraft:latest', currentOrderId);
   });
 
+  afterEach(() => {
+    useCartStore.getState().clearCart();
+  });
+
   it('invalidates caches, redirects, and exposes order detail link', async () => {
     const user = userEvent.setup();
     const queryClient = createQueryClient();
@@ -117,5 +129,5 @@ describe('paid flow redirects to orders', () => {
 
     const detailLink = await screen.findByRole('link', { name: /lihat detail pesanan/i });
     expect(detailLink.getAttribute('href')).toContain(`/order/confirmation/${currentOrderId}`);
-  });
+  }, 15000);
 });

@@ -23,10 +23,18 @@ vi.mock('next/navigation', async () => {
   };
 });
 
+vi.mock('@/components/providers/AuthProvider', () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    user: { id: 'user-1', email: 'test@example.com', name: 'Test User' },
+  }),
+}));
+
 import CheckoutPage from '@/app/(storefront)/checkout/page';
 import CheckoutReviewPage from '@/app/(storefront)/checkout/review/page';
 import { OrderDraftSchema } from '@/entities/checkout/schemas';
 import { writeGuestAddresses } from '@/entities/address/storage';
+import { getAddressListKey } from '@/entities/address/keys';
 import type { Address } from '@/entities/address/types';
 import { PaymentIntentSchema, PaymentStatusSchema, type PaymentCreateBody } from '@/entities/payment/schemas';
 import { server } from '@/mocks/server';
@@ -63,12 +71,16 @@ describe('Guarded checkout and payment flow', () => {
     (globalThis as { React?: typeof React }).React = React;
     window.localStorage.clear();
     window.sessionStorage.clear();
+    // Set a cartId so CheckoutPage finds the mock cart
+    const mockCart = (globalThis as { __tokoCartMock?: { id: string } }).__tokoCartMock;
+    if (mockCart?.id) {
+      window.localStorage.setItem('cartId', mockCart.id);
+    }
   });
 
   it('prevents duplicate checkout submission and shows success feedback', async () => {
     const user = userEvent.setup();
     const queryClient = createQueryClient();
-    const Wrapper = createWrapper(queryClient);
 
     const seed: Address[] = [
       {
@@ -86,6 +98,10 @@ describe('Guarded checkout and payment flow', () => {
       },
     ];
     writeGuestAddresses(seed);
+    // Pre-populate queryClient so address list is immediately available
+    queryClient.setQueryData(getAddressListKey('user-1'), seed);
+
+    const Wrapper = createWrapper(queryClient);
 
     let checkoutCallCount = 0;
 
@@ -111,13 +127,13 @@ describe('Guarded checkout and payment flow', () => {
       expect(screen.getByText('Checkout')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('radio', { name: /primary user/i }));
+    await user.click(await screen.findByRole('radio', { name: /primary user/i }, { timeout: 5000 }));
 
     await waitFor(() => {
       expect(screen.getByText('Shipping Options')).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: /transfer bank/i }));
+    await user.click(screen.getByRole('radio', { name: /transfer bank/i }));
 
     const proceedButton = screen.getByRole('button', { name: /bayar sekarang/i });
 
