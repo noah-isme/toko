@@ -29,11 +29,13 @@ export function mapApiCartToCart(apiCart: ApiCart): Cart {
     };
 
     if (apiCart.voucher) {
+        const v = apiCart.voucher as any;
+        const voucherObj = typeof v === 'string' ? { code: v } : v;
         (baseCart as any).promoInfo = {
-            code: apiCart.voucher.code,
-            discountType: apiCart.voucher.discountType,
-            value: apiCart.voucher.value,
-            label: apiCart.voucher.label,
+            code: voucherObj?.code ?? '',
+            discountType: voucherObj?.discountType ?? 'amount',
+            value: voucherObj?.value ?? apiCart.pricing.discount,
+            label: voucherObj?.label,
             discountValue: apiCart.pricing.discount,
         };
         (baseCart as any).totals = {

@@ -1,5 +1,6 @@
 'use client';
 
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { MapPin, Truck } from 'lucide-react';
@@ -36,7 +37,7 @@ export default function OrderTrackingPage() {
       <EmptyState
         title="Gagal memuat tracking"
         description="Kami belum bisa mengambil informasi pengiriman. Coba lagi nanti."
-        cta={{ label: 'Kembali ke pesanan', href: `/account/orders/${orderId}` }}
+        cta={{ label: 'Kembali ke pesanan', href: `/account/orders/${orderId}` as Route }}
       />
     );
   }

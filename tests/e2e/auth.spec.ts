@@ -73,7 +73,7 @@ test.describe('Authentication', () => {
      await page.goto('/register');
      await page.fill('input[name="password"]', 'Password123!');
      await page.fill('input[name="confirmPassword"]', 'Mismatch123!');
-     await page.blur('input[name="confirmPassword"]');
+     await page.locator('input[name="confirmPassword"]').blur();
      
      await expect(page.locator('#confirm-password-error')).toContainText(/match/i);
   });

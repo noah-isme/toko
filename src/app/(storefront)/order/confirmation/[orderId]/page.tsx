@@ -1,5 +1,6 @@
 'use client';
 
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -93,7 +94,7 @@ export default function OrderConfirmationPage() {
 
     useEffect(() => {
         if (!orderId) {
-            router.replace('/404');
+            router.replace('/404' as Route);
         }
     }, [orderId, router]);
 
@@ -214,7 +215,7 @@ export default function OrderConfirmationPage() {
             ? rawHistory
             : [{ status: order.status, timestamp: order.createdAt }];
         return [...history].sort(
-            (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+            (a, b) => new Date(a.timestamp ?? a.at ?? '').getTime() - new Date(b.timestamp ?? b.at ?? '').getTime(),
         );
     }, [order.createdAt, order.status, order.statusHistory]);
     const timeRemainingMs = paymentExpiryTime ? paymentExpiryTime - now : null;
@@ -327,7 +328,7 @@ export default function OrderConfirmationPage() {
                                     <div className="space-y-1">
                                         <p className="text-sm font-semibold">{statusLabel}</p>
                                         <p className="text-xs text-muted-foreground">
-                                            {formatDateTime(item.timestamp)}
+                                            {formatDateTime(item.timestamp ?? item.at ?? '')}
                                         </p>
                                     </div>
                                 </li>

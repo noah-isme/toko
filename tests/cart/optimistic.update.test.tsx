@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HttpResponse, act, renderHook, waitFor } from '@testing-library/react';
-import { http } from 'msw';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 

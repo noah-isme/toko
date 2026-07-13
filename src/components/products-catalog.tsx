@@ -1,6 +1,7 @@
 'use client';
 
 import { FolderOpen, Package, SearchX } from 'lucide-react';
+import type { Route } from 'next';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -297,7 +298,7 @@ export function ProductsCatalog() {
     }
 
     const target = nextQuery ? `${pathname}?${nextQuery}` : pathname;
-    router.replace(target);
+    router.replace(target as Route);
   }, [
     currentPage,
     discountOnly,
