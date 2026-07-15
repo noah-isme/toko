@@ -1,25 +1,24 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CheckCircle2, MailCheck, MailWarning } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CheckCircle2, MailCheck, MailWarning } from 'lucide-react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { ResendVerificationInput } from '@/entities/auth/schemas';
+import { resendVerificationInputSchema } from '@/entities/auth/schemas';
 import { authApi } from '@/lib/api/services';
 import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 
-interface ResendForm {
-  email: string;
-}
-
 type VerificationStatus = 'idle' | 'verifying' | 'success' | 'error';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const { user, isAuthenticated, refreshUser } = useAuth();
   const searchParams = useSearchParams();
   const token = useMemo(() => searchParams.get('token') ?? '', [searchParams]);
@@ -29,7 +28,8 @@ export default function VerifyEmailPage() {
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState, setError, reset } = useForm<ResendForm>({
+  const { register, handleSubmit, formState, setError, reset } = useForm<ResendVerificationInput>({
+    resolver: zodResolver(resendVerificationInputSchema),
     defaultValues: {
       email: emailParam || user?.email || '',
     },
@@ -69,7 +69,7 @@ export default function VerifyEmailPage() {
     };
   }, [isAuthenticated, token, refreshUser]);
 
-  const onResend = async (values: ResendForm) => {
+  const onResend = async (values: ResendVerificationInput) => {
     setIsResending(true);
     try {
       const response = await authApi.resendVerification(values);
@@ -86,7 +86,11 @@ export default function VerifyEmailPage() {
 
   if (status === 'verifying') {
     return (
-      <div className="mx-auto w-full max-w-md space-y-6 text-center" role="status" aria-live="polite">
+      <div
+        className="mx-auto w-full max-w-md space-y-6 text-center"
+        role="status"
+        aria-live="polite"
+      >
         <div className="flex items-center justify-center">
           <div className="rounded-full bg-muted p-4 text-muted-foreground">
             <MailCheck className="h-7 w-7" aria-hidden="true" />
@@ -102,7 +106,11 @@ export default function VerifyEmailPage() {
 
   if (status === 'success') {
     return (
-      <div className="mx-auto w-full max-w-md space-y-6 text-center" role="status" aria-live="polite">
+      <div
+        className="mx-auto w-full max-w-md space-y-6 text-center"
+        role="status"
+        aria-live="polite"
+      >
         <div className="flex items-center justify-center">
           <div className="rounded-full bg-emerald-100 p-4 text-emerald-700">
             <CheckCircle2 className="h-7 w-7" aria-hidden="true" />
@@ -162,13 +170,7 @@ export default function VerifyEmailPage() {
             Email
           </label>
           <Input
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Please enter a valid email address',
-              },
-            })}
+            {...register('email')}
             {...fieldA11y('email', emailErrorId)}
             type="email"
             autoComplete="email"
@@ -188,5 +190,19 @@ export default function VerifyEmailPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto w-full max-w-md space-y-6 text-center">
+          <h1 className="text-2xl font-bold">Memuat...</h1>
+        </div>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

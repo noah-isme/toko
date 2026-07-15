@@ -1,22 +1,45 @@
 'use client';
 
+import { MapPin, Truck } from 'lucide-react';
 import type { Route } from 'next';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { MapPin, Truck } from 'lucide-react';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useShipment } from '@/lib/api';
 import { SHIPMENT_STATUS_LABELS } from '@/lib/api/constants';
 import { formatDateTime } from '@/lib/api/utils';
+import { capturePosthogEvent } from '@/shared/telemetry/posthog';
+import { captureSentryException } from '@/shared/telemetry/sentry';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
+
+const TrackingMap = dynamic(() => import('@/components/tracking-map'), {
+  ssr: false,
+  loading: () => (
+    <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed bg-muted/30 text-sm text-muted-foreground">
+      Memuat peta...
+    </div>
+  ),
+});
 
 export default function OrderTrackingPage() {
   const params = useParams();
   const orderId = typeof params?.orderId === 'string' ? params.orderId : '';
 
   const { data: shipment, isLoading, error } = useShipment(orderId);
+
+  useEffect(() => {
+    if (error) {
+      capturePosthogEvent('shipment_tracking_load_failed', {
+        orderId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      captureSentryException(error);
+    }
+  }, [error, orderId]);
 
   if (!orderId) {
     return (
@@ -114,9 +137,7 @@ export default function OrderTrackingPage() {
           <h2 className="text-lg font-semibold">Peta pengiriman</h2>
           <MapPin className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         </div>
-        <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed bg-muted/30 text-sm text-muted-foreground">
-          Map placeholder - integrasi peta akan tersedia segera.
-        </div>
+        <TrackingMap tracking={shipment.tracking} />
       </section>
 
       <div className="flex flex-wrap gap-3">

@@ -1,20 +1,21 @@
 'use client';
 
-import { useMemo } from 'react';
 import { HeartCrack, HeartOff } from 'lucide-react';
+import { useMemo } from 'react';
 
 import { ProductCard } from '@/components/product-card';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
-import { useProductsQuery } from '@/lib/api/hooks';
-import { EmptyState } from '@/shared/ui/EmptyState';
+import { useProducts } from '@/lib/api';
 import { emptyFavorites, emptyFavoritesUnavailable } from '@/shared/ui/empty-presets';
+import { EmptyState } from '@/shared/ui/EmptyState';
 import { FavoritesGridSkeleton } from '@/shared/ui/skeletons/FavoritesGridSkeleton';
 
 export default function FavoritesPage() {
   const userId = getGuestId() ?? undefined;
   const { data: favorites, isLoading: isLoadingFavorites } = useFavoritesQuery(userId);
-  const { data: products } = useProductsQuery();
+  const { data: rawProductsData } = useProducts();
+  const products = rawProductsData?.data;
 
   const favoriteProducts = useMemo(() => {
     if (!favorites || !products) return [];

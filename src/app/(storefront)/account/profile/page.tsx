@@ -1,16 +1,16 @@
 'use client';
 
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2, MailWarning } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CheckCircle2, MailWarning } from 'lucide-react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/lib/api/services';
 import { formatDateTime, getErrorMessage, isValidPhoneNumber } from '@/lib/api/utils';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { useToast } from '@/shared/ui/toast';
@@ -154,9 +154,7 @@ export default function ProfilePage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Profil</h1>
-          <p className="text-sm text-muted-foreground">
-            Kelola informasi akun Anda.
-          </p>
+          <p className="text-sm text-muted-foreground">Kelola informasi akun Anda.</p>
         </div>
         <Button asChild variant="outline" size="sm">
           <Link href="/account">Kembali ke akun</Link>
@@ -288,12 +286,19 @@ export default function ProfilePage() {
         </div>
 
         {securityMessage ? (
-          <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" role="status" aria-live="polite">
+          <div
+            className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900"
+            role="status"
+            aria-live="polite"
+          >
             {securityMessage}
           </div>
         ) : null}
         {securityError ? (
-          <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+          <div
+            className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+            role="alert"
+          >
             {securityError}
           </div>
         ) : null}
@@ -305,7 +310,10 @@ export default function ProfilePage() {
             <BaseSkeleton className="h-10 w-full" />
           </div>
         ) : sessionsQuery.error ? (
-          <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+          <div
+            className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+            role="alert"
+          >
             Gagal memuat sesi aktif.
           </div>
         ) : sortedSessions.length === 0 ? (

@@ -420,18 +420,8 @@ Update cart count badge
 
 ### Mock vs Real API
 
-Currently, product catalog still uses mock data from `/lib/api/hooks.ts`:
-
-- `useProductsQuery()` - hits mock API
-- `useProductQuery(slug)` - hits mock API
-
-Other endpoints (auth, cart, orders, addresses) are ready for real API integration via hooks in `/lib/api/hooks.react-query.ts`.
-
-To switch products to real API:
-
-1. Update `ProductsCatalog` to use `useProducts()` from `hooks.react-query.ts`
-2. Map API response to match Product schema
-3. Update filters to use real API query params
+The product catalog has been successfully migrated to the final API React Query hooks (`useProducts`, `useProduct`, and `useRelatedProducts`) from `hooks.react-query.ts` (exported via `@/lib/api`). There is no mixture of mock/legacy path (`hooks.ts`) and real API path in the main storefront catalog pages.
+All main storefront entities (auth, cart, catalog, orders, addresses) are integrated using consistent final API routes.
 
 ### Environment Variables
 

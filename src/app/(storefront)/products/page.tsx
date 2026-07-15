@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
 import { ProductsCatalog } from '@/components/products-catalog';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { breadcrumbJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical } from '@/shared/seo/seo';
+import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 
 const pageTitle = 'Products';
 const pageDescription = 'Explore curated products from toko for your next purchase.';
@@ -44,7 +46,9 @@ export default function ProductsPage() {
   return (
     <>
       <JsonLd id="breadcrumb-jsonld" data={breadcrumb} />
-      <ProductsCatalog />
+      <Suspense fallback={<ProductCardSkeleton />}>
+        <ProductsCatalog />
+      </Suspense>
     </>
   );
 }

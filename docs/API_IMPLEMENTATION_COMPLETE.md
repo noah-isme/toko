@@ -178,8 +178,8 @@ src/
 │   └── cart-store.ts             # Cart state management
 ├── components/providers/
 │   └── AuthProvider.tsx          # Auth context
-├── IMPLEMENTATION_SUMMARY.md     # Implementation summary
-└── INTEGRATION_GUIDE.md          # Quick start guide
+├── docs/STATUS_IMPLEMENTASI.md    # Living implementation status
+└── docs/GUIDE_INTEGRASI.md        # Living integration guide
 ```
 
 ## 🚀 How to Use
@@ -224,9 +224,10 @@ function ProductList() {
 
 ## 📚 Documentation
 
-- **Main README**: `src/lib/api/README.md`
-- **Integration Guide**: `INTEGRATION_GUIDE.md`
-- **Implementation Summary**: `IMPLEMENTATION_SUMMARY.md`
+- **Main README**: `README.md`
+- **Integration Guide**: `docs/GUIDE_INTEGRASI.md`
+- **Implementation Status**: `docs/STATUS_IMPLEMENTASI.md`
+- **Active Backlog**: `docs/BACKLOG_AKTIF.md`
 - **API Contract**: `/home/noah/project/toko-api/docs/API_CONTRACT.md`
 
 ## ✨ Highlights

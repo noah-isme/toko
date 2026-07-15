@@ -3,7 +3,6 @@ const DEFAULT_SITE_URL = 'http://localhost:3000';
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
 if (process.env.NODE_ENV !== 'production' && (!rawSiteUrl || rawSiteUrl === DEFAULT_SITE_URL)) {
-  // eslint-disable-next-line no-console
   console.warn(
     'NEXT_PUBLIC_SITE_URL is not defined. Falling back to http://localhost:3000. Set it in your environment to generate accurate metadata.',
   );
@@ -14,7 +13,6 @@ export const siteUrl = (() => {
     return new URL(rawSiteUrl ?? DEFAULT_SITE_URL).toString().replace(/\/$/, '');
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
       console.warn('Invalid NEXT_PUBLIC_SITE_URL provided. Falling back to default.', error);
     }
     return DEFAULT_SITE_URL;

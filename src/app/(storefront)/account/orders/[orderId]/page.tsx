@@ -1,8 +1,8 @@
 'use client';
 
+import { Download } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Download } from 'lucide-react';
 import { useState } from 'react';
 
 import { CancelOrderModal } from '@/components/cancel-order-modal';
@@ -50,7 +50,9 @@ export default function OrderDetailPage() {
   const statusLabel = getStatusLabel(order.status, order.statusLabel);
   const statusClass = getStatusColor(order.status);
   const isPendingPayment = order.status.toLowerCase().includes('pending');
-  const canCancel = order.status.toLowerCase().includes('pending') || order.status.toLowerCase().includes('processing');
+  const canCancel =
+    order.status.toLowerCase().includes('pending') ||
+    order.status.toLowerCase().includes('processing');
   const timeline = buildStatusTimeline(order);
 
   const handleDownloadInvoice = () => {
@@ -72,9 +74,7 @@ export default function OrderDetailPage() {
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Nomor pesanan</p>
           <h1 className="text-2xl font-bold">{order.orderNumber}</h1>
-          <p className="text-sm text-muted-foreground">
-            Dibuat {formatDateTime(order.createdAt)}
-          </p>
+          <p className="text-sm text-muted-foreground">Dibuat {formatDateTime(order.createdAt)}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass}`}>
           {statusLabel}
@@ -244,9 +244,7 @@ export default function OrderDetailPage() {
               {order.pricing.tax ? (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Pajak</span>
-                  <span className="font-medium">
-                    {formatCurrency(order.pricing.tax, currency)}
-                  </span>
+                  <span className="font-medium">{formatCurrency(order.pricing.tax, currency)}</span>
                 </div>
               ) : null}
               <div className="flex items-center justify-between">
@@ -273,9 +271,7 @@ export default function OrderDetailPage() {
                     {order.shipping.courier} - {order.shipping.service}
                   </p>
                   {order.shipping.trackingNumber ? (
-                    <p className="text-muted-foreground">
-                      Resi: {order.shipping.trackingNumber}
-                    </p>
+                    <p className="text-muted-foreground">Resi: {order.shipping.trackingNumber}</p>
                   ) : (
                     <p className="text-muted-foreground">
                       Nomor resi akan tersedia setelah pesanan diproses.
@@ -325,7 +321,12 @@ function buildStatusTimeline(order: {
   status: string;
   statusLabel?: string | null;
   createdAt: string;
-  statusHistory?: Array<{ status: string; label?: string | null; at?: string | null; timestamp?: string | null }> | null;
+  statusHistory?: Array<{
+    status: string;
+    label?: string | null;
+    at?: string | null;
+    timestamp?: string | null;
+  }> | null;
 }) {
   const history = order.statusHistory?.length
     ? order.statusHistory
@@ -346,7 +347,12 @@ function getStatusLabel(status: string, fallback?: string | null) {
 
 function getStatusColor(status: string) {
   const s = status.toLowerCase();
-  if (s.includes('paid') || s.includes('shipped') || s.includes('completed') || s.includes('success')) {
+  if (
+    s.includes('paid') ||
+    s.includes('shipped') ||
+    s.includes('completed') ||
+    s.includes('success')
+  ) {
     return 'bg-emerald-100 text-emerald-700';
   }
   if (s.includes('pending') || s.includes('wait')) {

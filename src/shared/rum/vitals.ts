@@ -17,7 +17,6 @@ const dispatchMetric = (metric: Metric) => {
       handler(metric as WebVitalMetric);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.warn('[RUM] Web vital handler failed', error);
       }
     }
@@ -42,7 +41,7 @@ const startListening = () => {
 
     if (!hasWarned && process.env.NODE_ENV === 'development') {
       hasWarned = true;
-      // eslint-disable-next-line no-console
+
       console.warn('[RUM] Failed to initialise web-vitals', error);
     }
   }

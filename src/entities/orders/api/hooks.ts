@@ -1,11 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
+import {
+  OrderDetailSchema,
+  OrderListItemSchema,
+  type OrderDetail,
+  type OrderListItem,
+} from '../schemas';
+
 import { apiClient, ApiClientError } from '@/lib/api/apiClient';
-import { type ApiResponse } from '@/lib/api/types';
 import { queryKeys } from '@/lib/api/queryKeys';
 import { ordersApi } from '@/lib/api/services';
-import { OrderDetailSchema, OrderListItemSchema, type OrderDetail, type OrderListItem } from '../schemas';
+import { type ApiResponse } from '@/lib/api/types';
 
 const ordersQueryParamsSchema = z.object({
   status: z.string().optional(),
@@ -13,21 +19,27 @@ const ordersQueryParamsSchema = z.object({
   limit: z.number().int().positive().optional(),
 });
 
-const ordersListResponseSchema = z.object({
-  data: z.array(OrderListItemSchema),
-  meta: z.object({
-    page: z.number().int().nonnegative().default(1),
-    limit: z.number().int().positive().default(10),
-    total: z.number().int().nonnegative().optional(),
-    totalPages: z.number().int().nonnegative().optional(),
-  }).optional(),
-  // Support legacy 'pagination' field too
-  pagination: z.object({
-    page: z.number().int().nonnegative().default(1),
-    perPage: z.number().int().positive().default(10),
-    totalItems: z.number().int().nonnegative().optional(),
-  }).optional(),
-}).passthrough();
+const ordersListResponseSchema = z
+  .object({
+    data: z.array(OrderListItemSchema),
+    meta: z
+      .object({
+        page: z.number().int().nonnegative().default(1),
+        limit: z.number().int().positive().default(10),
+        total: z.number().int().nonnegative().optional(),
+        totalPages: z.number().int().nonnegative().optional(),
+      })
+      .optional(),
+    // Support legacy 'pagination' field too
+    pagination: z
+      .object({
+        page: z.number().int().nonnegative().default(1),
+        perPage: z.number().int().positive().default(10),
+        totalItems: z.number().int().nonnegative().optional(),
+      })
+      .optional(),
+  })
+  .passthrough();
 
 export type OrdersQueryParams = z.infer<typeof ordersQueryParamsSchema>;
 export type OrdersListResponse = z.infer<typeof ordersListResponseSchema>;
@@ -48,7 +60,7 @@ export function useOrdersQuery(params?: OrdersQueryParams) {
       const queryString = searchParams.toString();
       const response = await apiClient<ApiResponse<any>>(
         queryString ? `/orders?${queryString}` : '/orders',
-        { requiresAuth: true }
+        { requiresAuth: true },
       );
 
       // Map API response to our schema structure if needed, or parse directly
@@ -64,7 +76,7 @@ export function useOrderQuery(orderId: string) {
     enabled: Boolean(orderId),
     queryFn: async () => {
       const response = await apiClient<ApiResponse<any>>(`/orders/${orderId}`, {
-        requiresAuth: true
+        requiresAuth: true,
       });
       // Contract says response is { data: { ... } } or direct object
       const payload = response?.data ?? response;

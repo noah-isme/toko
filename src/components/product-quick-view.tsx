@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useProduct, useAddToCart, formatCurrency } from '@/lib/api';
 import { useCartStore } from '@/stores/cart-store';
 
-
 interface ProductQuickViewProps {
   slug: string;
   isOpen: boolean;
@@ -23,13 +22,18 @@ interface ProductQuickViewProps {
 export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProps) {
   const { data: product, isLoading } = useProduct(slug, { enabled: isOpen });
   const [quantity, setQuantity] = useState(1);
-  const { cartId, initGuestCart } = useCartStore();
+  const { cartId } = useCartStore();
   const addToCart = useAddToCart(cartId || '');
   const { toast } = useToast();
 
   const handleAddToCart = async () => {
     if (!cartId) {
-      await initGuestCart();
+      toast({
+        title: 'Error',
+        description: 'Keranjang belanja belum siap.',
+        variant: 'destructive',
+      });
+      return;
     }
 
     if (!product) return;
@@ -103,9 +107,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                 {/* Price */}
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">
-                      {formatCurrency(product.price)}
-                    </span>
+                    <span className="text-3xl font-bold">{formatCurrency(product.price)}</span>
                   </div>
                 </div>
 
@@ -121,7 +123,9 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                 </div>
 
                 {/* Description */}
-                <p className="line-clamp-4 text-sm text-muted-foreground">{product.description || 'No description available'}</p>
+                <p className="line-clamp-4 text-sm text-muted-foreground">
+                  {product.description || 'No description available'}
+                </p>
 
                 {/* Quantity & Actions */}
                 <div className="space-y-3">

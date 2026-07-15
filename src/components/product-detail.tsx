@@ -7,7 +7,7 @@ import { ProductImageGallery } from '@/components/product-image-gallery';
 import { Rating } from '@/components/rating';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
-import { useProductQuery } from '@/lib/api/hooks';
+import { useProduct } from '@/lib/api';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { ProductDetailSkeleton } from '@/shared/ui/skeletons/ProductDetailSkeleton';
@@ -21,9 +21,9 @@ interface ProductDetailProps {
 
 function ProductDetailContent({ slug }: ProductDetailProps) {
   const { toast: pushToast } = useToast();
-  const { data, isLoading, isFetching, error } = useProductQuery(slug);
+  const { data, isLoading, isFetching, error } = useProduct(slug);
   const { mutate, isProductInFlight } = useAddToCartMutation();
-  const { cartId, initGuestCart } = useCartStore();
+  const { cartId } = useCartStore();
 
   useEffect(() => {
     if (!error) {
@@ -55,16 +55,10 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const handleAddToCart = async () => {
     // Ensure cart exists before adding
     if (!cartId) {
-      await initGuestCart();
-    }
-
-    // Get the latest cartId from store
-    const currentCartId = useCartStore.getState().cartId;
-    if (!currentCartId) {
       pushToast({
         variant: 'destructive',
         title: 'Gagal',
-        description: 'Tidak dapat membuat keranjang',
+        description: 'Keranjang belanja belum siap.',
       });
       return;
     }
@@ -76,7 +70,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       price: { amount: data.price, currency: data.currency || 'IDR' },
       image: data.imageUrl || (data.images && data.images[0]) || null,
       maxQuantity: data.stock,
-      cartId: currentCartId,
+      cartId,
     });
   };
 
@@ -84,14 +78,12 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
     <div className="grid gap-8 lg:grid-cols-2">
       <div className="space-y-4">
         <ProductImageGallery
-          images={data.imageUrl ? [data.imageUrl, ...(data.images || [])] : (data.images || [])}
+          images={data.imageUrl ? [data.imageUrl, ...(data.images || [])] : data.images || []}
           productName={data.title}
         />
         <div className="flex gap-2 text-sm text-muted-foreground">
           {data.categoryName && (
-            <span className="rounded-full bg-muted px-3 py-1 capitalize">
-              {data.categoryName}
-            </span>
+            <span className="rounded-full bg-muted px-3 py-1 capitalize">{data.categoryName}</span>
           )}
         </div>
       </div>

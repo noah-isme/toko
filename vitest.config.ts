@@ -14,6 +14,7 @@ export default defineConfig({
     globals: true,
     hookTimeout: 10_000,
     setupFiles: ['./vitest.setup.ts'],
+    exclude: ['tests/e2e/**', 'node_modules/**', '.next/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

@@ -1,13 +1,14 @@
 import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
+import { SEED_BRANDS, SEED_CATEGORIES, SEED_PRODUCTS } from './data';
 import { addressHandlers } from './handlers/addressHandlers';
+import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
 import { checkoutHandlers } from './handlers.checkout';
 import { favoritesHandlers } from './handlers.favorites';
 import { paymentHandlers } from './handlers.payment';
 import { reviewsHandlers } from './handlers.reviews';
-import { authHandlers } from './handlers/authHandlers';
 import { apiPath } from './utils';
 
 import { addToCartInputSchema, updateCartItemInputSchema, Cart, Product } from '@/lib/api/schemas';
@@ -28,11 +29,16 @@ function createProduct(): Product {
     reviewCount: faker.number.int({ min: 10, max: 1200 }),
     stock: stock,
     inStock: stock > 0,
-    tags: faker.helpers.arrayElements(['electronics', 'fashion', 'home', 'beauty', 'sports', 'outdoor']),
+    tags: faker.helpers.arrayElements([
+      'electronics',
+      'fashion',
+      'home',
+      'beauty',
+      'sports',
+      'outdoor',
+    ]),
   };
 }
-
-import { SEED_BRANDS, SEED_CATEGORIES, SEED_PRODUCTS } from './data';
 
 // Map products to match API Contract v0.2.0
 const products: Product[] = SEED_PRODUCTS.map((p) => {
@@ -54,7 +60,11 @@ const products: Product[] = SEED_PRODUCTS.map((p) => {
     brandId: brand?.id || p.brand,
     brandName: brand?.name || p.brand,
     imageUrl: p.thumbnail, // Primary image
-    images: [p.thumbnail, faker.image.urlLoremFlickr({ category: 'product' }), faker.image.urlLoremFlickr({ category: 'product' })],
+    images: [
+      p.thumbnail,
+      faker.image.urlLoremFlickr({ category: 'product' }),
+      faker.image.urlLoremFlickr({ category: 'product' }),
+    ],
     stock: stock,
     inStock: stock > 0,
     rating: Number(faker.number.float({ min: 3.5, max: 5, fractionDigits: 1 })),
@@ -140,11 +150,16 @@ export const handlers = [
     let filtered = products;
 
     if (category) {
-      filtered = filtered.filter((p) => p.categoryId === category || p.categoryName?.toLowerCase() === category.toLowerCase());
+      filtered = filtered.filter(
+        (p) =>
+          p.categoryId === category || p.categoryName?.toLowerCase() === category.toLowerCase(),
+      );
     }
 
     if (brand) {
-      filtered = filtered.filter((p) => p.brandId === brand || p.brandName?.toLowerCase() === brand.toLowerCase());
+      filtered = filtered.filter(
+        (p) => p.brandId === brand || p.brandName?.toLowerCase() === brand.toLowerCase(),
+      );
     }
 
     if (q) {
@@ -152,7 +167,10 @@ export const handlers = [
       filtered = filtered.filter((p) => p.title.toLowerCase().includes(lowerQ));
     }
 
-    return HttpResponse.json({ data: filtered, pagination: { page: 1, perPage: 20, totalItems: filtered.length } });
+    return HttpResponse.json({
+      data: filtered,
+      pagination: { page: 1, perPage: 20, totalItems: filtered.length },
+    });
   }),
   http.get(apiPath('/products/:slug'), ({ params }) => {
     const product = products.find((item) => item.slug === params.slug);
@@ -383,7 +401,7 @@ export const handlers = [
         name: faker.person.fullName(),
         emailVerified: faker.datatype.boolean(),
         phone: faker.phone.number(),
-      }
+      },
     }),
   ),
   ...checkoutHandlers,

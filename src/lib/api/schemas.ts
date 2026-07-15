@@ -42,7 +42,7 @@ export const cartItemSchema = z.object({
   // If product.price is number now, cart logic needs update.
   // I will check handlers.ts next.
   image: z.string().url().nullable().optional(),
-  maxQuantity: z.number().int().min(1).optional(),
+  maxQuantity: z.number().int().min(0).optional(),
 });
 
 export const cartSchema = z.object({

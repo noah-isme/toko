@@ -126,7 +126,7 @@ test.describe('Order history page', () => {
       const detailButton = page.getByRole('link', { name: 'Detail' });
       await detailButton.click();
 
-      await expect(page).toHaveURL(/\/order\/confirmation\/order-detail-test/);
+      await expect(page).toHaveURL(/\/account\/orders\/order-detail-test/);
     });
   });
 
@@ -137,16 +137,16 @@ test.describe('Order history page', () => {
       await goToOrderHistory(page);
 
       await expect(page.getByText('Belum ada pesanan')).toBeVisible();
-      await expect(page.getByText('Anda belum melakukan transaksi apapun')).toBeVisible();
+      await expect(page.getByText(/Riwayat pesanan Anda akan muncul/)).toBeVisible();
 
-      const shopButton = page.getByRole('link', { name: 'Mulai Belanja' });
+      const shopButton = page.getByRole('link', { name: /Lanjutkan belanja/i });
       await expect(shopButton).toBeVisible();
     });
   });
 
   test.describe('Error handling', () => {
     test('shows error message when API fails', async ({ page }) => {
-      await page.route('**/orders*', async (route) => {
+      await page.route('**/api/v1/orders*', async (route) => {
         await route.fulfill({
           status: 500,
           body: JSON.stringify({ error: { message: 'Internal server error' } }),
@@ -163,7 +163,7 @@ test.describe('Order history page', () => {
   test.describe('Loading state', () => {
     test('shows skeleton while loading', async ({ page }) => {
       // Add delay to API response to see loading state
-      await page.route('**/orders*', async (route) => {
+      await page.route('**/api/v1/orders*', async (route) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         await route.fulfill({
           status: 200,
@@ -233,7 +233,7 @@ test.describe('Order confirmation page', () => {
 
         await goToOrderConfirmation(page, `order-${status}`);
 
-        await expect(page.getByText(label)).toBeVisible();
+        await expect(page.getByText(label).first()).toBeVisible();
         await expect(page.getByText(new RegExp(message, 'i'))).toBeVisible();
       });
     }
@@ -291,7 +291,7 @@ test.describe('Order confirmation page', () => {
 
   test.describe('Error handling', () => {
     test('shows fallback UI when order not found', async ({ page }) => {
-      await page.route('**/orders/*', async (route) => {
+      await page.route('**/api/v1/orders/*', async (route) => {
         await route.fulfill({
           status: 404,
           body: JSON.stringify({ error: { message: 'Order not found' } }),

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import type { RumMetricPayload, WebVitalMetric } from '@/shared/rum/transport';
 
 const capturePosthogEvent = vi.fn();

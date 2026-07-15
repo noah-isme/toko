@@ -17,10 +17,10 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useCartQuery } from '@/lib/api/hooks';
-import { useCartStore } from '@/stores/cart-store';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
+import { useCartStore } from '@/stores/cart-store';
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);

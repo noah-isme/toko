@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { Container } from '@/components/layout/container';
 import { NewsletterSignup } from '@/components/newsletter-signup';
 
@@ -14,9 +16,9 @@ export function Footer() {
             <h3 className="font-semibold text-foreground">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a href="/products" className="hover:text-foreground">
+                <Link href="/products" className="hover:text-foreground">
                   Products
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="/about" className="hover:text-foreground">

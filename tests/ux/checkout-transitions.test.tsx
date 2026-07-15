@@ -1,5 +1,5 @@
-import { act, fireEvent, render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, fireEvent, render } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 
@@ -76,7 +76,7 @@ describe('checkout transitions', () => {
     const { getByRole } = render(
       <QueryClientProvider client={queryClient}>
         <CartView />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     const cta = getByRole('link', { name: /proceed to checkout/i });

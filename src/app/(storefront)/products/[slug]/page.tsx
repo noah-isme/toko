@@ -36,7 +36,6 @@ async function fetchProduct(slug: string) {
     return mapApiProductToProduct(json.data);
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
       console.warn('Failed to fetch product metadata', error);
     }
 
@@ -92,9 +91,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const productUrl = abs(`/products/${product.slug}`);
   const ogImages = product.images?.length
     ? product.images.map((image, index) => ({
-      url: abs(image),
-      alt: `${product.title} image ${index + 1}`,
-    }))
+        url: abs(image),
+        alt: `${product.title} image ${index + 1}`,
+      }))
     : [{ url: abs('/api/og?title=' + encodeURIComponent(product.title)) }];
 
   return {

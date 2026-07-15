@@ -6,9 +6,9 @@ import { useMemo, useState } from 'react';
 import { BrandFilter } from '@/components/brand-filter';
 import { PriceRangeFilter } from '@/components/price-range-filter';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
 
 interface FilterSidebarProps {
   categories: string[];
@@ -44,11 +44,14 @@ function FilterSection({
     <div className="py-2">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between py-2 text-sm font-medium hover:text-primary transition-colors"
+        className="flex w-full items-center justify-between py-2 text-sm font-medium transition-colors hover:text-primary"
       >
         {title}
         <ChevronDown
-          className={cn('h-4 w-4 text-muted-foreground transition-transform duration-200', isOpen ? 'rotate-180' : '')}
+          className={cn(
+            'h-4 w-4 text-muted-foreground transition-transform duration-200',
+            isOpen ? 'rotate-180' : '',
+          )}
         />
       </button>
       {isOpen && <div className="mb-2 mt-2 animate-in slide-in-from-top-2">{children}</div>}

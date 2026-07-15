@@ -2,9 +2,9 @@
 
 import { User, LogIn, LogOut, ShoppingCart } from 'lucide-react';
 import type { Route } from 'next';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
 import { Container } from '@/components/layout/container';

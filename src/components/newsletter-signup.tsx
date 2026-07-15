@@ -1,19 +1,38 @@
 'use client';
 
 import { Mail, Check } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { capturePosthogEvent } from '@/shared/telemetry/posthog';
+
+const ENABLE_NEWSLETTER = false; // Set to true when backend supports newsletter signup
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    if (!ENABLE_NEWSLETTER) {
+      capturePosthogEvent('newsletter_stub_displayed', { status: 'fallback_active' });
+    }
+  }, []);
+
+  const handleInteractionAttempt = () => {
+    if (!ENABLE_NEWSLETTER) {
+      capturePosthogEvent('newsletter_disabled_interaction_attempt');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!ENABLE_NEWSLETTER) {
+      return;
+    }
 
     if (!email || !email.includes('@')) {
       setStatus('error');
@@ -42,7 +61,11 @@ export function NewsletterSignup() {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div
+      className="w-full max-w-md"
+      onClick={handleInteractionAttempt}
+      onFocus={handleInteractionAttempt}
+    >
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Subscribe to our newsletter</h3>
         <p className="text-sm text-muted-foreground">
@@ -59,17 +82,19 @@ export function NewsletterSignup() {
             />
             <Input
               type="email"
-              placeholder="Enter your email"
+              placeholder={
+                ENABLE_NEWSLETTER ? 'Enter your email' : 'Subscription temporarily disabled'
+              }
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10"
-              disabled={status === 'loading' || status === 'success'}
+              disabled={!ENABLE_NEWSLETTER || status === 'loading' || status === 'success'}
               aria-label="Email address"
             />
           </div>
           <Button
             type="submit"
-            disabled={status === 'loading' || status === 'success'}
+            disabled={!ENABLE_NEWSLETTER || status === 'loading' || status === 'success'}
             className={cn(
               'min-w-[100px]',
               status === 'success' && 'bg-green-600 hover:bg-green-600',
@@ -99,8 +124,9 @@ export function NewsletterSignup() {
       </form>
 
       <p className="mt-3 text-xs text-muted-foreground">
-        By subscribing, you agree to our Privacy Policy and consent to receive updates from our
-        company.
+        {!ENABLE_NEWSLETTER
+          ? 'Newsletter subscription is currently unavailable.'
+          : 'By subscribing, you agree to our Privacy Policy and consent to receive updates from our company.'}
       </p>
     </div>
   );

@@ -6,7 +6,10 @@ import { BaseSkeleton } from './BaseSkeleton';
 
 export function OrderTrackingSkeleton() {
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center gap-6 text-center" role="status">
+    <div
+      className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center gap-6 text-center"
+      role="status"
+    >
       {srOnly('Memuat...')}
       <BaseSkeleton className="h-20 w-20 rounded-full" />
       <div className="space-y-2">
@@ -18,7 +21,7 @@ export function OrderTrackingSkeleton() {
           <BaseSkeleton className="h-4 w-28" />
           <BaseSkeleton className="h-5 w-40" />
         </div>
-        <div className="border-t pt-4 space-y-2">
+        <div className="space-y-2 border-t pt-4">
           <BaseSkeleton className="h-4 w-32" />
           <BaseSkeleton className="h-7 w-32" />
         </div>

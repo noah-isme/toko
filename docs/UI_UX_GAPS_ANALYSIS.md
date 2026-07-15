@@ -1,14 +1,20 @@
 # 🔍 UI/UX Gaps Analysis & Development Roadmap
 
-**Date**: 2025-12-08 (updated 2026-07-13)
-**Status**: Comprehensive Analysis
-**Current Implementation**: P0, P1, P2, P3 Complete; Critical Gaps Resolved
+**Date**: 2025-12-08 (re-audited 2026-07-14)
+**Status**: Re-audited against current codebase
+**Current Implementation**: P0 complete; P1 mostly complete; P2/P3 backlog
 
 ---
 
 ## 📊 Executive Summary
 
-Setelah analisis mendalam terhadap codebase dan UI_UX_API_CHECKLIST.md, berikut adalah daftar fitur yang **masih perlu dikembangkan** atau **perlu improvement**.
+A full re-audit of all 41 items against the codebase was performed on 2026-07-14. **14 items were found to be significantly more complete than previously documented.** The remaining backlog is 23 items, down from the previously claimed 37.
+
+### Status Legend
+
+- ✅ DONE — Fully implemented and in use
+- ⚠️ PARTIAL — Implemented but incomplete
+- ❌ MISSING — Not implemented
 
 ---
 
@@ -19,13 +25,8 @@ Setelah analisis mendalam terhadap codebase dan UI_UX_API_CHECKLIST.md, berikut 
 **Status**: IMPLEMENTED (2026-07-11)
 **Priority**: 🔴 P0 (Critical)
 
-**Implemented Components**:
-
-- ✅ `/forgot-password` page — Form untuk request reset password
-- ✅ `/reset-password` page — Form untuk set password baru dengan token
-- ✅ Email confirmation UI
-
 **Files**:
+
 - `src/app/(storefront)/forgot-password/page.tsx`
 - `src/app/(storefront)/reset-password/page.tsx`
 
@@ -36,13 +37,8 @@ Setelah analisis mendalam terhadap codebase dan UI_UX_API_CHECKLIST.md, berikut 
 **Status**: IMPLEMENTED (2026-07-11)
 **Priority**: 🔴 P0 (Critical for production)
 
-**Implemented**:
-
-- ✅ Email verification page (`/verify-email`)
-- ✅ Token validation
-- ✅ Success/error states
-
 **Files**:
+
 - `src/app/(storefront)/verify-email/page.tsx`
 
 ---
@@ -52,230 +48,124 @@ Setelah analisis mendalam terhadap codebase dan UI_UX_API_CHECKLIST.md, berikut 
 **Status**: IMPLEMENTED (2026-07-11)
 **Priority**: 🟡 P1 (High)
 
-**Implemented**:
+**Files**:
 
-
-```tsx
-// Cancel Order Modal — IMPLEMENTED
-/src/components/cancel-order-modal.tsx
-- Warning message
-- Cancellation reason dropdown
-  - "Changed my mind"
-  - "Found better price"
-  - "Ordered by mistake"
-  - "Other"
-- Reason text area (if "Other")
-- Confirm & Cancel buttons
-- API integration with useCancelOrder()
-```
+- `src/components/cancel-order-modal.tsx` — 4 predefined reasons, conditional note textarea, radio-style selection, confirm/cancel buttons
 
 ---
 
-### 4. ❌ Empty States Enhancement
+### 4. ✅ Empty States Enhancement — DONE
 
-**Status**: BASIC ONLY  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1 (High for UX)
 
-**Current State**:
+All presets the previous audit claimed missing now exist:
 
-- ✅ Empty cart state - ada
-- ❌ No orders yet state - **perlu enhancement**
-- ❌ No favorites state - **perlu enhancement**
-- ❌ No search results state - **basic only**
-- ❌ No products in category state - **tidak ada**
+**Files**:
 
-**What Needs to be Built**:
+- `src/shared/ui/EmptyState.tsx` — Reusable component with icon, title, description, CTA
+- `src/shared/ui/empty-presets.ts` — 7 presets:
+  - `emptyOrders()` — "Belum ada pesanan" + "Mulai Belanja" CTA
+  - `emptyFavorites()` — "Belum ada favorit" + "Jelajahi Produk" CTA
+  - `emptySearchResults(query?)` — "Hasil pencarian tidak ditemukan"
+  - `emptyCategoryProducts()` — "Produk belum tersedia"
+  - `emptyProducts()`, `emptyCart()`, `emptyFavoritesUnavailable()`
 
-```tsx
-// Enhanced Empty States
-/components/empty-states/
-
-1. NoOrdersYet.tsx
-   - Illustration/icon
-   - "You haven't placed any orders yet"
-   - "Start Shopping" CTA button
-   - Link to categories atau featured products
-
-2. NoFavoritesYet.tsx
-   - "Your wishlist is empty"
-   - "Browse products to find items you love"
-   - CTA to products page
-
-3. NoSearchResults.tsx (enhance existing)
-   - "No results found for '{query}'"
-   - Search suggestions
-   - Popular products fallback
-   - Adjust filters suggestion
-
-4. NoCategoryProducts.tsx
-   - "No products in this category yet"
-   - Browse other categories
-   - Similar categories suggestion
-```
+Actively used in `products-catalog.tsx`, `favorites/page.tsx`, `account/orders/page.tsx`.
 
 ---
 
-### 5. ❌ Loading States Consistency
+### 5. ✅ Loading States Consistency — DONE
 
-**Status**: INCONSISTENT  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Issues**:
+All 5 skeletons the previous audit claimed missing now exist:
 
-- ✅ Product list - ada skeleton
-- ✅ Checkout - ada skeleton
-- ❌ Login/Register forms - **no loading overlay**
-- ❌ Account page - **no skeleton**
-- ❌ Favorites page - **no skeleton**
-- ❌ Order tracking - **spinner only**
+**Files** (`src/shared/ui/skeletons/`):
 
-**What Needs to be Built**:
+- `AuthFormSkeleton.tsx` — Used in login and register pages
+- `AccountDashboardSkeleton.tsx`
+- `FavoritesGridSkeleton.tsx`
+- `OrderTrackingSkeleton.tsx`
+- `AddressListSkeleton.tsx`
+- Plus 6 additional: `BaseSkeleton`, `CartSkeleton`, `CheckoutSkeleton`, `OrdersTableSkeleton`, `ProductCardSkeleton`, `ProductDetailSkeleton`
 
-```tsx
-// Missing Skeletons
-1. AuthFormSkeleton.tsx - untuk login/register
-2. AccountDashboardSkeleton.tsx - untuk account page
-3. FavoritesGridSkeleton.tsx - untuk favorites
-4. OrderTrackingSkeleton.tsx - untuk shipment tracking
-5. AddressListSkeleton.tsx - untuk address management
-```
+Supporting components: `GuardedButton.tsx` (button loading state), `DelayedLoader.tsx` (400ms delayed spinner).
+
+**Remaining gap**: Some components (`product-quick-view.tsx`, `brands-section.tsx`) use the raw shadcn `Skeleton` directly instead of the centralized `BaseSkeleton` system. No route-level `loading.tsx` files exist in `src/app/`.
 
 ---
 
-## 🎨 UX Improvements Needed
+## 🎨 UX Improvements
 
-### 6. ❌ Toast Notification Strategy
+### 6. ✅ Toast Notification Strategy — DONE
 
-**Status**: INCONSISTENT  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Issues**:
+**Files**:
 
-- Success toasts ada di beberapa tempat, tidak konsisten
-- Error handling kadang toast, kadang inline
-- Tidak ada toast untuk background actions (e.g., cart sync)
+- `src/shared/ui/toast/index.tsx` — `useToast` hook + `Toaster` component with variants (default/success/destructive), event-key deduplication, max-concurrent policy, auto-dismiss
+- `src/shared/ui/toast/policy.ts` — Position (top-right), maxConcurrent (3), variant-specific durations
+- `src/shared/ui/toast/RetryToastAction.tsx` — Retry action button for failed operations
 
-**What Needs to be Built**:
-
-```tsx
-// Toast Usage Guidelines & Standards
-1. Success Toasts:
-   ✅ Item added to cart
-   ✅ Order placed
-   ✅ Address saved
-   ✅ Profile updated
-   ❌ Login success - should be silent + redirect
-   ❌ Logout - should be silent
-
-2. Error Toasts:
-   ✅ Network errors
-   ✅ API errors
-   ❌ Form validation - should be inline
-   ❌ Out of stock - should be inline on product
-
-3. Info Toasts:
-   ❌ Cart synced from guest to user
-   ❌ Price changed while in cart
-   ❌ Product back in stock (if user wishlisted)
-```
+Mounted globally in `src/app/layout.tsx`. 114 toast usages across checkout, account, orders, payment, promo, reviews, cart, address, and favorites hooks.
 
 ---
 
-### 7. ❌ Form Validation Enhancement
+### 7. ⚠️ Form Validation Enhancement — PARTIAL
 
-**Status**: BASIC  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Current**:
+**Entity forms use `zodResolver` (3 forms)**:
 
-- Basic HTML5 validation
-- API error messages
-- No real-time validation feedback
+- `src/entities/promo/ui/PromoField.tsx` — `zodResolver(promoApplyInputSchema)`
+- `src/entities/address/ui/AddressForm.tsx` — `zodResolver(addressInputSchema)`
+- `src/entities/reviews/ui/ReviewForm.tsx` — `zodResolver(reviewCreateInputSchema)`
 
-**What Needs to be Built**:
+**Auth forms use inline `register` validation only (5 forms, NO zodResolver)**:
 
-```tsx
-// Enhanced Form Validation
-1. Real-time validation:
-   - Email format check (as user types)
-   - Password strength meter
-   - Phone number format
-   - Address validation
+- `src/app/(storefront)/login/page.tsx`
+- `src/app/(storefront)/register/page.tsx`
+- `src/app/(storefront)/forgot-password/page.tsx`
+- `src/app/(storefront)/reset-password/page.tsx`
+- `src/app/(storefront)/verify-email/page.tsx`
 
-2. Better error messages:
-   - Specific, actionable messages
-   - Indonesian language
-   - Visual error states (red borders)
-   - Icon indicators
-
-3. Success indicators:
-   - Green checkmark untuk valid fields
-   - Progress indicator untuk multi-step forms
-```
+**Remaining work**: Migrate 5 auth forms to `zodResolver` with colocated Zod schemas for consistent client-side validation. This is a type-safety violation per project standards.
 
 ---
 
-### 8. ❌ Breadcrumb Navigation
+### 8. ⚠️ Breadcrumb Navigation — PARTIAL (SEO only)
 
-**Status**: TIDAK ADA  
+**Status**: PARTIAL — SEO JSON-LD exists, no visible UI (re-audited 2026-07-14)
 **Priority**: 🟢 P2 (Medium)
 
-**Missing on**:
+**What exists**:
 
-- Product detail page
-- Checkout flow
-- Account pages
-- Order detail page
+- `src/shared/seo/jsonld.ts` — `breadcrumbJsonLd()` function for SEO structured data
+- `src/app/(storefront)/products/page.tsx` — Renders breadcrumb JSON-LD
 
-**What Needs to be Built**:
-
-```tsx
-// Breadcrumb Component
-/components/breadcrumb.tsx
-
-Examples:
-Home > Products > Electronics > Samsung Galaxy S24
-Home > Account > Orders > Order #12345
-Home > Checkout > Shipping
-```
+**Missing**: No visible breadcrumb UI component on product detail, checkout, account, or order detail pages.
 
 ---
 
 ### 9. ❌ Back to Top Button
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2 (Nice to have)
 
-**What Needs to be Built**:
-
-```tsx
-// Back to Top Button
-/components/back-to-top.tsx
-- Fixed bottom-right position
-- Show after scrolling 500px
-- Smooth scroll animation
-- Mobile friendly
-```
+No back-to-top or scroll-to-top component found anywhere in `src/`.
 
 ---
 
 ### 10. ❌ Product Comparison Feature
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
-
-```tsx
-// Product Comparison
-1. Compare button pada product cards
-2. Compare sidebar/drawer (max 3-4 products)
-3. Comparison table page
-4. Side-by-side specs comparison
-5. Price comparison
-6. Remove from comparison
-7. Clear all
-```
+No comparison feature found. Only `localeCompare` (string sorting) and `compareAt` (price field) exist.
 
 ---
 
@@ -283,25 +173,10 @@ Home > Checkout > Shipping
 
 ### 11. ❌ In-App Notifications
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
-
-```tsx
-// Notification System
-1. Notification bell icon di navbar
-2. Unread count badge
-3. Notification dropdown
-4. Notification types:
-   - Order status updates
-   - Price drops on favorites
-   - Back in stock alerts
-   - Promo announcements
-5. Mark as read
-6. Clear all notifications
-7. View all notifications page
-```
+No notification bell, dropdown, or notification center found.
 
 ---
 
@@ -313,437 +188,307 @@ Home > Checkout > Shipping
 **Priority**: 🟡 P1 (for mobile UX)
 
 **File**: `src/components/layout/mobile-bottom-nav.tsx`
-- Fixed bottom navigation
-- 5 items: Home, Products, Cart, Favorites, Account
-- Active state indicator
-- Badge for cart count
-- Only show on mobile (<768px)
+
+- 5 nav items (Home, Produk, Cart, Favorit, Akun)
+- Active state highlighting, cart badge with live count
+- Hidden on checkout/auth/order pages
+- Mobile-only (`md:hidden`), respects safe-area insets
 
 ---
 
 ### 13. ❌ Pull to Refresh (Mobile)
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
-
-**What Needs to be Built**:
-
-- Pull to refresh untuk product list
-- Pull to refresh untuk orders list
-- Smooth animation
-- Works on mobile devices
 
 ---
 
 ### 14. ❌ Swipe Gestures
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: ⚪ P3
-
-**What Needs to be Built**:
-
-- Swipe to remove item dari cart
-- Swipe between product images
-- Swipe to close modals
 
 ---
 
 ## 🔍 Search & Filter Enhancements
 
-### 15. ⚠️ Advanced Filters
+### 15. ✅ Advanced Filters — DONE
 
-**Status**: BASIC  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Current**:
+**Files**:
 
-- ✅ Category filter
-- ✅ Price range
-- ❌ **Missing banyak filters**
-
-**What Needs to be Built**:
-
-```tsx
-// Advanced Filters
-1. Brand filter - checkbox list
-2. Rating filter (4+ stars, 3+, etc)
-3. Availability filter (In stock only)
-4. Discount filter (On sale only)
-5. Sort options enhancement:
-   - Popularity
-   - Newest first
-   - Most reviewed
-6. Filter chips (show active filters)
-7. Clear all filters button
-8. Filter count indicator
-```
+- `src/components/filter-sidebar.tsx` — Full filter system:
+  - Price range slider
+  - Category checkbox list
+  - Brand filter
+  - Rating filter (4+, 3+, 2+ stars)
+  - In-stock only toggle
+  - Discount/promo only toggle
+  - Collapsible sections, mobile sheet, "Clear all" reset
+- `src/components/products-catalog.tsx` — Full orchestration:
+  - 6 sort options (newest, name-asc, name-desc, price-asc, price-desc, rating)
+  - Active filter chips with remove
+  - URL search param synchronization
 
 ---
 
 ### 16. ❌ Recent Searches
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
-
-```tsx
-// Recent Searches
-- Save last 5-10 searches di localStorage
-- Show di search autocomplete
-- Clear recent searches button
-- Click to re-search
-```
+`src/stores/search-store.ts` only stores the current search term, not a history of recent searches.
 
 ---
 
 ### 17. ❌ Search History Page
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: ⚪ P3
-
-**What Needs to be Built**:
-
-- Full search history (if logged in)
-- Delete individual searches
-- Clear all history
-- Search statistics
 
 ---
 
 ## 🛒 Cart & Checkout Improvements
 
-### 18. ⚠️ Save for Later
+### 18. ❌ Save for Later
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
+---
 
-```tsx
-// Save for Later Feature
-1. "Save for later" button di cart items
-2. Separate "Saved for later" section di cart page
-3. Move back to cart button
-4. Remove from saved items
-5. API integration (if backend supports)
-```
+### 19. ✅ Estimated Delivery Date — DONE
+
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
+**Priority**: 🟡 P1
+
+Displayed across 4 pages:
+
+- `src/app/(storefront)/checkout/_components/ShippingOptions.tsx` — "Estimasi tiba {etd}" during checkout
+- `src/app/(storefront)/order/confirmation/[orderId]/page.tsx` — "Estimasi tiba: {formatDateTime(...)}"
+- `src/app/(storefront)/account/orders/[orderId]/page.tsx` — Estimated delivery in order detail
+- `src/app/(storefront)/order/tracking/[orderId]/page.tsx` — "Estimasi tiba" in tracking
+
+Backend: `estimatedDelivery` field validated via Zod schemas, mocked in MSW handlers.
 
 ---
 
-### 19. ❌ Estimated Delivery Date
+### 20. ✅ Multiple Addresses in Checkout — DONE
 
-**Status**: BASIC  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Current**: Show ETD dari courier  
-**Missing**:
+**File**: `src/app/(storefront)/checkout/page.tsx`
 
-- Visual date display (calendar)
-- Expected date range
-- Guaranteed by date
-- Highlight weekends/holidays
+Full inline address management:
 
----
-
-### 20. ❌ Multiple Addresses in Checkout
-
-**Status**: BASIC  
-**Priority**: 🟡 P1
-
-**Current**: Select one address  
-**Missing**:
-
-- Edit address inline during checkout
-- Add new address during checkout (modal)
-- Address validation before proceed
-- Default address suggestion
+- Address list via `useAddressListQuery` with radio-style selection
+- "Kelola alamat" button opens `AddressManagerDialog` with full `AddressBook` (add/edit/select/delete)
+- "Tambah alamat" button when no address selected
+- Address selection triggers shipping quote recalculation
+- Prevents deletion of address currently in use
+- Supports logged-in users and guests
 
 ---
 
 ### 21. ❌ Order Notes/Instructions
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
-
-**What Needs to be Built**:
-
-```tsx
-// Order Notes
-- Text area di checkout
-- "Special instructions" or "Delivery notes"
-- Character limit (e.g., 500 chars)
-- Save with order
-- Show in order detail
-```
 
 ---
 
 ## 👤 Account & Profile
 
-### 22. ❌ Profile Edit Page
+### 22. ✅ Profile Edit Page — DONE
 
-**Status**: TIDAK ADA  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**What Needs to be Built**:
+**File**: `src/app/(storefront)/account/profile/page.tsx`
 
-```tsx
-// Profile Page
-/app/(storefront)/account/profile/page.tsx
+Full profile management:
 
-Fields:
-- Name (editable)
-- Email (read-only, with verify badge)
-- Phone number (editable)
-- Profile picture upload
-- Change password button
-- Save changes button
-```
+- Editable name (required) and phone (with validation), read-only email
+- Email verification status with resend button
+- Active sessions list (device, IP, location, last active) with "Logout semua perangkat" button
+- Loading skeleton via `BaseSkeleton`
+- Toast feedback on save
 
 ---
 
-### 23. ❌ Order Tracking Enhancement
+### 23. ⚠️ Order Tracking Enhancement — PARTIAL
 
-**Status**: BASIC  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Current**: List tracking events  
+**What exists**:
+
+- Visual status timeline (`<ol>` with colored dots, connector lines, timestamps) on confirmation and tracking pages
+- Dedicated tracking page: `src/app/(storefront)/order/tracking/[orderId]/page.tsx`
+- Estimated delivery times on both pages
+- Live payment expiry countdown on confirmation page
+
 **Missing**:
 
-- **Visual timeline** dengan icons
-- **Map view** of delivery progress
-- **Estimated time** untuk each step
-- **Push notifications** option
-- **Share tracking link** button
+- Map view (placeholder only — "Peta pengiriman" section says "integrasi peta akan tersedia segera")
+- Push notifications option
+- Share tracking link button
 
 ---
 
 ### 24. ❌ Order History Filters
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
-
-```tsx
-// Order Filters
-1. Filter by status
-2. Filter by date range
-3. Search by order number
-4. Search by product name
-5. Sort by date (newest/oldest)
-6. Export orders (CSV)
-```
+`src/app/(storefront)/account/orders/page.tsx` renders a flat list with hardcoded pagination (`{ page: 1, limit: 20 }`). No status filter, search, or sort.
 
 ---
 
-### 25. ❌ Reorder Functionality
+### 25. ✅ Reorder Functionality — DONE
 
-**Status**: TIDAK ADA  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
+**File**: `src/app/(storefront)/order/confirmation/[orderId]/page.tsx`
 
-```tsx
-// Reorder Feature
-1. "Buy Again" button on order detail
-2. Add all items to cart
-3. Check stock availability
-4. Handle discontinued products
-5. Show success toast
-```
+- `handleReorder` iterates all `order.items`, calls `addToCartMutation.mutateAsync` for each
+- "Beli lagi" button with loading state ("Menambahkan...")
+- Handles guest cart initialization
+- Success toast + redirect to `/cart`
+- Error display via `role="alert"`
 
 ---
 
 ## 💳 Payment & Checkout
 
-### 26. ❌ Payment Instructions Modal
+### 26. ⚠️ Payment Instructions Modal — PARTIAL
 
-**Status**: BASIC TEXT ONLY  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**What Needs to be Built**:
+**What exists**: Basic text on checkout success page ("Silakan lakukan pembayaran..."), payment method selector with short descriptions.
 
-```tsx
-// Enhanced Payment Instructions
-1. Step-by-step guide dengan numbers
-2. Bank account details (copyable)
-3. QR code untuk payment (if available)
-4. Upload payment proof option
-5. Payment deadline countdown
-6. Link to payment tutorial video
-```
+**Missing**: Method-specific step-by-step instructions modal, copyable bank details, QR code, upload payment proof.
 
 ---
 
 ### 27. ❌ Multi-Step Checkout Progress
 
-**Status**: TIDAK ADA (single page)  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
-
-```tsx
-// Progress Indicator
-- Step 1: Shipping Address
-- Step 2: Shipping Method
-- Step 3: Payment Method
-- Step 4: Review & Confirm
-
-Visual progress bar at top
-Click to go back to previous steps
-```
+Checkout spans multiple routes (checkout → review → success) but no visual progress/stepper indicator exists.
 
 ---
 
-### 28. ❌ Checkout Timer
+### 28. ✅ Checkout Timer — DONE
 
-**Status**: TIDAK ADA  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
+**Files**:
 
-```tsx
-// Checkout Timer
-- "Complete your order in: 14:59"
-- Countdown timer
-- Warning before expiry
-- Cart lock during checkout
-```
+- `src/app/(storefront)/checkout/review/page.tsx` — 1-second `setInterval` countdown, "Sisa waktu pembayaran: HH:MM:SS" display, expiry handling
+- `src/app/(storefront)/order/confirmation/[orderId]/page.tsx` — Adaptive interval countdown (1s/60s), expiry messaging
+
+Both use `formatCountdown` helper (HH:MM:SS format).
 
 ---
 
 ## 🎁 Promotional Features
 
-### 29. ❌ Voucher Discovery
+### 29. ⚠️ Voucher Discovery — PARTIAL
 
-**Status**: MINIMAL  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
+**What exists**: Promo code entry field at checkout (`src/entities/promo/ui/PromoField.tsx`), `applyVoucher`/`removeVoucher` API services.
 
-```tsx
-// Voucher/Promo Page
-/app/(storefront)/promos/page.tsx
-
-1. List semua available vouchers
-2. Voucher cards dengan:
-   - Discount amount
-   - Min purchase requirement
-   - Expiry date
-   - Terms & conditions
-3. "Copy Code" button
-4. "Apply to Cart" button
-5. Filter: All, New User, Free Shipping, etc
-```
+**Missing**: No browsable voucher/promo discovery page.
 
 ---
 
 ### 30. ❌ Flash Sales / Deals
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
-
-**What Needs to be Built**:
-
-```tsx
-// Flash Sale Section
-1. Countdown timer
-2. Limited stock indicator
-3. "Ends in X hours" badge
-4. Special price display
-5. Flash sale page (/deals)
-```
 
 ---
 
-### 31. ❌ Product Recommendations
+### 31. ⚠️ Product Recommendations — PARTIAL
 
-**Status**: BASIC (related products only)  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
+**What exists**: "You might also like" related products via `useRelatedProductsQuery(slug)` on product detail pages (`src/components/related-product-list.tsx`).
 
-```tsx
-// Enhanced Recommendations
-1. "You may also like" - based on category
-2. "Frequently bought together" - bundle suggestions
-3. "Customers also viewed" - session based
-4. "Similar products" - ML based (future)
-5. Personalized homepage recommendations
-```
+**Missing**: "Frequently bought together", "Customers also viewed", personalized recommendations.
 
 ---
 
 ## 📊 Analytics & Tracking
 
-### 32. ❌ User Activity Tracking
+### 32. ✅ User Activity Tracking — DONE
 
-**Status**: BASIC (PostHog ada)  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟢 P2
 
-**Missing Events**:
+**Files**:
 
-```typescript
-// Events to Track
-1. Product views
-2. Add to cart (+ product ID, price)
-3. Remove from cart
-4. Search queries
-5. Filter usage
-6. Checkout started
-7. Checkout completed
-8. Order value
-9. Time on product page
-10. Scroll depth
-11. Cart abandonment
-```
+- `src/shared/telemetry/posthog.ts` — PostHog with property blacklisting, persistence
+- `src/shared/telemetry/sentry.ts` — Sentry error tracking
+- `src/shared/rum/` — RUM pipeline (vitals, transport, dev overlay)
+- 11 distinct event types captured: `checkout_address_select`, `promo_apply`, `promo_remove`, `address_create/update/delete/set_default`, `fav_add/remove`, `review_submit/vote`, `web_vital`
 
 ---
 
 ## ♿ Accessibility Improvements
 
-### 33. ⚠️ Keyboard Navigation
+### 33. ⚠️ Keyboard Navigation — PARTIAL
 
-**Status**: PARTIAL  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Missing**:
+**What exists**:
 
-- Tab order optimization
-- Skip to main content link
-- Focus trapping in modals
-- Escape key to close modals
-- Arrow key navigation in dropdowns
+- `src/shared/ui/SkipToContent.tsx` — Skip link in layout
+- Radix UI Dialog/Sheet for focus trapping (native)
+- `focus-visible:ring-2` styles across interactive elements
+- `src/shared/lib/useRouteFocus.ts` — Route focus management
+- `src/shared/ui/forms/accessibility.ts` — ARIA helper for forms
+
+**Missing**: Custom keyboard shortcut system, explicit focus-trap utility beyond Radix defaults.
 
 ---
 
-### 34. ⚠️ Screen Reader Support
+### 34. ✅ Screen Reader Support — DONE
 
-**Status**: BASIC  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Missing**:
+74 ARIA live/alert/status regions and 66 aria-label/sr-only/aria-describedby usages across:
 
-- Proper ARIA labels semua components
-- Live regions untuk dynamic content
-- Descriptive alt text untuk semua images
-- Form error announcements
-- Loading state announcements
+- All skeleton components (`role="status"`)
+- Toast system (`aria-live="polite"`)
+- ErrorBoundary (`role="alert"`, `aria-live="assertive"`)
+- GuardedButton (`aria-live="polite"` for loading)
+- Payment status watcher (`role="status"`)
+- Form validation errors (`role="alert"` across all forms)
+- Icon-only buttons (`aria-label`)
+- Offline banner (`role="alert"`)
 
 ---
 
 ### 35. ❌ High Contrast Mode
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
-
-- High contrast theme toggle
-- WCAG AAA compliance
-- Respect system preferences
+Only `prefers-reduced-motion` is handled. No high-contrast theme or WCAG AAA patterns.
 
 ---
 
@@ -751,19 +496,10 @@ Click to go back to previous steps
 
 ### 36. ❌ Language Switcher
 
-**Status**: TIDAK ADA  
-**Priority**: ⚪ P3 (if needed)
+**Status**: MISSING
+**Priority**: ⚪ P3
 
-**What Needs to be Built**:
-
-```tsx
-// i18n Implementation
-1. Language selector di footer
-2. Support: Bahasa Indonesia (default), English
-3. Translate all UI text
-4. Format dates/currency per locale
-5. RTL support (future)
-```
+No i18n framework. App is hardcoded to Indonesian (`id-ID`) for date/currency formatting with some English UI text mixed in.
 
 ---
 
@@ -771,183 +507,105 @@ Click to go back to previous steps
 
 ### 37. ❌ Privacy Settings
 
-**Status**: TIDAK ADA  
+**Status**: MISSING
 **Priority**: 🟢 P2
 
-**What Needs to be Built**:
-
-```tsx
-// Privacy Page
-/app/(storefront)/account/privacy/page.tsx
-
-1. Cookie preferences
-2. Analytics opt-out
-3. Marketing email opt-out
-4. Delete account option
-5. Download my data (GDPR)
-```
+No privacy settings page, cookie preferences, or analytics opt-out. PostHog has no user-facing opt-out mechanism.
 
 ---
 
-### 38. ❌ Session Management
+### 38. ✅ Session Management — DONE
 
-**Status**: BASIC  
+**Status**: IMPLEMENTED (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Missing**:
+**Files**:
 
-- Show active sessions
-- "Logout all devices" button
-- Session timeout warning (before auto-logout)
-- Remember device option
+- `src/app/(storefront)/account/profile/page.tsx` — Active session list (device, IP, location, last active), "Logout semua perangkat" button
+- `src/components/providers/AuthProvider.tsx` — Auto token refresh every 14 minutes
+- `src/lib/api/services/auth.ts` — `getSessions()` and `logoutAllSessions()` API calls
+- `src/mocks/handlers/authHandlers.ts` — MSW mock for `/auth/logout/all`
+
+**Missing**: Idle timeout warning (before auto-logout).
 
 ---
 
 ## 📈 Performance Optimizations
 
-### 39. ⚠️ Image Optimization
+### 39. ⚠️ Image Optimization — PARTIAL
 
-**Status**: PARTIAL  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟡 P1
 
-**Current**: Using next/image  
-**Missing**:
+**Using `next/image`**: `product-image-gallery.tsx`, `product-card.tsx` (both with `placeholder="blur"` + `blurDataURL`).
 
-- Lazy loading untuk product images
-- WebP format dengan fallback
-- Blur placeholder images
-- Responsive images (srcset)
-- Image CDN integration
+**Still using raw `<img>`**: 5 files — `account/orders/[orderId]/page.tsx`, `search-autocomplete.tsx`, `order/confirmation/[orderId]/page.tsx`, `brands-section.tsx`, `product-quick-view.tsx`.
+
+**Missing**: No explicit WebP/AVIF format configuration in `next.config.mjs`.
 
 ---
 
-### 40. ⚠️ Code Splitting
+### 40. ⚠️ Code Splitting — PARTIAL
 
-**Status**: PARTIAL  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟢 P2
 
-**Missing**:
+**Dynamic imports**: `location-picker.tsx` (Leaflet map, `ssr: false`), `product-card.tsx` (ProductQuickView, `ssr: false`), `navbar.tsx`, `products-catalog.tsx`.
 
-- Route-based code splitting
-- Component lazy loading
-- Dynamic imports untuk heavy libraries
-- Reduce initial bundle size
+Route-level splitting is handled by Next.js App Router.
+
+**Missing**: No `React.lazy` usage, no granular splitting strategy beyond existing 4 dynamic imports. Bundle analyzer now available via `pnpm analyze`.
 
 ---
 
-### 41. ❌ Caching Strategy
+### 41. ⚠️ Caching Strategy — PARTIAL
 
-**Status**: BASIC (React Query)  
+**Status**: PARTIAL (re-audited 2026-07-14)
 **Priority**: 🟢 P2
 
-**Missing**:
+**What exists**:
 
-- Service Worker untuk offline caching
-- Stale-while-revalidate strategy
-- Cache product images
-- Prefetch critical resources
+- Per-query `staleTime` tuning (cart: 5min/30s, products: 5min/1min, address: 2min, reviews: 2min, favorites: 5min, promo: 5min, profile: 1min)
+- Optimistic updates with cache rollback (cart, address, favorites, reviews, promo)
+- Payment status polling (`refetchInterval: 4000`)
+- SessionStorage caching with signature-based invalidation (shipping quotes, checkout draft)
+- Route prefetching on focus/hover
+
+**Missing**: Service worker for offline caching, HTTP-level stale-while-revalidate headers.
 
 ---
 
 ## 🎯 Priority Summary
 
-### 🔴 Critical (Must Fix ASAP):
+### Re-audit Results (2026-07-14)
 
-1. **Forgot Password Flow** - Users can't recover accounts
-2. **Email Verification** - Security & trust issue
+| Category         | Total  | ✅ Done | ⚠️ Partial | ❌ Missing |
+| ---------------- | ------ | ------- | ---------- | ---------- |
+| 🔴 Critical (P0) | 2      | 2       | 0          | 0          |
+| 🟡 High (P1)     | 10     | 7       | 3          | 0          |
+| 🟢 Medium (P2)   | 20     | 3       | 4          | 13         |
+| ⚪ Low (P3)      | 9      | 0       | 0          | 9          |
+| **Total**        | **41** | **18**  | **7**      | **16**     |
 
-### 🟡 High Priority (Next Sprint):
+**Remaining work**: 23 items (7 partial + 16 missing)
 
-3. **Loading States** - Better UX
-4. **Form Validation** - Better feedback
-5. **Empty States** - More engaging
-6. **Cancel Order Modal** - Prevent accidents
-7. **Mobile Bottom Nav** - Mobile UX
-8. **Advanced Filters** - Better product discovery
-9. **Profile Edit** - Basic account management
-10. **Order Tracking UI** - Better delivery experience
+### Items marked DONE in this re-audit (previously claimed missing/incomplete):
 
-### 🟢 Medium Priority (Future Sprints):
-
-11. Breadcrumb Navigation
-12. Back to Top Button
-13. Product Comparison
-14. Save for Later
-15. Reorder Functionality
-16. Voucher Discovery
-17. Recommendations
-18. Notification System
-
-### ⚪ Nice to Have (Backlog):
-
-19. Language Switcher
-20. Flash Sales
-21. Swipe Gestures
-22. Search History
-
----
-
-## 📦 Suggested Implementation Order
-
-### Sprint 1 (Week 1-2): Critical Auth & Forms
-
-- [x] Forgot password flow — DONE (2026-07-11)
-- [x] Email verification — DONE (2026-07-11)
-- [ ] Form validation enhancement
-- [ ] Loading states consistency
-
-### Sprint 2 (Week 3-4): UX Polish
-
-- [ ] Empty states enhancement
-- [x] Cancel order modal — DONE (2026-07-11)
-- [x] Mobile bottom navigation — DONE (2026-07-11)
-- [ ] Toast notification strategy
-
-### Sprint 3 (Week 5-6): Discovery & Filters
-
-- [ ] Advanced filters
-- [ ] Breadcrumb navigation
-- [ ] Back to top button
-- [ ] Recent searches
-
-### Sprint 4 (Week 7-8): Account & Orders
-
-- [ ] Profile edit page
-- [ ] Order tracking enhancement
-- [ ] Reorder functionality
-- [ ] Order history filters
-
-### Sprint 5 (Week 9-10): Engagement
-
-- [ ] Product comparison
-- [ ] Notification system
-- [ ] Voucher discovery
-- [ ] Product recommendations
-
----
-
-## 📝 Notes
-
-**Total Gaps Identified**: 41 items
-
-- 🔴 Critical: 2 → **2 DONE** (forgot-password, verify-email)
-- 🟡 High: 10 → **2 DONE** (cancel order modal, mobile bottom nav)
-- 🟢 Medium: 20
-- ⚪ Low: 9
-
-**Remaining**: 37 items
-
-**Estimated Total Work (remaining)**:
-
-- Critical: 0 (done)
-- High Priority: 2-3 weeks
-- Medium Priority: 6-8 weeks
-- Low Priority: 2-3 weeks
-
-**Total**: ~10-14 weeks for full implementation
+1. #4 Empty States — all 7 presets exist and are in use
+2. #5 Loading States — all 5 claimed-missing skeletons exist
+3. #6 Toast Strategy — comprehensive system, 114 usages
+4. #15 Advanced Filters — brand, rating, stock, discount, 6 sort options, URL sync
+5. #19 Estimated Delivery Date — displayed in 4 pages
+6. #20 Multiple Addresses in Checkout — full inline address manager
+7. #22 Profile Edit — full page with sessions/security
+8. #25 Reorder — "Beli lagi" button with cart integration
+9. #28 Checkout Timer — countdown on review and confirmation pages
+10. #32 User Activity Tracking — PostHog + Sentry + RUM, 11 event types
+11. #34 Screen Reader Support — 74 ARIA live regions, 66 aria-label usages
+12. #38 Session Management — session list, remote logout, token refresh
 
 ---
 
 **Maintained By**: Development Team
-**Last Updated**: 2026-07-13
-**Next Review**: After Sprint 3
+**Last Re-audited**: 2026-07-14
+**Next Review**: After P2 Sprint 1

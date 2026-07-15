@@ -1,32 +1,31 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { MailCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { MailCheck } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { ForgotPasswordInput } from '@/entities/auth/schemas';
+import { forgotPasswordInputSchema } from '@/entities/auth/schemas';
 import { authApi } from '@/lib/api/services';
 import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
-
-interface ForgotPasswordForm {
-  email: string;
-}
 
 export default function ForgotPasswordPage() {
   const [sentEmail, setSentEmail] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, handleSubmit, formState, setError, getValues } =
-    useForm<ForgotPasswordForm>({
-      defaultValues: { email: '' },
-      mode: 'onChange',
-      reValidateMode: 'onChange',
-    });
+  const { register, handleSubmit, formState, setError, getValues } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordInputSchema),
+    defaultValues: { email: '' },
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+  });
 
-  const onSubmit = async (values: ForgotPasswordForm) => {
+  const onSubmit = async (values: ForgotPasswordInput) => {
     setIsSubmitting(true);
     try {
       await authApi.forgotPassword(values);
@@ -62,8 +61,8 @@ export default function ForgotPasswordPage() {
             <div className="space-y-1">
               <p className="font-medium">Email terkirim</p>
               <p>
-                Kami sudah mengirim tautan reset password ke <strong>{sentEmail}</strong>. Cek
-                inbox atau spam folder Anda.
+                Kami sudah mengirim tautan reset password ke <strong>{sentEmail}</strong>. Cek inbox
+                atau spam folder Anda.
               </p>
             </div>
           </div>
@@ -108,13 +107,7 @@ export default function ForgotPasswordPage() {
               Email
             </label>
             <Input
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Please enter a valid email address',
-                },
-              })}
+              {...register('email')}
               {...fieldA11y('email', emailErrorId)}
               type="email"
               autoComplete="email"

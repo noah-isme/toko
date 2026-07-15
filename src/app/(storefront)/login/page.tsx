@@ -1,26 +1,24 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import { useAuth } from '@/components/providers/AuthProvider';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { LoginInput } from '@/entities/auth/schemas';
+import { loginInputSchema } from '@/entities/auth/schemas';
 import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
 
-interface LoginForm {
-  email: string;
-  password: string;
-}
-
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading: authLoading } = useAuth();
-  const { register, handleSubmit, formState, setError } = useForm<LoginForm>({
+  const { register, handleSubmit, formState, setError } = useForm<LoginInput>({
+    resolver: zodResolver(loginInputSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -29,7 +27,7 @@ export default function LoginPage() {
     reValidateMode: 'onChange',
   });
 
-  const onSubmit = async (values: LoginForm) => {
+  const onSubmit = async (values: LoginInput) => {
     try {
       await login(values);
       router.push('/');
@@ -58,6 +56,7 @@ export default function LoginPage() {
       <form
         className="space-y-4"
         onSubmit={handleSubmit(onSubmit)}
+        noValidate
         aria-busy={formState.isSubmitting || authLoading ? 'true' : undefined}
       >
         {formState.errors.root?.message ? (
@@ -73,13 +72,7 @@ export default function LoginPage() {
             Email
           </label>
           <Input
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Please enter a valid email address',
-              },
-            })}
+            {...register('email')}
             {...fieldA11y('email', emailErrorId)}
             type="email"
             autoComplete="email"
@@ -101,10 +94,7 @@ export default function LoginPage() {
             </Link>
           </div>
           <Input
-            {...register('password', {
-              required: 'Password is required',
-              minLength: { value: 8, message: 'Password must be at least 8 characters' },
-            })}
+            {...register('password')}
             {...fieldA11y('password', passwordErrorId)}
             type="password"
             autoComplete="current-password"

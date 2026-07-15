@@ -11,12 +11,12 @@ import {
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
 } from '@/lib/api/hooks';
-import { useCartStore } from '@/stores/cart-store';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
+import { useCartStore } from '@/stores/cart-store';
 
 export function CartView() {
   const cartId = useCartStore((state) => state.cartId);
@@ -34,8 +34,6 @@ export function CartView() {
   if (!data || data.items.length === 0) {
     return <EmptyState {...emptyCart()} />;
   }
-
-
 
   return (
     <div className="space-y-6">

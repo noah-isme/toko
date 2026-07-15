@@ -28,7 +28,6 @@ async function fetchProductSlugs() {
     return parsed.data.map((product) => product.slug);
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
       console.warn('Failed to fetch products for sitemap', error);
     }
 

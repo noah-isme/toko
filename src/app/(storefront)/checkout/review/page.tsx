@@ -58,8 +58,7 @@ function CheckoutReviewContent() {
   const { toast: pushToast } = useToast();
   const payNowHintDomId = useId();
   const supportLink = useMemo(
-    () =>
-      `mailto:support@toko.com?subject=${encodeURIComponent(`Bantuan pembayaran ${orderId}`)}`,
+    () => `mailto:support@toko.com?subject=${encodeURIComponent(`Bantuan pembayaran ${orderId}`)}`,
     [orderId],
   );
 
@@ -107,8 +106,7 @@ function CheckoutReviewContent() {
     : null;
   const countdownLabel = paymentExpiryTime ? formatCountdown(paymentExpiryTime - now) : null;
   const paymentExpired = paymentExpiryTime !== null && paymentExpiryTime - now <= 0;
-  const pendingTooLong =
-    paymentExpiryTime !== null && paymentExpiryTime - now < 15 * 60 * 1000;
+  const pendingTooLong = paymentExpiryTime !== null && paymentExpiryTime - now < 15 * 60 * 1000;
 
   const addressLines = useMemo(() => {
     if (!orderDraft?.address) {
@@ -178,8 +176,6 @@ function CheckoutReviewContent() {
     }
 
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
-
     }
 
     setPaymentError('URL pembayaran tidak tersedia. Silakan coba lagi.');
@@ -228,32 +224,38 @@ function CheckoutReviewContent() {
     router.push(`/checkout/success?orderId=${encodedOrderId}`);
   }, [cartId, orderId, pushToast, queryClient, router]);
 
-  const handleStatusFailed = useCallback((status: PaymentStatus['status']) => {
-    setWatcherActive(false);
-    setFailedStatus(status);
-    setStatusError(
-      status === 'CANCELED'
-        ? 'Pembayaran dibatalkan. Silakan mulai ulang proses pembayaran.'
-        : `Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`,
-    );
-    pushToast({
-      id: `payment-failed-${orderId}`,
-      title: 'Pembayaran belum berhasil',
-      description: `Status pembayaran: ${status}`,
-      variant: 'destructive',
-    });
-  }, [orderId, pushToast]);
+  const handleStatusFailed = useCallback(
+    (status: PaymentStatus['status']) => {
+      setWatcherActive(false);
+      setFailedStatus(status);
+      setStatusError(
+        status === 'CANCELED'
+          ? 'Pembayaran dibatalkan. Silakan mulai ulang proses pembayaran.'
+          : `Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`,
+      );
+      pushToast({
+        id: `payment-failed-${orderId}`,
+        title: 'Pembayaran belum berhasil',
+        description: `Status pembayaran: ${status}`,
+        variant: 'destructive',
+      });
+    },
+    [orderId, pushToast],
+  );
 
-  const handleStatusError = useCallback((message: string) => {
-    setWatcherActive(false);
-    setStatusError(message);
-    pushToast({
-      id: `payment-status-error-${orderId}`,
-      title: 'Gagal memeriksa pembayaran',
-      description: message,
-      variant: 'destructive',
-    });
-  }, [orderId, pushToast]);
+  const handleStatusError = useCallback(
+    (message: string) => {
+      setWatcherActive(false);
+      setStatusError(message);
+      pushToast({
+        id: `payment-status-error-${orderId}`,
+        title: 'Gagal memeriksa pembayaran',
+        description: message,
+        variant: 'destructive',
+      });
+    },
+    [orderId, pushToast],
+  );
 
   if (!orderId) {
     return (
@@ -363,8 +365,7 @@ function CheckoutReviewContent() {
                     <p>Waktu pembayaran telah berakhir. Silakan buat ulang pembayaran.</p>
                   ) : (
                     <p>
-                      Sisa waktu pembayaran:{' '}
-                      <span className="font-semibold">{countdownLabel}</span>
+                      Sisa waktu pembayaran: <span className="font-semibold">{countdownLabel}</span>
                     </p>
                   )}
                   <p className="mt-1 text-[11px] text-amber-800">
@@ -416,8 +417,9 @@ function CheckoutReviewContent() {
                 </Button>
                 <Button asChild size="sm" variant="ghost">
                   <Link
-                    href={`/checkout/failed?orderId=${encodeURIComponent(orderId)}${failedStatus ? `&status=${failedStatus}` : ''
-                      }`}
+                    href={`/checkout/failed?orderId=${encodeURIComponent(orderId)}${
+                      failedStatus ? `&status=${failedStatus}` : ''
+                    }`}
                   >
                     Lihat Detail
                   </Link>
@@ -552,8 +554,6 @@ function PaymentStatusWatcher({
       void statusQuery.refetch();
     }
   }, [manualCheckToken, active, statusQuery]);
-
-
 
   if (!active) {
     return null;

@@ -1,6 +1,6 @@
 import { abs, siteUrl } from './seo';
 
-import type { Product } from '@/lib/api/schemas';
+import type { Product } from '@/lib/api';
 
 const SCHEMA_CONTEXT = 'https://schema.org';
 
@@ -62,7 +62,16 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[] | null | undefined) {
 export interface ProductJsonLdInput
   extends Pick<
     Product,
-    'id' | 'title' | 'slug' | 'description' | 'price' | 'imageUrl' | 'images' | 'stock' | 'inStock' | 'categoryName'
+    | 'id'
+    | 'title'
+    | 'slug'
+    | 'description'
+    | 'price'
+    | 'imageUrl'
+    | 'images'
+    | 'stock'
+    | 'inStock'
+    | 'categoryName'
   > {
   brand?: string;
   brandName?: string;
@@ -77,7 +86,9 @@ export function productJsonLd(product: ProductJsonLdInput | null | undefined) {
   const priceCurrency = 'IDR';
   const productUrl = product.url ?? abs(`/products/${product.slug}`);
   const availability =
-    product.inStock && product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+    product.inStock && product.stock > 0
+      ? 'https://schema.org/InStock'
+      : 'https://schema.org/OutOfStock';
 
   // Combine imageUrl and images array
   const allImages: string[] = [];
@@ -146,17 +157,17 @@ export function orderJsonLd(order: OrderJsonLdInput | null | undefined) {
       price: entry?.price?.toFixed(2),
       itemOffered: entry?.name
         ? {
-          '@type': 'Product',
-          name: entry.name,
-          sku: entry.sku,
-        }
+            '@type': 'Product',
+            name: entry.name,
+            sku: entry.sku,
+          }
         : undefined,
       acceptedPaymentMethod: 'https://schema.org/CreditCard',
       eligibleQuantity: entry?.quantity
         ? {
-          '@type': 'QuantitativeValue',
-          value: entry.quantity,
-        }
+            '@type': 'QuantitativeValue',
+            value: entry.quantity,
+          }
         : undefined,
     }));
 

@@ -135,7 +135,6 @@ const readSessionId = (): string | undefined => {
     return sessionId;
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
       console.warn('[RUM] Unable to access sessionStorage for session id', error);
     }
 
@@ -160,7 +159,6 @@ const readUserId = (): string | undefined => {
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
       console.warn('[RUM] Failed to read PostHog distinct id', error);
     }
   }
@@ -266,7 +264,6 @@ const readDeviceHints = (): DeviceHints => {
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
       console.warn('[RUM] Failed to read timezone', error);
     }
   }
@@ -277,7 +274,6 @@ const readDeviceHints = (): DeviceHints => {
       hints.prefersReducedMotion = Boolean(query.matches);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.warn('[RUM] Failed to read prefers-reduced-motion', error);
       }
     }
@@ -350,7 +346,6 @@ const notifySubscribers = (payload: RumMetricPayload) => {
       subscriber(payload);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
         console.warn('[RUM] Subscriber threw an error', error);
       }
     }
@@ -398,7 +393,6 @@ const sendToPosthog = (payload: RumMetricPayload) => {
     capturePosthogEvent('web_vital', payload);
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
       console.warn('[RUM] Failed to capture PostHog event', error);
     }
   }
@@ -412,7 +406,6 @@ const sendToSentry = (payload: RumMetricPayload) => {
     });
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line no-console
       console.warn('[RUM] Failed to capture Sentry message', error);
     }
   }

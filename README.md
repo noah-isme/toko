@@ -61,6 +61,14 @@ The GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/work
 3. Run `pnpm lint && pnpm typecheck && pnpm test && pnpm build` before opening a pull request.
 4. Follow the provided PR template.
 
+## Documentation
+
+For detailed guides, implementation status, and future backlogs, refer to:
+
+- [Implementation Status](file:///home/noah/project/toko-app/toko/docs/STATUS_IMPLEMENTASI.md) — Current state of storefront integrations.
+- [Integration Guide](file:///home/noah/project/toko-app/toko/docs/GUIDE_INTEGRASI.md) — Technical instructions for local development and API consumption.
+- [Active Backlog](file:///home/noah/project/toko-app/toko/docs/BACKLOG_AKTIF.md) — Current UX gaps, P2/P3 backlogs, and roadmap items.
+
 ## License
 
 MIT

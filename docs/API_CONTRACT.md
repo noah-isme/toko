@@ -1,7 +1,7 @@
 # Dokumentasi API Contract - Toko API
 
 **Version:** 0.2.0  
-**Base URL:** `https://api.toko.com` (production) | `http://localhost:8080` (development)  
+**Base URL:** `https://api.toko.com/api/v1` (production) | `http://localhost:8080/api/v1` (development)  
 **Last Updated:** 2025-12-07
 
 ## 📋 Table of Contents
@@ -22,6 +22,7 @@
 ## Authentication
 
 ### Bearer Token
+
 Gunakan token JWT di header untuk endpoint yang memerlukan autentikasi:
 
 ```http
@@ -29,6 +30,7 @@ Authorization: Bearer <access_token>
 ```
 
 ### Refresh Token
+
 Refresh token disimpan dalam **HTTP-only cookie** dengan nama `refresh_token`.
 
 **Access Token TTL:** 15 menit  
@@ -52,19 +54,19 @@ Semua error response menggunakan format standar:
 
 ### Common Error Codes
 
-| Code | HTTP Status | Description |
-|------|------------|-------------|
-| `UNAUTHORIZED` | 401 | Token tidak valid atau expired |
-| `FORBIDDEN` | 403 | Tidak memiliki akses ke resource |
-| `NOT_FOUND` | 404 | Resource tidak ditemukan |
-| `BAD_REQUEST` | 400 | Request payload tidak valid |
-| `VALIDATION_ERROR` | 422 | Validasi input gagal |
-| `INTERNAL` | 500 | Server error |
-| `UNAVAILABLE` | 503 | Service sementara tidak tersedia |
-| `CART_EXPIRED` | 404 | Cart sudah expired |
-| `OUT_OF_STOCK` | 400 | Produk tidak tersedia |
-| `VOUCHER_INVALID` | 400 | Voucher tidak valid atau expired |
-| `VOUCHER_MIN_SPEND` | 400 | Tidak memenuhi minimum belanja |
+| Code                | HTTP Status | Description                      |
+| ------------------- | ----------- | -------------------------------- |
+| `UNAUTHORIZED`      | 401         | Token tidak valid atau expired   |
+| `FORBIDDEN`         | 403         | Tidak memiliki akses ke resource |
+| `NOT_FOUND`         | 404         | Resource tidak ditemukan         |
+| `BAD_REQUEST`       | 400         | Request payload tidak valid      |
+| `VALIDATION_ERROR`  | 422         | Validasi input gagal             |
+| `INTERNAL`          | 500         | Server error                     |
+| `UNAVAILABLE`       | 503         | Service sementara tidak tersedia |
+| `CART_EXPIRED`      | 404         | Cart sudah expired               |
+| `OUT_OF_STOCK`      | 400         | Produk tidak tersedia            |
+| `VOUCHER_INVALID`   | 400         | Voucher tidak valid atau expired |
+| `VOUCHER_MIN_SPEND` | 400         | Tidak memenuhi minimum belanja   |
 
 ---
 
@@ -90,6 +92,7 @@ Response:
 ```
 
 **Limits:**
+
 - Default: `20` items per page
 - Maximum: `100` items per page
 
@@ -107,6 +110,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "name": "John Doe",
@@ -116,6 +120,7 @@ Content-Type: application/json
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "data": {
@@ -142,6 +147,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "email": "john@example.com",
@@ -150,6 +156,7 @@ Content-Type: application/json
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -175,6 +182,7 @@ Cookie: refresh_token=...
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -194,6 +202,7 @@ Cookie: refresh_token=...
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -214,6 +223,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -236,6 +246,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "email": "john@example.com"
@@ -243,6 +254,7 @@ Content-Type: application/json
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -261,6 +273,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "token": "reset-token-from-email",
@@ -269,6 +282,7 @@ Content-Type: application/json
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -288,6 +302,7 @@ GET /api/v1/categories
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -311,6 +326,7 @@ GET /api/v1/brands
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -333,6 +349,7 @@ GET /api/v1/products
 ```
 
 **Query Parameters:**
+
 - `q` (string): Search query
 - `category` (string): Filter by category slug
 - `brand` (string): Filter by brand slug
@@ -344,11 +361,13 @@ GET /api/v1/products
 - `limit` (integer): Items per page (default: 20, max: 100)
 
 **Example:**
+
 ```http
 GET /api/v1/products?category=electronics&minPrice=100000&maxPrice=5000000&sort=price:asc&page=1&limit=20
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -387,6 +406,7 @@ GET /api/v1/products?category=electronics&minPrice=100000&maxPrice=5000000&sort=
 ```
 
 **Headers:**
+
 ```
 X-Total-Count: 150
 ```
@@ -400,6 +420,7 @@ GET /api/v1/products/{slug}
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -470,6 +491,7 @@ GET /api/v1/products/{slug}/related
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -498,6 +520,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "anonId": "optional-client-generated-uuid"
@@ -505,6 +528,7 @@ Content-Type: application/json
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "data": {
@@ -516,6 +540,7 @@ Content-Type: application/json
 ```
 
 **Notes:**
+
 - Jika `anonId` tidak diberikan, server akan generate baru
 - Simpan `cartId` dan `anonId` di localStorage untuk guest checkout
 - Cart expired setelah 7 hari tidak aktif
@@ -529,6 +554,7 @@ GET /api/v1/carts/{cartId}
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -570,6 +596,7 @@ Authorization: Bearer <token> (optional untuk guest)
 ```
 
 **Request:**
+
 ```json
 {
   "productId": "product-uuid",
@@ -582,6 +609,7 @@ Authorization: Bearer <token> (optional untuk guest)
 Returns updated cart (sama dengan Get Cart response)
 
 **Error Cases:**
+
 - `OUT_OF_STOCK`: Qty melebihi stock available
 - `CART_EXPIRED`: Cart sudah expired
 - `NOT_FOUND`: Product/variant tidak ditemukan
@@ -596,6 +624,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "qty": 3
@@ -626,6 +655,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "code": "DISC20"
@@ -633,6 +663,7 @@ Content-Type: application/json
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -642,6 +673,7 @@ Content-Type: application/json
 ```
 
 **Error Cases:**
+
 - `VOUCHER_INVALID`: Voucher tidak ditemukan, expired, atau sudah habis
 - `VOUCHER_MIN_SPEND`: Subtotal tidak memenuhi minimum pembelian
 - `VOUCHER_ALREADY_USED`: User sudah menggunakan voucher (jika ada limit per user)
@@ -655,6 +687,7 @@ DELETE /api/v1/carts/{cartId}/voucher
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -673,6 +706,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "destination": "Jakarta Selatan",
@@ -682,6 +716,7 @@ Content-Type: application/json
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -704,6 +739,7 @@ Content-Type: application/json
 ```
 
 **Supported Couriers:**
+
 - `jne` - JNE
 - `pos` - Pos Indonesia
 - `tiki` - TIKI
@@ -719,6 +755,7 @@ POST /api/v1/carts/{cartId}/quote/tax
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -740,6 +777,7 @@ Authorization: Bearer <token>
 ```
 
 **Request:**
+
 ```json
 {
   "cartId": "guest-cart-uuid"
@@ -747,6 +785,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -756,6 +795,7 @@ Authorization: Bearer <token>
 ```
 
 **Notes:**
+
 - Gunakan endpoint ini setelah user login
 - Guest cart akan di-merge ke user cart
 - Duplicate items akan di-increment quantity-nya
@@ -773,6 +813,7 @@ Authorization: Bearer <token>
 ```
 
 **Request:**
+
 ```json
 {
   "cartId": "cart-uuid",
@@ -785,6 +826,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "data": {
@@ -802,6 +844,7 @@ Authorization: Bearer <token>
 ```
 
 **Payment Methods:**
+
 - `bank_transfer` - Bank Transfer
 - `virtual_account` - Virtual Account
 - `credit_card` - Credit Card
@@ -810,6 +853,7 @@ Authorization: Bearer <token>
 - `ewallet_dana` - DANA
 
 **Order Status Flow:**
+
 ```
 pending_payment → paid → processing → shipped → delivered
                    ↓
@@ -826,6 +870,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -861,6 +906,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -958,6 +1004,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -969,6 +1016,7 @@ Authorization: Bearer <token>
 ```
 
 **Notes:**
+
 - Hanya bisa cancel order dengan status `pending_payment` atau `paid`
 - Order yang sudah `processing`, `shipped`, atau `delivered` tidak bisa dicancel
 
@@ -982,6 +1030,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -1029,6 +1078,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -1067,6 +1117,7 @@ Authorization: Bearer <token>
 ```
 
 **Request:**
+
 ```json
 {
   "label": "Office",
@@ -1083,6 +1134,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "data": {
@@ -1104,6 +1156,7 @@ Authorization: Bearer <token>
 ```
 
 **Validation Rules:**
+
 - `receiver_name`: required, max 100 characters
 - `phone`: required, format Indonesian phone number
 - `address_line1`: required, max 255 characters
@@ -1120,6 +1173,7 @@ Authorization: Bearer <token>
 ```
 
 **Request:** (semua field optional)
+
 ```json
 {
   "label": "Home (Updated)",
@@ -1140,6 +1194,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -1149,6 +1204,7 @@ Authorization: Bearer <token>
 ```
 
 **Notes:**
+
 - Tidak bisa delete default address jika masih ada address lain
 - Set address lain sebagai default terlebih dahulu
 
@@ -1165,6 +1221,7 @@ Authorization: Bearer <admin_token>
 ```
 
 **Request:**
+
 ```json
 {
   "code": "DISC20",
@@ -1181,6 +1238,7 @@ Authorization: Bearer <admin_token>
 ```
 
 **Voucher Types:**
+
 - `percentage`: Discount in percentage (value: 1-100)
 - `fixed`: Fixed amount discount
 
@@ -1197,6 +1255,7 @@ Authorization: Bearer <admin_token>
 ```
 
 **Request:**
+
 ```json
 {
   "status": "processing"
@@ -1204,6 +1263,7 @@ Authorization: Bearer <admin_token>
 ```
 
 **Valid Status Transitions:**
+
 - `pending_payment` → `paid`, `cancelled`
 - `paid` → `processing`, `cancelled`
 - `processing` → `shipped`
@@ -1222,6 +1282,7 @@ Authorization: Bearer <admin_token>
 ```
 
 **Request:**
+
 ```json
 {
   "courier": "jne",
@@ -1244,6 +1305,7 @@ GET /health/live
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "status": "ok"
@@ -1259,6 +1321,7 @@ GET /health/ready
 ```
 
 **Response:** `200 OK` (service ready) atau `503 Service Unavailable`
+
 ```json
 {
   "status": "ready",
@@ -1274,11 +1337,13 @@ GET /health/ready
 ## 8. Rate Limiting
 
 **Rate Limits:**
+
 - **Public endpoints:** 100 requests per minute per IP
 - **Authenticated endpoints:** 500 requests per minute per user
 - **Admin endpoints:** 1000 requests per minute per admin
 
 **Headers:**
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -1286,6 +1351,7 @@ X-RateLimit-Reset: 1733600000
 ```
 
 **Error Response (429 Too Many Requests):**
+
 ```json
 {
   "error": {
@@ -1311,6 +1377,7 @@ X-Signature: <hmac-signature>
 ```
 
 **Request dari Payment Gateway:**
+
 ```json
 {
   "transaction_id": "xxx",
@@ -1330,12 +1397,14 @@ X-Signature: <hmac-signature>
 ### Test Credentials
 
 **Test User:**
+
 ```
 Email: test@example.com
 Password: Test123!
 ```
 
 **Test Admin:**
+
 ```
 Email: admin@example.com
 Password: Admin123!
@@ -1344,6 +1413,7 @@ Password: Admin123!
 ### Test Payment (Sandbox)
 
 **Test Card:**
+
 ```
 Card Number: 4811 1111 1111 1114
 CVV: 123
@@ -1375,7 +1445,6 @@ FREE50K - 50k fixed discount, min spend 200k
    - Generate `anonId` di localStorage saat pertama kali
    - Create cart dengan `anonId`
    - Simpan `cartId` di localStorage
-   
 2. **Setelah Login:**
    - Call `/api/v1/carts/merge` dengan `cartId` dari localStorage
    - Replace `cartId` dengan user cart
@@ -1405,6 +1474,7 @@ try {
 ### Optimistic Updates
 
 Untuk update quantity cart:
+
 ```typescript
 // 1. Update UI immediately
 updateCartItemQtyInState(itemId, newQty);
@@ -1424,13 +1494,13 @@ try {
 ```typescript
 const fetchProducts = async (page = 1, limit = 20) => {
   const response = await api.get('/api/v1/products', {
-    params: { page, limit, category: 'electronics' }
+    params: { page, limit, category: 'electronics' },
   });
-  
+
   return {
     products: response.data.data,
     totalPages: Math.ceil(response.data.pagination.totalItems / limit),
-    currentPage: response.data.pagination.page
+    currentPage: response.data.pagination.page,
   };
 };
 ```
@@ -1440,12 +1510,14 @@ const fetchProducts = async (page = 1, limit = 20) => {
 ## 12. Changelog
 
 ### Version 0.2.0 (2025-12-07)
+
 - ✅ Complete API contract documentation
 - ✅ Added error codes reference
 - ✅ Added request/response examples
 - ✅ Added best practices for frontend
 
 ### Version 0.1.0 (2025-11-01)
+
 - Initial API release
 
 ---
@@ -1453,12 +1525,15 @@ const fetchProducts = async (page = 1, limit = 20) => {
 ## Support & Contact
 
 **Backend Team:**
+
 - Email: backend-team@toko.com
 - Slack: #backend-support
 
 **API Issues:**
+
 - GitHub: https://github.com/noah-isme/backend-toko/issues
 
 **Documentation Updates:**
+
 - This document is auto-generated from OpenAPI spec
 - Last sync: 2025-12-07

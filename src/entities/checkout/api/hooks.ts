@@ -1,27 +1,26 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
-import { useCartStore } from '@/stores/cart-store';
-import { apiClient, ApiClientError } from '@/lib/api/apiClient';
-import type { ApiResponse } from '@/lib/api/types';
-
 import {
   AddressSchema,
   OrderDraftSchema,
   ShippingOptionSchema,
   CheckoutSchema,
-  CheckoutResponseSchema
+  CheckoutResponseSchema,
 } from '@/entities/checkout/schemas';
 import type {
   Address,
   OrderDraft,
   ShippingOption,
   CheckoutPayload,
-  CheckoutResponse
+  CheckoutResponse,
 } from '@/entities/checkout/schemas';
+import { apiClient, ApiClientError } from '@/lib/api/apiClient';
 import { queryKeys } from '@/lib/api/queryKeys';
+import type { ApiResponse } from '@/lib/api/types';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { useToast } from '@/shared/ui/toast';
+import { useCartStore } from '@/stores/cart-store';
 
 const shippingQuoteInputSchema = z.object({
   cartId: z.string().min(1, 'Cart id is required'),
@@ -70,23 +69,27 @@ export function useShippingQuoteMutation() {
         weightGram: 1000, // Default weight, ideally backend calculates or we fetch cart weight (omitted for now)
       };
 
-      const response = await apiClient<ApiResponse<{ service: string; description: string; cost: number; etd: string }[]>>(
-        `/carts/${payload.cartId}/quote/shipping`,
-        {
-          method: 'POST',
-          body: JSON.stringify(apiPayload),
-          requiresAuth: true,
-        }
-      );
+      const response = await apiClient<
+        ApiResponse<{ service: string; description: string; cost: number; etd: string }[]>
+      >(`/carts/${payload.cartId}/quote/shipping`, {
+        method: 'POST',
+        body: JSON.stringify(apiPayload),
+        requiresAuth: true,
+      });
 
       // Map backend response to client schema using canonical service code for checkout
       return response.data.map((opt: any) => {
         const rawService = opt.service || opt.code || opt.service_code || 'Standard';
         const service = String(rawService).trim() || 'Standard';
         const description = opt.description || opt.name || opt.service_name || 'Shipping Service';
-        const cost = typeof opt.cost === 'number' ? opt.cost :
-          typeof opt.price === 'number' ? opt.price :
-            typeof opt.value === 'number' ? opt.value : 0;
+        const cost =
+          typeof opt.cost === 'number'
+            ? opt.cost
+            : typeof opt.price === 'number'
+              ? opt.price
+              : typeof opt.value === 'number'
+                ? opt.value
+                : 0;
         const etd = opt.etd || opt.estimated_delivery_time || opt.duration || '2-3 days';
         const serviceCode = service.toLowerCase().replace(/\s+/g, '-');
         const courier = apiPayload.courier;

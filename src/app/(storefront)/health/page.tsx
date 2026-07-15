@@ -21,26 +21,34 @@ export default async function HealthPage() {
     );
   }
 
+  let result: { products: unknown[] } | { error: Error };
+
   try {
     const products = await apiClient('/products', { schema: productListSchema, cache: 'no-store' });
-    return (
-      <div className="space-y-3">
-        <h1 className="text-2xl font-bold">Health check</h1>
-        <p className="text-sm text-muted-foreground">Backend connectivity is healthy.</p>
-        <pre className="overflow-auto rounded-lg border bg-muted/30 p-4 text-xs">
-          {JSON.stringify({ status: 'ok', products: products.length }, null, 2)}
-        </pre>
-      </div>
-    );
+    result = { products };
   } catch (error) {
+    result = { error: error as Error };
+  }
+
+  if ('error' in result) {
     return (
       <div className="space-y-3">
         <h1 className="text-2xl font-bold">Health check</h1>
         <p className="text-sm text-destructive-foreground">Failed to reach backend.</p>
         <pre className="overflow-auto rounded-lg border bg-destructive/10 p-4 text-xs text-destructive">
-          {JSON.stringify({ status: 'error', message: (error as Error).message }, null, 2)}
+          {JSON.stringify({ status: 'error', message: result.error.message }, null, 2)}
         </pre>
       </div>
     );
   }
+
+  return (
+    <div className="space-y-3">
+      <h1 className="text-2xl font-bold">Health check</h1>
+      <p className="text-sm text-muted-foreground">Backend connectivity is healthy.</p>
+      <pre className="overflow-auto rounded-lg border bg-muted/30 p-4 text-xs">
+        {JSON.stringify({ status: 'ok', products: result.products.length }, null, 2)}
+      </pre>
+    </div>
+  );
 }

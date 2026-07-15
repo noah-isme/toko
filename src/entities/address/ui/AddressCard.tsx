@@ -8,7 +8,6 @@ import type { Address } from '../types';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-
 export interface AddressCardProps {
   address: Address;
   selectable?: boolean;
@@ -61,6 +60,7 @@ export const AddressCard = memo(function AddressCard({
 
   return (
     <article
+      data-address-item=""
       role={selectable ? 'radio' : undefined}
       aria-checked={selectable ? Boolean(isSelected) : undefined}
       tabIndex={selectable ? 0 : undefined}

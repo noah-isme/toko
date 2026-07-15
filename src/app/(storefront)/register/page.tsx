@@ -1,36 +1,31 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import { PasswordStrength } from '@/components/password-strength';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { RegisterInput } from '@/entities/auth/schemas';
+import { registerInputSchema } from '@/entities/auth/schemas';
 import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
 
-interface RegisterForm {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  acceptTerms: boolean;
-}
-
 export default function RegisterPage() {
   const router = useRouter();
   const { register: registerUser, isLoading: authLoading } = useAuth();
-  const { register, handleSubmit, formState, setError, watch } = useForm<RegisterForm>({
+  const { register, handleSubmit, formState, setError, watch } = useForm<RegisterInput>({
+    resolver: zodResolver(registerInputSchema),
     defaultValues: {
       name: '',
       email: '',
       password: '',
       confirmPassword: '',
-      acceptTerms: false,
+      acceptTerms: false as unknown as true,
     },
     mode: 'onChange',
     reValidateMode: 'onChange',
@@ -38,7 +33,7 @@ export default function RegisterPage() {
 
   const password = watch('password');
 
-  const onSubmit = async (values: RegisterForm) => {
+  const onSubmit = async (values: RegisterInput) => {
     try {
       const {
         confirmPassword: _confirmPassword,
@@ -77,6 +72,7 @@ export default function RegisterPage() {
       <form
         className="space-y-4"
         onSubmit={handleSubmit(onSubmit)}
+        noValidate
         aria-busy={formState.isSubmitting || authLoading ? 'true' : undefined}
       >
         {formState.errors.root?.message ? (
@@ -92,7 +88,7 @@ export default function RegisterPage() {
             Name
           </label>
           <Input
-            {...register('name', { required: 'Name is required' })}
+            {...register('name')}
             {...fieldA11y('name', nameErrorId)}
             autoComplete="name"
             required
@@ -108,13 +104,7 @@ export default function RegisterPage() {
             Email
           </label>
           <Input
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Please enter a valid email address',
-              },
-            })}
+            {...register('email')}
             {...fieldA11y('email', emailErrorId)}
             type="email"
             autoComplete="email"
@@ -131,14 +121,7 @@ export default function RegisterPage() {
             Password
           </label>
           <Input
-            {...register('password', {
-              required: 'Password is required',
-              minLength: { value: 8, message: 'Password must be at least 8 characters' },
-              pattern: {
-                value: /^(?=.*[A-Za-z])(?=.*\d).+$/,
-                message: 'Use letters and numbers for a stronger password',
-              },
-            })}
+            {...register('password')}
             {...fieldA11y('password', passwordErrorId)}
             type="password"
             autoComplete="new-password"
@@ -156,11 +139,7 @@ export default function RegisterPage() {
             Confirm Password
           </label>
           <Input
-            {...register('confirmPassword', {
-              required: 'Please confirm your password',
-              validate: (value) =>
-                value === password || 'Passwords do not match',
-            })}
+            {...register('confirmPassword')}
             {...fieldA11y('confirmPassword', confirmPasswordErrorId)}
             type="password"
             autoComplete="new-password"
@@ -176,9 +155,7 @@ export default function RegisterPage() {
           <label className="flex items-start gap-2 text-sm">
             <input
               type="checkbox"
-              {...register('acceptTerms', {
-                required: 'You must accept the terms and conditions',
-              })}
+              {...register('acceptTerms')}
               className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
             />
             <span className="text-muted-foreground">

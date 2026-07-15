@@ -1,8 +1,6 @@
-import {
-  AddressInput,
-  AddressUpdateInput,
-} from './schemas';
+import { AddressInput, AddressUpdateInput } from './schemas';
 import type { Address } from './types';
+
 import { addressApi } from '@/lib/api/services/address';
 
 // Validation is now handled by the service/mappers or backend

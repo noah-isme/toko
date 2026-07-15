@@ -14,8 +14,8 @@ import {
   selectShipping,
 } from './fixtures';
 
-const PAYMENT_INTENT_ROUTE = '**/payments/intent';
-const ORDER_ROUTE = '**/orders/*';
+const PAYMENT_INTENT_ROUTE = '**/api/v1/payments/intent';
+const ORDER_ROUTE = '**/api/v1/orders/*';
 
 test.describe('Payment continuation flow', () => {
   test.describe('Resume payment from order history', () => {
@@ -43,10 +43,11 @@ test.describe('Payment continuation flow', () => {
       const payButton = pendingCard.getByRole('link', { name: 'Bayar' });
       await expect(payButton).toBeVisible();
 
-      // Verify paid order does NOT show "Bayar" button
-      const paidCard = page.locator('div').filter({ hasText: 'ORD-PAID-002' });
-      const paidPayButton = paidCard.getByRole('link', { name: 'Bayar' });
-      await expect(paidPayButton).not.toBeVisible();
+      // There should be exactly 1 "Bayar" button (for pending order only)
+      const allPayButtons = page.getByRole('link', { name: 'Bayar', exact: true });
+      await expect(allPayButtons).toHaveCount(1);
+      // Verify the single Bayar button is for the pending order
+      await expect(allPayButtons.first()).toHaveAttribute('href', /order-pending-123/);
     });
 
     test('clicking "Bayar" navigates to order confirmation', async ({ page }) => {
@@ -94,7 +95,7 @@ test.describe('Payment continuation flow', () => {
       await goToOrderConfirmation(page, 'order-pending-456');
 
       // Verify status is shown correctly
-      await expect(page.getByText('Menunggu Pembayaran')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Menunggu Pembayaran' })).toBeVisible();
 
       // Verify "Bayar Sekarang" button exists and has correct href
       const payNowButton = page.getByRole('link', { name: 'Bayar Sekarang' });
@@ -140,7 +141,7 @@ test.describe('Payment continuation flow', () => {
       await expect(page.getByText(/575\.000|575,000/)).toBeVisible();
 
       // Verify status message
-      await expect(page.getByText('Sedang Diproses')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Sedang Diproses' })).toBeVisible();
     });
   });
 
@@ -161,7 +162,7 @@ test.describe('Payment continuation flow', () => {
       await goToOrderConfirmation(page, 'order-expired-payment');
 
       // Still shows pending status
-      await expect(page.getByText('Menunggu Pembayaran')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Menunggu Pembayaran' })).toBeVisible();
 
       // Payment button should still be visible (backend handles expiry)
       const payNowButton = page.getByRole('link', { name: 'Bayar Sekarang' });
@@ -230,7 +231,7 @@ test.describe('Payment continuation flow', () => {
 
         await goToOrderConfirmation(page, `order-status-${status}`);
 
-        await expect(page.getByText(label)).toBeVisible();
+        await expect(page.getByText(label).first()).toBeVisible();
 
         const payButton = page.getByRole('link', { name: 'Bayar Sekarang' });
         if (hasPayButton) {

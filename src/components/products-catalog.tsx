@@ -10,22 +10,34 @@ import { Pagination } from '@/components/pagination';
 import { ProductCard } from '@/components/product-card';
 import type { SortOption } from '@/components/product-sort';
 import { Button } from '@/components/ui/button';
-import { useProductsQuery } from '@/lib/api/hooks';
+import { useProducts } from '@/lib/api';
 import { formatCurrency } from '@/lib/api/utils';
-import { emptyCategoryProducts, emptyProducts, emptySearchResults } from '@/shared/ui/empty-presets';
+import {
+  emptyCategoryProducts,
+  emptyProducts,
+  emptySearchResults,
+} from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 import { useSearchStore } from '@/stores/search-store';
 
-const FilterSidebar = dynamic(() => import('@/components/filter-sidebar').then(mod => mod.FilterSidebar), {
-  ssr: false,
-  loading: () => <div className="hidden h-screen w-64 shrink-0 rounded-xl border bg-card lg:block" />,
-});
+const FilterSidebar = dynamic(
+  () => import('@/components/filter-sidebar').then((mod) => mod.FilterSidebar),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="hidden h-screen w-64 shrink-0 rounded-xl border bg-card lg:block" />
+    ),
+  },
+);
 
-const ProductSort = dynamic(() => import('@/components/product-sort').then(mod => mod.ProductSort), {
-  ssr: false,
-  loading: () => <div className="h-10 w-[200px] rounded-md border bg-card" />,
-});
+const ProductSort = dynamic(
+  () => import('@/components/product-sort').then((mod) => mod.ProductSort),
+  {
+    ssr: false,
+    loading: () => <div className="h-10 w-[200px] rounded-md border bg-card" />,
+  },
+);
 
 const ITEMS_PER_PAGE = 12;
 
@@ -45,13 +57,12 @@ export function ProductsCatalog() {
   const [discountOnly, setDiscountOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
-  const { term: searchTermValue, setTerm: setSearchTerm } = useSearchStore((state) => ({
-    term: state.term,
-    setTerm: state.setTerm,
-  }));
+  const searchTermValue = useSearchStore((state) => state.term);
+  const setSearchTerm = useSearchStore((state) => state.setTerm);
   const searchTermRaw = searchTermValue.trim();
   const searchTerm = searchTermRaw.toLowerCase();
-  const { data, isLoading, isFetching, error } = useProductsQuery();
+  const { data: rawProductsData, isLoading, isFetching, error } = useProducts();
+  const data = rawProductsData?.data;
   const showLoadingState = isLoading || (!data && isFetching);
 
   const normalizeFacet = useCallback((value: string) => value.trim().toLowerCase(), []);
@@ -73,7 +84,7 @@ export function ProductsCatalog() {
     const filtered = data.filter((product) => {
       const matchesSearch = searchTerm
         ? product.title.toLowerCase().includes(searchTerm) ||
-        (product.description?.toLowerCase().includes(searchTerm) ?? false)
+          (product.description?.toLowerCase().includes(searchTerm) ?? false)
         : true;
       const categoryMatchValue = normalizeFacet(product.categoryName ?? '');
       const categoryIdValue = normalizeFacet(product.categoryId ?? '');
@@ -87,11 +98,9 @@ export function ProductsCatalog() {
         normalizedBrandSelections.length === 0 ||
         normalizedBrandSelections.includes(brandIdValue) ||
         normalizedBrandSelections.includes(brandMatchValue);
-      const matchesPrice =
-        product.price >= priceRange[0] && product.price <= priceRange[1];
+      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
       const matchesRating = !ratingFilter || (product.rating ?? 0) >= ratingFilter;
-      const matchesStock =
-        !inStockOnly || product.inStock || product.stock > 0;
+      const matchesStock = !inStockOnly || product.inStock || product.stock > 0;
       const hasDiscount =
         (product.discountPercent && product.discountPercent > 0) ||
         (product.originalPrice && product.originalPrice > product.price);
@@ -151,10 +160,7 @@ export function ProductsCatalog() {
   ) as string[];
 
   const brands = useMemo(
-    () =>
-      data
-        ? [...new Set(data.map((product) => product.brandName).filter(Boolean))]
-        : [],
+    () => (data ? [...new Set(data.map((product) => product.brandName).filter(Boolean))] : []),
     [data],
   ) as string[];
 
@@ -163,10 +169,7 @@ export function ProductsCatalog() {
     return Math.max(...data.map((p) => p.price));
   }, [data]);
 
-  const priceRangeDefaults = useMemo<[number, number]>(
-    () => [0, maxPrice || 10000000],
-    [maxPrice],
-  );
+  const priceRangeDefaults = useMemo<[number, number]>(() => [0, maxPrice || 10000000], [maxPrice]);
 
   const isPriceRangeActive =
     priceRange[0] !== priceRangeDefaults[0] || priceRange[1] !== priceRangeDefaults[1];
@@ -189,7 +192,12 @@ export function ProductsCatalog() {
   useEffect(() => {
     const params = new URLSearchParams(searchParamsString);
     const parseList = (value: string | null) =>
-      value ? value.split(',').map((item) => item.trim()).filter(Boolean) : [];
+      value
+        ? value
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
     const parseNumber = (value: string | null) => {
       if (!value) return null;
       const parsed = Number(value);
@@ -209,54 +217,54 @@ export function ProductsCatalog() {
     hasPriceParamRef.current = minPriceParam !== null || maxPriceParam !== null;
     syncFromParamsRef.current = true;
 
-    setSearchTerm(query);
+    const areArraysEqual = (a: any[], b: any[]) =>
+      a.length === b.length && a.every((val, index) => val === b[index]);
 
-    if (categoryParams.length) {
-      const mappedCategories = categoryParams.map((value) => {
-        const match = categories.find(
-          (option) => normalizeFacet(option) === normalizeFacet(value),
-        );
-        return match ?? value;
-      });
-      setSelectedCategories(mappedCategories);
-    } else {
-      setSelectedCategories([]);
+    if (searchTermValue !== query) {
+      setSearchTerm(query);
     }
 
-    if (brandParams.length) {
-      const mappedBrands = brandParams.map((value) => {
-        const match = brands.find(
-          (option) => normalizeFacet(option) === normalizeFacet(value),
-        );
-        return match ?? value;
-      });
-      setSelectedBrands(mappedBrands);
-    } else {
-      setSelectedBrands([]);
-    }
+    const nextCategories = categoryParams.length
+      ? categoryParams.map((value) => {
+          const match = categories.find(
+            (option) => normalizeFacet(option) === normalizeFacet(value),
+          );
+          return match ?? value;
+        })
+      : [];
+    setSelectedCategories((curr) => (areArraysEqual(curr, nextCategories) ? curr : nextCategories));
 
-    setRatingFilter(ratingParam && [2, 3, 4].includes(ratingParam) ? ratingParam : null);
-    setInStockOnly(parseBoolean(params.get('inStock')));
-    setDiscountOnly(parseBoolean(params.get('discount')));
+    const nextBrands = brandParams.length
+      ? brandParams.map((value) => {
+          const match = brands.find((option) => normalizeFacet(option) === normalizeFacet(value));
+          return match ?? value;
+        })
+      : [];
+    setSelectedBrands((curr) => (areArraysEqual(curr, nextBrands) ? curr : nextBrands));
+
+    const nextRating = ratingParam && [2, 3, 4].includes(ratingParam) ? ratingParam : null;
+    setRatingFilter((curr) => (curr === nextRating ? curr : nextRating));
+
+    const nextInStock = parseBoolean(params.get('inStock'));
+    setInStockOnly((curr) => (curr === nextInStock ? curr : nextInStock));
+
+    const nextDiscount = parseBoolean(params.get('discount'));
+    setDiscountOnly((curr) => (curr === nextDiscount ? curr : nextDiscount));
 
     const nextMin = minPriceParam ?? priceRangeDefaults[0];
     const nextMax = maxPriceParam ?? priceRangeDefaults[1];
-    setPriceRange([nextMin, nextMax]);
+    const nextPriceRange: [number, number] = [nextMin, nextMax];
+    setPriceRange((curr) => (areArraysEqual(curr, nextPriceRange) ? curr : nextPriceRange));
 
-    if (
+    const nextSort =
       sortParam &&
       ['name-asc', 'name-desc', 'price-asc', 'price-desc', 'newest', 'rating'].includes(sortParam)
-    ) {
-      setSortBy(sortParam);
-    } else {
-      setSortBy('newest');
-    }
+        ? sortParam
+        : 'newest';
+    setSortBy((curr) => (curr === nextSort ? curr : nextSort));
 
-    if (pageParam && pageParam > 0) {
-      setCurrentPage(pageParam);
-    } else {
-      setCurrentPage(1);
-    }
+    const nextPage = pageParam && pageParam > 0 ? pageParam : 1;
+    setCurrentPage((curr) => (curr === nextPage ? curr : nextPage));
 
     hasInitializedRef.current = true;
   }, [
@@ -266,6 +274,7 @@ export function ProductsCatalog() {
     priceRangeDefaults,
     searchParamsString,
     setSearchTerm,
+    searchTermValue,
   ]);
 
   useEffect(() => {

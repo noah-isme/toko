@@ -80,14 +80,14 @@ describe('ResetPasswordPage', () => {
     // Too short
     await user.type(newPasswordInput, 'short');
     await user.click(submitButton);
-    expect(await screen.findByText(/Password must be at least 8 characters/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Password minimal 8 karakter/i)).toBeInTheDocument();
 
     // Reset and do mismatch
     await user.clear(newPasswordInput);
     await user.type(newPasswordInput, 'ValidPassword123!');
     await user.type(confirmPasswordInput, 'DifferentPassword123!');
     await user.click(submitButton);
-    expect(await screen.findByText(/Passwords do not match/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Password tidak cocok/i)).toBeInTheDocument();
   });
 
   it('submits form successfully, displays success screen and redirects to login', async () => {
@@ -97,12 +97,12 @@ describe('ResetPasswordPage', () => {
 
     server.use(
       http.post(apiPath('/auth/password/reset'), async ({ request }) => {
-        const body = await request.json() as any;
+        const body = (await request.json()) as any;
         expect(body.token).toBe('valid-token');
         expect(body.newPassword).toBe('ValidPassword123!');
         resetPasswordCalled = true;
         return HttpResponse.json({ data: { message: 'Password reset successfully' } });
-      })
+      }),
     );
 
     renderWithClient(<ResetPasswordPage />);
@@ -117,13 +117,18 @@ describe('ResetPasswordPage', () => {
 
     await waitFor(() => {
       expect(resetPasswordCalled).toBe(true);
-      expect(screen.getByRole('heading', { name: /Password berhasil diubah/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: /Password berhasil diubah/i }),
+      ).toBeInTheDocument();
     });
 
     // Wait for the 1800ms redirect timeout
-    await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith('/login');
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(pushMock).toHaveBeenCalledWith('/login');
+      },
+      { timeout: 3000 },
+    );
   });
 
   it('handles backend api validation errors gracefully', async () => {
@@ -139,9 +144,9 @@ describe('ResetPasswordPage', () => {
               message: 'Tautan reset sudah kedaluwarsa atau tidak valid.',
             },
           },
-          { status: 400 }
+          { status: 400 },
         );
-      })
+      }),
     );
 
     renderWithClient(<ResetPasswordPage />);
@@ -154,6 +159,8 @@ describe('ResetPasswordPage', () => {
     await user.type(confirmPasswordInput, 'ValidPassword123!');
     await user.click(submitButton);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/Data yang Anda masukkan tidak valid\./i);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /Data yang Anda masukkan tidak valid\./i,
+    );
   });
 });

@@ -65,7 +65,7 @@ describe('ForgotPasswordPage', () => {
     await user.type(emailInput, 'invalid-email');
     await user.click(submitButton);
 
-    expect(await screen.findByText(/Please enter a valid email address/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Format email tidak valid/i)).toBeInTheDocument();
   });
 
   it('submits form successfully and displays success card with resend functionality', async () => {
@@ -81,7 +81,7 @@ describe('ForgotPasswordPage', () => {
       http.post(apiPath('/auth/email/resend'), () => {
         resendCalled = true;
         return HttpResponse.json({ data: { message: 'Verification email sent' } });
-      })
+      }),
     );
 
     renderWithClient(<ForgotPasswordPage />);
@@ -121,9 +121,9 @@ describe('ForgotPasswordPage', () => {
               message: 'Email tidak terdaftar',
             },
           },
-          { status: 400 }
+          { status: 400 },
         );
-      })
+      }),
     );
 
     renderWithClient(<ForgotPasswordPage />);
@@ -134,6 +134,8 @@ describe('ForgotPasswordPage', () => {
     await user.type(emailInput, 'notfound@example.com');
     await user.click(submitButton);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/Data yang Anda masukkan tidak valid\./i);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /Data yang Anda masukkan tidak valid\./i,
+    );
   });
 });

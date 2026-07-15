@@ -5,6 +5,7 @@ import { useCallback, useMemo, useReducer, useRef } from 'react';
 import { getCartQueryKey, patchCartItems, readCartCache, writeCartCache } from './cache';
 
 import { apiClient } from '@/lib/api/apiClient';
+import { mapApiCartToCart } from '@/lib/api/mappers/cart';
 import { queryKeys } from '@/lib/api/queryKeys';
 import {
   addToCartInputSchema,
@@ -14,7 +15,6 @@ import {
   type CartItem,
 } from '@/lib/api/schemas';
 import type { ApiResponse, Cart as ApiCart } from '@/lib/api/types';
-import { mapApiCartToCart } from '@/lib/api/mappers/cart';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { useToast } from '@/shared/ui/toast';
 
@@ -176,7 +176,9 @@ export function useCartQuery(cartId?: string, anonId?: string) {
     queryKey: getCartQueryKey(cartId),
     queryFn: async () => {
       if (cartId) {
-        const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}`, { requiresAuth: true });
+        const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}`, {
+          requiresAuth: true,
+        });
         return mapApiCartToCart(response.data);
       }
       const path = anonId ? `/carts?anonId=${encodeURIComponent(anonId)}` : '/carts';

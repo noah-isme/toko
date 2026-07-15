@@ -1,17 +1,16 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Locate, MapPin } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { Locate, MapPin } from 'lucide-react';
-
-import { LocationPicker } from '@/components/ui/location-picker';
-import { Button } from '@/components/ui/button';
 
 import { addressInputSchema, type AddressInput } from '../schemas';
-import { indonesiaRegions } from '@/entities/address/data/id-region';
 
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { LocationPicker } from '@/components/ui/location-picker';
+import { indonesiaRegions } from '@/entities/address/data/id-region';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -90,9 +89,7 @@ export function AddressForm({
       return null;
     }
 
-    const province = indonesiaRegions.find(
-      (entry) => normalizeText(entry.name) === provinceName,
-    );
+    const province = indonesiaRegions.find((entry) => normalizeText(entry.name) === provinceName);
     if (!province) {
       return null;
     }
@@ -180,9 +177,7 @@ export function AddressForm({
           const city =
             address.city || address.town || address.village || address.county || undefined;
           const province = address.state || undefined;
-          const postalCode = address.postcode
-            ? normalizePostalCode(address.postcode)
-            : undefined;
+          const postalCode = address.postcode ? normalizePostalCode(address.postcode) : undefined;
           const line1 = address.road || address.suburb || address.neighbourhood || undefined;
 
           return {
@@ -307,14 +302,7 @@ export function AddressForm({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [
-    availableWards,
-    form,
-    selectedWard,
-    watchedCity,
-    watchedPostalCode,
-    watchedProvince,
-  ]);
+  }, [availableWards, form, selectedWard, watchedCity, watchedPostalCode, watchedProvince]);
 
   const handleLocationSelect = async (lat: number, lng: number) => {
     setIsGeocoding(true);
@@ -334,10 +322,7 @@ export function AddressForm({
           address.city || address.town || address.village || address.county || '',
         );
         form.setValue('province', address.state || '');
-        form.setValue(
-          'postalCode',
-          address.postcode ? normalizePostalCode(address.postcode) : '',
-        );
+        form.setValue('postalCode', address.postcode ? normalizePostalCode(address.postcode) : '');
 
         // Helper to clear error if value exists
         if (address.road) form.clearErrors('line1');
@@ -421,11 +406,10 @@ export function AddressForm({
 
     const existingLine2 = form.getValues('line2')?.trim();
     if (!existingLine2 && selectedDistrict && nextWard) {
-      form.setValue(
-        'line2',
-        `Kec. ${selectedDistrict}, Kel. ${nextWard}`,
-        { shouldValidate: true, shouldDirty: true },
-      );
+      form.setValue('line2', `Kec. ${selectedDistrict}, Kel. ${nextWard}`, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
   };
 
@@ -483,14 +467,14 @@ export function AddressForm({
         </div>
 
         {showMap && (
-          <div className="animate-in fade-in zoom-in-95 duration-200">
+          <div className="duration-200 animate-in fade-in zoom-in-95">
             <LocationPicker
               onPositionChange={handleLocationSelect}
               initialPosition={mapPosition ?? undefined}
               className="border-border shadow-sm"
             />
             {isGeocoding && (
-              <p className="mt-2 text-xs text-muted-foreground animate-pulse">
+              <p className="mt-2 animate-pulse text-xs text-muted-foreground">
                 Mengambil detail alamat...
               </p>
             )}
@@ -511,7 +495,8 @@ export function AddressForm({
             placeholder="Ketik kota atau kode pos"
             autoComplete="off"
           />
-          {isLocationOpen && (locationResults.length > 0 || isLocationSearching || locationError) ? (
+          {isLocationOpen &&
+          (locationResults.length > 0 || isLocationSearching || locationError) ? (
             <div className="absolute z-20 mt-2 w-full rounded-md border bg-popover p-2 text-sm shadow-lg">
               {isLocationSearching ? (
                 <p className="px-2 py-2 text-xs text-muted-foreground">Memuat saran...</p>
@@ -528,9 +513,7 @@ export function AddressForm({
                         onClick={() => handleLocationPick(result)}
                         className="w-full rounded-md px-2 py-2 text-left hover:bg-accent"
                       >
-                        <p className="text-sm font-medium">
-                          {result.city || result.displayName}
-                        </p>
+                        <p className="text-sm font-medium">{result.city || result.displayName}</p>
                         <p className="text-xs text-muted-foreground">{result.displayName}</p>
                       </button>
                     </li>

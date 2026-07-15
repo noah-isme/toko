@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import type { Route } from 'next';
+import Link from 'next/link';
 
 import { useOrders } from '@/lib/api';
 import { ORDER_STATUS_LABELS, formatCurrency, formatDate } from '@/lib/api';

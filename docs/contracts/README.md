@@ -1,7 +1,7 @@
 # Documentation API Contract - Toko API
 
 **Version:** 0.2.0  
-**Base URL:** `https://api.toko.com` (production) | `http://localhost:8080` (development)  
+**Base URL:** `https://api.toko.com/api/v1` (production) | `http://localhost:8080/api/v1` (development)  
 **Last Updated:** 2025-12-07
 
 ## 📋 Table of Contents
@@ -22,6 +22,7 @@
 ## Authentication
 
 ### Bearer Token
+
 Gunakan token JWT di header untuk endpoint yang memerlukan autentikasi:
 
 ```http
@@ -29,6 +30,7 @@ Authorization: Bearer <access_token>
 ```
 
 ### Refresh Token
+
 Refresh token disimpan dalam **HTTP-only cookie** dengan nama `refresh_token`.
 
 **Access Token TTL:** 15 menit  
@@ -52,19 +54,19 @@ Semua error response menggunakan format standar:
 
 ### Common Error Codes
 
-| Code | HTTP Status | Description |
-|------|------------|-------------|
-| `UNAUTHORIZED` | 401 | Token tidak valid atau expired |
-| `FORBIDDEN` | 403 | Tidak memiliki akses ke resource |
-| `NOT_FOUND` | 404 | Resource tidak ditemukan |
-| `BAD_REQUEST` | 400 | Request payload tidak valid |
-| `VALIDATION_ERROR` | 422 | Validasi input gagal |
-| `INTERNAL` | 500 | Server error |
-| `UNAVAILABLE` | 503 | Service sementara tidak tersedia |
-| `CART_EXPIRED` | 404 | Cart sudah expired |
-| `OUT_OF_STOCK` | 400 | Produk tidak tersedia |
-| `VOUCHER_INVALID` | 400 | Voucher tidak valid atau expired |
-| `VOUCHER_MIN_SPEND` | 400 | Tidak memenuhi minimum belanja |
+| Code                | HTTP Status | Description                      |
+| ------------------- | ----------- | -------------------------------- |
+| `UNAUTHORIZED`      | 401         | Token tidak valid atau expired   |
+| `FORBIDDEN`         | 403         | Tidak memiliki akses ke resource |
+| `NOT_FOUND`         | 404         | Resource tidak ditemukan         |
+| `BAD_REQUEST`       | 400         | Request payload tidak valid      |
+| `VALIDATION_ERROR`  | 422         | Validasi input gagal             |
+| `INTERNAL`          | 500         | Server error                     |
+| `UNAVAILABLE`       | 503         | Service sementara tidak tersedia |
+| `CART_EXPIRED`      | 404         | Cart sudah expired               |
+| `OUT_OF_STOCK`      | 400         | Produk tidak tersedia            |
+| `VOUCHER_INVALID`   | 400         | Voucher tidak valid atau expired |
+| `VOUCHER_MIN_SPEND` | 400         | Tidak memenuhi minimum belanja   |
 
 ---
 
@@ -90,6 +92,7 @@ Response:
 ```
 
 **Limits:**
+
 - Default: `20` items per page
 - Maximum: `100` items per page
 
@@ -104,6 +107,7 @@ GET /health/live
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "status": "ok"
@@ -117,6 +121,7 @@ GET /health/ready
 ```
 
 **Response:** `200 OK` (service ready) atau `503 Service Unavailable`
+
 ```json
 {
   "status": "ready",
@@ -132,11 +137,13 @@ GET /health/ready
 ## Rate Limiting
 
 **Rate Limits:**
+
 - **Public endpoints:** 100 requests per minute per IP
 - **Authenticated endpoints:** 500 requests per minute per user
 - **Admin endpoints:** 1000 requests per minute per admin
 
 **Headers:**
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -144,6 +151,7 @@ X-RateLimit-Reset: 1733600000
 ```
 
 **Error Response (429 Too Many Requests):**
+
 ```json
 {
   "error": {

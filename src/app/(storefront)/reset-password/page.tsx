@@ -1,30 +1,29 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CheckCircle2, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState } from 'react';
-import { CheckCircle2, KeyRound } from 'lucide-react';
 
 import { PasswordStrength } from '@/components/password-strength';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { ResetPasswordInput } from '@/entities/auth/schemas';
+import { resetPasswordInputSchema } from '@/entities/auth/schemas';
 import { authApi } from '@/lib/api/services';
 import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 
-interface ResetPasswordForm {
-  password: string;
-  confirmPassword: string;
-}
-
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = useMemo(() => searchParams.get('token') ?? '', [searchParams]);
   const [isComplete, setIsComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, handleSubmit, formState, setError, watch } = useForm<ResetPasswordForm>({
+  const { register, handleSubmit, formState, setError, watch } = useForm<ResetPasswordInput>({
+    resolver: zodResolver(resetPasswordInputSchema),
     defaultValues: {
       password: '',
       confirmPassword: '',
@@ -35,7 +34,7 @@ export default function ResetPasswordPage() {
 
   const password = watch('password');
 
-  const onSubmit = async (values: ResetPasswordForm) => {
+  const onSubmit = async (values: ResetPasswordInput) => {
     if (!token) {
       setError('root', { message: 'Token reset password tidak ditemukan.' });
       return;
@@ -81,7 +80,11 @@ export default function ResetPasswordPage() {
 
   if (isComplete) {
     return (
-      <div className="mx-auto w-full max-w-md space-y-6 text-center" role="status" aria-live="polite">
+      <div
+        className="mx-auto w-full max-w-md space-y-6 text-center"
+        role="status"
+        aria-live="polite"
+      >
         <div className="flex items-center justify-center">
           <div className="rounded-full bg-emerald-100 p-4 text-emerald-700">
             <CheckCircle2 className="h-7 w-7" aria-hidden="true" />
@@ -89,9 +92,7 @@ export default function ResetPasswordPage() {
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-bold">Password berhasil diubah</h1>
-          <p className="text-sm text-muted-foreground">
-            Silakan login dengan password baru Anda.
-          </p>
+          <p className="text-sm text-muted-foreground">Silakan login dengan password baru Anda.</p>
         </div>
         <Button asChild className="w-full">
           <Link href="/login">Kembali ke login</Link>
@@ -120,14 +121,7 @@ export default function ResetPasswordPage() {
             Password baru
           </label>
           <Input
-            {...register('password', {
-              required: 'Password is required',
-              minLength: { value: 8, message: 'Password must be at least 8 characters' },
-              pattern: {
-                value: /^(?=.*[A-Za-z])(?=.*\d).+$/,
-                message: 'Gunakan kombinasi huruf dan angka',
-              },
-            })}
+            {...register('password')}
             {...fieldA11y('password', passwordErrorId)}
             type="password"
             autoComplete="new-password"
@@ -145,10 +139,7 @@ export default function ResetPasswordPage() {
             Konfirmasi password
           </label>
           <Input
-            {...register('confirmPassword', {
-              required: 'Please confirm your password',
-              validate: (value) => value === password || 'Passwords do not match',
-            })}
+            {...register('confirmPassword')}
             {...fieldA11y('confirmPassword', confirmErrorId)}
             type="password"
             autoComplete="new-password"
@@ -165,5 +156,19 @@ export default function ResetPasswordPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto w-full max-w-md space-y-6 text-center">
+          <h1 className="text-2xl font-bold">Memuat...</h1>
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

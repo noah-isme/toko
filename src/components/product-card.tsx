@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
-import { Product } from '@/lib/api/schemas';
+import { Product } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useCartStore } from '@/stores/cart-store';
@@ -36,20 +36,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const isOutOfStock = !product.inStock || product.stock <= 0;
 
   const { mutate, isProductInFlight } = useAddToCartMutation();
-  const { cartId, initGuestCart } = useCartStore();
+  const { cartId } = useCartStore();
   const [showQuickView, setShowQuickView] = useState(false);
 
   const handleAddToCart = async () => {
     // Ensure cart exists before adding
     if (!cartId) {
-      await initGuestCart();
-    }
-
-    // Get the latest cartId from store (may have been set by initGuestCart)
-    const currentCartId = useCartStore.getState().cartId;
-
-    if (!currentCartId) {
-      console.error('Failed to create cart');
+      console.error('Failed to create cart: cartId not initialized on bootstrap');
       return;
     }
 
@@ -60,7 +53,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       price: { amount: product.price, currency: product.currency || 'IDR' },
       image: image,
       maxQuantity: product.stock,
-      cartId: currentCartId,
+      cartId,
     };
 
     mutate(payload);
@@ -107,11 +100,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <p className="line-clamp-3">{product.description || 'No description available'}</p>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
-          <Price
-            amount={product.price}
-            currency={product.currency || 'IDR'}
-            className="text-lg"
-          />
+          <Price amount={product.price} currency={product.currency || 'IDR'} className="text-lg" />
           <div className="flex flex-col gap-2">
             <GuardedButton
               variant="secondary"
