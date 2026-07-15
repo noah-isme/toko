@@ -32,11 +32,15 @@ vi.mock('@/components/providers/AuthProvider', () => ({
 
 import CheckoutPage from '@/app/(storefront)/checkout/page';
 import CheckoutReviewPage from '@/app/(storefront)/checkout/review/page';
-import { OrderDraftSchema } from '@/entities/checkout/schemas';
-import { writeGuestAddresses } from '@/entities/address/storage';
 import { getAddressListKey } from '@/entities/address/keys';
+import { writeGuestAddresses } from '@/entities/address/storage';
 import type { Address } from '@/entities/address/types';
-import { PaymentIntentSchema, PaymentStatusSchema, type PaymentCreateBody } from '@/entities/payment/schemas';
+import { OrderDraftSchema } from '@/entities/checkout/schemas';
+import {
+  PaymentIntentSchema,
+  PaymentStatusSchema,
+  type PaymentCreateBody,
+} from '@/entities/payment/schemas';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
 import { Toaster } from '@/shared/ui/toast';
@@ -127,7 +131,9 @@ describe('Guarded checkout and payment flow', () => {
       expect(screen.getByText('Checkout')).toBeInTheDocument();
     });
 
-    await user.click(await screen.findByRole('radio', { name: /primary user/i }, { timeout: 5000 }));
+    await user.click(
+      await screen.findByRole('radio', { name: /primary user/i }, { timeout: 5000 }),
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Shipping Options')).toBeInTheDocument();
@@ -140,7 +146,7 @@ describe('Guarded checkout and payment flow', () => {
     await user.dblClick(proceedButton);
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/order/confirmation/order-guarded-1');
+      expect(replaceMock).toHaveBeenCalledWith('/checkout/review?orderId=order-guarded-1');
     });
 
     expect(checkoutCallCount).toBe(1);
@@ -193,7 +199,7 @@ describe('Guarded checkout and payment flow', () => {
     server.use(
       http.post(apiPath('/payments/intent'), async ({ request }) => {
         paymentCalls += 1;
-        const payload = await request.json() as PaymentCreateBody;
+        const payload = (await request.json()) as PaymentCreateBody;
 
         if (paymentCalls === 1) {
           return HttpResponse.json(

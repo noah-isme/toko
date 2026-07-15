@@ -10,6 +10,7 @@ export default defineConfig({
     timeout: 10_000,
   },
   retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'line' : [['list']],
   use: {
     baseURL: BASE_URL,
@@ -31,6 +32,10 @@ export default defineConfig({
         url: BASE_URL,
         timeout: 180_000,
         reuseExistingServer: !process.env.CI,
+        env: {
+          NEXT_PUBLIC_API_MOCKING: 'false',
+          NEXT_PUBLIC_API_URL: `${BASE_URL}/api/v1`,
+        },
       }
     : undefined,
 });

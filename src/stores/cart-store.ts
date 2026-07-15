@@ -28,6 +28,9 @@ interface CartStore {
   mergeGuestCart: () => Promise<string | null>;
 }
 
+let guestCartInitialization: Promise<void> | null = null;
+let guestCartInitializationAttempted = false;
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
@@ -57,24 +60,37 @@ export const useCartStore = create<CartStore>()(
       initGuestCart: async () => {
         const { cartId, anonId } = get();
 
-        if (cartId && anonId) {
-          return; // Already initialized
+        if (anonId || (cartId && guestCartInitializationAttempted)) {
+          return;
         }
 
-        try {
-          set({ isLoading: true, error: null });
-          const response = await cartApi.createCart();
-          set({
-            cartId: response.cartId,
-            anonId: response.anonId,
-            isLoading: false,
-          });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to create cart',
-            isLoading: false,
-          });
+        if (guestCartInitialization) {
+          return guestCartInitialization;
         }
+
+        if (guestCartInitializationAttempted) {
+          return;
+        }
+
+        guestCartInitializationAttempted = true;
+        guestCartInitialization = (async () => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await cartApi.createCart();
+            set({
+              cartId: response.cartId,
+              anonId: response.anonId,
+              isLoading: false,
+            });
+          } catch (error) {
+            set({
+              error: error instanceof Error ? error.message : 'Failed to create cart',
+              isLoading: false,
+            });
+          }
+        })();
+
+        return guestCartInitialization;
       },
 
       // Fetch cart from API

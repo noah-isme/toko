@@ -7,10 +7,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import { setAccessToken, getAccessToken } from '../../lib/api/apiClient';
+import { AuthError, getAccessToken, setAccessToken } from '../../lib/api/apiClient';
+import { queryKeys } from '../../lib/api/queryKeys';
 import { authApi, cartApi } from '../../lib/api/services';
 import type { User, LoginRequest, RegisterRequest } from '../../lib/api/types';
-import { queryKeys } from '../../lib/api/queryKeys';
 import { useCartStore } from '../../stores/cart-store';
 
 interface AuthContextValue {
@@ -55,8 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Ensure cart is synced after initialization
           await queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
         } catch (error) {
-          // Token is invalid, clear it
-          setAccessToken(null);
+          // Only clear token if it is explicitly an unauthorized API error (401 or 403)
+          if (shouldEvictAccessToken(error)) {
+            setAccessToken(null);
+          } else {
+            console.error('[AuthProvider] Auth initialization error (non-auth related):', error);
+          }
         }
       }
 
@@ -64,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initAuth();
-  }, []);
+  }, [queryClient]);
 
   // Setup auto-refresh token every 14 minutes
   useEffect(() => {
@@ -137,8 +141,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentUser = await authApi.getCurrentUser();
       setUser(currentUser);
     } catch (error) {
-      setUser(null);
-      setAccessToken(null);
+      if (shouldEvictAccessToken(error)) {
+        setUser(null);
+        setAccessToken(null);
+      }
     }
   };
 
@@ -164,6 +170,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
+}
+
+function shouldEvictAccessToken(error: unknown): boolean {
+  if (error instanceof AuthError) {
+    return true;
+  }
+
+  if (typeof error !== 'object' || error === null || !('status' in error)) {
+    return false;
+  }
+
+  return error.status === 401 || error.status === 403;
 }
 
 export function useAuth() {

@@ -10,10 +10,10 @@ import {
   selectShipping,
 } from './fixtures';
 
-const DRAFT_ROUTE = '**/checkout/draft';
-const PAYMENT_INTENT_ROUTE = '**/payments/intent';
+const DRAFT_ROUTE = '**/api/v1/checkout';
+const PAYMENT_INTENT_ROUTE = '**/api/v1/payments/intent';
 const SHIPPING_ROUTE = '**/shipping*';
-const CART_ROUTE = '**/cart*';
+const CART_ROUTE = '**/api/v1/carts*';
 
 test.describe('Checkout error handling', () => {
   test.describe('Network errors during checkout', () => {
@@ -167,15 +167,15 @@ test.describe('Checkout error handling', () => {
         }
       });
 
-      await openCheckout(page);
+      await page.goto('/');
+      await page.evaluate(() => {
+        localStorage.setItem('accessToken', 'mock-token');
+      });
+      await page.goto('/checkout');
 
-      // Should show empty cart message or redirect
-      const emptyMessage = page.getByText(/keranjang kosong|cart is empty|no items/i);
-      const hasEmptyMessage = await emptyMessage.isVisible().catch(() => false);
-
-      const isRedirected = page.url().includes('/cart') || page.url().includes('/products');
-
-      expect(hasEmptyMessage || isRedirected).toBe(true);
+      // Should show empty cart message
+      const emptyMessage = page.getByRole('heading', { name: /keranjang belanja kosong|empty/i });
+      await expect(emptyMessage).toBeVisible({ timeout: 10_000 });
     });
 
     test('out of stock item shows warning during checkout', async ({ page }) => {
@@ -217,9 +217,10 @@ test.describe('Checkout error handling', () => {
       // Proceed button may be disabled
       const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
       const isButtonPresent = await proceedButton.isVisible().catch(() => false);
+      const isButtonDisabled = isButtonPresent ? await proceedButton.isDisabled() : false;
 
       // Either shows warning or adjusts UI
-      expect(hasWarning || !isButtonPresent).toBe(true);
+      expect(hasWarning || !isButtonPresent || isButtonDisabled).toBe(true);
     });
   });
 
@@ -244,6 +245,7 @@ test.describe('Checkout error handling', () => {
       await proceedButton.click();
 
       // Should show login prompt or redirect to login
+      await page.waitForURL(/\/login|\/auth/, { timeout: 10_000 }).catch(() => {});
       const loginPrompt = page.getByText(/login|masuk|sesi berakhir|session expired/i);
       const hasLoginPrompt = await loginPrompt.isVisible().catch(() => false);
       const isLoginRedirect = page.url().includes('/login') || page.url().includes('/auth');

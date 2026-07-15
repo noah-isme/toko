@@ -28,6 +28,27 @@ class ApiClientError extends Error {
   }
 }
 
+class NetworkError extends Error {
+  constructor(message = 'The network request failed', options?: ErrorOptions) {
+    super(message, options);
+    this.name = 'NetworkError';
+  }
+}
+
+class AbortError extends Error {
+  constructor(message = 'The request was aborted', options?: ErrorOptions) {
+    super(message, options);
+    this.name = 'AbortError';
+  }
+}
+
+class AuthError extends ApiClientError {
+  constructor(message: string, code: string, status: 401 | 403, details?: Record<string, any>) {
+    super(message, code, status, details);
+    this.name = 'AuthError';
+  }
+}
+
 let accessToken: string | null = null;
 
 export function setAccessToken(token: string | null) {
@@ -49,24 +70,24 @@ export function getAccessToken(): string | null {
 }
 
 async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const baseUrl = API_URL.replace(/\/$/, '');
-    const response = await fetch(`${baseUrl}/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-    });
+  const baseUrl = API_URL.replace(/\/$/, '');
+  const response = await executeFetch(`${baseUrl}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  });
 
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    const newToken = data.data.accessToken;
-    setAccessToken(newToken);
-    return newToken;
-  } catch {
+  if (response.status === 401 || response.status === 403) {
     return null;
   }
+
+  if (!response.ok) {
+    throw await createResponseError(response);
+  }
+
+  const data = await response.json();
+  const newToken = data.data.accessToken;
+  setAccessToken(newToken);
+  return newToken;
 }
 
 export async function apiClient<T>(path: string, options: ApiClientSchemaOptions<T>): Promise<T>;
@@ -96,7 +117,7 @@ export async function apiClient<T = unknown>(
   }
 
   const baseUrl = API_URL.replace(/\/$/, '');
-  let response = await fetch(`${baseUrl}${path}`, {
+  let response = await executeFetch(`${baseUrl}${path}`, {
     ...init,
     headers: requestHeaders,
     credentials: 'include',
@@ -107,7 +128,7 @@ export async function apiClient<T = unknown>(
     const newToken = await refreshAccessToken();
     if (newToken) {
       requestHeaders.set('Authorization', `Bearer ${newToken}`);
-      response = await fetch(`${baseUrl}${path}`, {
+      response = await executeFetch(`${baseUrl}${path}`, {
         ...init,
         headers: requestHeaders,
         credentials: 'include',
@@ -116,16 +137,7 @@ export async function apiClient<T = unknown>(
   }
 
   if (!response.ok) {
-    const errorBody = await safeParseJson<ApiError>(response);
-    if (errorBody?.error) {
-      throw new ApiClientError(
-        errorBody.error.message,
-        errorBody.error.code,
-        response.status,
-        errorBody.error.details,
-      );
-    }
-    throw new ApiClientError(response.statusText, 'UNKNOWN', response.status);
+    throw await createResponseError(response);
   }
 
   if (response.status === 204) {
@@ -140,6 +152,43 @@ export async function apiClient<T = unknown>(
   return data as T;
 }
 
+async function executeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch (error) {
+    if (isAbortFailure(error)) {
+      throw new AbortError('The request was aborted', { cause: error });
+    }
+
+    throw new NetworkError('The network request failed', { cause: error });
+  }
+}
+
+function isAbortFailure(error: unknown): boolean {
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    return true;
+  }
+
+  if (error instanceof Error) {
+    return error.name === 'AbortError' || /net::ERR_ABORTED/i.test(error.message);
+  }
+
+  return false;
+}
+
+async function createResponseError(response: Response): Promise<ApiClientError> {
+  const errorBody = await safeParseJson<ApiError>(response);
+  const message = errorBody?.error?.message || response.statusText || 'Request failed';
+  const code = errorBody?.error?.code || 'UNKNOWN';
+  const details = errorBody?.error?.details;
+
+  if (response.status === 401 || response.status === 403) {
+    return new AuthError(message, code, response.status, details);
+  }
+
+  return new ApiClientError(message, code, response.status, details);
+}
+
 async function safeParseJson<T = unknown>(response: Response): Promise<T | null> {
   try {
     return await response.clone().json();
@@ -148,4 +197,4 @@ async function safeParseJson<T = unknown>(response: Response): Promise<T | null>
   }
 }
 
-export { ApiClientError };
+export { AbortError, ApiClientError, AuthError, NetworkError };

@@ -1,5 +1,7 @@
 import { expect, type Page, type Route } from '@playwright/test';
 
+import { installSeededSession } from './fixtures/auth.fixture';
+
 // ============================================================================
 // Cart Helpers
 // ============================================================================
@@ -8,25 +10,21 @@ import { expect, type Page, type Route } from '@playwright/test';
  * Add products to cart from the homepage
  */
 export async function seedCartFromHome(page: Page, count = 1) {
-  await page.goto('/');
-  const addButtons = page.getByRole('button', { name: /Add to cart/i });
-
-  for (let i = 0; i < count; i++) {
-    const button = addButtons.nth(i);
-    await expect(button).toBeVisible();
-    await button.click();
-    // Wait for cart update
-    await page.waitForTimeout(300);
-  }
+  await installSeededSession(page);
+  await page.goto('/cart');
+  await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
+  await expect(page.locator('ul li').nth(count - 1)).toBeVisible();
 }
 
 /**
  * Navigate from cart to checkout
  */
 export async function navigateToCheckout(page: Page) {
-  const cartLink = page.getByRole('link', { name: 'Cart' });
-  await cartLink.click();
-  await expect(page).toHaveURL(/\/cart$/);
+  if (!/\/cart$/.test(new URL(page.url()).pathname)) {
+    const cartLink = page.getByRole('link', { name: 'Cart' });
+    await cartLink.click();
+    await expect(page).toHaveURL(/\/cart$/);
+  }
 
   const proceedLink = page.getByRole('link', { name: 'Proceed to checkout' });
   await proceedLink.click();
@@ -37,6 +35,10 @@ export async function navigateToCheckout(page: Page) {
  * Open checkout page directly
  */
 export async function openCheckout(page: Page) {
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem('accessToken', 'mock-token');
+  });
   await page.goto('/checkout');
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
 }
@@ -244,13 +246,60 @@ export async function mockOrderResponse(
     currency: 'IDR',
     itemCount: 1,
     createdAt: new Date().toISOString(),
-    pricing: { total: 150000 },
+    pricing: {
+      subtotal: 150000,
+      discount: 0,
+      tax: 0,
+      shipping: 0,
+      total: 150000,
+    },
     payment: null,
+    user: {
+      id: 'user-123',
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+    },
+    items: [
+      {
+        id: 'item-1',
+        productId: 'product-1',
+        productTitle: 'Mock Product',
+        productSlug: 'mock-product',
+        qty: 1,
+        unitPrice: 150000,
+        subtotal: 150000,
+      },
+    ],
+    shippingAddress: {
+      receiverName: 'John Doe',
+      phone: '08123456789',
+      addressLine1: 'Jl. Mock No. 123',
+      city: 'Jakarta',
+      province: 'DKI Jakarta',
+      postalCode: '12345',
+      country: 'Indonesia',
+    },
   };
 
-  const order = { ...defaultOrder, ...orderData };
+  const payment = orderData.payment
+    ? {
+        method: 'bank_transfer',
+        status: 'pending',
+        ...orderData.payment,
+      }
+    : null;
 
-  await page.route(`**/orders/${orderId}`, async (route) => {
+  const order = {
+    ...defaultOrder,
+    ...orderData,
+    pricing: { ...defaultOrder.pricing, ...orderData.pricing },
+    user: { ...defaultOrder.user, ...orderData.user },
+    shippingAddress: { ...defaultOrder.shippingAddress, ...orderData.shippingAddress },
+    items: orderData.items ?? defaultOrder.items,
+    payment,
+  };
+
+  await page.route(`**/api/v1/orders/${orderId}`, async (route) => {
     await route.fulfill({
       status: 200,
       body: JSON.stringify({ data: order }),
@@ -267,8 +316,37 @@ interface MockOrderData {
   currency: string;
   itemCount: number;
   createdAt: string;
-  pricing: { total: number };
+  pricing: {
+    subtotal?: number;
+    discount?: number;
+    tax?: number;
+    shipping?: number;
+    total: number;
+  };
   payment: { paymentUrl?: string; paymentExpiry?: string } | null;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  items?: Array<{
+    id: string;
+    productId: string;
+    productTitle: string;
+    productSlug: string;
+    qty: number;
+    unitPrice: number;
+    subtotal: number;
+  }>;
+  shippingAddress?: {
+    receiverName: string;
+    phone: string;
+    addressLine1: string;
+    city: string;
+    province: string;
+    postalCode: string;
+    country: string;
+  };
 }
 
 /**
@@ -286,7 +364,7 @@ export async function mockOrdersListResponse(page: Page, orders: Partial<MockOrd
     ...order,
   }));
 
-  await page.route('**/orders*', async (route) => {
+  await page.route('**/api/v1/orders*', async (route) => {
     if (route.request().method() === 'GET') {
       await route.fulfill({
         status: 200,

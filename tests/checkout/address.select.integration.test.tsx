@@ -5,8 +5,8 @@ import React, { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import CheckoutPage from '@/app/(storefront)/checkout/page';
-import { writeGuestAddresses } from '@/entities/address/storage';
 import { getAddressListKey } from '@/entities/address/keys';
+import { writeGuestAddresses } from '@/entities/address/storage';
 import type { Address } from '@/entities/address/types';
 
 const replaceMock = vi.fn();
@@ -100,7 +100,11 @@ describe('CheckoutPage address selection', () => {
     });
 
     // Wait for address list to appear and pick alternative address
-    const secondaryAddress = await screen.findByRole('radio', { name: /secondary user/i }, { timeout: 5000 });
+    const secondaryAddress = await screen.findByRole(
+      'radio',
+      { name: /secondary user/i },
+      { timeout: 5000 },
+    );
     await user.click(secondaryAddress);
 
     await waitFor(() => {
@@ -125,6 +129,6 @@ describe('CheckoutPage address selection', () => {
     });
 
     expect(screen.queryByText('Shipping Options')).toBeNull();
-    expect(screen.queryByRole('button', { name: /bayar sekarang/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /bayar sekarang/i })).toBeDisabled();
   });
 });

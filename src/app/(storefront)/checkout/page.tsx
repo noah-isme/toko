@@ -10,8 +10,8 @@ import { OrderSummary } from './_components/OrderSummary';
 import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
 import { ShippingOptions } from './_components/ShippingOptions';
 
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -24,10 +24,7 @@ import { getGuestAddressOwnerId } from '@/entities/address/storage';
 import type { Address as SavedAddress } from '@/entities/address/types';
 import { AddressBook } from '@/entities/address/ui/AddressBook';
 import type { CartWithPromo } from '@/entities/cart/cache';
-import {
-  useCheckoutMutation,
-  useShippingQuoteMutation,
-} from '@/entities/checkout/api/hooks';
+import { useCheckoutMutation, useShippingQuoteMutation } from '@/entities/checkout/api/hooks';
 import type {
   Address as CheckoutAddress,
   OrderDraft,
@@ -49,28 +46,36 @@ import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { CheckoutSkeleton } from '@/shared/ui/skeletons/CheckoutSkeleton';
 import { useCartStore } from '@/stores/cart-store';
 
+const EMPTY_ADDRESSES: SavedAddress[] = [];
+
 export default function CheckoutPage() {
   const { user } = useAuth();
   const router = useRouter();
   const storedCartId = useCartStore((state) => state.cartId);
-  const { data: cart, isLoading: isCartLoading, isFetching: isCartFetching } = useCartQuery(
-    storedCartId || undefined,
-  );
-  const shippingQuoteMutation = useShippingQuoteMutation();
+  const {
+    data: cart,
+    isLoading: isCartLoading,
+    isFetching: isCartFetching,
+  } = useCartQuery(storedCartId || undefined);
+  const {
+    mutateAsync: fetchShippingQuote,
+    isPending: isShippingQuotePending,
+    error: shippingQuoteError,
+  } = useShippingQuoteMutation();
   const checkoutMutation = useCheckoutMutation();
 
   const [selectedShippingId, setSelectedShippingId] = useState<string | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(
+    'bank_transfer',
+  );
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [isUsingCachedQuote, setIsUsingCachedQuote] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [localStoredCartId, setLocalStoredCartId] = useState<string | null>(null);
   const [storageChecked, setStorageChecked] = useState(false);
   const [addressOwnerId, setAddressOwnerId] = useState<string | null>(null);
-  const {
-    data: addresses = [],
-    isLoading: isAddressLoading,
-  } = useAddressListQuery(addressOwnerId);
+  const { data: addresses = EMPTY_ADDRESSES, isLoading: isAddressLoading } =
+    useAddressListQuery(addressOwnerId);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(null);
   const [addressAnnouncement, setAddressAnnouncement] = useState('');
@@ -110,6 +115,15 @@ export default function CheckoutPage() {
       .sort()
       .join('|');
   }, [cart?.items]);
+  const hasOutOfStockItem = useMemo(() => {
+    return Boolean(
+      cart?.items?.some(
+        (item: any) =>
+          (item.maxQuantity !== undefined && item.quantity > item.maxQuantity) ||
+          (item.availableStock !== undefined && item.quantity > item.availableStock),
+      ),
+    );
+  }, [cart?.items]);
   const quoteStorageKey = useMemo(() => {
     if (!activeCartId || !selectedAddress) {
       return null;
@@ -133,6 +147,12 @@ export default function CheckoutPage() {
       setAddressOwnerId(getGuestAddressOwnerId());
     }
   }, [user]);
+
+  useEffect(() => {
+    if (storageChecked && !isCartLoading && (!cart || !cart.items || cart.items.length === 0)) {
+      router.replace('/cart');
+    }
+  }, [storageChecked, isCartLoading, cart, router]);
 
   useEffect(() => {
     if (!quoteStorageKey || typeof window === 'undefined') {
@@ -220,22 +240,14 @@ export default function CheckoutPage() {
       updatedAt: Date.now(),
     };
 
-    const hasAnyValue = Boolean(
-      payload.addressId || payload.shippingId || payload.paymentMethod,
-    );
+    const hasAnyValue = Boolean(payload.addressId || payload.shippingId || payload.paymentMethod);
 
     if (hasAnyValue) {
       window.sessionStorage.setItem(checkoutDraftKey, JSON.stringify(payload));
     } else {
       window.sessionStorage.removeItem(checkoutDraftKey);
     }
-  }, [
-    checkoutDraftKey,
-    draftLoaded,
-    selectedAddressId,
-    selectedPaymentMethod,
-    selectedShippingId,
-  ]);
+  }, [checkoutDraftKey, draftLoaded, selectedAddressId, selectedPaymentMethod, selectedShippingId]);
 
   const requestShippingQuote = useCallback(
     async (address: SavedAddress, options: { selectDefault?: boolean } = {}) => {
@@ -245,7 +257,7 @@ export default function CheckoutPage() {
 
       lastQuoteKeyRef.current = `${activeCartId}:${address.id}:${cartSignature}`;
       try {
-        const result = await shippingQuoteMutation.mutateAsync({
+        const result = await fetchShippingQuote({
           cartId: activeCartId,
           address: mapAddressToCheckout(address),
         });
@@ -271,7 +283,7 @@ export default function CheckoutPage() {
         console.error('Failed to refresh shipping quote', error);
       }
     },
-    [activeCartId, cartSignature, shippingQuoteMutation],
+    [activeCartId, cartSignature, fetchShippingQuote],
   );
 
   const handleAddressSelection = useCallback(
@@ -304,7 +316,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (shippingQuoteMutation.isPending) {
+    if (isShippingQuotePending) {
       return;
     }
 
@@ -314,13 +326,7 @@ export default function CheckoutPage() {
     }
 
     void requestShippingQuote(selectedAddress);
-  }, [
-    activeCartId,
-    cartSignature,
-    requestShippingQuote,
-    selectedAddress,
-    shippingQuoteMutation.isPending,
-  ]);
+  }, [activeCartId, cartSignature, requestShippingQuote, selectedAddress, isShippingQuotePending]);
 
   useEffect(() => {
     if (!addresses.length) {
@@ -395,18 +401,22 @@ export default function CheckoutPage() {
   }, [lastQuoteUpdatedAt]);
 
   const isProcessing = checkoutMutation.isPending;
-  const proceedLabel = isProcessing
-    ? 'Memproses pesanan…'
-    : 'Bayar Sekarang';
+  const proceedLabel = isProcessing ? 'Memproses pesanan…' : 'Bayar Sekarang';
+  const baseProceedRule = getCheckoutProceedRule({
+    hasAddress: Boolean(selectedAddress),
+    hasShippingOption: Boolean(selectedShippingOption),
+    isProcessing: isProcessing,
+  });
   const proceedRule = normalizeDisabledMessage(
-    getCheckoutProceedRule({
-      hasAddress: Boolean(selectedAddress),
-      hasShippingOption: Boolean(selectedShippingOption),
-      isProcessing: isProcessing,
-    }) ||
-    (!selectedPaymentMethod
-      ? { disabled: true, message: 'Pilih metode pembayaran terlebih dahulu' }
-      : null),
+    baseProceedRule.disabled
+      ? baseProceedRule
+      : !selectedPaymentMethod
+        ? {
+            disabled: true,
+            reasonCode: 'unknown',
+            message: 'Pilih metode pembayaran terlebih dahulu',
+          }
+        : baseProceedRule,
   );
   const proceedHintDomId = useId();
   const proceedHintId = proceedRule.disabled ? proceedHintDomId : undefined;
@@ -442,12 +452,15 @@ export default function CheckoutPage() {
       } else {
         const orderId = result.orderId;
         const encodedOrderId = encodeURIComponent(orderId);
-        const confirmationRoute = `/order/confirmation/${encodedOrderId}` as Route;
+        const confirmationRoute = `/checkout/review?orderId=${encodedOrderId}` as Route;
         router.replace(confirmationRoute);
       }
-    } catch (error) {
+    } catch (error: any) {
       // handled by mutation callbacks
       console.error('Checkout error', error);
+      if (error?.status === 401 || error?.code === 'UNAUTHORIZED') {
+        router.push('/login');
+      }
     }
   };
 
@@ -501,7 +514,7 @@ export default function CheckoutPage() {
             {selectedAddress ? (
               <SelectedAddressSummary
                 address={selectedAddress}
-                isLoading={shippingQuoteMutation.isPending}
+                isLoading={isShippingQuotePending}
               />
             ) : isAddressLoading ? (
               <AddressSelectorSkeleton />
@@ -521,7 +534,7 @@ export default function CheckoutPage() {
                   addresses={addresses.slice(0, 2)}
                   selectedId={selectedAddressId}
                   onSelect={(address) => void handleAddressSelection(address)}
-                  isBusy={shippingQuoteMutation.isPending}
+                  isBusy={isShippingQuotePending}
                 />
                 {addresses.length > 2 ? (
                   <Button
@@ -535,109 +548,109 @@ export default function CheckoutPage() {
                 ) : null}
               </React.Fragment>
             ) : null}
-            {shippingQuoteMutation.error ? (
-              <p className="text-sm text-destructive">
-                {shippingQuoteMutation.error.message}
-              </p>
+            {shippingQuoteError ? (
+              <p className="text-sm text-destructive">{shippingQuoteError.message}</p>
             ) : null}
             <p aria-live="polite" className="sr-only">
               {addressAnnouncement}
             </p>
           </section>
-          {shippingOptions.length > 0 ? (
-            <>
-              <section className="space-y-4 rounded-lg border p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <h2 className="text-lg font-semibold">Shipping Options</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Choose the delivery service that suits you best.
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (selectedAddress && activeCartId) {
-                        void requestShippingQuote(selectedAddress);
-                      }
-                    }}
-                    disabled={!selectedAddress || !activeCartId || shippingQuoteMutation.isPending}
-                  >
-                    {shippingQuoteMutation.isPending ? 'Memperbarui...' : 'Perbarui ongkir'}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {shippingQuoteMutation.isPending
-                    ? 'Menghitung ulang ongkir...'
-                    : lastQuoteLabel
-                      ? `${isUsingCachedQuote ? 'Ongkir terakhir' : 'Ongkir diperbarui'} ${lastQuoteLabel}`
-                      : 'Ongkir diperbarui otomatis saat alamat atau keranjang berubah.'}
-                </p>
-                <ShippingOptions
-                  options={shippingOptions}
-                  selectedId={selectedShippingId ?? undefined}
-                  onChange={(id) => setSelectedShippingId(id)}
-                  disabled={isProcessing}
-                />
-              </section>
-
-              <section className="space-y-4 rounded-lg border p-6">
+          {selectedAddress && shippingOptions.length > 0 ? (
+            <section className="space-y-4 rounded-lg border p-6">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <h2 className="text-lg font-semibold">Payment Method</h2>
+                  <h2 className="text-lg font-semibold">Shipping Options</h2>
                   <p className="text-sm text-muted-foreground">
-                    Select how you want to pay for your order.
+                    Choose the delivery service that suits you best.
                   </p>
                 </div>
-                <PaymentMethodSelector
-                  selectedMethod={selectedPaymentMethod}
-                  onSelect={setSelectedPaymentMethod}
-                  disabled={isProcessing}
-                />
-              </section>
-
-              {checkoutMutation.error ? (
-                <p className="text-sm text-destructive">
-                  {checkoutMutation.error.message}
-                </p>
-              ) : null}
-              <div className="flex justify-end">
-                <GuardedButton
+                <Button
                   type="button"
-                  size="lg"
-                  aria-label={proceedLabel}
-                  onClick={handleCheckout}
-                  disabled={proceedRule.disabled}
-                  isLoading={isProcessing}
-                  loadingLabel="Memproses pesanan…"
-                  aria-describedby={proceedHintId}
-                  className="min-h-[44px] px-6"
-                  onFocus={() => {
-                    if (typeof router.prefetch === 'function') {
-                      void router.prefetch('/checkout/review');
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (selectedAddress && activeCartId) {
+                      void requestShippingQuote(selectedAddress);
                     }
                   }}
-                  onMouseEnter={() => {
-                    if (typeof router.prefetch === 'function') {
-                      void router.prefetch('/checkout/review');
-                    }
-                  }}
+                  disabled={!selectedAddress || !activeCartId || isShippingQuotePending}
                 >
-                  Bayar Sekarang
-                </GuardedButton>
+                  {isShippingQuotePending ? 'Memperbarui...' : 'Perbarui ongkir'}
+                </Button>
               </div>
-              <div className="flex justify-end">
-                <DelayedLoader
-                  active={isProcessing}
-                  label="Menghubungkan ke gateway pembayaran…"
-                  className="text-xs text-muted-foreground"
-                />
+              <p className="text-xs text-muted-foreground">
+                {isShippingQuotePending
+                  ? 'Menghitung ulang ongkir...'
+                  : lastQuoteLabel
+                    ? `${isUsingCachedQuote ? 'Ongkir terakhir' : 'Ongkir diperbarui'} ${lastQuoteLabel}`
+                    : 'Ongkir diperbarui otomatis saat alamat atau keranjang berubah.'}
+              </p>
+              <ShippingOptions
+                options={shippingOptions}
+                selectedId={selectedShippingId ?? undefined}
+                onChange={(id) => setSelectedShippingId(id)}
+                disabled={isProcessing}
+              />
+            </section>
+          ) : null}
+
+          <section className="space-y-4 rounded-lg border p-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">Payment Method</h2>
+              <p className="text-sm text-muted-foreground">
+                Select how you want to pay for your order.
+              </p>
+            </div>
+            <PaymentMethodSelector
+              selectedMethod={selectedPaymentMethod}
+              onSelect={setSelectedPaymentMethod}
+              disabled={isProcessing}
+            />
+          </section>
+
+          {checkoutMutation.error ? (
+            <p className="text-sm text-destructive">{checkoutMutation.error.message}</p>
+          ) : null}
+          <div className="flex justify-end">
+            {hasOutOfStockItem ? (
+              <div className="rounded border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+                Beberapa produk di keranjang Anda tidak tersedia atau stok habis.
               </div>
-              {proceedRule.disabled && proceedRule.message ? (
-                <DisabledHint id={proceedHintId} message={proceedRule.message} />
-              ) : null}
-            </>
+            ) : (
+              <GuardedButton
+                type="button"
+                size="lg"
+                aria-label={proceedLabel}
+                onClick={handleCheckout}
+                disabled={proceedRule.disabled}
+                isLoading={isProcessing}
+                loadingLabel="Memproses pesanan…"
+                aria-describedby={proceedHintId}
+                className="min-h-[44px] px-6"
+                onFocus={() => {
+                  if (typeof router.prefetch === 'function') {
+                    void router.prefetch('/checkout/review');
+                  }
+                }}
+                onMouseEnter={() => {
+                  if (typeof router.prefetch === 'function') {
+                    void router.prefetch('/checkout/review');
+                  }
+                }}
+              >
+                Bayar Sekarang
+              </GuardedButton>
+            )}
+          </div>
+          <div className="flex justify-end">
+            <DelayedLoader
+              active={isProcessing}
+              label="Menghubungkan ke gateway pembayaran…"
+              className="text-xs text-muted-foreground"
+            />
+          </div>
+          {proceedRule.disabled && proceedRule.message ? (
+            <DisabledHint id={proceedHintId} message={proceedRule.message} />
           ) : null}
         </div>
         <aside id={orderSummaryId} className="lg:sticky lg:top-24">

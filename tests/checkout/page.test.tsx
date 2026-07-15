@@ -43,8 +43,8 @@ beforeEach(() => {
 });
 
 import CheckoutPage from '@/app/(storefront)/checkout/page';
-import { writeGuestAddresses } from '@/entities/address/storage';
 import { getAddressListKey } from '@/entities/address/keys';
+import { writeGuestAddresses } from '@/entities/address/storage';
 import type { Address } from '@/entities/address/types';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
@@ -118,7 +118,9 @@ describe('CheckoutPage', () => {
       expect(screen.getByText('Checkout')).toBeInTheDocument();
     });
 
-    await user.click(await screen.findByRole('radio', { name: /primary user/i }, { timeout: 5000 }));
+    await user.click(
+      await screen.findByRole('radio', { name: /primary user/i }, { timeout: 5000 }),
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Shipping Options')).toBeInTheDocument();
@@ -135,7 +137,7 @@ describe('CheckoutPage', () => {
     await user.click(proceedButton);
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/order/confirmation/order-checkout-1');
+      expect(replaceMock).toHaveBeenCalledWith('/checkout/review?orderId=order-checkout-1');
     });
   });
 });

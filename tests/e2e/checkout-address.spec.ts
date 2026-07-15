@@ -16,12 +16,12 @@ test.describe('Checkout address flow', () => {
       await seedCartFromHome(page);
       await navigateToCheckout(page);
 
-      // Select first address
-      const addressName = await selectAddress(page, 0);
+      // Select a different saved address so the live-region announcement changes.
+      await selectAddress(page, 1);
       await waitForAddressAnnouncement(page);
 
       // Verify selection is reflected
-      const selectedRadio = page.getByRole('radio').first();
+      const selectedRadio = page.getByRole('radio').nth(1);
       await expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
     });
 
@@ -83,6 +83,7 @@ test.describe('Checkout address flow', () => {
       await navigateToCheckout(page);
 
       await openAddressDialog(page);
+      await page.waitForTimeout(500);
 
       // Should show at least one address or empty state
       const dialog = page.getByRole('dialog');
@@ -102,7 +103,10 @@ test.describe('Checkout address flow', () => {
       await openAddressDialog(page);
 
       // Close dialog
-      const closeButton = page.getByRole('button', { name: /close|tutup|×/i });
+      const closeButton = page
+        .getByRole('dialog')
+        .getByRole('button', { name: /close|tutup|×/i })
+        .first();
       if (await closeButton.isVisible()) {
         await closeButton.click();
       } else {
@@ -118,7 +122,7 @@ test.describe('Checkout address flow', () => {
   test.describe('Address validation', () => {
     test('checkout button is disabled without address selection', async ({ page }) => {
       // Mock empty addresses scenario
-      await page.route('**/addresses*', async (route) => {
+      await page.route('**/api/v1/users/me/addresses*', async (route) => {
         if (route.request().method() === 'GET') {
           await route.fulfill({
             status: 200,

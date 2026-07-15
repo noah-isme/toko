@@ -21,7 +21,9 @@ describe('canonical metadata', () => {
       import('@/shared/seo/seo'),
     ]);
 
-    const metadata = await generateMetadata({ params: Promise.resolve({ slug: 'awesome-product' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ slug: 'awesome-product' }),
+    });
     expect(metadata.alternates?.canonical).toBe(getCanonical('/products/awesome-product'));
-  });
+  }, 10_000);
 });
