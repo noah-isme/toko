@@ -36,7 +36,7 @@ Aplikasi Toko menggunakan arsitektur modular Next.js 16 (App Router) dengan:
 
 - **Status**: ✅ **SELESAI**
 - **Lokasi**: [OrderTrackingPage](<file:///home/noah/project/toko-app/toko/src/app/(storefront)/order/tracking/[orderId]/page.tsx>)
-- **Detail**: Mengganti placeholder visual statis dengan komponen peta Leaflet interaktif (`TrackingMap`) riil yang mengambil koordinat kota pengirim dan penerima secara dinamis dari detail shipment. Komponen dimuat secara dinamis dengan SSR dinonaktifkan (`ssr: false`) untuk mencegah kesalahan hidrasi di server.
+- **Detail**: Mengganti placeholder visual statis dengan peta Leaflet interaktif (`TrackingMap`) riil. Komponen menyelesaikan koordinat secara dinamis dengan memanggil endpoint `/api/geocode/search` jika nama lokasi tidak terdapat pada kamus pencarian statis lokal, didukung fallback dan state memuat (_loading state_) yang elegan.
 
 ### 4. Pendaftaran Buletin (Newsletter Signup Stub)
 
@@ -58,4 +58,4 @@ Sistem telemetri aktif untuk memantau UX gap dan stubs dari sisi produksi:
 ## 🛠️ Riwayat Tes Kontrak (Contract Testing)
 
 - **Lokasi**: [api-contract.test.ts](file:///home/noah/project/toko-app/toko/src/lib/api/__tests__/api-contract.test.ts)
-- **Detail**: Test integrasi otomatis menggunakan Vitest + MSW untuk menjamin keselarasan kontrak API antara frontend dan backend (Auth, Cart, Checkout, Orders, dan Shipment Tracking).
+- **Detail**: Test integrasi otomatis menggunakan Vitest + MSW untuk menjamin keselarasan kontrak API antara frontend dan backend (Auth, Cart, Checkout - termasuk validasi request/response happy path dan shape error, Orders, dan Shipment Tracking).

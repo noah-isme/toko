@@ -2,9 +2,11 @@ import { http, HttpResponse } from 'msw';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { z } from 'zod';
 
+import { ApiClientError } from '../apiClient';
 import { userSchema } from '../schemas';
 import { authApi, cartApi, ordersApi } from '../services';
 
+import { CheckoutSchema, CheckoutResponseSchema } from '@/entities/checkout/schemas';
 import { OrderDetailSchema } from '@/entities/orders/schemas';
 import { server } from '@/mocks/server';
 
@@ -263,6 +265,32 @@ describe('API Contract Tests - Frontend/Backend Alignment', () => {
           },
         });
       }),
+      http.post(`${BASE_URL}/checkout`, async ({ request }) => {
+        const body = (await request.json()) as any;
+
+        if (!body.cartId) {
+          return HttpResponse.json(
+            {
+              error: {
+                code: 'INVALID_CART',
+                message: 'Invalid Cart ID',
+              },
+            },
+            { status: 400 },
+          );
+        }
+
+        return HttpResponse.json({
+          data: {
+            orderId: 'order-123',
+            orderNumber: 'TRX-20260715-001',
+            status: 'pending',
+            total: 125000,
+            paymentUrl: 'https://payment-gateway.com/pay/123',
+            paymentExpiry: '2026-07-16T00:00:00Z',
+          },
+        });
+      }),
     );
   });
 
@@ -295,7 +323,7 @@ describe('API Contract Tests - Frontend/Backend Alignment', () => {
     });
   });
 
-  describe('Orders Service Contract', () => {
+  describe('Orders & Checkout Service Contract', () => {
     it('should validate getOrder response schema', async () => {
       const order = await ordersApi.getOrder('test-order-id');
       expect(() => OrderDetailSchema.parse(order)).not.toThrow();
@@ -308,6 +336,54 @@ describe('API Contract Tests - Frontend/Backend Alignment', () => {
       if (response.data.length > 0) {
         expect(() => OrderDetailSchema.parse(response.data[0])).not.toThrow();
       }
+    });
+
+    it('should validate checkout request and response schema for happy path', async () => {
+      const payload = {
+        cartId: 'cart-123',
+        shippingAddressId: 'addr-1',
+        shippingService: 'jne-reg',
+        shippingCost: 15000,
+        paymentMethod: 'bank_transfer' as const,
+        notes: 'Please pack safely',
+      };
+
+      // 1. Verify client request payload aligns with CheckoutSchema contract
+      expect(() => CheckoutSchema.parse(payload)).not.toThrow();
+
+      // 2. Call API service and verify response matches CheckoutResponseSchema contract
+      const response = await ordersApi.checkout(payload);
+      expect(() => CheckoutResponseSchema.parse(response)).not.toThrow();
+    });
+
+    it('should catch validation error on invalid checkout payload (client-side)', () => {
+      const invalidPayload = {
+        cartId: '', // invalid
+        shippingAddressId: 'addr-1',
+        shippingService: 'jne-reg',
+        shippingCost: 15000,
+        paymentMethod: 'bank_transfer' as const,
+      };
+
+      expect(() => CheckoutSchema.parse(invalidPayload)).toThrow();
+    });
+
+    it('should catch server error response on invalid cart (server-side)', async () => {
+      const badRequestPayload = {
+        cartId: '',
+        shippingAddressId: 'addr-1',
+        shippingService: 'jne-reg',
+        shippingCost: 15000,
+        paymentMethod: 'bank_transfer' as const,
+      };
+
+      // apiClient should correctly parse server error into ApiClientError
+      const request = ordersApi.checkout(badRequestPayload);
+      await expect(request).rejects.toBeInstanceOf(ApiClientError);
+      await expect(request).rejects.toMatchObject({
+        code: 'INVALID_CART',
+        status: 400,
+      });
     });
   });
 

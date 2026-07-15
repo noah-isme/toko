@@ -1,6 +1,7 @@
 'use client';
 
 import type { LatLngTuple } from 'leaflet';
+import { useState, useEffect } from 'react';
 import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet';
 
 import 'leaflet/dist/leaflet.css';
@@ -42,14 +43,73 @@ interface TrackingMapProps {
 }
 
 export default function TrackingMap({ tracking, className }: TrackingMapProps) {
-  const points = tracking
-    .map((event) => ({ ...event, coords: resolveCoords(event.location) }))
-    .filter((p): p is TrackingEvent & { coords: LatLngTuple } => p.coords !== null);
+  const [points, setPoints] = useState<(TrackingEvent & { coords: LatLngTuple })[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const resolveAllPoints = async () => {
+      setLoading(true);
+      const resolvedList: (TrackingEvent & { coords: LatLngTuple })[] = [];
+
+      for (const event of tracking) {
+        if (!event.location) continue;
+
+        // Try static lookup first (fast & reliable fallback)
+        let coords = resolveCoords(event.location);
+
+        // If not found statically, query the dynamic geocoding endpoint
+        if (!coords) {
+          try {
+            const res = await fetch(
+              `/api/geocode/search?q=${encodeURIComponent(event.location)}&limit=1`,
+            );
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data[0]) {
+                const lat = parseFloat(data[0].lat);
+                const lon = parseFloat(data[0].lon);
+                if (!isNaN(lat) && !isNaN(lon)) {
+                  coords = [lat, lon];
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Failed to geocode location dynamically:', event.location, err);
+          }
+        }
+
+        if (coords) {
+          resolvedList.push({ ...event, coords });
+        }
+      }
+
+      if (active) {
+        setPoints(resolvedList);
+        setLoading(false);
+      }
+    };
+
+    resolveAllPoints();
+
+    return () => {
+      active = false;
+    };
+  }, [tracking]);
+
+  if (loading) {
+    return (
+      <div className="mt-4 flex h-64 w-full animate-pulse items-center justify-center rounded-lg border bg-muted/30 text-sm text-muted-foreground">
+        Memuat peta pelacakan dan koordinat lokasi...
+      </div>
+    );
+  }
 
   if (points.length === 0) {
     return (
       <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed bg-muted/30 text-sm text-muted-foreground">
-        Data lokasi pengiriman belum tersedia.
+        Data lokasi pengiriman belum tersedia atau tidak dapat ter-geocode.
       </div>
     );
   }
