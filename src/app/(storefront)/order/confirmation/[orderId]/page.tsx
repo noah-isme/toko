@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Clock, XCircle } from 'lucide-react';
 import type { Route } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -127,7 +128,7 @@ export default function OrderConfirmationPage() {
         new Date(a.timestamp ?? a.at ?? '').getTime() -
         new Date(b.timestamp ?? b.at ?? '').getTime(),
     );
-  }, [order?.createdAt, order?.status, order?.statusHistory]);
+  }, [order]);
 
   const handleReorder = async () => {
     if (!order?.items?.length) {
@@ -407,12 +408,13 @@ export default function OrderConfirmationPage() {
               {order.items.map((item) => (
                 <li key={item.id} className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row">
                   {item.imageUrl ? (
-                    <img
+                    <Image
                       src={item.imageUrl}
                       alt={item.productTitle}
+                      width={64}
+                      height={64}
                       className="h-16 w-16 rounded-md object-cover"
                       loading="lazy"
-                      decoding="async"
                     />
                   ) : (
                     <div className="h-16 w-16 rounded-md bg-muted" aria-hidden="true" />

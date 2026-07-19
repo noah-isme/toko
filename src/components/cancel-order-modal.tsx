@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 const reasons = [
@@ -32,6 +39,8 @@ export function CancelOrderModal({
 
   useEffect(() => {
     if (!open) {
+      // Reset the form to its initial state whenever the dialog closes.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReason(reasons[0]?.value ?? 'changed_mind');
       setNote('');
       setError(null);
@@ -107,9 +116,7 @@ export function CancelOrderModal({
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 placeholder="Contoh: Saya ingin mengganti warna produk."
               />
-              {helperText ? (
-                <p className="text-xs text-muted-foreground">{helperText}</p>
-              ) : null}
+              {helperText ? <p className="text-xs text-muted-foreground">{helperText}</p> : null}
             </div>
           ) : null}
           {error ? (
@@ -119,10 +126,20 @@ export function CancelOrderModal({
           ) : null}
         </div>
         <DialogFooter className="mt-4">
-          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
             Batal
           </Button>
-          <Button type="button" variant="destructive" onClick={handleConfirm} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Membatalkan...' : 'Konfirmasi batal'}
           </Button>
         </DialogFooter>

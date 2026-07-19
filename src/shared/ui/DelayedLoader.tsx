@@ -34,6 +34,8 @@ export function DelayedLoader({
     }
 
     if (!active) {
+      // Reset visibility synchronously when the loader is deactivated.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false);
       return;
     }
@@ -48,12 +50,6 @@ export function DelayedLoader({
       }
     };
   }, [active, delayMs]);
-
-  useEffect(() => {
-    if (!active) {
-      setVisible(false);
-    }
-  }, [active]);
 
   if (!visible) {
     return null;

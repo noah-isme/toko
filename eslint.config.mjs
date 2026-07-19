@@ -34,8 +34,14 @@ const eslintConfig = [
       'tailwindcss/classnames-order': 'warn',
       'tailwindcss/no-custom-classname': 'off',
       'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/preserve-manual-memoization': 'warn',
-      'react-hooks/immutability': 'warn',
+      // The following react-hooks rules are React Compiler adoption checks
+      // shipped by eslint-plugin-react-hooks v7. This project does not enable
+      // the React Compiler (no babel-plugin-react-compiler / experimental.reactCompiler),
+      // so these rules flag correct, intentional code (manual useMemo, react-hook-form).
+      // Re-enable them if/when the compiler is turned on.
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/incompatible-library': 'off',
     },
   },
   prettierConfig,

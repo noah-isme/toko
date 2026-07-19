@@ -15,11 +15,13 @@ export default function AccountAddressesPage() {
   useEffect(() => {
     // If user is logged in, use their ID
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOwnerId(user.id);
       return;
     }
 
-    // Otherwise check for guest ID
+    // Otherwise check for guest ID. This reads client-only storage, so it must
+    // run post-mount to avoid a hydration mismatch.
     if (typeof window !== 'undefined') {
       setOwnerId(getGuestAddressOwnerId());
     }

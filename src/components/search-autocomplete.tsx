@@ -2,6 +2,7 @@
 
 import { Search, TrendingUp } from 'lucide-react';
 import type { Route } from 'next';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 
@@ -46,7 +47,9 @@ export function SearchAutocomplete({
   }, [value]);
 
   useEffect(() => {
-    const nextValue = params.get('q') ?? '';
+    const nextValue = new URLSearchParams(paramsString).get('q') ?? '';
+    // Syncing local input with the URL query param is intentional external-state sync.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValue(nextValue);
   }, [paramsString]);
 
@@ -111,12 +114,13 @@ export function SearchAutocomplete({
                       className="flex w-full items-center gap-3 rounded-md p-2 text-left hover:bg-accent"
                     >
                       {product.imageUrl && (
-                        <img
+                        <Image
                           src={product.imageUrl}
                           alt={product.title}
+                          width={40}
+                          height={40}
                           className="h-10 w-10 rounded object-cover"
                           loading="lazy"
-                          decoding="async"
                         />
                       )}
                       <div className="flex-1 overflow-hidden">

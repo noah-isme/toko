@@ -1,6 +1,7 @@
 'use client';
 
 import { Download } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -111,12 +112,12 @@ export default function OrderDetailPage() {
               {order.items.map((item) => (
                 <li key={item.id} className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row">
                   {item.imageUrl ? (
-                    <img
+                    <Image
                       src={item.imageUrl}
                       alt={item.productTitle}
+                      width={64}
+                      height={64}
                       className="h-16 w-16 rounded-md object-cover"
-                      loading="lazy"
-                      decoding="async"
                     />
                   ) : (
                     <div className="h-16 w-16 rounded-md bg-muted" aria-hidden="true" />

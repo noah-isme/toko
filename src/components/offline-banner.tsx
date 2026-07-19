@@ -21,6 +21,8 @@ export function OfflineBanner() {
       setShowReconnected(false);
     };
 
+    // navigator.onLine is browser-only, so seed the initial value post-mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOnline(navigator.onLine);
 
     window.addEventListener('online', handleOnline);

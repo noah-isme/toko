@@ -39,6 +39,9 @@ function CheckoutSuccessContent() {
 
     const storedDraft = loadOrderDraft(orderId);
     if (storedDraft) {
+      // Draft lives in client-only sessionStorage; reading it post-mount avoids
+      // a hydration mismatch, so syncing into state here is intentional.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOrderDraft(storedDraft);
     }
   }, [orderId]);
@@ -65,16 +68,16 @@ function CheckoutSuccessContent() {
   const orderDetailHref = `/order/confirmation/${encodeURIComponent(orderId)}` as Route;
   const structuredData = totals
     ? orderJsonLd({
-      orderId,
-      url: orderDetailHref,
-      total: totals.total,
-      acceptedOffers: [
-        {
-          name: 'Order total',
-          price: totals.total,
-        },
-      ],
-    })
+        orderId,
+        url: orderDetailHref,
+        total: totals.total,
+        acceptedOffers: [
+          {
+            name: 'Order total',
+            price: totals.total,
+          },
+        ],
+      })
     : null;
 
   return (

@@ -1,6 +1,7 @@
 'use client';
 
 import { X, ShoppingCart, Heart } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -85,10 +86,12 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
               {/* Product Image */}
               <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
                 {product.imageUrl ? (
-                  <img
+                  <Image
                     src={product.imageUrl}
                     alt={product.title}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-muted-foreground">

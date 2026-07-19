@@ -138,10 +138,13 @@ export function ProductsCatalog() {
     return sorted;
   }, [
     data,
+    discountOnly,
+    inStockOnly,
     normalizeFacet,
     normalizedBrandSelections,
     normalizedCategorySelections,
     priceRange,
+    ratingFilter,
     searchTerm,
     sortBy,
   ]);
@@ -177,6 +180,8 @@ export function ProductsCatalog() {
   // Effect to update local price range when data (and thus maxPrice) loads for the first time
   useEffect(() => {
     if (!hasPriceParamRef.current && maxPrice > 0 && priceRange[1] === 10000000) {
+      // Initialize the price range once the product data (and derived maxPrice) loads.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPriceRange([0, maxPrice]);
     }
   }, [maxPrice, priceRange]);
@@ -186,6 +191,8 @@ export function ProductsCatalog() {
       syncFromParamsRef.current = false;
       return;
     }
+    // Reset to the first page whenever the user changes the search term (not on URL-driven sync).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [searchTerm]);
 
@@ -232,6 +239,9 @@ export function ProductsCatalog() {
           return match ?? value;
         })
       : [];
+    // This effect syncs component state from the URL query string (external state);
+    // the guarded setters below only fire when the derived value actually changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedCategories((curr) => (areArraysEqual(curr, nextCategories) ? curr : nextCategories));
 
     const nextBrands = brandParams.length

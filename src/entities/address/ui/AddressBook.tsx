@@ -40,8 +40,6 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { AddressListSkeleton } from '@/shared/ui/skeletons/AddressListSkeleton';
 
-
-
 export interface AddressBookProps {
   userIdOrGuestId?: string | null;
   selectable?: boolean;
@@ -73,6 +71,7 @@ export function AddressBook({
     // Check for guest ID only on client-side after mount to avoid hydration mismatch
     const guestId = getGuestAddressOwnerId();
     if (guestId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInternalGuestId(guestId);
     }
   }, []);

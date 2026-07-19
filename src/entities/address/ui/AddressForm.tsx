@@ -102,11 +102,17 @@ export function AddressForm({
     return { province, city };
   }, [watchedCity, watchedProvince]);
 
-  const availableDistricts = regionMatch?.city.districts ?? [];
-  const availableWards =
-    availableDistricts.find(
-      (district) => normalizeText(district.name) === normalizeText(selectedDistrict),
-    )?.wards ?? [];
+  const availableDistricts = useMemo(
+    () => regionMatch?.city.districts ?? [],
+    [regionMatch?.city.districts],
+  );
+  const availableWards = useMemo(
+    () =>
+      availableDistricts.find(
+        (district) => normalizeText(district.name) === normalizeText(selectedDistrict),
+      )?.wards ?? [],
+    [availableDistricts, selectedDistrict],
+  );
 
   useEffect(() => {
     if (defaultValues) {

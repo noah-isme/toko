@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { Container } from '@/components/layout/container';
@@ -38,9 +39,11 @@ export function BrandsSection() {
                 )}
               >
                 {brand.logoUrl ? (
-                  <img
+                  <Image
                     src={brand.logoUrl}
                     alt={brand.name}
+                    width={120}
+                    height={48}
                     className="h-12 w-auto object-contain grayscale transition-all group-hover:grayscale-0"
                   />
                 ) : (

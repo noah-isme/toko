@@ -38,6 +38,9 @@ function CheckoutFailedContent() {
 
     const storedDraft = loadOrderDraft(orderId);
     if (storedDraft) {
+      // Draft lives in client-only sessionStorage; reading it post-mount avoids
+      // a hydration mismatch, so syncing into state here is intentional.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOrderDraft(storedDraft);
     }
   }, [orderId]);
