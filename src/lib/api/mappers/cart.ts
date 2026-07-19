@@ -1,3 +1,4 @@
+import { type CartWithPromo } from '@/entities/cart/cache';
 import type { Cart, CartItem } from '@/lib/api/schemas';
 import type { Cart as ApiCart, CartItem as ApiCartItem } from '@/lib/api/types';
 
@@ -38,10 +39,8 @@ export function mapApiCartToCart(apiCart: ApiCart): Cart {
   const subtotalAmt = apiCart.pricing?.subtotal ?? (apiCart as any).totals?.subtotal ?? 0;
   const discountAmt = apiCart.pricing?.discount ?? (apiCart as any).totals?.discount ?? 0;
   const taxAmt = apiCart.pricing?.tax ?? 0;
-  const shippingAmt = apiCart.pricing?.shipping ?? 0;
-  const totalAmt = apiCart.pricing?.total ?? (apiCart as any).totals?.total ?? subtotalAmt;
 
-  const baseCart: Cart = {
+  const baseCart: CartWithPromo = {
     id: apiCart.id ?? 'mock-cart-id',
     items: items.map((item) => mapApiCartItemToCartItem(item, currency)),
     subtotal: {
@@ -49,22 +48,25 @@ export function mapApiCartToCart(apiCart: ApiCart): Cart {
       currency: currency,
     },
     itemCount: items.reduce((acc, item) => acc + (item.qty ?? (item as any).quantity ?? 0), 0),
+    // Surface the server-computed tax so checkout uses the API's rate as the source of
+    // truth instead of the hardcoded 11% fallback. We intentionally do NOT surface
+    // `shipping`/`total` here: the cart endpoint always returns shipping=0 (see
+    // toko-api internal/cart/handlers.go — pricing.Compute is called with shipping=0),
+    // and its `total` excludes shipping. Checkout adds the selected courier cost itself,
+    // so forwarding those would overwrite the real shipping/total with cart-level zeros.
+    totals: {
+      subtotal: subtotalAmt - discountAmt,
+      discount: discountAmt,
+      tax: taxAmt,
+    },
   };
 
   if (apiCart.voucher || discountAmt > 0) {
-    const v = apiCart.voucher as any;
-    const voucherObj = typeof v === 'string' ? { code: v } : v;
-    (baseCart as any).promoInfo = {
-      code: voucherObj?.code ?? '',
-      discountType: voucherObj?.discountType ?? 'amount',
-      value: voucherObj?.value ?? discountAmt,
-      label: voucherObj?.label,
+    baseCart.promoInfo = {
+      code: apiCart.voucher ?? '',
+      discountType: 'amount',
+      value: discountAmt,
       discountValue: discountAmt,
-    };
-    (baseCart as any).totals = {
-      subtotal: subtotalAmt - discountAmt,
-      discount: discountAmt,
-      total: totalAmt,
     };
   }
 

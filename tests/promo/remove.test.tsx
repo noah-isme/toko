@@ -11,11 +11,16 @@ import { PromoField } from '@/entities/promo/ui/PromoField';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
 
-
 async function applyDefaultPromo(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/masukkan kode/i), 'SAVE10');
   await user.click(screen.getByRole('button', { name: /terapkan/i }));
-  await waitFor(() => expect(screen.getByText(/Kode SAVE10 aktif/i)).toBeInTheDocument());
+  // Wait for the applied state via the unambiguous "Hapus kode" action. The
+  // "Kode SAVE10 aktif" text appears in both the helper and the confirmation
+  // box (the cart refetch yields only the voucher code, so the helper falls
+  // back to that same label), which would make a text match non-unique.
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: /hapus kode/i })).toBeInTheDocument(),
+  );
 }
 
 describe('promo removal', () => {
@@ -82,8 +87,10 @@ describe('promo removal', () => {
       await user.click(screen.getByRole('button', { name: /hapus kode/i }));
     });
 
+    // Removal failed, so the promo stays applied — the "Hapus kode" action is the
+    // unambiguous applied-state signal (the "Kode SAVE10 aktif" text is non-unique).
     await waitFor(() => {
-      expect(screen.getByText(/Kode SAVE10 aktif/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /hapus kode/i })).toBeInTheDocument();
     });
   });
 });

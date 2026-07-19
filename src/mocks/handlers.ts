@@ -9,9 +9,9 @@ import { checkoutHandlers } from './handlers.checkout';
 import { favoritesHandlers } from './handlers.favorites';
 import { paymentHandlers } from './handlers.payment';
 import { reviewsHandlers } from './handlers.reviews';
-import { apiPath } from './utils';
+import { apiPath, type MockCart } from './utils';
 
-import { addToCartInputSchema, updateCartItemInputSchema, Cart, Product } from '@/lib/api/schemas';
+import { addToCartInputSchema, updateCartItemInputSchema, Product } from '@/lib/api/schemas';
 import type { Cart as ApiCart } from '@/lib/api/types';
 
 function createProduct(): Product {
@@ -74,7 +74,7 @@ const products: Product[] = SEED_PRODUCTS.map((p) => {
   };
 });
 
-const cart: Cart = {
+const cart: MockCart = {
   id: faker.string.uuid(),
   items: products.slice(0, 2).map((product) => ({
     id: faker.string.uuid(),
@@ -99,7 +99,7 @@ function recalculateCartTotals() {
 
 recalculateCartTotals();
 
-(globalThis as { __tokoCartMock?: Cart }).__tokoCartMock = cart;
+(globalThis as { __tokoCartMock?: MockCart }).__tokoCartMock = cart;
 
 function slugify(value: string) {
   return value
@@ -109,9 +109,18 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, '');
 }
 
+// Mirrors the backend pricing engine (internal/pricing/engine.go): tax is charged
+// on the post-discount subtotal at the configured rate (default PRICING_TAX_RATE_BPS=1100).
+const CART_TAX_BPS = 1100;
+
 function mapCartToApiCart(): ApiCart {
-  const discount = (cart as any).discount || 0;
-  const voucher = (cart as any).voucher || null;
+  const discount = cart.discount ?? 0;
+  const voucher = cart.voucher ?? null;
+
+  const taxable = Math.max(0, cart.subtotal.amount - discount);
+  const tax = Math.round((taxable * CART_TAX_BPS) / 10000);
+  const shipping = 0;
+  const total = taxable + tax + shipping;
 
   return {
     id: cart.id,
@@ -121,9 +130,9 @@ function mapCartToApiCart(): ApiCart {
     pricing: {
       subtotal: cart.subtotal.amount,
       discount: discount,
-      tax: 0,
-      shipping: 0,
-      total: Math.max(0, cart.subtotal.amount - discount),
+      tax: tax,
+      shipping: shipping,
+      total: total,
     },
     items: cart.items.map((item) => ({
       id: item.id,

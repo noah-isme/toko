@@ -1,6 +1,6 @@
 import { HttpResponse, http } from 'msw';
 
-import { apiPath } from '../utils';
+import { apiPath, type MockCart } from '../utils';
 
 import type { Promo } from '@/entities/promo/types';
 
@@ -32,8 +32,7 @@ const promoCatalog: Record<string, Promo & { message: string; scenario?: 'expire
 };
 
 function getCartMock() {
-  return (globalThis as { __tokoCartMock?: { subtotal?: { amount: number }; discount?: number } })
-    .__tokoCartMock;
+  return (globalThis as { __tokoCartMock?: MockCart }).__tokoCartMock;
 }
 
 function getCartSubtotal() {
@@ -75,16 +74,12 @@ function evaluatePromo(code: string) {
   };
 }
 
-function persistCartDiscount(discountValue: number | undefined, promo?: any) {
+function persistCartDiscount(discountValue: number | undefined, promo?: Promo) {
   const cart = getCartMock();
   if (cart) {
-    (cart as any).discount = discountValue ?? 0;
-    (cart as any).voucher = promo ? {
-      code: promo.code,
-      discountType: promo.discountType,
-      value: promo.value,
-      label: promo.label,
-    } : null;
+    cart.discount = discountValue ?? 0;
+    // Per the cart contract, `voucher` is the applied code string (or null).
+    cart.voucher = promo ? promo.code : null;
   }
 }
 
