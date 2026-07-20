@@ -113,7 +113,10 @@ function slugify(value: string) {
 // on the post-discount subtotal at the configured rate (default PRICING_TAX_RATE_BPS=1100).
 const CART_TAX_BPS = 1100;
 
-function mapCartToApiCart(): ApiCart {
+// Accepts an optional id so GET /carts/:cartId can echo the requested cart id back.
+// The mock is a single shared cart, but responding with a mismatched id would break
+// query-key/id consistency on the client (background refetch clobbering seeded state).
+function mapCartToApiCart(id: string = cart.id): ApiCart {
   const discount = cart.discount ?? 0;
   const voucher = cart.voucher ?? null;
 
@@ -123,7 +126,7 @@ function mapCartToApiCart(): ApiCart {
   const total = taxable + tax + shipping;
 
   return {
-    id: cart.id,
+    id,
     anonId: null,
     voucher: voucher,
     currency: cart.subtotal.currency,
@@ -191,7 +194,9 @@ export const handlers = [
   }),
   http.get(apiPath('/cart'), () => HttpResponse.json(cart)),
   http.get(apiPath('/carts'), () => HttpResponse.json({ data: mapCartToApiCart() })),
-  http.get(apiPath('/carts/:cartId'), () => HttpResponse.json({ data: mapCartToApiCart() })),
+  http.get(apiPath('/carts/:cartId'), ({ params }) =>
+    HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) }),
+  ),
   http.get(apiPath('/orders/:orderId/shipment'), ({ params }) =>
     HttpResponse.json({
       data: {
@@ -271,7 +276,7 @@ export const handlers = [
 
     return HttpResponse.json(cart);
   }),
-  http.post(apiPath('/carts/:cartId/items'), async ({ request }) => {
+  http.post(apiPath('/carts/:cartId/items'), async ({ params, request }) => {
     const payload = await request.json();
     const parsed = addToCartInputSchema.safeParse(payload);
 
@@ -314,7 +319,8 @@ export const handlers = [
 
     recalculateCartTotals();
 
-    return HttpResponse.json({ data: mapCartToApiCart() });
+    // Echo the requested cartId so the response id matches the client's query key.
+    return HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) });
   }),
   http.patch(apiPath('/cart/items/:itemId'), async ({ params, request }) => {
     const payload = await request.json();

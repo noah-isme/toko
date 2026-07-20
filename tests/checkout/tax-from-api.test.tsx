@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -81,11 +81,14 @@ describe('Checkout tax comes from the API, not a hardcoded 11%', () => {
     // Order Summary renders once the cart (with items) loads.
     await screen.findByText('Order Summary', {}, { timeout: 5000 });
 
-    // The Tax row shows the server value (Rp 30.000,00), NOT the 11% fallback (Rp 22.000,00).
-    // "Tax (11%)" is a unique label in the tree, so scope the value assertion to its row.
-    const taxRow = screen.getByText('Tax (11%)').closest('div')!;
+    // tax 30000 on a taxable base of 200000 == 15%, so the label is derived as
+    // "Tax (15%)" — itself proof the rate is not the hardcoded 11% fallback.
+    const taxRow = screen.getByText('Tax (15%)').closest('div')!;
     expect(within(taxRow).getByText('Rp 30.000,00')).toBeInTheDocument();
-    expect(within(taxRow).queryByText('Rp 22.000,00')).not.toBeInTheDocument();
+    // The 11% fallback (Rp 22.000,00) must not appear anywhere.
+    expect(screen.queryByText('Rp 22.000,00')).not.toBeInTheDocument();
+    // The old hardcoded label must be gone.
+    expect(screen.queryByText('Tax (11%)')).not.toBeInTheDocument();
 
     // Sanity: the subtotal row reflects the same payload.
     const subtotalRow = screen.getByText('Subtotal').closest('div')!;
