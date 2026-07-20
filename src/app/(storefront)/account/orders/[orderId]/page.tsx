@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { CancelOrderModal } from '@/components/cancel-order-modal';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
 import { ORDER_STATUS_LABELS } from '@/lib/api/constants';
@@ -71,6 +72,14 @@ export default function OrderDetailPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: 'Beranda', href: '/' },
+          { label: 'Akun', href: '/account' },
+          { label: 'Pesanan', href: '/account/orders' },
+          { label: order.orderNumber },
+        ]}
+      />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Nomor pesanan</p>

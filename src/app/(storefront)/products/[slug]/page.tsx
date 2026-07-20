@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { ProductDetail } from '@/components/product-detail';
 import { RelatedProductList } from '@/components/related-product-list';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { ReviewForm } from '@/entities/reviews/ui/ReviewForm';
 import { ReviewList } from '@/entities/reviews/ui/ReviewList';
 import { ReviewStats } from '@/entities/reviews/ui/ReviewStats';
@@ -128,11 +129,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const structuredData = productJsonLd(product ?? null);
   const resolvedProductId = product?.id ?? slug;
+  const productLabel = product?.title ?? humanizeSlug(slug) ?? 'Produk';
 
   return (
     <>
       <JsonLd id="product-jsonld" data={structuredData} />
       <div className="space-y-12">
+        <Breadcrumbs
+          items={[
+            { label: 'Beranda', href: '/' },
+            { label: 'Produk', href: '/products' },
+            { label: productLabel },
+          ]}
+        />
         <ProductDetail slug={slug} />
         <RelatedProductList slug={slug} />
         <section id="reviews" className="space-y-6">

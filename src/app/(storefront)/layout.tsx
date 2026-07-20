@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/footer';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { Navbar } from '@/components/layout/navbar';
 import { OfflineBanner } from '@/components/offline-banner';
+import { BackToTop } from '@/components/ui/back-to-top';
 
 export default function StorefrontLayout({ children }: { children: ReactNode }) {
   return (
@@ -17,6 +18,7 @@ export default function StorefrontLayout({ children }: { children: ReactNode }) 
         <Container>{children}</Container>
       </main>
       <MobileBottomNav />
+      <BackToTop />
       <Footer />
     </div>
   );

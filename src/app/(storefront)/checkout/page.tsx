@@ -11,6 +11,7 @@ import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
 import { ShippingOptions } from './_components/ShippingOptions';
 
 import { useAuth } from '@/components/providers/AuthProvider';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -487,6 +488,14 @@ export default function CheckoutPage() {
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-6">
           <div>
+            <Breadcrumbs
+              className="mb-3"
+              items={[
+                { label: 'Beranda', href: '/' },
+                { label: 'Keranjang', href: '/cart' },
+                { label: 'Checkout' },
+              ]}
+            />
             <h1 className="text-2xl font-bold">Checkout</h1>
             <p className="text-sm text-muted-foreground">
               Enter your shipping details to see available delivery options.

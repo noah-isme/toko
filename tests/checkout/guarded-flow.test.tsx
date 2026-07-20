@@ -128,7 +128,7 @@ describe('Guarded checkout and payment flow', () => {
     render(<CheckoutPage />, { wrapper: Wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText('Checkout')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Checkout' })).toBeInTheDocument();
     });
 
     await user.click(

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { RecentOrders } from '@/components/recent-orders';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { AccountDashboardSkeleton } from '@/shared/ui/skeletons/AccountDashboardSkeleton';
 import { useToast } from '@/shared/ui/toast';
@@ -48,6 +49,7 @@ export default function AccountPage() {
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Akun' }]} />
       <div>
         <h1 className="text-2xl font-bold">Welcome, {user.name}</h1>
         <p className="text-sm text-muted-foreground">{user.email}</p>

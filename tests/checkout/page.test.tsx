@@ -115,7 +115,9 @@ describe('CheckoutPage', () => {
     render(<CheckoutPage />, { wrapper: Wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText('Checkout')).toBeInTheDocument();
+      // Scope to the page heading — "Checkout" also appears as the current
+      // breadcrumb label, so a bare text match would be ambiguous.
+      expect(screen.getByRole('heading', { name: 'Checkout' })).toBeInTheDocument();
     });
 
     await user.click(
