@@ -6,6 +6,9 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export function OfflineBanner() {
+  // Default to online so server markup and the first client render match. The
+  // real navigator.onLine is browser-only, so it is reconciled post-mount in the
+  // effect below — a lazy initializer here would risk a hydration mismatch.
   const [isOnline, setIsOnline] = useState(true);
   const [showReconnected, setShowReconnected] = useState(false);
 

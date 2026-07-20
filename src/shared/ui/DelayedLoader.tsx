@@ -1,7 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -24,34 +24,26 @@ export function DelayedLoader({
   delayMs = DEFAULT_DELAY,
   className,
 }: DelayedLoaderProps) {
-  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = undefined;
-    }
-
     if (!active) {
-      // Reset visibility synchronously when the loader is deactivated.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVisible(false);
       return;
     }
 
-    timerRef.current = setTimeout(() => {
-      setVisible(true);
-    }, delayMs);
+    const timer = setTimeout(() => setVisible(true), delayMs);
 
+    // Cleanup runs when `active`/`delayMs` change or on unmount: cancel the pending
+    // timer and reset visibility. Resetting here (not in the effect body) keeps the
+    // next activation honoring the delay again without a synchronous setState render.
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+      clearTimeout(timer);
+      setVisible(false);
     };
   }, [active, delayMs]);
 
-  if (!visible) {
+  // Gate on `active` too, so deactivation hides immediately even before cleanup settles.
+  if (!active || !visible) {
     return null;
   }
 
