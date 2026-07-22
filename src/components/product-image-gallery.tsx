@@ -1,9 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
+
+// Minimum horizontal travel (in px) before a touch drag counts as a swipe.
+const SWIPE_THRESHOLD = 50;
 
 const blurPlaceholder =
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+';
@@ -17,6 +20,39 @@ interface ProductImageGalleryProps {
 export function ProductImageGallery({ images, productName, className }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
+  const goToPrevious = () => {
+    setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setIsZoomed(false);
+  };
+
+  const goToNext = () => {
+    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setIsZoomed(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || images.length <= 1) {
+      touchStartX.current = null;
+      return;
+    }
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
+    const deltaX = endX - touchStartX.current;
+    touchStartX.current = null;
+
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+    // Swipe left (finger moves right-to-left) advances; swipe right goes back.
+    if (deltaX < 0) {
+      goToNext();
+    } else {
+      goToPrevious();
+    }
+  };
 
   if (!images || images.length === 0) {
     return (
@@ -44,6 +80,8 @@ export function ProductImageGallery({ images, productName, className }: ProductI
           isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in',
         )}
         onClick={() => setIsZoomed(!isZoomed)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
@@ -111,10 +149,7 @@ export function ProductImageGallery({ images, productName, className }: ProductI
         <div className="hidden gap-2 sm:flex">
           <button
             type="button"
-            onClick={() => {
-              setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-              setIsZoomed(false);
-            }}
+            onClick={goToPrevious}
             disabled={images.length <= 1}
             className={cn(
               'flex-1 rounded-md border bg-background px-4 py-2 text-sm font-medium transition-colors',
@@ -127,10 +162,7 @@ export function ProductImageGallery({ images, productName, className }: ProductI
           </button>
           <button
             type="button"
-            onClick={() => {
-              setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-              setIsZoomed(false);
-            }}
+            onClick={goToNext}
             disabled={images.length <= 1}
             className={cn(
               'flex-1 rounded-md border bg-background px-4 py-2 text-sm font-medium transition-colors',
