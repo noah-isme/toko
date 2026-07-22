@@ -137,35 +137,46 @@ Mounted globally in `src/app/layout.tsx`. 114 toast usages across checkout, acco
 
 ---
 
-### 8. ⚠️ Breadcrumb Navigation — PARTIAL (SEO only)
+### 8. ✅ Breadcrumb Navigation — DONE
 
-**Status**: PARTIAL — SEO JSON-LD exists, no visible UI (re-audited 2026-07-14)
+**Status**: IMPLEMENTED (2026-07-20, commit `71f1233`)
 **Priority**: 🟢 P2 (Medium)
 
 **What exists**:
 
 - `src/shared/seo/jsonld.ts` — `breadcrumbJsonLd()` function for SEO structured data
-- `src/app/(storefront)/products/page.tsx` — Renders breadcrumb JSON-LD
+- `src/components/ui/breadcrumbs.tsx` — Visible breadcrumb UI component
+- Integrated on product detail (`products/[slug]/page.tsx`) and checkout (`checkout/page.tsx`)
 
-**Missing**: No visible breadcrumb UI component on product detail, checkout, account, or order detail pages.
+**History**: Previously PARTIAL (SEO JSON-LD only, re-audited 2026-07-14). Visible UI component shipped 2026-07-20.
 
 ---
 
-### 9. ❌ Back to Top Button
+### 9. ✅ Back to Top Button — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-07-20, commit `71f1233`)
 **Priority**: 🟢 P2 (Nice to have)
 
-No back-to-top or scroll-to-top component found anywhere in `src/`.
+**File**: `src/components/ui/back-to-top.tsx`
+
+Floating button in the storefront layout, appears after scrolling past a threshold, honors `prefers-reduced-motion`.
 
 ---
 
-### 10. ❌ Product Comparison Feature
+### 10. ✅ Product Comparison Feature — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-07-22, commit `c6e5d03`)
 **Priority**: 🟢 P2
 
-No comparison feature found. Only `localeCompare` (string sorting) and `compareAt` (price field) exist.
+**Files**:
+
+- `src/stores/compare-store.ts` — Zustand store, max 3 products, localStorage persistence
+- `src/components/product-compare-toggle.tsx` — Toggle on product cards
+- `src/components/product-compare-bar.tsx` — Floating summary bar
+- `src/app/(storefront)/compare/page.tsx` — Side-by-side comparison matrix
+- `src/entities/compare/useCompareProducts.ts` — Resolves ids to products via cached catalogue
+
+Users can select up to 3 products and compare price, rating, brand, category, stock, and description in a table.
 
 ---
 
@@ -577,17 +588,19 @@ Route-level splitting is handled by Next.js App Router.
 
 ## 🎯 Priority Summary
 
-### Re-audit Results (2026-07-14)
+### Re-audit Results (2026-07-14, updated 2026-07-22)
 
 | Category         | Total  | ✅ Done | ⚠️ Partial | ❌ Missing |
 | ---------------- | ------ | ------- | ---------- | ---------- |
 | 🔴 Critical (P0) | 2      | 2       | 0          | 0          |
 | 🟡 High (P1)     | 10     | 7       | 3          | 0          |
-| 🟢 Medium (P2)   | 20     | 3       | 4          | 13         |
+| 🟢 Medium (P2)   | 20     | 6       | 3          | 11         |
 | ⚪ Low (P3)      | 9      | 0       | 0          | 9          |
-| **Total**        | **41** | **18**  | **7**      | **16**     |
+| **Total**        | **41** | **21**  | **6**      | **20**     |
 
-**Remaining work**: 23 items (7 partial + 16 missing)
+**Remaining work**: 26 items (6 partial + 20 missing)
+
+> **2026-07-22 update**: Items #8 (breadcrumbs), #9 (back-to-top), #10 (product comparison) moved to DONE. P2 counts updated: Done 3→6, Partial 4→3, Missing 13→11. Total Done 18→21.
 
 ### Items marked DONE in this re-audit (previously claimed missing/incomplete):
 
@@ -604,8 +617,15 @@ Route-level splitting is handled by Next.js App Router.
 11. #34 Screen Reader Support — 74 ARIA live regions, 66 aria-label usages
 12. #38 Session Management — session list, remote logout, token refresh
 
+### Items marked DONE in the 2026-07-22 reconciliation:
+
+13. #8 Breadcrumb Navigation — visible UI component shipped (was PARTIAL/SEO-only)
+14. #9 Back to Top Button — floating button in storefront layout (was MISSING)
+15. #10 Product Comparison — store, toggle, bar, and /compare matrix page (was MISSING)
+
 ---
 
 **Maintained By**: Development Team
 **Last Re-audited**: 2026-07-14
+**Last Updated**: 2026-07-22 (items #8, #9, #10 reconciled against shipped code)
 **Next Review**: After P2 Sprint 1

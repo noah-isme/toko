@@ -1,7 +1,14 @@
 # ✅ P3 Implementation Complete - Nice to Have Features
 
-**Status**: ✅ COMPLETE  
-**Date**: 2025-12-08  
+> **⚠️ HISTORICAL SNAPSHOT (2025-12-08) — SUPERSEDED.**
+> This document describes an earlier generation of "P3" features (brands section,
+> offline banner, search autocomplete, newsletter, quick view). The current P3 backlog
+> and status live in `BACKLOG_AKTIF.md` and `UI_UX_GAPS_ANALYSIS.md`. Those docs use
+> different priority labels for a different feature set. Treat this file as a historical
+> record, not current state.
+
+**Status**: ✅ COMPLETE
+**Date**: 2025-12-08
 **Priority**: P3 (Nice to Have)
 
 ---

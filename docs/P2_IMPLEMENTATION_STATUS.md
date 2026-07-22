@@ -1,7 +1,15 @@
 # ✅ P2 Medium Priority Features - Implementation Complete
 
-**Date**: 2025-12-08  
-**Status**: All P2 features implemented and working  
+> **⚠️ HISTORICAL SNAPSHOT (2025-12-08) — SUPERSEDED.**
+> This document describes an earlier generation of "P2" features (price filter, brand
+> filter, terms checkbox, recent orders, product variants). The current P2 backlog and
+> status live in `BACKLOG_AKTIF.md` and `UI_UX_GAPS_ANALYSIS.md`. Those docs use different
+> priority labels for a different feature set. Treat this file as a historical record,
+> not current state. Note: `src/components/product-variants.tsx` described here is a dead
+> file (exists but not imported anywhere) as of 2026-07-22.
+
+**Date**: 2025-12-08
+**Status**: All P2 features implemented and working
 **Build**: ✅ Successful
 
 ---
