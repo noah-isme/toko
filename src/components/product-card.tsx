@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { Price } from '@/components/price';
+import { CompareToggle } from '@/components/product-compare-toggle';
 import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -80,8 +81,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 blurDataURL={blurPlaceholder}
               />
             ) : null}
-            <div className="absolute right-2 top-2">
+            <div className="absolute right-2 top-2 flex flex-col gap-2">
               <FavToggle productId={product.id} size="sm" />
+              <CompareToggle productId={product.id} size="sm" />
             </div>
             <Button
               variant="secondary"
