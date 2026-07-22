@@ -34,6 +34,40 @@ export interface PaginatedResponse<T> {
 }
 
 // ============================================================================
+// Notification Types
+// ============================================================================
+
+/**
+ * Machine-readable notification kind. Kept as a widened union so the UI can
+ * degrade gracefully if the backend introduces a new type.
+ */
+export type NotificationType =
+  | 'order_paid'
+  | 'order_canceled'
+  | 'payment_failed'
+  | 'payment_expired'
+  | 'shipment_shipped'
+  | 'shipment_out_for_delivery'
+  | 'shipment_delivered'
+  | (string & {});
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  /** Arbitrary JSON context; always present ({} when empty). May carry orderId. */
+  data: { orderId?: string; topic?: string; [key: string]: unknown };
+  read: boolean;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface UnreadCountResponse {
+  unread: number;
+}
+
+// ============================================================================
 // Authentication & User Types
 // ============================================================================
 
@@ -143,7 +177,7 @@ export interface ApiCreateAddressRequest {
 /**
  * Address update request (snake_case for API)
  */
-export interface ApiUpdateAddressRequest extends Partial<ApiCreateAddressRequest> { }
+export interface ApiUpdateAddressRequest extends Partial<ApiCreateAddressRequest> {}
 
 // ============================================================================
 // Catalog Types (Raw API Format)

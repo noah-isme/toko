@@ -7,6 +7,7 @@ import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
 import { checkoutHandlers } from './handlers.checkout';
 import { favoritesHandlers } from './handlers.favorites';
+import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
 import { reviewsHandlers } from './handlers.reviews';
 import { apiPath, type MockCart } from './utils';
@@ -423,6 +424,7 @@ export const handlers = [
   ...addressHandlers,
   ...paymentHandlers,
   ...favoritesHandlers,
+  ...notificationsHandlers,
   ...promoHandlers,
   ...reviewsHandlers,
   ...authHandlers,

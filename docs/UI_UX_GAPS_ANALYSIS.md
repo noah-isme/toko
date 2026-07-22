@@ -8,7 +8,7 @@
 
 ## 📊 Executive Summary
 
-A full re-audit of all 41 items against the codebase was performed on 2026-07-14. **14 items were found to be significantly more complete than previously documented.** The remaining backlog is 23 items, down from the previously claimed 37.
+A full re-audit of all 41 items against the codebase was performed on 2026-07-14. **14 items were found to be significantly more complete than previously documented.** The remaining backlog is 22 items, down from the previously claimed 37 (Swipe Gestures #14 completed 2026-07-22).
 
 ### Status Legend
 
@@ -182,12 +182,28 @@ Users can select up to 3 products and compare price, rating, brand, category, st
 
 ## 🔔 Notification System
 
-### 11. ❌ In-App Notifications
+### 11. ✅ In-App Notifications — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-07-22)
 **Priority**: 🟢 P2
 
-No notification bell, dropdown, or notification center found.
+**Backend** (`toko-api`): `user_notifications` table + `internal/notifications/`
+module; auto-created on order/payment/shipment events via the event bus; endpoints
+`GET /notifications`, `GET /notifications/unread-count`, `POST /notifications/{id}/read`,
+`POST /notifications/read-all` (see `docs/contracts/notifications.md`).
+
+**Frontend** (`toko`):
+
+- `src/components/notification-bell.tsx` — navbar bell with unread badge (caps at
+  `9+`), dropdown listing recent items, per-item mark-read + navigation, and a
+  "Tandai semua dibaca" action. Polls the unread count every 60s.
+- `src/app/(storefront)/account/notifications/page.tsx` — full paginated list.
+- `src/lib/api/services/notifications.ts` + hooks (`useNotifications`,
+  `useUnreadNotificationCount`, `useMarkNotificationRead`,
+  `useMarkAllNotificationsRead`) + MSW handlers in
+  `src/mocks/handlers.notifications.ts`.
+- Tests: `tests/notifications/hooks.int.test.tsx`,
+  `tests/notifications/notification-bell.test.tsx`.
 
 ---
 
@@ -214,10 +230,19 @@ No notification bell, dropdown, or notification center found.
 
 ---
 
-### 14. ❌ Swipe Gestures
+### 14. ✅ Swipe Gestures — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-07-22)
 **Priority**: ⚪ P3
+
+**Files**:
+
+- `src/components/product-image-gallery.tsx` — `onTouchStart`/`onTouchEnd` on the
+  main image; horizontal drag past a 50px threshold navigates images (swipe left →
+  next, swipe right → previous, with wraparound). Reuses the same `goToPrevious`/
+  `goToNext` handlers as the arrow buttons.
+- `tests/ui/product-image-gallery.test.tsx` — covers left/right swipe, sub-threshold
+  no-op, and single-image no-op via `fireEvent.touchStart`/`touchEnd`.
 
 ---
 

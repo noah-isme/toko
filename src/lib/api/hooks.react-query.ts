@@ -8,7 +8,7 @@ import {
   type UseMutationOptions,
 } from '@tanstack/react-query';
 
-import { authApi, catalogApi, cartApi, ordersApi, addressApi } from './services';
+import { authApi, catalogApi, cartApi, ordersApi, addressApi, notificationsApi } from './services';
 import type {
   RegisterRequest,
   LoginRequest,
@@ -47,6 +47,10 @@ export const queryKeys = {
   },
   address: {
     list: (page?: number) => ['address', 'list', page] as const,
+  },
+  notifications: {
+    list: (page?: number) => ['notifications', 'list', page] as const,
+    unreadCount: ['notifications', 'unreadCount'] as const,
   },
 };
 
@@ -327,6 +331,56 @@ export function useDeleteAddress() {
     mutationFn: (addressId: string) => addressApi.deleteAddress(addressId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.address.list() });
+    },
+  });
+}
+
+// ============================================================================
+// Notification Hooks
+// ============================================================================
+
+export function useNotifications(
+  page: number = 1,
+  limit: number = 20,
+  options?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: queryKeys.notifications.list(page),
+    queryFn: () => notificationsApi.list(page, limit),
+    enabled: options?.enabled ?? true,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+}
+
+export function useUnreadNotificationCount(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: queryKeys.notifications.unreadCount,
+    queryFn: () => notificationsApi.unreadCount(),
+    enabled: options?.enabled ?? true,
+    staleTime: 30 * 1000,
+    refetchInterval: 60 * 1000, // poll for near-real-time badge
+    refetchOnWindowFocus: true,
+  });
+}
+
+export function useMarkNotificationRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => notificationsApi.markRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+}
+
+export function useMarkAllNotificationsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => notificationsApi.markAllRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 }
