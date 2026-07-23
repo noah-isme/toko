@@ -417,12 +417,20 @@ Full profile management:
 
 ---
 
-### 27. ❌ Multi-Step Checkout Progress
+### 27. ✅ Multi-Step Checkout Progress — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-07-23)
 **Priority**: 🟢 P2
 
-Checkout spans multiple routes (checkout → review → success) but no visual progress/stepper indicator exists.
+**File**: `src/components/checkout-stepper.tsx`
+
+Horizontal 3-step stepper ("Alamat & Pengiriman" / "Tinjauan & Pembayaran" / "Selesai") rendered at the top of all three checkout routes:
+
+- `checkout/page.tsx` → `current="address"`
+- `checkout/review/page.tsx` → `current="review"`
+- `checkout/success/page.tsx` → `current="success"`
+
+Completed steps show a check icon; the active step is marked with `aria-current="step"` inside an `aria-label`ed progress `<nav>`. Step labels collapse to numbered circles on mobile. Tests: `tests/checkout/checkout-stepper.test.tsx`.
 
 ---
 
@@ -489,9 +497,9 @@ Both use `formatCountdown` helper (HH:MM:SS format).
 
 ## ♿ Accessibility Improvements
 
-### 33. ⚠️ Keyboard Navigation — PARTIAL
+### 33. ✅ Keyboard Navigation — DONE
 
-**Status**: PARTIAL (re-audited 2026-07-14)
+**Status**: IMPLEMENTED (2026-07-23)
 **Priority**: 🟡 P1
 
 **What exists**:
@@ -501,8 +509,7 @@ Both use `formatCountdown` helper (HH:MM:SS format).
 - `focus-visible:ring-2` styles across interactive elements
 - `src/shared/lib/useRouteFocus.ts` — Route focus management
 - `src/shared/ui/forms/accessibility.ts` — ARIA helper for forms
-
-**Missing**: Custom keyboard shortcut system, explicit focus-trap utility beyond Radix defaults.
+- **Global keyboard shortcut system**: `src/lib/keyboard-shortcuts.ts` (`useKeyboardShortcuts` hook) + `src/components/keyboard-shortcuts.tsx` (listener + help modal), mounted once in `src/app/(storefront)/layout.tsx`. Shortcuts: `Ctrl/⌘ K` focuses search; `G` then `H`/`C`/`O`/`A` navigates to Home/Cart/Orders/Account (Gmail-style chord); `?` opens the help modal. Shortcuts are suppressed while typing in inputs (except `Ctrl/⌘ K`). Tests: `tests/ux/keyboard-shortcuts.test.tsx`.
 
 ---
 
