@@ -114,9 +114,9 @@ Mounted globally in `src/app/layout.tsx`. 114 toast usages across checkout, acco
 
 ---
 
-### 7. ⚠️ Form Validation Enhancement — PARTIAL
+### 7. ✅ Form Validation Enhancement — DONE
 
-**Status**: PARTIAL (re-audited 2026-07-14)
+**Status**: IMPLEMENTED (2026-07-23)
 **Priority**: 🟡 P1
 
 **Entity forms use `zodResolver` (3 forms)**:
@@ -125,15 +125,17 @@ Mounted globally in `src/app/layout.tsx`. 114 toast usages across checkout, acco
 - `src/entities/address/ui/AddressForm.tsx` — `zodResolver(addressInputSchema)`
 - `src/entities/reviews/ui/ReviewForm.tsx` — `zodResolver(reviewCreateInputSchema)`
 
-**Auth forms use inline `register` validation only (5 forms, NO zodResolver)**:
+**Auth forms use `zodResolver` with colocated Zod schemas (5 forms)**:
 
-- `src/app/(storefront)/login/page.tsx`
-- `src/app/(storefront)/register/page.tsx`
-- `src/app/(storefront)/forgot-password/page.tsx`
-- `src/app/(storefront)/reset-password/page.tsx`
-- `src/app/(storefront)/verify-email/page.tsx`
+- `src/app/(storefront)/login/page.tsx` — `zodResolver(loginInputSchema)`
+- `src/app/(storefront)/register/page.tsx` — `zodResolver(registerInputSchema)`
+- `src/app/(storefront)/forgot-password/page.tsx` — `zodResolver(forgotPasswordInputSchema)`
+- `src/app/(storefront)/reset-password/page.tsx` — `zodResolver(resetPasswordInputSchema)`
+- `src/app/(storefront)/verify-email/page.tsx` — `zodResolver(resendVerificationInputSchema)`
 
-**Remaining work**: Migrate 5 auth forms to `zodResolver` with colocated Zod schemas for consistent client-side validation. This is a type-safety violation per project standards.
+**Schemas**: Colocated in `src/entities/auth/schemas.ts` with shared `emailSchema` and `passwordSchema` (min 8 chars, requires letters + numbers). Register and reset-password enforce password confirmation match via `.refine()`.
+
+**Test coverage**: `tests/auth/schemas.test.ts` (schema unit tests), `tests/auth/login.test.tsx`, `tests/auth/register.test.tsx`, `tests/auth/forgot-password.test.tsx`, `tests/auth/reset-password.test.tsx`, `tests/auth/verify-email.test.tsx`.
 
 ---
 
@@ -355,9 +357,9 @@ Full profile management:
 
 ---
 
-### 23. ⚠️ Order Tracking Enhancement — PARTIAL
+### 23. ✅ Order Tracking Enhancement — DONE
 
-**Status**: PARTIAL (re-audited 2026-07-14)
+**Status**: IMPLEMENTED (re-audited 2026-07-23)
 **Priority**: 🟡 P1
 
 **What exists**:
@@ -366,12 +368,15 @@ Full profile management:
 - Dedicated tracking page: `src/app/(storefront)/order/tracking/[orderId]/page.tsx`
 - Estimated delivery times on both pages
 - Live payment expiry countdown on confirmation page
+- **Map view**: Leaflet route map (`src/components/tracking-map.tsx`) plotting each tracking event by geocoded location (static city lookup + `/api/geocode` fallback), connected by a dashed polyline with per-stop popups. Loaded via `next/dynamic` (`ssr: false`).
+- **Share tracking link**: "Bagikan tautan pelacakan" button using the Web Share API with a clipboard-copy fallback (`src/components/tracking-actions.tsx`)
+- **Notify toggle**: "Beritahu saya" button backed by the browser Notification permission; preference persisted per-order in `localStorage`. Hidden when the Notification API is unavailable.
 
-**Missing**:
+**Notes**:
 
-- Map view (placeholder only — "Peta pengiriman" section says "integrasi peta akan tersedia segera")
-- Push notifications option
-- Share tracking link button
+- The `Shipment` API contract exposes no live courier coordinates, so the map is a geocoded route of tracking events rather than real-time GPS.
+- The notify toggle uses the browser Notification permission because the `/notifications` API is read-only (list/count/mark-read) with no subscription/preferences endpoint. When a delivery-updates subscription endpoint ships, the toggle should also POST the preference server-side.
+- Tests: `tests/tracking/tracking-actions.test.tsx` (share + notify flows).
 
 ---
 
