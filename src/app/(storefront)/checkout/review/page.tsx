@@ -9,6 +9,7 @@ import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } fr
 
 import { OrderSummary } from '../_components/OrderSummary';
 
+import { CheckoutStepper } from '@/components/checkout-stepper';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import type { ApiError } from '@/entities/checkout/api/client';
@@ -277,6 +278,7 @@ function CheckoutReviewContent() {
     <div className="space-y-8 pb-[calc(env(safe-area-inset-bottom)+5rem)]">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Review Pesanan</h1>
+        <CheckoutStepper current="review" className="mb-4 mt-4" />
         <p className="text-sm text-muted-foreground">
           Pastikan detail pesanan Anda sudah benar sebelum melanjutkan ke pembayaran.
         </p>

@@ -10,6 +10,7 @@ import { OrderSummary } from './_components/OrderSummary';
 import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
 import { ShippingOptions } from './_components/ShippingOptions';
 
+import { CheckoutStepper } from '@/components/checkout-stepper';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -497,6 +498,7 @@ export default function CheckoutPage() {
               ]}
             />
             <h1 className="text-2xl font-bold">Checkout</h1>
+            <CheckoutStepper current="address" className="mt-4" />
             <p className="text-sm text-muted-foreground">
               Enter your shipping details to see available delivery options.
             </p>

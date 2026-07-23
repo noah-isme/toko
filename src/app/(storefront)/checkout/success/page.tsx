@@ -8,6 +8,7 @@ import { Suspense, useEffect, useState } from 'react';
 
 import { OrderSummary } from '../_components/OrderSummary';
 
+import { CheckoutStepper } from '@/components/checkout-stepper';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
@@ -83,6 +84,7 @@ function CheckoutSuccessContent() {
   return (
     <div className="space-y-8">
       <JsonLd id="order-jsonld" data={structuredData} />
+      <CheckoutStepper current="success" />
       <div className="space-y-2 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
           <svg
