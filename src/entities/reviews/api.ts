@@ -21,37 +21,21 @@ import { apiClient } from '@/lib/api/apiClient';
 const productIdSchema = z.string().min(1, 'productId is required');
 const reviewIdSchema = z.string().min(1, 'reviewId is required');
 
-const reviewSchema: ZodType<Review> = z.object({
+// Backend returns raw snake_case review objects. These fields are the only
+// ones actually present in the API response; status/helpfulCount/myVote are
+// frontend-only defaults injected by the mapper.
+const apiReviewSchema: ZodType<ApiReview> = z.object({
   id: z.string(),
-  productId: z.string(),
-  author: z.string().optional(),
-  rating: z
-    .number()
-    .int()
-    .min(1)
-    .max(5)
-    .transform((n) => n as ReviewRating),
-  body: z.string(),
-  createdAt: z.string(),
-  status: z.enum(['pending', 'approved', 'rejected']),
-  helpfulCount: z.number().int().nonnegative(),
-  myVote: z
-    .union([z.literal('up'), z.null()])
-    .optional()
-    .default(null),
+  product_id: z.string(),
+  user_id: z.string(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  tenant_id: z.string(),
 });
 
-const reviewListMetaSchema: ZodType<ReviewListMeta> = z.object({
-  page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(1).default(10),
-  total: z.number().int().nonnegative().optional(),
-  totalPages: z.number().int().nonnegative().optional(),
-});
-
-const reviewListResponseSchema: ZodType<ReviewListResponse> = z.object({
-  data: z.array(reviewSchema),
-  meta: reviewListMetaSchema,
-});
+const apiReviewListSchema = z.array(apiReviewSchema);
 
 const ratingDistributionSchema: ZodType<ReviewRatingDistribution> = z.object({
   1: z.number().int().nonnegative().default(0),
@@ -74,11 +58,9 @@ const reviewListParamsSchema = z.object({
   sort: z.enum(['recent', 'rating', 'rating-high']).optional(),
 });
 
-const reviewCreateResponseSchema = z.object({
-  id: z.string(),
-  productId: z.string().optional(),
-  status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
-});
+// The backend returns the full raw review object on create. We only need id
+// and can infer status as pending for a freshly created review.
+const reviewCreateResponseSchema: ZodType<ApiReview> = apiReviewSchema;
 
 const reviewVoteDirectionSchema = z.union([z.literal('up'), z.literal('clear')]);
 
@@ -128,8 +110,10 @@ export async function listReviews(
   const parsedProductId = productIdSchema.parse(productId);
   const path = buildReviewListPath(parsedProductId, params);
 
-  // Backend returns raw array
-  const apiReviews = await apiClient<ApiReview[]>(path);
+  // Backend returns a raw array of snake_case review objects.
+  const apiReviews = await apiClient(path, {
+    schema: apiReviewListSchema,
+  });
 
   return {
     data: apiReviews.map(mapApiReviewToReview),
@@ -169,7 +153,7 @@ export async function createReview(
 
   return {
     id: response.id,
-    status: response.status,
+    status: 'pending',
   };
 }
 

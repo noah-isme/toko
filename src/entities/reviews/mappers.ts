@@ -8,8 +8,10 @@ export function mapApiReviewToReview(apiReview: ApiReview): Review {
     rating: apiReview.rating as ReviewRating,
     body: apiReview.comment, // Map comment -> body
     createdAt: apiReview.created_at,
-    status: 'approved', // Backend doesn't return status, assume approved
-    helpfulCount: 0, // Backend doesn't return this
+    // The backend API does not return these fields. They are frontend-only
+    // defaults so the Review entity shape stays consistent with the UI.
+    status: 'approved',
+    helpfulCount: 0,
     myVote: null,
   };
 }

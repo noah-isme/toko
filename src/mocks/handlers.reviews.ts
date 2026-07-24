@@ -3,7 +3,7 @@ import { HttpResponse, http } from 'msw';
 
 import { apiPath } from './utils';
 
-import type { Review, ReviewRating } from '@/entities/reviews/types';
+import type { ApiReview, Review, ReviewRating } from '@/entities/reviews/types';
 
 type ReviewStore = Map<string, Review[]>;
 
@@ -104,6 +104,19 @@ function findReviewById(reviewId: string) {
   return null;
 }
 
+function mapReviewToApiReview(review: Review): ApiReview {
+  return {
+    id: review.id,
+    product_id: review.productId,
+    user_id: review.author ?? 'anonymous',
+    rating: review.rating,
+    comment: review.body,
+    created_at: review.createdAt,
+    updated_at: review.createdAt,
+    tenant_id: 'tenant-mock',
+  };
+}
+
 export const reviewsHandlers = [
   http.get(apiPath('/products/:productId/reviews'), ({ request, params }) => {
     const productId = (params.productId as string) ?? 'unknown';
@@ -116,11 +129,10 @@ export const reviewsHandlers = [
     autoModerate(allReviews);
 
     const sorted = sortReviews([...allReviews], sort);
-    const total = sorted.length;
     const start = (page - 1) * pageSize;
     const paginated = sorted.slice(start, start + pageSize);
 
-    return HttpResponse.json(paginated);
+    return HttpResponse.json(paginated.map(mapReviewToApiReview));
   }),
 
   http.get(apiPath('/products/:productId/reviews/stats'), ({ params }) => {
@@ -169,13 +181,7 @@ export const reviewsHandlers = [
 
     reviews.unshift(review);
 
-    return HttpResponse.json(
-      {
-        id: review.id,
-        status: review.status,
-      },
-      { status: 201 },
-    );
+    return HttpResponse.json(mapReviewToApiReview(review), { status: 201 });
   }),
 
   http.post(apiPath('/reviews/:reviewId/vote'), async ({ request, params }) => {
