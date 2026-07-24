@@ -52,9 +52,7 @@ export default function OrderDetailPage() {
   const statusLabel = getStatusLabel(order.status, order.statusLabel);
   const statusClass = getStatusColor(order.status);
   const isPendingPayment = order.status.toLowerCase().includes('pending');
-  const canCancel =
-    order.status.toLowerCase().includes('pending') ||
-    order.status.toLowerCase().includes('processing');
+  const canCancel = order.status.toLowerCase() === 'pending_payment';
   const timeline = buildStatusTimeline(order);
 
   const handleDownloadInvoice = () => {
@@ -360,7 +358,8 @@ function getStatusColor(status: string) {
   if (
     s.includes('paid') ||
     s.includes('shipped') ||
-    s.includes('completed') ||
+    s.includes('out_for_delivery') ||
+    s.includes('delivered') ||
     s.includes('success')
   ) {
     return 'bg-emerald-100 text-emerald-700';

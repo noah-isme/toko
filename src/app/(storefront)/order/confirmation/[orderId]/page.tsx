@@ -35,12 +35,12 @@ const STATUS_CONFIG: Record<
     label: 'Pembayaran Berhasil',
     message: 'Pembayaran Anda telah diterima. Pesanan sedang diproses.',
   },
-  processing: {
+  packed: {
     icon: Clock,
     color: 'text-blue-600',
     bgColor: 'bg-blue-100',
-    label: 'Sedang Diproses',
-    message: 'Pesanan Anda sedang diproses oleh tim kami.',
+    label: 'Sedang Dikemas',
+    message: 'Pesanan Anda sedang dikemas oleh tim kami.',
   },
   shipped: {
     icon: CheckCircle2,
@@ -49,7 +49,14 @@ const STATUS_CONFIG: Record<
     label: 'Dalam Pengiriman',
     message: 'Pesanan Anda sedang dalam perjalanan.',
   },
-  completed: {
+  out_for_delivery: {
+    icon: CheckCircle2,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-100',
+    label: 'Sedang Diantar',
+    message: 'Pesanan Anda sedang diantar ke alamat tujuan.',
+  },
+  delivered: {
     icon: CheckCircle2,
     color: 'text-green-600',
     bgColor: 'bg-green-100',
@@ -113,10 +120,7 @@ export default function OrderConfirmationPage() {
     return () => window.clearInterval(timer);
   }, [isPendingPayment, paymentExpiryTime]);
 
-  const canCancel = useMemo(
-    () => normalizedStatus.includes('pending') || normalizedStatus.includes('processing'),
-    [normalizedStatus],
-  );
+  const canCancel = useMemo(() => normalizedStatus === 'pending_payment', [normalizedStatus]);
   const statusTimeline = useMemo(() => {
     if (!order) return [];
     const rawHistory = order.statusHistory ?? [];

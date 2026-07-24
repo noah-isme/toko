@@ -337,7 +337,7 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
       {
         id: 'order-3',
         orderNumber: 'ORD-003',
-        status: 'processing',
+        status: 'packed',
         total: 300000,
         currency: 'IDR',
         itemCount: 1,
@@ -355,7 +355,7 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
       {
         id: 'order-5',
         orderNumber: 'ORD-005',
-        status: 'completed',
+        status: 'delivered',
         total: 500000,
         currency: 'IDR',
         itemCount: 1,

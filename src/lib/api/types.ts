@@ -389,8 +389,9 @@ export interface TaxQuoteResponse {
 export type OrderStatus =
   | 'pending_payment'
   | 'paid'
-  | 'processing'
+  | 'packed'
   | 'shipped'
+  | 'out_for_delivery'
   | 'delivered'
   | 'cancelled';
 

@@ -126,7 +126,7 @@ test.describe('Payment continuation flow', () => {
       await mockOrderResponse(page, 'order-test-details', {
         id: 'order-test-details',
         orderNumber: 'ORD-DETAILS-123',
-        status: 'processing',
+        status: 'packed',
         total: 575000,
         currency: 'IDR',
         pricing: { total: 575000 },
@@ -141,7 +141,7 @@ test.describe('Payment continuation flow', () => {
       await expect(page.getByText(/575\.000|575,000/)).toBeVisible();
 
       // Verify status message
-      await expect(page.getByRole('heading', { name: 'Sedang Diproses' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Sedang Dikemas' })).toBeVisible();
     });
   });
 
@@ -213,9 +213,10 @@ test.describe('Payment continuation flow', () => {
     const statusCases = [
       { status: 'pending_payment', label: 'Menunggu Pembayaran', hasPayButton: true },
       { status: 'paid', label: 'Pembayaran Berhasil', hasPayButton: false },
-      { status: 'processing', label: 'Sedang Diproses', hasPayButton: false },
+      { status: 'packed', label: 'Sedang Dikemas', hasPayButton: false },
       { status: 'shipped', label: 'Dalam Pengiriman', hasPayButton: false },
-      { status: 'completed', label: 'Selesai', hasPayButton: false },
+      { status: 'out_for_delivery', label: 'Sedang Diantar', hasPayButton: false },
+      { status: 'delivered', label: 'Selesai', hasPayButton: false },
       { status: 'cancelled', label: 'Dibatalkan', hasPayButton: false },
     ];
 

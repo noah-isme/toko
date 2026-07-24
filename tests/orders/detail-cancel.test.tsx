@@ -21,23 +21,40 @@ vi.mock('@/entities/orders/api/hooks', () => ({
     isPending: false,
   }),
   useOrderQuery: (orderId: string) => ({
-    data: orderId === 'completed-order' ? {
-      id: 'completed-order',
-      orderNumber: 'ORD-COMPLETED',
-      status: 'completed',
-      createdAt: '2026-06-30T15:30:00Z',
-      items: [],
-      pricing: { total: 100000, subtotal: 90000, shipping: 10000 },
-      shippingAddress: { receiverName: 'Alice', phone: '081', addressLine1: 'Line', city: 'City', province: 'Prov', postalCode: '123' },
-    } : {
-      id: 'test-order-id',
-      orderNumber: 'ORD-PENDING',
-      status: 'pending_payment',
-      createdAt: '2026-06-30T15:30:00Z',
-      items: [],
-      pricing: { total: 100000, subtotal: 90000, shipping: 10000 },
-      shippingAddress: { receiverName: 'Alice', phone: '081', addressLine1: 'Line', city: 'City', province: 'Prov', postalCode: '123' },
-    },
+    data:
+      orderId === 'delivered-order'
+        ? {
+            id: 'delivered-order',
+            orderNumber: 'ORD-DELIVERED',
+            status: 'delivered',
+            createdAt: '2026-06-30T15:30:00Z',
+            items: [],
+            pricing: { total: 100000, subtotal: 90000, shipping: 10000 },
+            shippingAddress: {
+              receiverName: 'Alice',
+              phone: '081',
+              addressLine1: 'Line',
+              city: 'City',
+              province: 'Prov',
+              postalCode: '123',
+            },
+          }
+        : {
+            id: 'test-order-id',
+            orderNumber: 'ORD-PENDING',
+            status: 'pending_payment',
+            createdAt: '2026-06-30T15:30:00Z',
+            items: [],
+            pricing: { total: 100000, subtotal: 90000, shipping: 10000 },
+            shippingAddress: {
+              receiverName: 'Alice',
+              phone: '081',
+              addressLine1: 'Line',
+              city: 'City',
+              province: 'Prov',
+              postalCode: '123',
+            },
+          },
     isLoading: false,
     error: null,
   }),
@@ -72,7 +89,7 @@ describe('OrderDetailPage - Order Cancellation Flow', () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <OrderDetailPage />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
   };
 
@@ -103,10 +120,12 @@ describe('OrderDetailPage - Order Cancellation Flow', () => {
 
     await waitFor(() => {
       expect(mockMutateAsync).toHaveBeenCalled();
-      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({
-        variant: 'success',
-        title: 'Pesanan dibatalkan',
-      }));
+      expect(mockToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: 'success',
+          title: 'Pesanan dibatalkan',
+        }),
+      );
     });
   });
 });
