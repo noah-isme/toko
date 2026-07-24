@@ -3,11 +3,12 @@ import { z } from 'zod';
 export const AddressSchema = z.object({
   receiverName: z.string().min(1, 'Receiver name is required'),
   phone: z.string().min(1, 'Phone number is required'),
-  province: z.string().min(1, 'Province is required'),
+  addressLine1: z.string().min(1, 'Address line 1 is required'),
+  addressLine2: z.string().optional(),
   city: z.string().min(1, 'City is required'),
-  district: z.string().min(1, 'District is required'),
+  province: z.string().min(1, 'Province is required'),
   postalCode: z.string().min(1, 'Postal code is required'),
-  detail: z.string().min(1, 'Address detail is required'),
+  country: z.string().default('Indonesia'),
 });
 
 export const ShippingOptionSchema = z.object({

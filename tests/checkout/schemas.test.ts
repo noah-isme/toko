@@ -7,11 +7,12 @@ describe('AddressSchema', () => {
     const data = {
       receiverName: 'Jane Doe',
       phone: '08123456789',
-      province: 'DKI Jakarta',
+      addressLine1: 'Jl. Senopati No. 12',
+      addressLine2: 'Apt 3B',
       city: 'Jakarta Selatan',
-      district: 'Kebayoran Baru',
+      province: 'DKI Jakarta',
       postalCode: '12120',
-      detail: 'Jl. Senopati No. 12',
+      country: 'Indonesia',
     };
 
     expect(() => AddressSchema.parse(data)).not.toThrow();
@@ -21,11 +22,12 @@ describe('AddressSchema', () => {
     const data = {
       receiverName: '',
       phone: '',
-      province: '',
+      addressLine1: '',
+      addressLine2: '',
       city: '',
-      district: '',
+      province: '',
       postalCode: '',
-      detail: '',
+      country: '',
     };
 
     const result = AddressSchema.safeParse(data);

@@ -120,13 +120,13 @@ function CheckoutReviewContent() {
       return null;
     }
 
-    const { receiverName, phone, detail, district, city, province, postalCode } =
+    const { receiverName, phone, addressLine1, addressLine2, city, province, postalCode, country } =
       orderDraft.address;
     return [
       `${receiverName} • ${phone}`,
-      detail,
-      `${district}, ${city}`,
-      `${province} ${postalCode}`,
+      addressLine1 + (addressLine2 ? `, ${addressLine2}` : ''),
+      `${city}, ${province} ${postalCode}`,
+      country,
     ].filter(Boolean);
   }, [orderDraft?.address]);
 

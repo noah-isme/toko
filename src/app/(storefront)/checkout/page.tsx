@@ -849,17 +849,12 @@ function mapAddressToCheckout(address: SavedAddress): CheckoutAddress {
   return {
     receiverName: address.receiverName,
     phone: address.phone,
-    province: address.province,
+    addressLine1: address.addressLine1,
+    addressLine2: address.addressLine2,
     city: address.city,
-    district: address.city,
+    province: address.province,
     postalCode: address.postalCode,
-    detail: formatAddressText(
-      address.addressLine1,
-      address.addressLine2,
-      address.city,
-      address.province,
-      address.postalCode,
-    ),
+    country: address.country ?? 'Indonesia',
   };
 }
 
