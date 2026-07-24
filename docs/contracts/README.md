@@ -11,6 +11,7 @@
 - [Cart](cart.md)
 - [Checkout](checkout.md)
 - [Orders](orders.md)
+- [Payment](payment.md)
 - [User Addresses](user.md)
 - [Admin](admin.md)
 - [Webhooks](webhooks.md)

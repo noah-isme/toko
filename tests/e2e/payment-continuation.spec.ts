@@ -190,9 +190,10 @@ test.describe('Payment continuation flow', () => {
           status: 200,
           body: JSON.stringify({
             data: {
-              orderId: 'new-order-from-checkout',
-              paymentUrl: 'https://payment.example.com/checkout-payment',
-              status: 'PENDING',
+              provider: 'midtrans',
+              token: 'mock-token-checkout',
+              redirectUrl: 'https://payment.example.com/checkout-payment',
+              expiresAt: new Date(Date.now() + 3600000).toISOString(),
             },
           }),
           headers: { 'content-type': 'application/json' },

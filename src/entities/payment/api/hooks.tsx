@@ -18,6 +18,14 @@ import { RetryToastAction } from '@/shared/ui/toast/RetryToastAction';
 
 const paymentStatusInputSchema = z.string().min(1, 'Order id is required');
 
+const PaymentIntentResponseSchema = z.object({
+  data: PaymentIntentSchema,
+});
+
+const PaymentStatusResponseSchema = z.object({
+  data: PaymentStatusSchema,
+});
+
 const paymentIntentStateKey = ['payment', 'intent'] as const;
 
 type PaymentIntentCacheState =
@@ -48,11 +56,12 @@ export function useCreatePaymentIntentMutation() {
   >({
     mutationFn: async (input) => {
       const payload = PaymentCreateBodySchema.parse(input);
-      return fetchWithCreds('/payments/intent', {
+      const response = await fetchWithCreds('/payments/intent', {
         method: 'POST',
         body: payload,
-        schema: PaymentIntentSchema,
+        schema: PaymentIntentResponseSchema,
       });
+      return response.data;
     },
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: paymentIntentStateKey });
@@ -74,7 +83,7 @@ export function useCreatePaymentIntentMutation() {
 
       return { previousState, toastId } satisfies PaymentIntentMutationContext;
     },
-    onSuccess: (data, _variables, context) => {
+    onSuccess: (data, variables, context) => {
       if (context?.toastId) {
         dismiss(context.toastId);
       }
@@ -85,8 +94,8 @@ export function useCreatePaymentIntentMutation() {
       });
 
       pushToast({
-        id: `payment-intent-success-${data.orderId}`,
-        eventKey: `payment-intent-success-${data.orderId}`,
+        id: `payment-intent-success-${variables.orderId}`,
+        eventKey: `payment-intent-success-${variables.orderId}`,
         title: 'Pembayaran siap dilanjutkan',
         description: 'Buka halaman pembayaran untuk menyelesaikan transaksi.',
         variant: 'success',
@@ -147,10 +156,13 @@ export function usePaymentStatusQuery(orderId: string, options: PaymentStatusQue
     refetchInterval: 4000,
     queryFn: async () => {
       const validatedOrderId = paymentStatusInputSchema.parse(orderId);
-      const searchParams = new URLSearchParams({ orderId: validatedOrderId });
-      return fetchWithCreds(`/payments/status?${searchParams.toString()}`, {
-        schema: PaymentStatusSchema,
-      });
+      const response = await fetchWithCreds(
+        `/payments/${encodeURIComponent(validatedOrderId)}/status`,
+        {
+          schema: PaymentStatusResponseSchema,
+        },
+      );
+      return response.data;
     },
   });
 }

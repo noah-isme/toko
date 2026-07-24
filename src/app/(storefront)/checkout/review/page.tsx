@@ -29,7 +29,7 @@ import { DisabledHint } from '@/shared/ui/DisabledHint';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useToast } from '@/shared/ui/toast';
 
-const failureStatuses: Array<PaymentStatus['status']> = ['FAILED', 'EXPIRED', 'CANCELED'];
+const failureStatuses: Array<PaymentStatus['status']> = ['FAILED', 'EXPIRED', 'REFUNDED'];
 
 export default function CheckoutReviewPage() {
   return (
@@ -133,7 +133,6 @@ function CheckoutReviewContent() {
     async (override?: PaymentCreateBody) => {
       const payload = override ?? {
         orderId,
-        provider: 'midtrans',
         channel: 'snap',
       };
 
@@ -235,11 +234,7 @@ function CheckoutReviewContent() {
     (status: PaymentStatus['status']) => {
       setWatcherActive(false);
       setFailedStatus(status);
-      setStatusError(
-        status === 'CANCELED'
-          ? 'Pembayaran dibatalkan. Silakan mulai ulang proses pembayaran.'
-          : `Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`,
-      );
+      setStatusError(`Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`);
       pushToast({
         id: `payment-failed-${orderId}`,
         title: 'Pembayaran belum berhasil',

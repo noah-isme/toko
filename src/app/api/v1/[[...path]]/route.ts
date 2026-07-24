@@ -118,12 +118,11 @@ const shippingRates = [
 let mockPaymentPaid = false;
 
 function handleRoute(path: string, method: string, body: any, searchParams?: URLSearchParams) {
-  if (path === 'payments/status' && method === 'GET') {
-    const orderId = searchParams?.get('orderId') || 'order-success-id';
+  if (path.startsWith('payments/') && path.endsWith('/status') && method === 'GET') {
     return {
-      orderId,
-      status: mockPaymentPaid ? 'PAID' : 'PENDING',
-      provider: 'midtrans',
+      data: {
+        status: mockPaymentPaid ? 'PAID' : 'PENDING',
+      },
     };
   }
 
@@ -277,12 +276,12 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
   if (path === 'payments/intent' && method === 'POST') {
     mockPaymentPaid = true; // Set to PAID when payment intent (Bayar Sekarang) is initiated
     return {
-      orderId: body?.orderId || 'order-pending-123',
-      provider: body?.provider || 'midtrans',
-      channel: body?.channel || 'snap',
-      token: 'mock-token-12345',
-      redirectUrl: 'https://payment.example.com/pay',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      data: {
+        provider: body?.provider || 'midtrans',
+        token: 'mock-token-12345',
+        redirectUrl: 'https://payment.example.com/pay',
+        expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      },
     };
   }
 

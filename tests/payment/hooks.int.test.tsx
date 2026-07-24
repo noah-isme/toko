@@ -34,7 +34,6 @@ describe('payment hooks', () => {
     await act(async () => {
       await intentResult.current.mutateAsync({
         orderId,
-        provider: 'midtrans',
         channel: 'snap',
       });
     });
@@ -42,9 +41,7 @@ describe('payment hooks', () => {
     await waitFor(() => {
       expect(intentResult.current.data).toBeDefined();
       expect(intentResult.current.data).toMatchObject({
-        orderId,
         provider: 'midtrans',
-        channel: 'snap',
       });
     });
 

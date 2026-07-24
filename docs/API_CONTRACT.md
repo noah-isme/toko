@@ -1072,6 +1072,62 @@ Authorization: Bearer <token>
 
 ---
 
+### 4.6 Create or Reuse Payment Intent
+
+```http
+POST /api/v1/payments/intent
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+**Request:**
+
+```json
+{
+  "orderId": "order-uuid",
+  "channel": "snap"
+}
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "data": {
+    "provider": "midtrans",
+    "token": "snap-token-123",
+    "redirectUrl": "https://payment.example.com/pay/xxx",
+    "expiresAt": "2025-12-08T10:00:00Z"
+  }
+}
+```
+
+- `provider` is always present.
+- `token`, `redirectUrl`, and `expiresAt` are provider-dependent and may be omitted.
+
+---
+
+### 4.7 Get Consolidated Payment Status
+
+```http
+GET /api/v1/payments/{orderId}/status
+Authorization: Bearer <token>
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "data": {
+    "status": "PAID"
+  }
+}
+```
+
+**Status values:** `PENDING`, `PAID`, `FAILED`, `EXPIRED`, `REFUNDED`.
+
+---
+
 ## 5. User Addresses
 
 ### 5.1 List Addresses

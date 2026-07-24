@@ -213,29 +213,21 @@ describe('Guarded checkout and payment flow', () => {
           );
         }
 
-        return HttpResponse.json(
-          PaymentIntentSchema.parse({
-            orderId: payload.orderId,
-            provider: payload.provider,
-            channel: payload.channel ?? 'snap',
+        return HttpResponse.json({
+          data: PaymentIntentSchema.parse({
+            provider: 'midtrans',
             token: 'mock-token-guarded',
             redirectUrl: 'https://mock.pay/redirect/guarded',
             expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
           }),
-        );
+        });
       }),
-      http.get(apiPath('/payments/status'), ({ request }) => {
-        const url = new URL(request.url);
-        const requestedOrderId = url.searchParams.get('orderId') ?? orderId;
-
-        return HttpResponse.json(
-          PaymentStatusSchema.parse({
-            orderId: requestedOrderId,
+      http.get(apiPath('/payments/:orderId/status'), () => {
+        return HttpResponse.json({
+          data: PaymentStatusSchema.parse({
             status: 'PAID',
-            provider: 'midtrans',
-            raw: { checks: 1 },
           }),
-        );
+        });
       }),
     );
 
