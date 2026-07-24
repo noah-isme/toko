@@ -79,7 +79,7 @@ export const AddressCard = memo(function AddressCard({
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-base font-semibold leading-tight text-foreground">
-            {address.fullName}
+            {address.receiverName}
           </p>
           <p className="text-xs text-muted-foreground">{formatPhone(address.phone)}</p>
         </div>
@@ -109,8 +109,10 @@ export const AddressCard = memo(function AddressCard({
         <div className="flex items-start gap-2 text-sm">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <div className="space-y-0.5">
-            <p className="font-medium">{address.line1}</p>
-            {address.line2 ? <p className="text-muted-foreground">{address.line2}</p> : null}
+            <p className="font-medium">{address.addressLine1}</p>
+            {address.addressLine2 ? (
+              <p className="text-muted-foreground">{address.addressLine2}</p>
+            ) : null}
             <p className="text-muted-foreground">
               {address.city}, {address.province}
             </p>
@@ -161,7 +163,7 @@ export const AddressCard = memo(function AddressCard({
             variant="ghost"
             size="sm"
             disabled={actionDisabled}
-            aria-label={`Edit alamat ${address.fullName}`}
+            aria-label={`Edit alamat ${address.receiverName}`}
             onClick={(event) => {
               event.stopPropagation();
               onEdit(address);
@@ -180,7 +182,7 @@ export const AddressCard = memo(function AddressCard({
             aria-label={
               deleteBlocked
                 ? (disableDeleteReason ?? 'Menghapus alamat dinonaktifkan')
-                : `Hapus alamat ${address.fullName}`
+                : `Hapus alamat ${address.receiverName}`
             }
             title={disableDeleteReason}
             onClick={(event) => {

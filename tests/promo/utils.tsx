@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { getCartQueryKey } from '@/entities/cart/cache';
 import { queryKeys } from '@/lib/api/queryKeys';
-import type { Cart } from '@/lib/api/schemas';
+import type { CartView } from '@/lib/api/schemas';
 
 export function createQueryClient() {
   return new QueryClient({
@@ -13,7 +13,7 @@ export function createQueryClient() {
   });
 }
 
-export function createTestCart(cartId = 'cart-123'): Cart {
+export function createTestCart(cartId = 'cart-123'): CartView {
   return {
     id: cartId,
     items: [],
@@ -22,7 +22,7 @@ export function createTestCart(cartId = 'cart-123'): Cart {
   };
 }
 
-export function seedCart(queryClient: QueryClient, cart: Cart) {
+export function seedCart(queryClient: QueryClient, cart: CartView) {
   queryClient.setQueryData(queryKeys.cart(), cart);
   queryClient.setQueryData(getCartQueryKey(cart.id), cart);
 }

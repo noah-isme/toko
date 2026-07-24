@@ -31,7 +31,7 @@ type LocationResult = {
   city?: string;
   province?: string;
   postalCode?: string;
-  line1?: string;
+  addressLine1?: string;
   lat?: number;
   lon?: number;
 };
@@ -51,10 +51,10 @@ export function AddressForm({
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
-      fullName: '',
+      receiverName: '',
       phone: '',
-      line1: '',
-      line2: '',
+      addressLine1: '',
+      addressLine2: '',
       city: '',
       province: '',
       postalCode: '',
@@ -117,10 +117,10 @@ export function AddressForm({
   useEffect(() => {
     if (defaultValues) {
       form.reset({
-        fullName: '',
+        receiverName: '',
         phone: '',
-        line1: '',
-        line2: '',
+        addressLine1: '',
+        addressLine2: '',
         city: '',
         province: '',
         postalCode: '',
@@ -184,7 +184,7 @@ export function AddressForm({
             address.city || address.town || address.village || address.county || undefined;
           const province = address.state || undefined;
           const postalCode = address.postcode ? normalizePostalCode(address.postcode) : undefined;
-          const line1 = address.road || address.suburb || address.neighbourhood || undefined;
+          const addressLine1 = address.road || address.suburb || address.neighbourhood || undefined;
 
           return {
             id: String(result.place_id ?? index),
@@ -192,7 +192,7 @@ export function AddressForm({
             city,
             province,
             postalCode,
-            line1,
+            addressLine1,
             lat: result.lat ? Number(result.lat) : undefined,
             lon: result.lon ? Number(result.lon) : undefined,
           } satisfies LocationResult;
@@ -219,8 +219,11 @@ export function AddressForm({
     setIsLocationOpen(false);
     setLocationResults([]);
 
-    if (result.line1 && !form.getValues('line1')) {
-      form.setValue('line1', result.line1, { shouldValidate: true, shouldDirty: true });
+    if (result.addressLine1 && !form.getValues('addressLine1')) {
+      form.setValue('addressLine1', result.addressLine1, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
     if (result.city) {
       form.setValue('city', result.city, { shouldValidate: true, shouldDirty: true });
@@ -231,7 +234,7 @@ export function AddressForm({
     if (result.postalCode) {
       form.setValue('postalCode', result.postalCode, { shouldValidate: true, shouldDirty: true });
     }
-    form.clearErrors(['line1', 'city', 'province', 'postalCode']);
+    form.clearErrors(['addressLine1', 'city', 'province', 'postalCode']);
 
     if (typeof result.lat === 'number' && typeof result.lon === 'number') {
       setMapPosition([result.lat, result.lon]);
@@ -322,7 +325,7 @@ export function AddressForm({
 
       // Map Nominatim fields to our schema
       if (address) {
-        form.setValue('line1', address.road || address.suburb || '');
+        form.setValue('addressLine1', address.road || address.suburb || '');
         form.setValue(
           'city',
           address.city || address.town || address.village || address.county || '',
@@ -331,7 +334,7 @@ export function AddressForm({
         form.setValue('postalCode', address.postcode ? normalizePostalCode(address.postcode) : '');
 
         // Helper to clear error if value exists
-        if (address.road) form.clearErrors('line1');
+        if (address.road) form.clearErrors('addressLine1');
         if (address.city || address.town) form.clearErrors('city');
         if (address.state) form.clearErrors('province');
         if (address.postcode) form.clearErrors('postalCode');
@@ -410,9 +413,9 @@ export function AddressForm({
       form.clearErrors('postalCode');
     }
 
-    const existingLine2 = form.getValues('line2')?.trim();
-    if (!existingLine2 && selectedDistrict && nextWard) {
-      form.setValue('line2', `Kec. ${selectedDistrict}, Kel. ${nextWard}`, {
+    const existingAddressLine2 = form.getValues('addressLine2')?.trim();
+    if (!existingAddressLine2 && selectedDistrict && nextWard) {
+      form.setValue('addressLine2', `Kec. ${selectedDistrict}, Kel. ${nextWard}`, {
         shouldValidate: true,
         shouldDirty: true,
       });
@@ -581,8 +584,8 @@ export function AddressForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label="Nama penerima"
-          name="fullName"
-          error={errors.fullName?.message}
+          name="receiverName"
+          error={errors.receiverName?.message}
           autoComplete="name"
           register={form.register}
           disabled={isSubmitting}
@@ -597,16 +600,16 @@ export function AddressForm({
         />
         <Field
           label="Alamat utama"
-          name="line1"
-          error={errors.line1?.message}
+          name="addressLine1"
+          error={errors.addressLine1?.message}
           autoComplete="address-line1"
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
           label="Detail alamat"
-          name="line2"
-          error={errors.line2?.message}
+          name="addressLine2"
+          error={errors.addressLine2?.message}
           autoComplete="address-line2"
           register={form.register}
           disabled={isSubmitting}

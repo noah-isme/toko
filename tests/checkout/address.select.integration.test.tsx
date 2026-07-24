@@ -57,9 +57,9 @@ describe('CheckoutPage address selection', () => {
     const seed: Address[] = [
       {
         id: 'addr-primary',
-        fullName: 'Primary User',
+        receiverName: 'Primary User',
         phone: '0811111111',
-        line1: 'Jl. Utama',
+        addressLine1: 'Jl. Utama',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12120',
@@ -70,9 +70,9 @@ describe('CheckoutPage address selection', () => {
       },
       {
         id: 'addr-secondary',
-        fullName: 'Secondary User',
+        receiverName: 'Secondary User',
         phone: '0822222222',
-        line1: 'Jl. Kedua',
+        addressLine1: 'Jl. Kedua',
         city: 'Bandung',
         province: 'Jawa Barat',
         postalCode: '40111',

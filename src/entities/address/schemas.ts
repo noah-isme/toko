@@ -17,13 +17,13 @@ const requiredText = (field: string, max = 120) =>
 const phoneRegex = /^[+\d().\-\s]{6,20}$/;
 const postalCodeRegex = /^[A-Za-z0-9\-\s]{3,12}$/;
 
-const fullNameSchema = requiredText('Nama lengkap', 120);
-const lineSchema = requiredText('Alamat', 160);
+const receiverNameSchema = requiredText('Nama lengkap', 120);
+const addressLineSchema = requiredText('Alamat', 160);
 const citySchema = requiredText('Kota', 80);
 const provinceSchema = requiredText('Provinsi', 80);
 const countrySchema = requiredText('Negara', 80);
 
-const optionalLineSchema = z
+const optionalAddressLineSchema = z
   .string()
   .trim()
   .max(160, 'Detail alamat terlalu panjang')
@@ -34,7 +34,7 @@ const optionalLineSchema = z
   .optional();
 
 export const addressInputSchema = z.object({
-  fullName: fullNameSchema,
+  receiverName: receiverNameSchema,
   phone: z
     .string({
       message: 'Nomor telepon wajib diisi',
@@ -44,8 +44,8 @@ export const addressInputSchema = z.object({
     .max(20, 'Nomor telepon terlalu panjang')
     .regex(phoneRegex, 'Nomor telepon tidak valid')
     .transform(normalizeWhitespace),
-  line1: lineSchema,
-  line2: optionalLineSchema,
+  addressLine1: addressLineSchema,
+  addressLine2: optionalAddressLineSchema,
   city: citySchema,
   province: provinceSchema,
   postalCode: z
@@ -75,10 +75,10 @@ export type AddressUpdateInput = z.infer<typeof addressUpdateInputSchema>;
 export const addressSchema = z
   .object({
     id: z.string(),
-    fullName: z.string(),
+    receiverName: z.string(),
     phone: z.string(),
-    line1: z.string(),
-    line2: z.string().optional(),
+    addressLine1: z.string(),
+    addressLine2: z.string().optional(),
     city: z.string(),
     province: z.string(),
     postalCode: z.string(),

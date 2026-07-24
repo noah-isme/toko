@@ -89,9 +89,9 @@ describe('Guarded checkout and payment flow', () => {
     const seed: Address[] = [
       {
         id: 'addr-primary',
-        fullName: 'Primary User',
+        receiverName: 'Primary User',
         phone: '0811111111',
-        line1: 'Jl. Utama',
+        addressLine1: 'Jl. Utama',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12120',
@@ -167,7 +167,7 @@ describe('Guarded checkout and payment flow', () => {
     const draft = OrderDraftSchema.parse({
       cartId: orderId,
       address: {
-        fullName: 'Jane Doe',
+        receiverName: 'Jane Doe',
         phone: '08123456789',
         province: 'DKI Jakarta',
         city: 'Jakarta Selatan',

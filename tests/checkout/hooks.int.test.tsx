@@ -33,7 +33,7 @@ describe('checkout mutations', () => {
 
     const cartId = cartResult.current.data!.id;
     const validAddress = {
-      fullName: 'Jane Doe',
+      receiverName: 'Jane Doe',
       phone: '08123456789',
       province: 'DKI Jakarta',
       city: 'Jakarta Selatan',

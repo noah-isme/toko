@@ -104,7 +104,7 @@ function CheckoutFailedContent() {
               <h2 className="text-lg font-semibold">Detail Pengiriman</h2>
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-foreground">
-                  {orderDraft.address.fullName} • {orderDraft.address.phone}
+                  {orderDraft.address.receiverName} • {orderDraft.address.phone}
                 </p>
                 <p className="text-muted-foreground">{orderDraft.address.detail}</p>
                 <p className="text-muted-foreground">

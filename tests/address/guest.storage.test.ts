@@ -19,9 +19,9 @@ describe('guest address storage', () => {
     const payload: Address[] = [
       {
         id: 'guest-1',
-        fullName: 'Guest User',
+        receiverName: 'Guest User',
         phone: '081111111',
-        line1: 'Jl. Guest 1',
+        addressLine1: 'Jl. Guest 1',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12345',
@@ -35,7 +35,7 @@ describe('guest address storage', () => {
     expect(writeGuestAddresses(payload)).toBe(true);
     const stored = readGuestAddresses();
     expect(stored).toHaveLength(1);
-    expect(stored[0]?.fullName).toBe('Guest User');
+    expect(stored[0]?.receiverName).toBe('Guest User');
   });
 
   it('stores default id and survives reloads', () => {

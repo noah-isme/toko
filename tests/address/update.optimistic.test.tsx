@@ -7,7 +7,6 @@ import { createQueryClient, mockAddressHandlers, withQueryClient } from './utils
 import { useAddressListQuery, useUpdateAddressMutation } from '@/entities/address/hooks';
 import type { Address } from '@/entities/address/types';
 
-
 describe('address update mutation', () => {
   it('patches the cached address optimistically', async () => {
     const queryClient = createQueryClient();
@@ -16,9 +15,9 @@ describe('address update mutation', () => {
     const seed: Address[] = [
       {
         id: 'addr-update-1',
-        fullName: 'Optimistic User',
+        receiverName: 'Optimistic User',
         phone: '0811111111',
-        line1: 'Jl. Lama 1',
+        addressLine1: 'Jl. Lama 1',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12345',
@@ -66,9 +65,9 @@ describe('address update mutation', () => {
     const seed: Address[] = [
       {
         id: 'addr-update-rollback',
-        fullName: 'Rollback User',
+        receiverName: 'Rollback User',
         phone: '08123456789',
-        line1: 'Jl. Tes 5',
+        addressLine1: 'Jl. Tes 5',
         city: 'Surabaya',
         province: 'Jawa Timur',
         postalCode: '60111',

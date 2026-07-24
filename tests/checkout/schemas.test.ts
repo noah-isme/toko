@@ -5,7 +5,7 @@ import { AddressSchema, TotalsSchema } from '@/entities/checkout/schemas';
 describe('AddressSchema', () => {
   it('accepts a valid address payload', () => {
     const data = {
-      fullName: 'Jane Doe',
+      receiverName: 'Jane Doe',
       phone: '08123456789',
       province: 'DKI Jakarta',
       city: 'Jakarta Selatan',
@@ -19,7 +19,7 @@ describe('AddressSchema', () => {
 
   it('rejects incomplete address payloads', () => {
     const data = {
-      fullName: '',
+      receiverName: '',
       phone: '',
       province: '',
       city: '',
@@ -31,7 +31,7 @@ describe('AddressSchema', () => {
     const result = AddressSchema.safeParse(data);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(Object.keys(result.error.flatten().fieldErrors)).toContain('fullName');
+      expect(Object.keys(result.error.flatten().fieldErrors)).toContain('receiverName');
     }
   });
 });

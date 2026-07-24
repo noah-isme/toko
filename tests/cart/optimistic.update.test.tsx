@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { useCartQuery, useUpdateCartItemMutation } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
-import type { Cart } from '@/lib/api/schemas';
+import type { CartView } from '@/lib/api/schemas';
 import { handlers } from '@/mocks/handlers';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
@@ -38,19 +38,22 @@ describe('cart optimistic update mutation', () => {
       expect(cartResult.current.data).toBeDefined();
     });
 
-    const cart = cartResult.current.data as Cart;
+    const cart = cartResult.current.data as CartView;
     const targetItem = cart.items[0]!;
     const initialQuantity = targetItem.quantity;
 
     const originalUpdateHandler = handlers.find(
       (handler) =>
-        handler.info?.method === 'PATCH' && handler.info?.path === apiPath('/carts/:cartId/items/:itemId'),
+        handler.info?.method === 'PATCH' &&
+        handler.info?.path === apiPath('/carts/:cartId/items/:itemId'),
     );
 
     expect(originalUpdateHandler).toBeDefined();
 
     let resolveUpdate!: () => void;
-    const updateBlocker = new Promise<void>((resolve) => { resolveUpdate = resolve; });
+    const updateBlocker = new Promise<void>((resolve) => {
+      resolveUpdate = resolve;
+    });
 
     server.use(
       http.patch(apiPath('/carts/:cartId/items/:itemId'), async (...args) => {
@@ -80,25 +83,27 @@ describe('cart optimistic update mutation', () => {
     });
 
     await waitFor(() => {
-      const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+      const optimisticCart = queryClient.getQueryData<CartView>(queryKeys.cart());
       const optimisticItem = optimisticCart?.items.find((item) => item.id === targetItem.id);
       expect(optimisticItem?.quantity).toBe(initialQuantity + 2);
     });
 
-    const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+    const optimisticCart = queryClient.getQueryData<CartView>(queryKeys.cart());
     const optimisticItem = optimisticCart?.items.find((item) => item.id === targetItem.id);
     expect(optimisticItem?.quantity).toBe(initialQuantity + 2);
 
     expect(updateResult.current.isItemInFlight(targetItem.id)).toBe(true);
 
     // Unblock the server response
-    act(() => { resolveUpdate(); });
+    act(() => {
+      resolveUpdate();
+    });
 
     await waitFor(() => {
       expect(updateResult.current.isSuccess).toBe(true);
     });
 
-    const finalCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+    const finalCart = queryClient.getQueryData<CartView>(queryKeys.cart());
     const finalItem = finalCart?.items.find((item) => item.id === targetItem.id);
     expect(finalItem?.quantity).toBe(initialQuantity + 2);
     expect(updateResult.current.isItemInFlight(targetItem.id)).toBe(false);

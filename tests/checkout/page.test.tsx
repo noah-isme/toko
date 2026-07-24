@@ -64,9 +64,9 @@ describe('CheckoutPage', () => {
     const seed: Address[] = [
       {
         id: 'addr-primary',
-        fullName: 'Primary User',
+        receiverName: 'Primary User',
         phone: '0811111111',
-        line1: 'Jl. Utama',
+        addressLine1: 'Jl. Utama',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12120',

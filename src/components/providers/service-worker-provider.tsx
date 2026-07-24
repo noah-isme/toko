@@ -19,16 +19,31 @@ export function MockServiceWorkerProvider({ children }: Props) {
     isMock();
 
   useEffect(() => {
+    let cancelled = false;
+
     async function startMockWorker() {
-      if (shouldMock) {
-        const { createWorker } = await import('@/mocks/browser');
-        const worker = await createWorker();
-        await worker.start({ onUnhandledRequest: 'bypass' });
+      try {
+        if (shouldMock) {
+          const { createWorker } = await import('@/mocks/browser');
+          const worker = await createWorker();
+          await worker.start({ onUnhandledRequest: 'bypass' });
+        }
+      } catch (err) {
+        // If the worker fails to boot, fall through to the real API rather
+        // than leaving the app rendered as a blank screen.
+        console.error('MSW boot failed, bypassing to the real API:', err);
+      } finally {
+        if (!cancelled) {
+          setIsReady(true);
+        }
       }
-      setIsReady(true);
     }
 
     startMockWorker();
+
+    return () => {
+      cancelled = true;
+    };
   }, [shouldMock]);
 
   if (shouldMock && !isReady) {

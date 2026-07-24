@@ -13,7 +13,7 @@ import {
   writeCartCache,
   type CartWithPromo,
 } from '@/entities/cart/cache';
-import type { Cart } from '@/lib/api/schemas';
+import type { CartView } from '@/lib/api/schemas';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 import { captureSentryException, getSentry } from '@/shared/telemetry/sentry';
@@ -122,13 +122,13 @@ type ApplyPromoVariables = {
 };
 
 type ApplyPromoContext = {
-  previousCart?: Cart;
+  previousCart?: CartView;
   previousPromoResult?: PromoResult;
   startTime: number;
 };
 
 type RemovePromoContext = {
-  previousCart?: Cart;
+  previousCart?: CartView;
   previousPromoResult?: PromoResult;
   startTime: number;
 };

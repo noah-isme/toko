@@ -333,9 +333,11 @@ function DeleteConfirmationDialog({
         </DialogHeader>
         {address ? (
           <div className="rounded-md border border-border/50 bg-muted/30 p-3 text-sm">
-            <p className="font-semibold">{address.fullName}</p>
-            <p className="text-muted-foreground">{address.line1}</p>
-            {address.line2 ? <p className="text-muted-foreground">{address.line2}</p> : null}
+            <p className="font-semibold">{address.receiverName}</p>
+            <p className="text-muted-foreground">{address.addressLine1}</p>
+            {address.addressLine2 ? (
+              <p className="text-muted-foreground">{address.addressLine2}</p>
+            ) : null}
           </div>
         ) : null}
         <DialogFooter className="mt-4">
@@ -382,10 +384,10 @@ function normalizeValue(value: unknown) {
 
 function addressToInput(address: Address): AddressInput {
   return {
-    fullName: address.fullName,
+    receiverName: address.receiverName,
     phone: address.phone,
-    line1: address.line1,
-    line2: address.line2 ?? '',
+    addressLine1: address.addressLine1,
+    addressLine2: address.addressLine2 ?? '',
     city: address.city,
     province: address.province,
     postalCode: address.postalCode,

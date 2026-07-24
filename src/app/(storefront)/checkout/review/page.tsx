@@ -120,9 +120,10 @@ function CheckoutReviewContent() {
       return null;
     }
 
-    const { fullName, phone, detail, district, city, province, postalCode } = orderDraft.address;
+    const { receiverName, phone, detail, district, city, province, postalCode } =
+      orderDraft.address;
     return [
-      `${fullName} • ${phone}`,
+      `${receiverName} • ${phone}`,
       detail,
       `${district}, ${city}`,
       `${province} ${postalCode}`,

@@ -513,9 +513,7 @@ export interface CheckoutResponse {
 }
 
 export interface CancelOrderResponse {
-  orderId: string;
   status: OrderStatus;
-  message: string;
 }
 
 // ============================================================================
