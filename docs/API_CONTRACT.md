@@ -18,6 +18,7 @@
   - [Admin](#6-admin-endpoints)
   - [Reviews](#7-reviews)
   - [Favorites](#8-favorites)
+  - [Analytics](#9-analytics)
 
 ---
 
@@ -1553,9 +1554,42 @@ The `{id}` path parameter is the **product ID**.
 
 ---
 
-## 9. Health & Monitoring
+## 9. Analytics
 
-### 9.1 Liveness Probe
+Analytics endpoints are **admin-only** and are not currently exposed through the storefront frontend. There is no frontend entity for analytics at this time.
+
+### 9.1 Get Sales Analytics
+
+```http
+GET /api/v1/analytics/sales
+Authorization: Bearer <admin_token>
+```
+
+Admin-only. Returns daily sales aggregates. See the backend contract for query parameters and response shape.
+
+### 9.2 Get Top Products
+
+```http
+GET /api/v1/analytics/top-products
+Authorization: Bearer <admin_token>
+```
+
+Admin-only. Returns top-selling products ordered by quantity sold. See the backend contract for query parameters and response shape.
+
+### 9.3 Overview
+
+```http
+GET /api/v1/analytics/overview
+Authorization: Bearer <admin_token>
+```
+
+Admin-only. Currently **not implemented** and returns `501 Not Implemented`.
+
+---
+
+## 10. Health & Monitoring
+
+### 10.1 Liveness Probe
 
 ```http
 GET /health/live
@@ -1571,7 +1605,7 @@ GET /health/live
 
 ---
 
-### 9.2 Readiness Probe
+### 10.2 Readiness Probe
 
 ```http
 GET /health/ready
@@ -1591,7 +1625,7 @@ GET /health/ready
 
 ---
 
-## 10. Rate Limiting
+## 11. Rate Limiting
 
 **Rate Limits:**
 
@@ -1623,7 +1657,7 @@ X-RateLimit-Reset: 1733600000
 
 ---
 
-## 11. Webhooks (untuk Payment Gateway)
+## 12. Webhooks (untuk Payment Gateway)
 
 ### Payment Notification Webhook
 
@@ -1649,7 +1683,7 @@ X-Signature: <hmac-signature>
 
 ---
 
-## 12. Testing & Development
+## 13. Testing & Development
 
 ### Test Credentials
 
@@ -1687,7 +1721,7 @@ FREE50K - 50k fixed discount, min spend 200k
 
 ---
 
-## 13. Best Practices untuk Frontend
+## 14. Best Practices untuk Frontend
 
 ### Authentication Flow
 
@@ -1764,7 +1798,7 @@ const fetchProducts = async (page = 1, limit = 20) => {
 
 ---
 
-## 14. Changelog
+## 15. Changelog
 
 ### Version 0.2.0 (2025-12-07)
 
