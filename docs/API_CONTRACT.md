@@ -17,6 +17,7 @@
   - [User Addresses](#5-user-addresses)
   - [Admin](#6-admin-endpoints)
   - [Reviews](#7-reviews)
+  - [Favorites](#8-favorites)
 
 ---
 
@@ -1472,9 +1473,89 @@ Requires authentication. This endpoint is currently **not implemented** and retu
 
 ---
 
-## 8. Health & Monitoring
+## 8. Favorites
 
-### 8.1 Liveness Probe
+### 8.1 List User Favorites
+
+```http
+GET /api/v1/favorites
+Authorization: Bearer <token>
+```
+
+Returns the authenticated user's favorite products ordered by newest first.
+
+**Response:** `200 OK`
+
+```json
+[
+  {
+    "product_id": "product-uuid",
+    "product_name": "Samsung Galaxy S24",
+    "product_slug": "samsung-galaxy-s24",
+    "price": 12000000,
+    "image_url": "https://cdn.toko.com/products/s24.jpg",
+    "created_at": "2025-12-07T10:00:00Z"
+  }
+]
+```
+
+Note: the backend currently returns a raw array, not the standard `{ "data": ... }` envelope.
+
+---
+
+### 8.2 Toggle Favorite
+
+```http
+POST /api/v1/favorites
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+Adds the product to favorites if it is not already favorited; otherwise removes it.
+
+**Request:**
+
+```json
+{
+  "productId": "product-uuid"
+}
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "favorited": true
+}
+```
+
+- `favorited: true` — the product was added (or is now favorited)
+- `favorited: false` — the product was removed (or is now not favorited)
+
+---
+
+### 8.3 Check Favorite Status
+
+```http
+GET /api/v1/favorites/{id}
+Authorization: Bearer <token>
+```
+
+The `{id}` path parameter is the **product ID**.
+
+**Response:** `200 OK`
+
+```json
+{
+  "favorited": true
+}
+```
+
+---
+
+## 9. Health & Monitoring
+
+### 9.1 Liveness Probe
 
 ```http
 GET /health/live
@@ -1490,7 +1571,7 @@ GET /health/live
 
 ---
 
-### 8.2 Readiness Probe
+### 9.2 Readiness Probe
 
 ```http
 GET /health/ready
@@ -1510,7 +1591,7 @@ GET /health/ready
 
 ---
 
-## 9. Rate Limiting
+## 10. Rate Limiting
 
 **Rate Limits:**
 
@@ -1542,7 +1623,7 @@ X-RateLimit-Reset: 1733600000
 
 ---
 
-## 10. Webhooks (untuk Payment Gateway)
+## 11. Webhooks (untuk Payment Gateway)
 
 ### Payment Notification Webhook
 
@@ -1568,7 +1649,7 @@ X-Signature: <hmac-signature>
 
 ---
 
-## 11. Testing & Development
+## 12. Testing & Development
 
 ### Test Credentials
 
@@ -1606,7 +1687,7 @@ FREE50K - 50k fixed discount, min spend 200k
 
 ---
 
-## 12. Best Practices untuk Frontend
+## 13. Best Practices untuk Frontend
 
 ### Authentication Flow
 
@@ -1683,7 +1764,7 @@ const fetchProducts = async (page = 1, limit = 20) => {
 
 ---
 
-## 13. Changelog
+## 14. Changelog
 
 ### Version 0.2.0 (2025-12-07)
 

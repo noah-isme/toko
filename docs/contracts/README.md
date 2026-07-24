@@ -14,6 +14,7 @@
 - [Payment](payment.md)
 - [User Addresses](user.md)
 - [Reviews](reviews.md)
+- [Favorites](favorites.md)
 - [Admin](admin.md)
 - [Webhooks](webhooks.md)
 - [Testing & Development](testing.md)
