@@ -55,8 +55,8 @@ export const notificationsHandlers = [
       data,
       pagination: {
         page,
-        perPage: limit,
-        totalItems: mockNotifications.length,
+        per_page: limit,
+        total_items: mockNotifications.length,
       },
     });
   }),

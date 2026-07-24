@@ -5,8 +5,40 @@
  * toko-api `docs/contracts/notifications.md`. All endpoints are tenant-scoped
  * and require a Bearer token.
  */
+import { z, type ZodType } from 'zod';
+
 import { apiClient } from '../apiClient';
 import type { Notification, PaginatedResponse, UnreadCountResponse } from '../types';
+
+const notificationSchema: ZodType<Notification> = z.object({
+  id: z.string(),
+  type: z.string(),
+  title: z.string(),
+  body: z.string(),
+  data: z.object({}).passthrough(),
+  read: z.boolean(),
+  readAt: z.string().nullable(),
+  createdAt: z.string(),
+});
+
+// Backend returns snake_case pagination keys (per_page, total_items).
+// We validate the raw response and then map to the frontend camelCase shape.
+const apiNotificationListSchema = z.object({
+  data: z.array(notificationSchema),
+  pagination: z.object({
+    page: z.number(),
+    per_page: z.number(),
+    total_items: z.number(),
+  }),
+});
+
+const unreadCountResponseSchema: ZodType<UnreadCountResponse> = z.object({
+  unread: z.number().int().nonnegative(),
+});
+
+const markReadResponseSchema = z.object({
+  read: z.boolean(),
+});
 
 export const notificationsApi = {
   /**
@@ -18,19 +50,30 @@ export const notificationsApi = {
       limit: limit.toString(),
     });
 
-    return await apiClient<PaginatedResponse<Notification>>(`/notifications?${params.toString()}`, {
+    const response = await apiClient(`/notifications?${params.toString()}`, {
       method: 'GET',
       requiresAuth: true,
+      schema: apiNotificationListSchema,
     });
+
+    return {
+      data: response.data,
+      pagination: {
+        page: response.pagination.page,
+        perPage: response.pagination.per_page,
+        totalItems: response.pagination.total_items,
+      },
+    };
   },
 
   /**
    * Lightweight unread counter for the navbar badge.
    */
   async unreadCount(): Promise<number> {
-    const response = await apiClient<UnreadCountResponse>('/notifications/unread-count', {
+    const response = await apiClient('/notifications/unread-count', {
       method: 'GET',
       requiresAuth: true,
+      schema: unreadCountResponseSchema,
     });
     return response.unread;
   },
@@ -42,6 +85,7 @@ export const notificationsApi = {
     await apiClient(`/notifications/${id}/read`, {
       method: 'POST',
       requiresAuth: true,
+      schema: markReadResponseSchema,
     });
   },
 
