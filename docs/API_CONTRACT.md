@@ -1947,17 +1947,21 @@ X-RateLimit-Reset: 1733600000
 
 ---
 
-## 12. Webhooks (untuk Payment Gateway)
+## 12. Webhooks
 
-### Payment Notification Webhook
+Public endpoints invoked by external payment gateways and shipping couriers. No `Bearer` token is required; authentication is provider-specific.
+
+### 12.1 Payment Notification Webhook
 
 ```http
-POST /api/v1/webhooks/payment/midtrans
+POST /api/v1/webhooks/payment/{provider}
 Content-Type: application/json
-X-Signature: <hmac-signature>
+X-Signature: <provider-signature>
 ```
 
-**Request dari Payment Gateway:**
+The `{provider}` path parameter is the payment provider key (e.g. `midtrans`, `xendit`). The body and signature header are provider-specific.
+
+**Example (Midtrans):**
 
 ```json
 {
@@ -1970,6 +1974,38 @@ X-Signature: <hmac-signature>
 ```
 
 **Response:** `200 OK`
+
+Common errors: `INVALID_SIGNATURE`, `PROVIDER_NOT_SUPPORTED`, `REPLAY`, `PAYMENT_NOT_FOUND`, `AMOUNT_MISMATCH`.
+
+---
+
+### 12.2 Shipping Courier Webhook
+
+```http
+POST /api/v1/webhooks/shipping/{courier}
+Content-Type: application/json
+```
+
+The `{courier}` path parameter is the shipping provider (e.g. `jne`, `sicepat`). The payload can be sent as JSON or query parameters.
+
+**Request body:**
+
+```json
+{
+  "orderId": "order-uuid",
+  "trackingNumber": "JP1234567890",
+  "externalStatus": "in_transit",
+  "description": "Paket telah tiba di transit hub Jakarta",
+  "location": "Jakarta",
+  "occurredAt": "2025-12-07T10:00:00Z"
+}
+```
+
+**Recognised statuses:** `picked`, `pickup`, `shipped`, `in_transit`, `in-transit`, `out_for_delivery`, `out-for-delivery`, `delivered`.
+
+**Response:** `204 No Content`
+
+Common errors: `BAD_REQUEST`, `REPLAY`, `NOT_FOUND`, `INVALID_STATE`.
 
 ---
 
