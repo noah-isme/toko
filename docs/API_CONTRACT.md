@@ -16,6 +16,7 @@
   - [Checkout & Orders](#4-checkout--orders)
   - [User Addresses](#5-user-addresses)
   - [Admin](#6-admin-endpoints)
+  - [Reviews](#7-reviews)
 
 ---
 
@@ -1357,9 +1358,123 @@ Authorization: Bearer <admin_token>
 
 ---
 
-## 7. Health & Monitoring
+## 7. Reviews
 
-### 7.1 Liveness Probe
+### 7.1 List Product Reviews
+
+```http
+GET /api/v1/products/{id}/reviews?page=1&limit=10
+```
+
+Public endpoint. Returns reviews for the product ordered by newest first.
+
+**Query parameters:**
+
+- `page` — page number (default: 1)
+- `limit` — page size (default: 10)
+
+**Response:** `200 OK`
+
+```json
+[
+  {
+    "id": "review-uuid",
+    "product_id": "product-uuid",
+    "user_id": "user-uuid",
+    "rating": 5,
+    "comment": "Great product!",
+    "created_at": "2025-12-07T10:00:00Z",
+    "updated_at": "2025-12-07T10:00:00Z",
+    "tenant_id": "tenant-uuid"
+  }
+]
+```
+
+Note: the backend currently returns a raw array, not the standard `{ "data": ... }` envelope.
+
+---
+
+### 7.2 Get Review Stats
+
+```http
+GET /api/v1/products/{id}/reviews/stats
+```
+
+Public endpoint. Returns aggregate rating statistics for the product.
+
+**Response:** `200 OK`
+
+```json
+{
+  "total_reviews": 42,
+  "average_rating": 4.5,
+  "count_5_star": 30,
+  "count_4_star": 8,
+  "count_3_star": 2,
+  "count_2_star": 1,
+  "count_1_star": 1
+}
+```
+
+Note: the backend currently returns a plain object, not the standard `{ "data": ... }` envelope.
+
+---
+
+### 7.3 Create Review
+
+```http
+POST /api/v1/products/{id}/reviews
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+Requires authentication.
+
+**Request:**
+
+```json
+{
+  "rating": 5,
+  "comment": "Great product!"
+}
+```
+
+- `rating` — integer, required, 1–5
+- `comment` — string, optional
+
+**Response:** `201 Created`
+
+```json
+{
+  "id": "review-uuid",
+  "product_id": "product-uuid",
+  "user_id": "user-uuid",
+  "rating": 5,
+  "comment": "Great product!",
+  "created_at": "2025-12-07T10:00:00Z",
+  "updated_at": "2025-12-07T10:00:00Z",
+  "tenant_id": "tenant-uuid"
+}
+```
+
+Note: the backend currently returns a plain review object, not the standard `{ "data": ... }` envelope.
+
+---
+
+### 7.4 Delete Review
+
+```http
+DELETE /api/v1/products/{id}/reviews
+Authorization: Bearer <token>
+```
+
+Requires authentication. This endpoint is currently **not implemented** and returns `501 Not Implemented`.
+
+---
+
+## 8. Health & Monitoring
+
+### 8.1 Liveness Probe
 
 ```http
 GET /health/live
@@ -1375,7 +1490,7 @@ GET /health/live
 
 ---
 
-### 7.2 Readiness Probe
+### 8.2 Readiness Probe
 
 ```http
 GET /health/ready
@@ -1395,7 +1510,7 @@ GET /health/ready
 
 ---
 
-## 8. Rate Limiting
+## 9. Rate Limiting
 
 **Rate Limits:**
 
@@ -1427,7 +1542,7 @@ X-RateLimit-Reset: 1733600000
 
 ---
 
-## 9. Webhooks (untuk Payment Gateway)
+## 10. Webhooks (untuk Payment Gateway)
 
 ### Payment Notification Webhook
 
@@ -1453,7 +1568,7 @@ X-Signature: <hmac-signature>
 
 ---
 
-## 10. Testing & Development
+## 11. Testing & Development
 
 ### Test Credentials
 
@@ -1491,7 +1606,7 @@ FREE50K - 50k fixed discount, min spend 200k
 
 ---
 
-## 11. Best Practices untuk Frontend
+## 12. Best Practices untuk Frontend
 
 ### Authentication Flow
 
@@ -1568,7 +1683,7 @@ const fetchProducts = async (page = 1, limit = 20) => {
 
 ---
 
-## 12. Changelog
+## 13. Changelog
 
 ### Version 0.2.0 (2025-12-07)
 

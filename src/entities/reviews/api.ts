@@ -96,7 +96,7 @@ function buildReviewListPath(productId: string, params?: ReviewListParams) {
   }
 
   if (parsedParams.pageSize) {
-    searchParams.set('pageSize', String(parsedParams.pageSize));
+    searchParams.set('limit', String(parsedParams.pageSize));
   }
 
   if (parsedParams.sort) {
