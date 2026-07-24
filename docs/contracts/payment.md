@@ -17,8 +17,8 @@ Authorization: Bearer <token>
 }
 ```
 
-- `orderId` is required and must belong to the authenticated user.
-- `channel` is optional and passed to the configured payment provider.
+- `orderId` is required and must be a valid order belonging to the authenticated user.
+- `channel` is optional and is passed to the configured payment provider.
 
 **Response:** `200 OK`
 
@@ -33,8 +33,21 @@ Authorization: Bearer <token>
 }
 ```
 
-- `provider` is always present.
-- `token`, `redirectUrl`, and `expiresAt` are provider-dependent and may be omitted.
+- `provider` is always present (e.g. `midtrans`, `xendit`, or `unknown`).
+- `token`, `redirectUrl`, and `expiresAt` are provider-dependent and may be omitted when not available.
+
+**Error Response:**
+
+```json
+{
+  "error": {
+    "code": "INTENT_FAILED",
+    "message": "..."
+  }
+}
+```
+
+Common error codes: `UNAUTHORIZED`, `BAD_REQUEST`, `NOT_FOUND`, `INTENT_FAILED`.
 
 ---
 
@@ -55,7 +68,23 @@ Authorization: Bearer <token>
 }
 ```
 
-**Status values:** `PENDING`, `PAID`, `FAILED`, `EXPIRED`, `REFUNDED`.
+**Status values:**
 
-- A cancelled order maps to `FAILED`.
-- A refunded payment maps to `REFUNDED`.
+- `PENDING` — no successful payment yet
+- `PAID` — payment settled
+- `FAILED` — payment failed or order was cancelled
+- `EXPIRED` — payment intent expired
+- `REFUNDED` — payment refunded
+
+**Error Response:**
+
+```json
+{
+  "error": {
+    "code": "STATUS_ERROR",
+    "message": "..."
+  }
+}
+```
+
+Common error codes: `UNAUTHORIZED`, `BAD_REQUEST`, `NOT_FOUND`, `STATUS_ERROR`.

@@ -8,23 +8,24 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
     {
       "id": "address-uuid",
       "label": "Home",
-      "receiverName": "John Doe",
+      "receiver_name": "John Doe",
       "phone": "+6281234567890",
       "country": "Indonesia",
       "province": "DKI Jakarta",
       "city": "Jakarta Selatan",
-      "postalCode": "12190",
-      "addressLine1": "Jl. Sudirman No. 123",
-      "addressLine2": "Apt 45B",
-      "isDefault": true,
-      "createdAt": "2025-11-01T00:00:00Z",
-      "updatedAt": "2025-11-01T00:00:00Z"
+      "postal_code": "12190",
+      "address_line1": "Jl. Sudirman No. 123",
+      "address_line2": "Apt 45B",
+      "is_default": true,
+      "created_at": "2025-11-01T00:00:00Z",
+      "updated_at": "2025-11-01T00:00:00Z"
     }
   ],
   "pagination": {
@@ -46,6 +47,7 @@ Authorization: Bearer <token>
 ```
 
 **Request:**
+
 ```json
 {
   "label": "Office",
@@ -62,27 +64,29 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "data": {
     "id": "new-address-uuid",
     "label": "Office",
-    "receiverName": "John Doe",
+    "receiver_name": "John Doe",
     "phone": "+6281234567890",
     "country": "Indonesia",
     "province": "DKI Jakarta",
     "city": "Jakarta Pusat",
-    "postalCode": "10110",
-    "addressLine1": "Jl. Thamrin No. 1",
-    "addressLine2": "Tower A, Floor 5",
-    "isDefault": false,
-    "createdAt": "2025-12-07T10:00:00Z",
-    "updatedAt": "2025-12-07T10:00:00Z"
+    "postal_code": "10110",
+    "address_line1": "Jl. Thamrin No. 1",
+    "address_line2": "Tower A, Floor 5",
+    "is_default": false,
+    "created_at": "2025-12-07T10:00:00Z",
+    "updated_at": "2025-12-07T10:00:00Z"
   }
 }
 ```
 
 **Validation Rules:**
+
 - `receiver_name`: required, max 100 characters
 - `phone`: required, format Indonesian phone number
 - `address_line1`: required, max 255 characters
@@ -99,6 +103,7 @@ Authorization: Bearer <token>
 ```
 
 **Request:** (semua field optional)
+
 ```json
 {
   "label": "Home (Updated)",
@@ -119,6 +124,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -128,5 +134,6 @@ Authorization: Bearer <token>
 ```
 
 **Notes:**
+
 - Tidak bisa delete default address jika masih ada address lain
 - Set address lain sebagai default terlebih dahulu
