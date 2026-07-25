@@ -26,7 +26,7 @@ Returns the authenticated user's favorite products ordered by newest first.
 ]
 ```
 
-Note: the backend currently returns a raw array, not the standard `{ "data": ... }` envelope. The frontend maps `snake_case` fields to `camelCase` (`productId`, `productName`, `productSlug`, `imageUrl`, `createdAt`).
+Note: the backend currently returns a raw array, not the standard `{ "data": ... }` envelope.
 
 ---
 

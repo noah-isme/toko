@@ -40,37 +40,80 @@ function getCartSubtotal() {
   return typeof cart?.subtotal?.amount === 'number' ? cart.subtotal.amount : 200000;
 }
 
-function evaluatePromo(code: string) {
+function evaluatePromo(
+  code: string,
+  cartTotal: number,
+  items: { productId: string; subtotal: number }[],
+) {
   const normalized = code.trim().toUpperCase();
   const promo = promoCatalog[normalized];
   if (!promo) {
-    return { valid: false as const, message: 'Kode promo tidak ditemukan' };
+    return {
+      eligible: false as const,
+      discount: 0,
+      eligibleSubtotal: cartTotal,
+      finalTotal: cartTotal,
+      voucher: null,
+      message: 'Kode promo tidak ditemukan',
+    };
   }
 
   if (promo.scenario === 'expired') {
-    return { valid: false as const, message: 'Kode promo sudah kedaluwarsa' };
+    return {
+      eligible: false as const,
+      discount: 0,
+      eligibleSubtotal: cartTotal,
+      finalTotal: cartTotal,
+      voucher: null,
+      message: 'Kode promo sudah kedaluwarsa',
+    };
   }
 
-  const subtotal = getCartSubtotal();
-  if (promo.minSubtotal && subtotal < promo.minSubtotal) {
+  if (promo.minSubtotal && cartTotal < promo.minSubtotal) {
     return {
-      valid: false as const,
+      eligible: false as const,
+      discount: 0,
+      eligibleSubtotal: cartTotal,
+      finalTotal: cartTotal,
+      voucher: null,
       message: `Minimal belanja ${formatCurrency(promo.minSubtotal)} untuk kode ini`,
     };
   }
 
   const rawDiscount =
-    promo.discountType === 'percent' ? Math.round((promo.value / 100) * subtotal) : promo.value;
-  const discountValue = Math.min(subtotal, Math.max(0, rawDiscount));
-  const appliedSubtotal = subtotal - discountValue;
+    promo.discountType === 'percent' ? Math.round((promo.value / 100) * cartTotal) : promo.value;
+  const discountValue = Math.min(cartTotal, Math.max(0, rawDiscount));
+  const eligibleSubtotal = cartTotal - discountValue;
+
+  const voucher = {
+    id: `voucher-${promo.code.toLowerCase()}`,
+    code: promo.code,
+    kind: promo.discountType === 'percent' ? 'percent' : 'fixed_amount',
+    value: promo.discountType === 'percent' ? 0 : promo.value,
+    percentBps: promo.discountType === 'percent' ? promo.value * 100 : 0,
+    minSpend: promo.minSubtotal,
+    usageLimit: 100,
+    usedCount: 0,
+    perUserLimit: 1,
+    validFrom: new Date().toISOString(),
+    validTo: new Date(Date.now() + 86400000 * 365).toISOString(),
+    productIds: [],
+    categoryIds: [],
+    brandIds: [],
+    combinable: false,
+    priority: 10,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    tenantId: 'tenant-1',
+  };
 
   return {
-    valid: true as const,
-    promo,
-    appliedSubtotal,
-    finalTotal: appliedSubtotal,
+    eligible: true as const,
+    discount: discountValue,
+    eligibleSubtotal,
+    finalTotal: eligibleSubtotal,
+    voucher,
     message: promo.message,
-    discountValue,
   };
 }
 
@@ -78,7 +121,6 @@ function persistCartDiscount(discountValue: number | undefined, promo?: Promo) {
   const cart = getCartMock();
   if (cart) {
     cart.discount = discountValue ?? 0;
-    // Per the cart contract, `voucher` is the applied code string (or null).
     cart.voucher = promo ? promo.code : null;
   }
 }
@@ -88,32 +130,46 @@ function formatCurrency(value: number) {
 }
 
 export const promoHandlers = [
-  http.post(apiPath('/carts/:cartId/apply-voucher'), async ({ request }) => {
-    const body = (await request.json()) as { code?: string };
-    if (!body?.code) {
+  http.post(apiPath('/vouchers/preview'), async ({ request }) => {
+    const body = (await request.json()) as {
+      code?: string;
+      cartTotal?: number;
+      items?: { productId: string; subtotal: number }[];
+    };
+    const code = body?.code;
+    const cartTotal = body?.cartTotal ?? getCartSubtotal();
+    const items = body?.items ?? [];
+
+    if (!code) {
       return HttpResponse.json(
-        { valid: false, message: 'Kode promo wajib diisi' },
+        {
+          eligible: false,
+          discount: 0,
+          eligibleSubtotal: cartTotal,
+          finalTotal: cartTotal,
+          voucher: null,
+          message: 'Kode promo wajib diisi',
+        },
         { status: 400 },
       );
     }
 
-    const evaluation = evaluatePromo(body.code);
-    if (!evaluation.valid) {
-      return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 200 });
+    const evaluation = evaluatePromo(code, cartTotal, items);
+    if (!evaluation.eligible) {
+      return HttpResponse.json({ ...evaluation, voucher: null }, { status: 200 });
     }
 
-    // Return the calculated discount without persisting.
-    // The frontend will update the cart cache on apply success via commitPromoResultToCart.
-    return HttpResponse.json({
-      valid: true,
-      promo: evaluation.promo,
-      appliedSubtotal: evaluation.appliedSubtotal,
-      finalTotal: evaluation.finalTotal,
-      message: evaluation.message,
-    });
+    return HttpResponse.json(evaluation);
   }),
   http.delete(apiPath('/carts/:cartId/voucher'), async () => {
     persistCartDiscount(undefined);
-    return HttpResponse.json({ valid: false, message: 'Kode promo dihapus' });
+    return HttpResponse.json({
+      eligible: false,
+      discount: 0,
+      eligibleSubtotal: getCartSubtotal(),
+      finalTotal: getCartSubtotal(),
+      voucher: null,
+      message: 'Kode promo dihapus',
+    });
   }),
 ];

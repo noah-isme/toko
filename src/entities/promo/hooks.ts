@@ -3,7 +3,7 @@ import { useCallback, useMemo, useReducer, useRef } from 'react';
 
 import { applyPromo, removePromo, validatePromo } from './api';
 import { getPromoKey, getPromoValidateKey } from './keys';
-import type { PromoResult } from './schemas';
+
 
 import {
   cloneCartWithMeta,
@@ -14,6 +14,7 @@ import {
   type CartWithPromo,
 } from '@/entities/cart/cache';
 import type { CartView } from '@/lib/api/schemas';
+import type { VoucherPreviewResponse, VoucherPreviewRequest } from '@/lib/api/types';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 import { captureSentryException, getSentry } from '@/shared/telemetry/sentry';
@@ -44,18 +45,18 @@ function useInFlightRegistry() {
   return { add, remove, has };
 }
 
-function getDiscountValue(subtotal: number, result?: PromoResult) {
-  if (!result?.promo || !result.valid) {
+function getDiscountValue(subtotal: number, result?: VoucherPreviewResponse) {
+  if (!result?.voucher || !result.eligible) {
     return 0;
   }
 
   const appliedSubtotal =
-    typeof result.appliedSubtotal === 'number' ? result.appliedSubtotal : subtotal;
+    typeof result.eligibleSubtotal === 'number' ? result.eligibleSubtotal : subtotal;
   return Math.max(0, subtotal - appliedSubtotal);
 }
 
-function mergePromoResultIntoCart(cart: CartWithPromo, result?: PromoResult) {
-  if (!result || !result.valid || !result.promo) {
+function mergePromoResultIntoCart(cart: CartWithPromo, result?: VoucherPreviewResponse) {
+  if (!result || !result.eligible || !result.voucher) {
     delete cart.promoInfo;
     cart.totals = {
       ...cart.totals,
@@ -69,14 +70,20 @@ function mergePromoResultIntoCart(cart: CartWithPromo, result?: PromoResult) {
   const subtotal = cart.subtotal.amount;
   const discountValue = getDiscountValue(subtotal, result);
   const appliedSubtotal =
-    typeof result.appliedSubtotal === 'number'
-      ? result.appliedSubtotal
+    typeof result.eligibleSubtotal === 'number'
+      ? result.eligibleSubtotal
       : Math.max(0, subtotal - discountValue);
   const finalTotal =
     typeof result.finalTotal === 'number' ? result.finalTotal : Math.max(0, appliedSubtotal);
 
+  const voucher = result.voucher;
   cart.promoInfo = {
-    ...result.promo,
+    code: voucher.code,
+    discountType: voucher.kind === 'percent' ? 'percent' : 'amount',
+    value: voucher.kind === 'percent' ? (voucher.percentBps ?? 0) / 100 : voucher.value,
+    label: voucher.code,
+    expiresAt: voucher.validTo,
+    minSubtotal: voucher.minSpend,
     discountValue,
     message: result.message,
   };
@@ -94,13 +101,18 @@ function mergePromoResultIntoCart(cart: CartWithPromo, result?: PromoResult) {
 function commitPromoResultToCart(
   queryClient: ReturnType<typeof useQueryClient>,
   cartId: string,
-  result?: PromoResult,
+  result?: VoucherPreviewResponse,
 ) {
   return updateCartCache(queryClient, cartId, (draft) => mergePromoResultIntoCart(draft, result));
 }
 
-export function useValidatePromoQuery(cartId?: string | null, code?: string | null) {
-  return useQuery<PromoResult>({
+export function useValidatePromoQuery(
+  cartId?: string | null,
+  code?: string | null,
+  cartTotal?: number,
+  items?: VoucherPreviewRequest['items'],
+) {
+  return useQuery<VoucherPreviewResponse>({
     queryKey: getPromoValidateKey(cartId ?? null, code ?? null),
     queryFn: () => {
       if (!cartId) {
@@ -109,7 +121,10 @@ export function useValidatePromoQuery(cartId?: string | null, code?: string | nu
       if (!code) {
         throw new Error('Kode promo wajib diisi');
       }
-      return validatePromo(cartId, code);
+      if (!cartTotal || !items?.length) {
+        throw new Error('Cart total and items required for voucher preview');
+      }
+      return validatePromo(cartId, code, cartTotal, items);
     },
     enabled: false,
     staleTime: 5 * 60 * 1000,
@@ -118,18 +133,20 @@ export function useValidatePromoQuery(cartId?: string | null, code?: string | nu
 
 type ApplyPromoVariables = {
   code: string;
-  preview: PromoResult;
+  preview: VoucherPreviewResponse;
+  cartTotal: number;
+  items: VoucherPreviewRequest['items'];
 };
 
 type ApplyPromoContext = {
   previousCart?: CartView;
-  previousPromoResult?: PromoResult;
+  previousPromoResult?: VoucherPreviewResponse;
   startTime: number;
 };
 
 type RemovePromoContext = {
   previousCart?: CartView;
-  previousPromoResult?: PromoResult;
+  previousPromoResult?: VoucherPreviewResponse;
   startTime: number;
 };
 
@@ -138,8 +155,13 @@ export function useApplyPromoMutation(cartId?: string) {
   const { toast } = useToast();
   const { add, remove, has } = useInFlightRegistry();
 
-  const mutation = useMutation<PromoResult, Error, ApplyPromoVariables, ApplyPromoContext>({
-    mutationFn: async ({ code }) => {
+  const mutation = useMutation<
+    VoucherPreviewResponse,
+    Error,
+    ApplyPromoVariables,
+    ApplyPromoContext
+  >({
+    mutationFn: async ({ code, cartTotal, items }) => {
       if (!cartId) {
         throw new Error('cartId is required to apply a promo');
       }
@@ -152,13 +174,13 @@ export function useApplyPromoMutation(cartId?: string) {
         data: { cartId, code },
       });
 
-      return applyPromo(cartId, code);
+      return applyPromo(cartId, code, cartTotal, items);
     },
     onMutate: async (variables) => {
       if (!cartId) {
         throw new Error('cartId is required to apply a promo');
       }
-      if (!variables.preview?.valid || !variables.preview.promo) {
+      if (!variables.preview?.eligible || !variables.preview.voucher) {
         throw new Error('Promo perlu divalidasi sebelum diterapkan');
       }
 
@@ -166,13 +188,15 @@ export function useApplyPromoMutation(cartId?: string) {
       const cartKey = getCartQueryKey(cartId);
       await queryClient.cancelQueries({ queryKey: cartKey });
       const previousCart = readCartCache(queryClient, cartId);
-      const previousPromoResult = queryClient.getQueryData<PromoResult>(getPromoKey(cartId));
+      const previousPromoResult = queryClient.getQueryData<VoucherPreviewResponse>(
+        getPromoKey(cartId),
+      );
 
       if (variables.preview) {
         queryClient.setQueryData(getPromoKey(cartId), variables.preview);
       }
 
-      if (previousCart && variables.preview?.promo) {
+      if (previousCart && variables.preview?.voucher) {
         const optimistic = mergePromoResultIntoCart(
           cloneCartWithMeta(previousCart),
           variables.preview,
@@ -197,7 +221,7 @@ export function useApplyPromoMutation(cartId?: string) {
         result: 'success',
         cartValueBefore: context?.previousCart?.subtotal.amount,
         discountValue: getDiscountValue(context?.previousCart?.subtotal.amount ?? 0, data),
-        discountType: data.promo?.discountType,
+        discountType: data.voucher?.kind,
         durationMs,
       });
 
@@ -205,7 +229,9 @@ export function useApplyPromoMutation(cartId?: string) {
         id: `promo-apply-${cartId}`,
         variant: 'success',
         title: 'Kode promo diterapkan',
-        description: data.promo?.label ?? `Kode ${variables.code.toUpperCase()} aktif`,
+        description: data.voucher?.code
+          ? `Kode ${data.voucher.code.toUpperCase()} aktif`
+          : 'Promo diterapkan',
       });
     },
     onError: (error, variables, context) => {
@@ -281,7 +307,7 @@ export function useRemovePromoMutation(cartId?: string) {
   const { toast } = useToast();
   const { add, remove, has } = useInFlightRegistry();
 
-  const mutation = useMutation<PromoResult, Error, void, RemovePromoContext>({
+  const mutation = useMutation<VoucherPreviewResponse, Error, void, RemovePromoContext>({
     mutationFn: async () => {
       if (!cartId) {
         throw new Error('cartId is required to remove promo');
@@ -306,7 +332,9 @@ export function useRemovePromoMutation(cartId?: string) {
       const cartKey = getCartQueryKey(cartId);
       await queryClient.cancelQueries({ queryKey: cartKey });
       const previousCart = readCartCache(queryClient, cartId);
-      const previousPromoResult = queryClient.getQueryData<PromoResult>(getPromoKey(cartId));
+      const previousPromoResult = queryClient.getQueryData<VoucherPreviewResponse>(
+        getPromoKey(cartId),
+      );
 
       if (previousCart) {
         const cleared = mergePromoResultIntoCart(cloneCartWithMeta(previousCart), undefined);
@@ -322,8 +350,8 @@ export function useRemovePromoMutation(cartId?: string) {
         return;
       }
 
-      queryClient.setQueryData(getPromoKey(cartId), data?.valid ? data : undefined);
-      commitPromoResultToCart(queryClient, cartId, data?.valid ? data : undefined);
+      queryClient.setQueryData(getPromoKey(cartId), data?.eligible ? data : undefined);
+      commitPromoResultToCart(queryClient, cartId, data?.eligible ? data : undefined);
 
       const durationMs = context ? performance.now() - context.startTime : undefined;
       capturePosthogEvent('promo_remove', {

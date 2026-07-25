@@ -141,3 +141,6 @@ vite.config.ts.timestamp-*
 # Playwright
 playwright-report/
 test-results/
+.claudeignore
+.qwenignore
+toko-app-wednesday.txt

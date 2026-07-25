@@ -13,75 +13,114 @@ import { apiPath } from '@/mocks/utils';
 
 function setupPromoHandlers(cartId: string) {
   return [
-    http.post(apiPath('/carts/:cartId/apply-voucher'), async ({ request, params }) => {
-      // Only handle requests for the specific cart ID used in this test
-      if (params.cartId !== cartId) {
-        return HttpResponse.json({ valid: false, message: 'Cart not found' }, { status: 404 });
-      }
+    http.post(apiPath('/vouchers/preview'), async ({ request }) => {
       await delay(500);
       const { code } = (await request.json()) as { code: string };
       const normalized = code.trim().toUpperCase();
       if (normalized === 'EXPIRED') {
         return HttpResponse.json({
-          valid: false,
+          eligible: false,
+          discount: 0,
+          eligibleSubtotal: 0,
+          finalTotal: 0,
+          voucher: null,
           message: 'Kode promo sudah kedaluwarsa',
         });
       }
       return HttpResponse.json({
-        valid: true,
-        promo: {
-          code: normalized,
-          discountType: 'percent',
-          value: 10,
-          label: 'Diskon 10%',
-        },
-        appliedSubtotal: 180000,
+        eligible: true,
+        discount: 20000,
+        eligibleSubtotal: 200000,
         finalTotal: 180000,
+        voucher: {
+          id: 'voucher-1',
+          code: normalized,
+          kind: 'percent',
+          value: 0,
+          percentBps: 1000,
+          minSpend: 100000,
+          usageLimit: 100,
+          usedCount: 0,
+          perUserLimit: 1,
+          validFrom: '2025-01-01T00:00:00Z',
+          validTo: '2025-12-31T23:59:59Z',
+          productIds: [],
+          categoryIds: [],
+          brandIds: [],
+          combinable: false,
+          priority: 10,
+          createdAt: '2025-01-01T00:00:00Z',
+          updatedAt: '2025-01-01T00:00:00Z',
+          tenantId: 'tenant-1',
+        },
         message: 'Diskon 10% aktif',
       });
     }),
-    http.post(apiPath(`/cart/${cartId}/promo/remove`), async () => {
+    http.delete(apiPath(`/carts/${cartId}/voucher`), async () => {
       await delay(800);
       const mockCart = (globalThis as any).__tokoCartMock;
       if (mockCart) {
         mockCart.discount = 0;
         mockCart.voucher = null;
       }
-      return HttpResponse.json({ valid: false, message: 'Kode promo dihapus' });
+      return HttpResponse.json({
+        eligible: false,
+        discount: 0,
+        eligibleSubtotal: 0,
+        finalTotal: 0,
+        voucher: null,
+        message: 'Kode promo dihapus',
+      });
     }),
   ];
 }
 
 function setupPromoHandlersWithRemoveFailure(cartId: string) {
   return [
-    http.post(apiPath('/carts/:cartId/apply-voucher'), async ({ request, params }) => {
-      // Only handle requests for the specific cart ID used in this test
-      if (params.cartId !== cartId) {
-        return HttpResponse.json({ valid: false, message: 'Cart not found' }, { status: 404 });
-      }
+    http.post(apiPath('/vouchers/preview'), async ({ request }) => {
       await delay(500);
       const { code } = (await request.json()) as { code: string };
       const normalized = code.trim().toUpperCase();
       if (normalized === 'EXPIRED') {
         return HttpResponse.json({
-          valid: false,
+          eligible: false,
+          discount: 0,
+          eligibleSubtotal: 0,
+          finalTotal: 0,
+          voucher: null,
           message: 'Kode promo sudah kedaluwarsa',
         });
       }
       return HttpResponse.json({
-        valid: true,
-        promo: {
-          code: normalized,
-          discountType: 'percent',
-          value: 10,
-          label: 'Diskon 10%',
-        },
-        appliedSubtotal: 180000,
+        eligible: true,
+        discount: 20000,
+        eligibleSubtotal: 200000,
         finalTotal: 180000,
+        voucher: {
+          id: 'voucher-1',
+          code: normalized,
+          kind: 'percent',
+          value: 0,
+          percentBps: 1000,
+          minSpend: 100000,
+          usageLimit: 100,
+          usedCount: 0,
+          perUserLimit: 1,
+          validFrom: '2025-01-01T00:00:00Z',
+          validTo: '2025-12-31T23:59:59Z',
+          productIds: [],
+          categoryIds: [],
+          brandIds: [],
+          combinable: false,
+          priority: 10,
+          createdAt: '2025-01-01T00:00:00Z',
+          updatedAt: '2025-01-01T00:00:00Z',
+          tenantId: 'tenant-1',
+        },
         message: 'Diskon 10% aktif',
       });
     }),
-    http.post(apiPath(`/cart/${cartId}/promo/remove`), async () => {
+    http.delete(apiPath(`/carts/${cartId}/voucher`), async () => {
       await delay(50);
       return HttpResponse.json({ message: 'Failed' }, { status: 500 });
     }),

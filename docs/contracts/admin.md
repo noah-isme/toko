@@ -49,7 +49,27 @@ Creates a new voucher rule.
 
 ```json
 {
-  "data": { ...voucher object... }
+  "data": {
+    "id": "voucher-uuid",
+    "code": "DISC20",
+    "kind": "percent",
+    "value": 0,
+    "percent_bps": 2000,
+    "min_spend": 100000,
+    "usage_limit": 100,
+    "used_count": 0,
+    "per_user_limit": 1,
+    "valid_from": "2025-12-01T00:00:00Z",
+    "valid_to": "2025-12-31T23:59:59Z",
+    "product_ids": ["product-uuid"],
+    "category_ids": ["category-uuid"],
+    "brand_ids": ["brand-uuid"],
+    "combinable": false,
+    "priority": 10,
+    "created_at": "2025-12-01T00:00:00Z",
+    "updated_at": "2025-12-01T00:00:00Z",
+    "tenant_id": "tenant-uuid"
+  }
 }
 ```
 
@@ -107,6 +127,11 @@ Dry-run evaluation of a voucher for a given cart context without persisting stat
 }
 ```
 
+- `code` — required
+- `cartTotal` — required, cart total in IDR
+- `userId` — optional, used for per-user limit checks
+- `items` — required, at least one valid item with `subtotal > 0`
+
 **Response:** `200 OK`
 
 ```json
@@ -119,7 +144,7 @@ Dry-run evaluation of a voucher for a given cart context without persisting stat
 }
 ```
 
-Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_ELIGIBLE`, `INTERNAL`.
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_ELIGIBLE` (voucher cannot be applied), `INTERNAL`.
 
 ---
 
@@ -141,11 +166,27 @@ Advances the order status using state-machine validation. The `{id}` path parame
 }
 ```
 
-**Valid target statuses:** `PACKED`, `SHIPPED`, `OUT_FOR_DELIVERY`, `DELIVERED`, `CANCELLED`.
+**Valid target statuses:**
+
+- `PACKED`
+- `SHIPPED`
+- `OUT_FOR_DELIVERY`
+- `DELIVERED`
+- `CANCELLED`
+
+**Typical transitions:**
+
+- `PENDING_PAYMENT` → `PAID`, `CANCELLED`
+- `PAID` → `PACKED`, `CANCELLED`
+- `PACKED` → `SHIPPED`
+- `SHIPPED` → `OUT_FOR_DELIVERY`
+- `OUT_FOR_DELIVERY` → `DELIVERED`
+
+The backend rejects transitions to an equal or previous state in the status rank.
 
 **Response:** `204 No Content`
 
-Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_FOUND`, `INVALID_STATE`, `INTERNAL`.
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_FOUND`, `INVALID_STATE` (transition not allowed), `INTERNAL`.
 
 ---
 
@@ -157,7 +198,7 @@ Content-Type: application/json
 Authorization: Bearer <admin_token>
 ```
 
-Registers courier and tracking data for an order.
+Registers courier and tracking data for an order. The `{id}` path parameter is the order UUID.
 
 **Request:**
 
@@ -185,7 +226,7 @@ Registers courier and tracking data for an order.
 }
 ```
 
-Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_FOUND`, `INVALID_STATE`, `ALREADY_EXISTS`, `INTERNAL`.
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_FOUND`, `INVALID_STATE` (order not eligible), `ALREADY_EXISTS`, `INTERNAL`.
 
 ---
 
@@ -211,7 +252,29 @@ Registers a new webhook endpoint.
 }
 ```
 
-**Response:** `201 Created` (endpoint object returned directly, not wrapped in `data`)
+- `name`, `url`, `secret` — required
+- `active` — optional, defaults to `true`
+- `topics` — optional array of topic strings; empty means all topics
+
+**Response:** `201 Created`
+
+Note: the backend returns the endpoint object directly, not wrapped in `{ "data": ... }`.
+
+```json
+{
+  "id": "endpoint-uuid",
+  "name": "Inventory sync",
+  "url": "https://partner.example.com/webhooks",
+  "secret": "webhook-secret",
+  "active": true,
+  "topics": ["order.paid", "order.shipped"],
+  "created_at": "2025-12-01T00:00:00Z",
+  "updated_at": "2025-12-01T00:00:00Z",
+  "tenant_id": "tenant-uuid"
+}
+```
+
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `INTERNAL`.
 
 ---
 
@@ -225,7 +288,13 @@ Authorization: Bearer <admin_token>
 
 Updates the webhook endpoint identified by `{id}`.
 
-**Response:** `200 OK` (endpoint object returned directly, not wrapped in `data`)
+**Request:** same shape as creation.
+
+**Response:** `200 OK`
+
+Note: the backend returns the endpoint object directly, not wrapped in `{ "data": ... }`.
+
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_FOUND`, `INTERNAL`.
 
 ---
 
@@ -238,13 +307,32 @@ Authorization: Bearer <admin_token>
 
 Returns configured webhook endpoints.
 
+**Query parameters:**
+
+- `limit` — page size, capped at `200` (default `50`)
+- `offset` — items to skip (default `0`)
+
 **Response:** `200 OK`
 
 ```json
 {
-  "data": [ ...endpoint objects... ]
+  "data": [
+    {
+      "id": "endpoint-uuid",
+      "name": "Inventory sync",
+      "url": "https://partner.example.com/webhooks",
+      "secret": "webhook-secret",
+      "active": true,
+      "topics": ["order.paid"],
+      "created_at": "2025-12-01T00:00:00Z",
+      "updated_at": "2025-12-01T00:00:00Z",
+      "tenant_id": "tenant-uuid"
+    }
+  ]
 }
 ```
+
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `INTERNAL`.
 
 ---
 
@@ -259,6 +347,8 @@ Removes the webhook endpoint identified by `{id}`.
 
 **Response:** `204 No Content`
 
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_FOUND`, `INTERNAL`.
+
 ---
 
 ## 6.10 List Webhook Deliveries
@@ -270,14 +360,40 @@ Authorization: Bearer <admin_token>
 
 Returns webhook delivery attempts with optional filtering.
 
+**Query parameters:**
+
+- `endpointId` — optional UUID filter
+- `eventId` — optional UUID filter
+- `status` — optional status filter
+- `limit` — page size, capped at `200` (default `50`)
+- `offset` — items to skip (default `0`)
+
 **Response:** `200 OK`
 
 ```json
 {
-  "data": [ ...delivery objects... ],
+  "data": [
+    {
+      "id": "delivery-uuid",
+      "endpoint_id": "endpoint-uuid",
+      "event_id": "event-uuid",
+      "status": "PENDING",
+      "attempt": 1,
+      "max_attempt": 3,
+      "next_attempt_at": "2025-12-01T00:05:00Z",
+      "last_error": null,
+      "response_status": null,
+      "response_body": null,
+      "created_at": "2025-12-01T00:00:00Z",
+      "updated_at": "2025-12-01T00:00:00Z",
+      "tenant_id": "tenant-uuid"
+    }
+  ],
   "total": 42
 }
 ```
+
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `INTERNAL`.
 
 ---
 
@@ -288,9 +404,13 @@ POST /api/v1/admin/webhook-deliveries/{id}/replay
 Authorization: Bearer <admin_token>
 ```
 
-Resets the delivery identified by `{id}` for retry.
+Resets the delivery identified by `{id}` for retry and releases any related DLQ lock.
 
-**Response:** `200 OK` (delivery object returned directly, not wrapped in `data`)
+**Response:** `200 OK`
+
+Note: the backend returns the delivery object directly, not wrapped in `{ "data": ... }`.
+
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `NOT_FOUND`, `INTERNAL`.
 
 ---
 
@@ -303,17 +423,42 @@ Authorization: Bearer <admin_token>
 
 Returns DLQ entries filtered by kind with pagination.
 
+**Query parameters:**
+
+- `kind` — optional queue kind filter (e.g. `webhook`)
+- `limit` — page size, capped at `200` (handler default `50`)
+- `offset` — items to skip (default `0`)
+
 **Response:** `200 OK`
 
 ```json
 {
-  "data": [ ...dlq items... ],
+  "data": [
+    {
+      "id": "dlq-uuid",
+      "kind": "webhook",
+      "idempotencyKey": "idem-key",
+      "attempts": 3,
+      "lastError": "connection timeout",
+      "createdAt": "2025-12-01T00:00:00Z",
+      "message": {
+        "kind": "webhook",
+        "key": "idem-key",
+        "payload": {},
+        "attempt": 3,
+        "max_attempts": 5,
+        "available_at": 1733600000000
+      }
+    }
+  ],
   "total": 12,
   "kind": "webhook"
 }
 ```
 
-Note: `kind` is only included when a kind filter was applied.
+Note: `kind` is only included in the response when a kind filter was applied.
+
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `INTERNAL`.
 
 ---
 
@@ -337,6 +482,12 @@ Re-enqueues DLQ entries either by ID list or by batch kind.
 }
 ```
 
+- `ids` — optional array of DLQ entry UUIDs to replay individually
+- `kind` — optional queue kind to replay in batch
+- `limit` — cap for batch replay when using `kind` (default handler page size)
+
+At least one of `ids` or `kind` is required. When `ids` is provided, `kind` is ignored for those IDs.
+
 **Response:** `200 OK`
 
 ```json
@@ -348,6 +499,8 @@ Re-enqueues DLQ entries either by ID list or by batch kind.
 }
 ```
 
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `INTERNAL`.
+
 ---
 
 ## 6.14 Get Queue Stats
@@ -358,6 +511,10 @@ Authorization: Bearer <admin_token>
 ```
 
 Returns queue depth, in-flight count, DLQ size, and oldest lag for a given queue kind.
+
+**Query parameters:**
+
+- `kind` — required queue kind (e.g. `webhook`)
 
 **Response:** `200 OK`
 
@@ -372,6 +529,14 @@ Returns queue depth, in-flight count, DLQ size, and oldest lag for a given queue
 }
 ```
 
+- `ready` — tasks waiting in the queue
+- `processing` — tasks currently being processed
+- `dlq` — dead-lettered tasks
+- `oldest_lag_ms` — lag of the oldest ready task in milliseconds
+- `visibility_timeout` — configured visibility timeout in seconds
+
+Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `BAD_REQUEST`, `INTERNAL`.
+
 ---
 
 ## 6.15 List Audit Logs
@@ -382,6 +547,11 @@ Authorization: Bearer <admin_token>
 ```
 
 Returns a paginated list of audit logs.
+
+**Query parameters:**
+
+- `limit` — page size, capped at `200` (default `50`)
+- `offset` — items to skip (default `0`)
 
 **Response:** `200 OK`
 

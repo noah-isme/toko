@@ -32,7 +32,7 @@ Public endpoint. Returns reviews for the product ordered by newest first.
 ]
 ```
 
-Note: the backend currently returns a raw array, not the standard `{ "data": ... }` envelope. The frontend maps `comment` to `body`, `user_id` to `author`, and defaults `status` to `approved` and `helpfulCount` to `0`.
+Note: the backend currently returns a raw array, not the standard `{ "data": ... }` envelope.
 
 ---
 
@@ -70,7 +70,7 @@ Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
-Requires authentication.
+Requires authentication. Creates a review for the specified product on behalf of the authenticated user.
 
 **Request:**
 
