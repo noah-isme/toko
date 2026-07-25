@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query';
 
 import type { Promo } from '@/entities/promo/types';
 import { queryKeys } from '@/lib/api/queryKeys';
-import type { Cart, CartItem } from '@/lib/api/schemas';
+import type { CartView, CartViewItem } from '@/lib/api/schemas';
 
 export type CartTotalsPreview = {
   subtotal?: number;
@@ -17,7 +17,7 @@ export type CartPromoInfo = Promo & {
   message?: string;
 };
 
-export type CartWithPromo = Cart & {
+export type CartWithPromo = CartView & {
   promoInfo?: CartPromoInfo;
   totals?: CartTotalsPreview;
 };
@@ -32,19 +32,19 @@ export function getCartQueryKey(cartId?: string) {
 
 export function readCartCache(queryClient: QueryClient, cartId?: string) {
   if (cartId) {
-    const keyedCart = queryClient.getQueryData<Cart>(getCartQueryKey(cartId));
+    const keyedCart = queryClient.getQueryData<CartView>(getCartQueryKey(cartId));
     if (keyedCart) {
       return keyedCart;
     }
   }
 
-  return queryClient.getQueryData<Cart>(queryKeys.cart());
+  return queryClient.getQueryData<CartView>(queryKeys.cart());
 }
 
 export function writeCartCache(
   queryClient: QueryClient,
   cartId: string | undefined,
-  data: Cart | undefined,
+  data: CartView | undefined,
 ) {
   queryClient.setQueryData(queryKeys.cart(), data);
 
@@ -53,7 +53,7 @@ export function writeCartCache(
   }
 }
 
-export function patchCartItems(cart: Cart, patch: (items: CartItem[]) => CartItem[]) {
+export function patchCartItems(cart: CartView, patch: (items: CartViewItem[]) => CartViewItem[]) {
   const nextItems = patch(cart.items.map((item) => ({ ...item })));
 
   const subtotalAmount = nextItems.reduce(
@@ -67,10 +67,10 @@ export function patchCartItems(cart: Cart, patch: (items: CartItem[]) => CartIte
     items: nextItems,
     subtotal: { ...cart.subtotal, amount: subtotalAmount },
     itemCount,
-  } satisfies Cart;
+  } satisfies CartView;
 }
 
-export function cloneCartWithMeta(source: Cart): CartWithPromo {
+export function cloneCartWithMeta(source: CartView): CartWithPromo {
   const cartWithMeta = source as CartWithPromo;
   return {
     ...source,

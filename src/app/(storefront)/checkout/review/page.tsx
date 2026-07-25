@@ -9,6 +9,7 @@ import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } fr
 
 import { OrderSummary } from '../_components/OrderSummary';
 
+import { CheckoutStepper } from '@/components/checkout-stepper';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import type { ApiError } from '@/entities/checkout/api/client';
@@ -28,7 +29,7 @@ import { DisabledHint } from '@/shared/ui/DisabledHint';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useToast } from '@/shared/ui/toast';
 
-const failureStatuses: Array<PaymentStatus['status']> = ['FAILED', 'EXPIRED', 'CANCELED'];
+const failureStatuses: Array<PaymentStatus['status']> = ['FAILED', 'EXPIRED', 'REFUNDED'];
 
 export default function CheckoutReviewPage() {
   return (
@@ -119,12 +120,13 @@ function CheckoutReviewContent() {
       return null;
     }
 
-    const { fullName, phone, detail, district, city, province, postalCode } = orderDraft.address;
+    const { receiverName, phone, addressLine1, addressLine2, city, province, postalCode, country } =
+      orderDraft.address;
     return [
-      `${fullName} • ${phone}`,
-      detail,
-      `${district}, ${city}`,
-      `${province} ${postalCode}`,
+      `${receiverName} • ${phone}`,
+      addressLine1 + (addressLine2 ? `, ${addressLine2}` : ''),
+      `${city}, ${province} ${postalCode}`,
+      country,
     ].filter(Boolean);
   }, [orderDraft?.address]);
 
@@ -132,7 +134,6 @@ function CheckoutReviewContent() {
     async (override?: PaymentCreateBody) => {
       const payload = override ?? {
         orderId,
-        provider: 'midtrans',
         channel: 'snap',
       };
 
@@ -234,11 +235,7 @@ function CheckoutReviewContent() {
     (status: PaymentStatus['status']) => {
       setWatcherActive(false);
       setFailedStatus(status);
-      setStatusError(
-        status === 'CANCELED'
-          ? 'Pembayaran dibatalkan. Silakan mulai ulang proses pembayaran.'
-          : `Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`,
-      );
+      setStatusError(`Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`);
       pushToast({
         id: `payment-failed-${orderId}`,
         title: 'Pembayaran belum berhasil',
@@ -277,6 +274,7 @@ function CheckoutReviewContent() {
     <div className="space-y-8 pb-[calc(env(safe-area-inset-bottom)+5rem)]">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Review Pesanan</h1>
+        <CheckoutStepper current="review" className="mb-4 mt-4" />
         <p className="text-sm text-muted-foreground">
           Pastikan detail pesanan Anda sudah benar sebelum melanjutkan ke pembayaran.
         </p>

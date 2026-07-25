@@ -8,6 +8,7 @@ import { useApplyPromoMutation, useRemovePromoMutation, useValidatePromoQuery } 
 import { promoApplyInputSchema, type PromoApplyInput } from '../schemas';
 
 import { useCartQuery } from '@/lib/api/hooks';
+import type { CartViewItem } from '@/lib/api/schemas';
 import { cn } from '@/lib/utils';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
@@ -46,7 +47,15 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
 
   const applyMutation = useApplyPromoMutation(cartId ?? undefined);
   const removeMutation = useRemovePromoMutation(cartId ?? undefined);
-  const validateQuery = useValidatePromoQuery(cartId ?? null, normalizedCode);
+  const validateQuery = useValidatePromoQuery(
+    cartId ?? null,
+    normalizedCode,
+    cart?.subtotal?.amount,
+    cart?.items?.map((item: CartViewItem) => ({
+      productId: item.productId,
+      subtotal: item.price.amount * item.quantity,
+    })),
+  );
 
   useEffect(() => {
     if (!normalizedCode && !appliedPromo) {
@@ -67,7 +76,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
 
     try {
       const validation = await validateQuery.refetch();
-      if (!validation.data?.valid || !validation.data.promo) {
+      if (!validation.data?.eligible || !validation.data.voucher) {
         form.setError('code', {
           type: 'validate',
           message: validation.data?.message ?? 'Kode promo tidak valid',
@@ -75,8 +84,15 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
         return;
       }
 
+      const cartTotal = cart?.subtotal?.amount ?? 0;
+      const items =
+        cart?.items?.map((item: CartViewItem) => ({
+          productId: item.productId,
+          subtotal: item.price.amount * item.quantity,
+        })) ?? [];
+
       applyMutation.mutate(
-        { code: code.toUpperCase(), preview: validation.data },
+        { code: code.toUpperCase(), preview: validation.data, cartTotal, items },
         {
           onSuccess: () => {
             form.reset({ code: '' });

@@ -11,15 +11,14 @@ import {
 } from '@/entities/address/schemas';
 import type { Address } from '@/entities/address/types';
 
-
 function createMockAddress(overrides: Partial<Address> = {}): Address {
   const timestamp = new Date().toISOString();
   return {
     id: faker.string.uuid(),
-    fullName: faker.person.fullName(),
+    receiverName: faker.person.fullName(),
     phone: faker.phone.number({ style: 'international' }),
-    line1: faker.location.streetAddress(),
-    line2: faker.location.secondaryAddress(),
+    addressLine1: faker.location.streetAddress(),
+    addressLine2: faker.location.secondaryAddress(),
     city: faker.location.city(),
     province: faker.location.state(),
     postalCode: faker.location.zipCode(),

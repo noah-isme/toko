@@ -32,12 +32,12 @@ describe('useCreatePaymentIntentMutation with real API base', () => {
     process.env.NEXT_PUBLIC_API_URL = 'https://backend.example.com/api';
 
     const responsePayload = {
-      orderId: 'order-001',
-      provider: 'midtrans' as const,
-      channel: 'snap',
-      token: 'snap-token-987',
-      redirectUrl: 'https://snap.example.com/pay/987',
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      data: {
+        provider: 'midtrans' as const,
+        token: 'snap-token-987',
+        redirectUrl: 'https://snap.example.com/pay/987',
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      },
     };
 
     const fetchMock = vi.fn().mockResolvedValue(
@@ -59,7 +59,6 @@ describe('useCreatePaymentIntentMutation with real API base', () => {
 
     const payload = {
       orderId: 'order-001',
-      provider: 'midtrans' as const,
       channel: 'snap' as const,
     };
 
@@ -68,7 +67,7 @@ describe('useCreatePaymentIntentMutation with real API base', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.data).toMatchObject(responsePayload);
+      expect(result.current.data).toMatchObject(responsePayload.data);
     });
 
     expect(fetchMock).toHaveBeenCalledWith(

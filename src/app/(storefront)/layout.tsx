@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 
+import { KeyboardShortcuts } from '@/components/keyboard-shortcuts';
 import { Container } from '@/components/layout/container';
 import { Footer } from '@/components/layout/footer';
 import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
@@ -22,6 +23,7 @@ export default function StorefrontLayout({ children }: { children: ReactNode }) 
       <CompareBar />
       <BackToTop />
       <Footer />
+      <KeyboardShortcuts />
     </div>
   );
 }

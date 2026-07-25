@@ -33,13 +33,14 @@ describe('checkout mutations', () => {
 
     const cartId = cartResult.current.data!.id;
     const validAddress = {
-      fullName: 'Jane Doe',
+      receiverName: 'Jane Doe',
       phone: '08123456789',
-      province: 'DKI Jakarta',
+      addressLine1: 'Jl. Senopati No. 12',
+      addressLine2: '',
       city: 'Jakarta Selatan',
-      district: 'Kebayoran Baru',
+      province: 'DKI Jakarta',
       postalCode: '12120',
-      detail: 'Jl. Senopati No. 12',
+      country: 'Indonesia',
     };
 
     const { result: quoteResult } = renderHook(() => useShippingQuoteMutation(), {

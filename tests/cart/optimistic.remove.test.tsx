@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { useCartQuery, useRemoveCartItemMutation } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
-import type { Cart } from '@/lib/api/schemas';
+import type { CartView } from '@/lib/api/schemas';
 import { handlers } from '@/mocks/handlers';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
@@ -38,18 +38,19 @@ describe('cart optimistic remove mutation', () => {
       expect(cartResult.current.data).toBeDefined();
     });
 
-    const cart = cartResult.current.data as Cart;
+    const cart = cartResult.current.data as CartView;
     const targetItem = cart.items[0]!;
 
     const originalRemoveHandler = handlers.find(
       (handler) =>
-        handler.info?.method === 'DELETE' && handler.info?.path === apiPath('/cart/items/:itemId'),
+        handler.info?.method === 'DELETE' &&
+        handler.info?.path === apiPath('/carts/:cartId/items/:itemId'),
     );
 
     expect(originalRemoveHandler).toBeDefined();
 
     server.use(
-      http.delete(apiPath('/cart/items/:itemId'), async (...args) => {
+      http.delete(apiPath('/carts/:cartId/items/:itemId'), async (...args) => {
         await delay(100);
         return (originalRemoveHandler as any).resolver(...args);
       }),
@@ -64,7 +65,7 @@ describe('cart optimistic remove mutation', () => {
     });
 
     await waitFor(() => {
-      const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+      const optimisticCart = queryClient.getQueryData<CartView>(queryKeys.cart());
       expect(optimisticCart?.items.some((item) => item.id === targetItem.id)).toBe(false);
     });
 
@@ -72,7 +73,7 @@ describe('cart optimistic remove mutation', () => {
       expect(removeResult.current.isSuccess).toBe(true);
     });
 
-    const finalCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+    const finalCart = queryClient.getQueryData<CartView>(queryKeys.cart());
     expect(finalCart?.items.some((item) => item.id === targetItem.id)).toBe(false);
   });
 
@@ -86,11 +87,13 @@ describe('cart optimistic remove mutation', () => {
       expect(cartResult.current.data).toBeDefined();
     });
 
-    const cart = cartResult.current.data as Cart;
+    const cart = cartResult.current.data as CartView;
     const targetItem = cart.items[0]!;
 
     let resolveRemoveError!: () => void;
-    const removeErrorBlocker = new Promise<void>((resolve) => { resolveRemoveError = resolve; });
+    const removeErrorBlocker = new Promise<void>((resolve) => {
+      resolveRemoveError = resolve;
+    });
 
     server.use(
       http.delete(apiPath('/carts/:cartId/items/:itemId'), async () => {
@@ -108,19 +111,21 @@ describe('cart optimistic remove mutation', () => {
     });
 
     await waitFor(() => {
-      const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+      const optimisticCart = queryClient.getQueryData<CartView>(queryKeys.cart());
       expect(optimisticCart?.items.some((item) => item.id === targetItem.id)).toBe(false);
     });
 
     // Unblock server with error
-    act(() => { resolveRemoveError(); });
+    act(() => {
+      resolveRemoveError();
+    });
 
     await waitFor(() => {
       expect(removeResult.current.isError).toBe(true);
     });
 
     await waitFor(() => {
-      const revertedCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+      const revertedCart = queryClient.getQueryData<CartView>(queryKeys.cart());
       expect(revertedCart?.items.some((item) => item.id === targetItem.id)).toBe(true);
     });
   });

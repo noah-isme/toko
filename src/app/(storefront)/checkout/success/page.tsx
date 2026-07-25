@@ -8,6 +8,7 @@ import { Suspense, useEffect, useState } from 'react';
 
 import { OrderSummary } from '../_components/OrderSummary';
 
+import { CheckoutStepper } from '@/components/checkout-stepper';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
@@ -83,6 +84,7 @@ function CheckoutSuccessContent() {
   return (
     <div className="space-y-8">
       <JsonLd id="order-jsonld" data={structuredData} />
+      <CheckoutStepper current="success" />
       <div className="space-y-2 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
           <svg
@@ -110,15 +112,17 @@ function CheckoutSuccessContent() {
               <h2 className="text-lg font-semibold">Detail Pengiriman</h2>
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-foreground">
-                  {orderDraft.address.fullName} • {orderDraft.address.phone}
-                </p>
-                <p className="text-muted-foreground">{orderDraft.address.detail}</p>
-                <p className="text-muted-foreground">
-                  {orderDraft.address.district}, {orderDraft.address.city}
+                  {orderDraft.address.receiverName} • {orderDraft.address.phone}
                 </p>
                 <p className="text-muted-foreground">
-                  {orderDraft.address.province} {orderDraft.address.postalCode}
+                  {orderDraft.address.addressLine1}
+                  {orderDraft.address.addressLine2 ? `, ${orderDraft.address.addressLine2}` : ''}
                 </p>
+                <p className="text-muted-foreground">
+                  {orderDraft.address.city}, {orderDraft.address.province}{' '}
+                  {orderDraft.address.postalCode}
+                </p>
+                <p className="text-muted-foreground">{orderDraft.address.country}</p>
               </div>
             </section>
 

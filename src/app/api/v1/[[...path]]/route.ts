@@ -118,12 +118,11 @@ const shippingRates = [
 let mockPaymentPaid = false;
 
 function handleRoute(path: string, method: string, body: any, searchParams?: URLSearchParams) {
-  if (path === 'payments/status' && method === 'GET') {
-    const orderId = searchParams?.get('orderId') || 'order-success-id';
+  if (path.startsWith('payments/') && path.endsWith('/status') && method === 'GET') {
     return {
-      orderId,
-      status: mockPaymentPaid ? 'PAID' : 'PENDING',
-      provider: 'midtrans',
+      data: {
+        status: mockPaymentPaid ? 'PAID' : 'PENDING',
+      },
     };
   }
 
@@ -209,13 +208,8 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
     };
   }
 
-  // Cart promo endpoints: /cart/{cartId}/promo/validate|apply|remove
-  if (path.includes('/promo/') && method === 'POST') {
-    const action = path.split('/promo/')[1]; // 'validate', 'apply', or 'remove'
-    if (action === 'remove') {
-      // Return without data wrapper since promoResultSchema parses raw response
-      return { valid: false, promo: null };
-    }
+  // Cart promo endpoints: /carts/{cartId}/apply-voucher (POST) and /carts/{cartId}/voucher (DELETE)
+  if (path.includes('/apply-voucher') && method === 'POST') {
     const code = (body?.code || '').trim().toUpperCase();
     const promoData: Record<string, object> = {
       SAVE10: {
@@ -245,6 +239,10 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
     }
     // Return without data wrapper
     return found;
+  }
+
+  if (path.includes('/voucher') && method === 'DELETE') {
+    return { valid: false, promo: null };
   }
 
   if (path.includes('quote/shipping') && method === 'POST') {
@@ -277,12 +275,12 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
   if (path === 'payments/intent' && method === 'POST') {
     mockPaymentPaid = true; // Set to PAID when payment intent (Bayar Sekarang) is initiated
     return {
-      orderId: body?.orderId || 'order-pending-123',
-      provider: body?.provider || 'midtrans',
-      channel: body?.channel || 'snap',
-      token: 'mock-token-12345',
-      redirectUrl: 'https://payment.example.com/pay',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      data: {
+        provider: body?.provider || 'midtrans',
+        token: 'mock-token-12345',
+        redirectUrl: 'https://payment.example.com/pay',
+        expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      },
     };
   }
 
@@ -337,7 +335,7 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
       {
         id: 'order-3',
         orderNumber: 'ORD-003',
-        status: 'processing',
+        status: 'packed',
         total: 300000,
         currency: 'IDR',
         itemCount: 1,
@@ -355,7 +353,7 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
       {
         id: 'order-5',
         orderNumber: 'ORD-005',
-        status: 'completed',
+        status: 'delivered',
         total: 500000,
         currency: 'IDR',
         itemCount: 1,

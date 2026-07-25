@@ -10,7 +10,6 @@ import type { Address } from '@/entities/address/types';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
 
-
 describe('address create mutation', () => {
   it('adds a new address optimistically while awaiting server response', async () => {
     const queryClient = createQueryClient();
@@ -19,9 +18,9 @@ describe('address create mutation', () => {
     const seed: Address[] = [
       {
         id: 'addr-1',
-        fullName: 'Existing User',
+        receiverName: 'Existing User',
         phone: '0811111111',
-        line1: 'Jl. Lama 1',
+        addressLine1: 'Jl. Lama 1',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12345',
@@ -48,9 +47,9 @@ describe('address create mutation', () => {
 
     await act(async () => {
       mutationResult.current.mutate({
-        fullName: 'New Address',
+        receiverName: 'New Address',
         phone: '0899999999',
-        line1: 'Jl. Baru 99',
+        addressLine1: 'Jl. Baru 99',
         city: 'Bandung',
         province: 'Jawa Barat',
         postalCode: '40111',
@@ -60,7 +59,7 @@ describe('address create mutation', () => {
     });
 
     const optimistic = queryClient.getQueryData<Address[]>(['addresses', 'list', ownerId]);
-    expect(optimistic?.[0]?.fullName).toBe('New Address');
+    expect(optimistic?.[0]?.receiverName).toBe('New Address');
     expect(optimistic?.length).toBe(2);
 
     await waitFor(() => {
@@ -75,9 +74,9 @@ describe('address create mutation', () => {
     const seed: Address[] = [
       {
         id: 'addr-rollback',
-        fullName: 'Rollback User',
+        receiverName: 'Rollback User',
         phone: '0812121212',
-        line1: 'Jl. Kenangan 10',
+        addressLine1: 'Jl. Kenangan 10',
         city: 'Surabaya',
         province: 'Jawa Timur',
         postalCode: '60222',
@@ -113,9 +112,9 @@ describe('address create mutation', () => {
 
     await act(async () => {
       mutationResult.current.mutate({
-        fullName: 'Should Rollback',
+        receiverName: 'Should Rollback',
         phone: '08123456789',
-        line1: 'Jl. Error 1',
+        addressLine1: 'Jl. Error 1',
         city: 'Yogyakarta',
         province: 'DIY',
         postalCode: '55111',

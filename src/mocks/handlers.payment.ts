@@ -11,16 +11,12 @@ import {
 
 const statusAttempts = new Map<
   string,
-  { checks: number; status: z.infer<typeof PaymentStatusSchema>['status']; provider: string }
+  { checks: number; status: z.infer<typeof PaymentStatusSchema>['status'] }
 >();
-
-const paymentStatusQuerySchema = z.object({
-  orderId: z.string().min(1, 'orderId is required'),
-});
 
 function nextStatus(orderId: string) {
   const existing = statusAttempts.get(orderId);
-  const state = existing ?? { checks: 0, status: 'PENDING' as const, provider: 'midtrans' };
+  const state = existing ?? { checks: 0, status: 'PENDING' as const };
 
   state.checks += 1;
 
@@ -64,67 +60,41 @@ export const paymentHandlers = [
       );
     }
 
-    const { orderId, provider, channel } = parsed.data;
-    statusAttempts.set(orderId, { checks: 0, status: 'PENDING', provider });
+    const { orderId } = parsed.data;
+    statusAttempts.set(orderId, { checks: 0, status: 'PENDING' });
 
     const response = PaymentIntentSchema.parse({
-      orderId,
-      provider,
-      channel: channel ?? 'default',
+      provider: 'midtrans',
       token: 'mock-token-123',
       redirectUrl: 'https://mock.pay/redirect/123',
       expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     });
 
-    return HttpResponse.json(response);
+    return HttpResponse.json({ data: response });
   }),
-  http.get(apiPath('/payments/status'), async ({ request }) => {
+  http.get(apiPath('/payments/:orderId/status'), async ({ request, params }) => {
     const url = new URL(request.url);
-    const parsed = paymentStatusQuerySchema.safeParse(
-      Object.fromEntries(url.searchParams.entries()),
-    );
-
-    if (!parsed.success) {
-      return HttpResponse.json(
-        {
-          error: {
-            code: 'INVALID_PAYMENT_STATUS',
-            message: 'orderId query parameter is required',
-          },
-        },
-        { status: 400 },
-      );
-    }
-
-    const { orderId } = parsed.data;
+    const orderId = String(params.orderId);
     const forcedStatus = url.searchParams.get('forceStatus');
 
     if (
       forcedStatus &&
-      ['PENDING', 'PAID', 'FAILED', 'EXPIRED', 'CANCELED'].includes(forcedStatus)
+      ['PENDING', 'PAID', 'FAILED', 'EXPIRED', 'REFUNDED'].includes(forcedStatus)
     ) {
       const status = forcedStatus as z.infer<typeof PaymentStatusSchema>['status'];
-      statusAttempts.set(orderId, { checks: 1, status, provider: 'midtrans' });
+      statusAttempts.set(orderId, { checks: 1, status });
 
-      const response = PaymentStatusSchema.parse({
-        orderId,
-        status,
-        provider: 'midtrans',
-        raw: { forced: true },
-      });
+      const response = PaymentStatusSchema.parse({ status });
 
-      return HttpResponse.json(response);
+      return HttpResponse.json({ data: response });
     }
 
     const state = nextStatus(orderId);
 
     const response = PaymentStatusSchema.parse({
-      orderId,
       status: state.status,
-      provider: state.provider,
-      raw: { checks: state.checks },
     });
 
-    return HttpResponse.json(response);
+    return HttpResponse.json({ data: response });
   }),
 ];

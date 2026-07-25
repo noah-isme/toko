@@ -9,10 +9,10 @@ import { mapApiCartToCart } from '@/lib/api/mappers/cart';
 import { queryKeys } from '@/lib/api/queryKeys';
 import {
   addToCartInputSchema,
-  cartSchema,
+  cartViewSchema,
   updateCartItemInputSchema,
-  type Cart,
-  type CartItem,
+  type CartView,
+  type CartViewItem,
 } from '@/lib/api/schemas';
 import type { ApiResponse, Cart as ApiCart } from '@/lib/api/types';
 import { normalizeError } from '@/shared/lib/normalizeError';
@@ -24,7 +24,7 @@ type AddCartItemVariables = {
   productId: string;
   quantity: number;
   name: string;
-  price: CartItem['price'];
+  price: CartViewItem['price'];
   image?: string | null;
   maxQuantity?: number;
   cartId?: string;
@@ -42,7 +42,7 @@ type RemoveCartItemVariables = {
   cartId?: string;
 };
 
-type MutationContext = { previousCart?: Cart };
+type MutationContext = { previousCart?: CartView };
 
 type GuardKeyFactory<TVariables> = (variables: TVariables) => string | null | undefined;
 
@@ -147,8 +147,8 @@ function clampQuantity(quantity: number, maxQuantity?: number) {
 
 function createFallbackCart(
   cartId: string | undefined,
-  currency: CartItem['price']['currency'],
-): Cart {
+  currency: CartViewItem['price']['currency'],
+): CartView {
   return {
     id: cartId ?? 'optimistic-cart',
     items: [],
@@ -172,7 +172,7 @@ function invalidateCartQueries(queryClient: QueryClient, cartId?: string) {
 }
 
 export function useCartQuery(cartId?: string, anonId?: string) {
-  return useQuery<Cart>({
+  return useQuery<CartView>({
     queryKey: getCartQueryKey(cartId),
     queryFn: async () => {
       if (cartId) {
@@ -192,7 +192,7 @@ export function useAddToCartMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const mutation = useGuardedMutation<Cart, Error, AddCartItemVariables, MutationContext>(
+  const mutation = useGuardedMutation<CartView, Error, AddCartItemVariables, MutationContext>(
     (variables) => `add:${variables.productId}`,
     {
       mutationFn: async ({ productId, quantity, cartId }) => {
@@ -209,9 +209,9 @@ export function useAddToCartMutation() {
           requiresAuth: true,
         });
 
-        // Map, then validate frontend schema
+        // Map, then validate frontend view schema
         const mappedCart = mapApiCartToCart(response.data);
-        return cartSchema.parse(mappedCart);
+        return cartViewSchema.parse(mappedCart);
       },
       onMutate: async (variables) => {
         const { productId, quantity, name, price, image, maxQuantity, cartId } = variables;
@@ -289,19 +289,22 @@ export function useUpdateCartItemMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const mutation = useGuardedMutation<Cart, Error, UpdateCartItemVariables, MutationContext>(
+  const mutation = useGuardedMutation<CartView, Error, UpdateCartItemVariables, MutationContext>(
     (variables) => `update:${variables.itemId}`,
     {
       mutationFn: async ({ itemId, quantity, cartId }) => {
         if (!cartId) {
           throw new Error('Cart ID is required to update items');
         }
-        return apiClient(`/carts/${cartId}/items/${itemId}`, {
+        const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}/items/${itemId}`, {
           method: 'PATCH',
           body: JSON.stringify(updateCartItemInputSchema.parse({ qty: quantity })),
-          schema: cartSchema,
           requiresAuth: true,
         });
+
+        // Map, then validate frontend view schema
+        const mappedCart = mapApiCartToCart(response.data);
+        return cartViewSchema.parse(mappedCart);
       },
       onMutate: async (variables) => {
         const { itemId, quantity, maxQuantity, cartId } = variables;
@@ -367,18 +370,21 @@ export function useRemoveCartItemMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const mutation = useGuardedMutation<Cart, Error, RemoveCartItemVariables, MutationContext>(
+  const mutation = useGuardedMutation<CartView, Error, RemoveCartItemVariables, MutationContext>(
     (variables) => `remove:${variables.itemId}`,
     {
       mutationFn: async ({ itemId, cartId }) => {
         if (!cartId) {
           throw new Error('Cart ID is required to remove items');
         }
-        return apiClient(`/carts/${cartId}/items/${itemId}`, {
+        const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}/items/${itemId}`, {
           method: 'DELETE',
-          schema: cartSchema,
           requiresAuth: true,
         });
+
+        // Map, then validate frontend view schema
+        const mappedCart = mapApiCartToCart(response.data);
+        return cartViewSchema.parse(mappedCart);
       },
       onMutate: async (variables) => {
         const { itemId, cartId } = variables;

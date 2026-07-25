@@ -89,9 +89,9 @@ describe('Guarded checkout and payment flow', () => {
     const seed: Address[] = [
       {
         id: 'addr-primary',
-        fullName: 'Primary User',
+        receiverName: 'Primary User',
         phone: '0811111111',
-        line1: 'Jl. Utama',
+        addressLine1: 'Jl. Utama',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12120',
@@ -167,13 +167,14 @@ describe('Guarded checkout and payment flow', () => {
     const draft = OrderDraftSchema.parse({
       cartId: orderId,
       address: {
-        fullName: 'Jane Doe',
+        receiverName: 'Jane Doe',
         phone: '08123456789',
-        province: 'DKI Jakarta',
+        addressLine1: 'Jl. Senopati No. 12',
+        addressLine2: '',
         city: 'Jakarta Selatan',
-        district: 'Kebayoran Baru',
+        province: 'DKI Jakarta',
         postalCode: '12120',
-        detail: 'Jl. Senopati No. 12',
+        country: 'Indonesia',
       },
       shippingOption: {
         id: 'reg',
@@ -213,29 +214,21 @@ describe('Guarded checkout and payment flow', () => {
           );
         }
 
-        return HttpResponse.json(
-          PaymentIntentSchema.parse({
-            orderId: payload.orderId,
-            provider: payload.provider,
-            channel: payload.channel ?? 'snap',
+        return HttpResponse.json({
+          data: PaymentIntentSchema.parse({
+            provider: 'midtrans',
             token: 'mock-token-guarded',
             redirectUrl: 'https://mock.pay/redirect/guarded',
             expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
           }),
-        );
+        });
       }),
-      http.get(apiPath('/payments/status'), ({ request }) => {
-        const url = new URL(request.url);
-        const requestedOrderId = url.searchParams.get('orderId') ?? orderId;
-
-        return HttpResponse.json(
-          PaymentStatusSchema.parse({
-            orderId: requestedOrderId,
+      http.get(apiPath('/payments/:orderId/status'), () => {
+        return HttpResponse.json({
+          data: PaymentStatusSchema.parse({
             status: 'PAID',
-            provider: 'midtrans',
-            raw: { checks: 1 },
           }),
-        );
+        });
       }),
     );
 

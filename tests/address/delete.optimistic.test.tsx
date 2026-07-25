@@ -7,7 +7,6 @@ import { createQueryClient, mockAddressHandlers, withQueryClient } from './utils
 import { useAddressListQuery, useDeleteAddressMutation } from '@/entities/address/hooks';
 import type { Address } from '@/entities/address/types';
 
-
 describe('address delete mutation', () => {
   it('removes address optimistically and restores on failure', async () => {
     const queryClient = createQueryClient();
@@ -16,9 +15,9 @@ describe('address delete mutation', () => {
     const seed: Address[] = [
       {
         id: 'addr-delete-1',
-        fullName: 'Keep User',
+        receiverName: 'Keep User',
         phone: '0811111111',
-        line1: 'Jl. Lama',
+        addressLine1: 'Jl. Lama',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12345',
@@ -29,9 +28,9 @@ describe('address delete mutation', () => {
       },
       {
         id: 'addr-delete-2',
-        fullName: 'Delete Me',
+        receiverName: 'Delete Me',
         phone: '0822222222',
-        line1: 'Jl. Baru',
+        addressLine1: 'Jl. Baru',
         city: 'Bandung',
         province: 'Jawa Barat',
         postalCode: '40111',

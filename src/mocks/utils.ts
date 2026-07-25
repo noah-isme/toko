@@ -1,4 +1,4 @@
-import type { Cart } from '@/lib/api/schemas';
+import type { CartView } from '@/lib/api/schemas';
 
 export function apiPath(path: string) {
   const normalized = path.startsWith('/') ? path.slice(1) : path;
@@ -7,10 +7,10 @@ export function apiPath(path: string) {
 
 /**
  * Runtime shape of the shared mock cart (`globalThis.__tokoCartMock`).
- * Extends the internal Cart with the promo state the mock persists between
+ * Extends the frontend CartView with the promo state the mock persists between
  * requests. `voucher` mirrors the backend contract: the applied code, or null.
  */
-export type MockCart = Cart & {
+export type MockCart = CartView & {
   discount?: number;
   voucher?: string | null;
 };

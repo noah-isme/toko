@@ -76,6 +76,13 @@ function getApiErrorMessage(code: ApiErrorCode): string | null {
     VOUCHER_MIN_SPEND: 'Belum memenuhi minimum pembelian untuk menggunakan voucher ini.',
     VOUCHER_ALREADY_USED: 'Anda sudah menggunakan voucher ini sebelumnya.',
     RATE_LIMIT_EXCEEDED: 'Terlalu banyak percobaan. Silakan tunggu sebentar.',
+    NOT_ELIGIBLE: 'Voucher tidak dapat diterapkan pada keranjang ini.',
+    INVALID_STATE: 'Transisi status tidak diizinkan.',
+    ANALYTICS_NOT_CONFIGURED: 'Analytics belum dikonfigurasi.',
+    ANALYTICS_ERROR: 'Terjadi kesalahan saat mengambil data analitik.',
+    CONFLICT: 'Data sudah ada atau konflik dengan data existing.',
+    ALREADY_EXISTS: 'Resource sudah ada.',
+    NOT_IMPLEMENTED: 'Fitur belum diimplementasikan.',
   };
 
   return errorMessages[code] || null;

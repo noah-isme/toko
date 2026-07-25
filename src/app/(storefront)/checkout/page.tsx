@@ -10,6 +10,7 @@ import { OrderSummary } from './_components/OrderSummary';
 import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
 import { ShippingOptions } from './_components/ShippingOptions';
 
+import { CheckoutStepper } from '@/components/checkout-stepper';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -296,7 +297,7 @@ export default function CheckoutPage() {
       setShippingOptions([]);
       setIsUsingCachedQuote(false);
       if (options.announce !== false) {
-        setAddressAnnouncement(`Alamat ${address.fullName} dipilih`);
+        setAddressAnnouncement(`Alamat ${address.receiverName} dipilih`);
       }
       capturePosthogEvent('checkout_address_select', {
         addressId: address.id,
@@ -497,6 +498,7 @@ export default function CheckoutPage() {
               ]}
             />
             <h1 className="text-2xl font-bold">Checkout</h1>
+            <CheckoutStepper current="address" className="mt-4" />
             <p className="text-sm text-muted-foreground">
               Enter your shipping details to see available delivery options.
             </p>
@@ -735,14 +737,14 @@ function AddressSelectionList({
             )}
           >
             <div className="flex items-center justify-between gap-2">
-              <p className="font-semibold text-foreground">{address.fullName}</p>
+              <p className="font-semibold text-foreground">{address.receiverName}</p>
               {isActive ? <span className="text-xs font-medium text-primary">Dipakai</span> : null}
             </div>
             <p className="text-xs text-muted-foreground">{address.phone}</p>
             <p className="mt-2 text-sm text-muted-foreground">
               {formatAddressText(
-                address.line1,
-                address.line2,
+                address.addressLine1,
+                address.addressLine2,
                 address.city,
                 address.province,
                 address.postalCode,
@@ -766,7 +768,7 @@ function SelectedAddressSummary({
     <div className="rounded-lg border border-border/60 bg-muted/10 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-base font-semibold">{address.fullName}</p>
+          <p className="text-base font-semibold">{address.receiverName}</p>
           <p className="text-sm text-muted-foreground">{address.phone}</p>
         </div>
         {address.isDefault ? (
@@ -777,8 +779,8 @@ function SelectedAddressSummary({
       </div>
       <p className="mt-2 text-sm text-muted-foreground">
         {formatAddressText(
-          address.line1,
-          address.line2,
+          address.addressLine1,
+          address.addressLine2,
           address.city,
           address.province,
           address.postalCode,
@@ -845,19 +847,14 @@ function AddressManagerDialog({
 
 function mapAddressToCheckout(address: SavedAddress): CheckoutAddress {
   return {
-    fullName: address.fullName,
+    receiverName: address.receiverName,
     phone: address.phone,
-    province: address.province,
+    addressLine1: address.addressLine1,
+    addressLine2: address.addressLine2,
     city: address.city,
-    district: address.city,
+    province: address.province,
     postalCode: address.postalCode,
-    detail: formatAddressText(
-      address.line1,
-      address.line2,
-      address.city,
-      address.province,
-      address.postalCode,
-    ),
+    country: address.country ?? 'Indonesia',
   };
 }
 

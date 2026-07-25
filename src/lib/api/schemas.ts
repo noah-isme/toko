@@ -34,20 +34,45 @@ export const productListSchema = z.array(productSchema);
 export const cartItemSchema = z.object({
   id: z.string(),
   productId: z.string(),
-  name: z.string(), // Cart uses name?
-  quantity: z.number().int().min(1),
-  price: z.object({ amount: z.number(), currency: z.string() }), // Cart still uses structured price internally? Or backend returns structured cart?
-  // User didn't verify cart payload. I will assume cart uses structured price or stick to current.
-  // Actually, handlers.ts cart logic uses product.price.
-  // If product.price is number now, cart logic needs update.
-  // I will check handlers.ts next.
-  image: z.string().url().nullable().optional(),
-  maxQuantity: z.number().int().min(0).optional(),
+  variantId: z.string().optional().nullish(),
+  title: z.string(),
+  slug: z.string(),
+  qty: z.number().int().min(1),
+  unitPrice: z.number(),
+  subtotal: z.number(),
+  imageUrl: z.string().url().optional(),
+});
+
+export const cartPricingSchema = z.object({
+  subtotal: z.number(),
+  discount: z.number(),
+  tax: z.number(),
+  shipping: z.number(),
+  total: z.number(),
 });
 
 export const cartSchema = z.object({
   id: z.string(),
+  anonId: z.string().optional().nullish(),
+  voucher: z.string().optional().nullish(),
   items: z.array(cartItemSchema),
+  pricing: cartPricingSchema,
+  currency: z.string(),
+});
+
+export const cartViewItemSchema = z.object({
+  id: z.string(),
+  productId: z.string(),
+  name: z.string(),
+  quantity: z.number().int().min(1),
+  price: z.object({ amount: z.number(), currency: z.string() }),
+  image: z.string().url().nullable().optional(),
+  maxQuantity: z.number().int().min(0).optional(),
+});
+
+export const cartViewSchema = z.object({
+  id: z.string(),
+  items: z.array(cartViewItemSchema),
   subtotal: priceSchema,
   itemCount: z.number().int().nonnegative().default(0),
 });
@@ -75,6 +100,8 @@ export type Product = z.infer<typeof productSchema>;
 export type ProductList = z.infer<typeof productListSchema>;
 export type Cart = z.infer<typeof cartSchema>;
 export type CartItem = z.infer<typeof cartItemSchema>;
+export type CartView = z.infer<typeof cartViewSchema>;
+export type CartViewItem = z.infer<typeof cartViewItemSchema>;
 export type User = z.infer<typeof userSchema>;
 export type AddToCartInput = z.infer<typeof addToCartInputSchema>;
 export type UpdateCartItemInput = z.infer<typeof updateCartItemInputSchema>;

@@ -7,10 +7,12 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { TrackingActions } from '@/components/tracking-actions';
 import { Button } from '@/components/ui/button';
 import { useShipment } from '@/lib/api';
 import { SHIPMENT_STATUS_LABELS } from '@/lib/api/constants';
 import { formatDateTime } from '@/lib/api/utils';
+import { abs } from '@/shared/seo/seo';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 import { captureSentryException } from '@/shared/telemetry/sentry';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -139,6 +141,12 @@ export default function OrderTrackingPage() {
         </div>
         <TrackingMap tracking={shipment.tracking} />
       </section>
+
+      <TrackingActions
+        orderId={orderId}
+        trackingNumber={shipment.trackingNumber}
+        shareUrl={abs(`/order/tracking/${orderId}`)}
+      />
 
       <div className="flex flex-wrap gap-3">
         <Button asChild variant="outline">

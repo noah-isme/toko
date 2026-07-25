@@ -23,8 +23,8 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, StatusLabel> = {
     color: 'blue',
     icon: 'check',
   },
-  processing: {
-    label: 'Diproses',
+  packed: {
+    label: 'Dikemas',
     color: 'blue',
     icon: 'box',
   },
@@ -32,6 +32,11 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, StatusLabel> = {
     label: 'Dikirim',
     color: 'purple',
     icon: 'truck',
+  },
+  out_for_delivery: {
+    label: 'Dalam Pengiriman',
+    color: 'purple',
+    icon: 'map-pin',
   },
   delivered: {
     label: 'Selesai',

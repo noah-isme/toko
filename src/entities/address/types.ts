@@ -1,9 +1,9 @@
 export interface Address {
   id: string;
-  fullName: string;
+  receiverName: string;
   phone: string;
-  line1: string;
-  line2?: string;
+  addressLine1: string;
+  addressLine2?: string;
   city: string;
   province: string;
   postalCode: string;

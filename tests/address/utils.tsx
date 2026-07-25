@@ -34,8 +34,8 @@ export function mockAddressHandlers(initial: Address[]) {
       const payload = (await request.json()) as AddressInput;
       const timestamp = new Date().toISOString();
       const newAddress: Address = {
-        id: payload.fullName
-          ? `addr-${payload.fullName}-${counter++}`
+        id: payload.receiverName
+          ? `addr-${payload.receiverName}-${counter++}`
           : `addr-${Date.now()}-${counter++}`,
         createdAt: timestamp,
         updatedAt: timestamp,

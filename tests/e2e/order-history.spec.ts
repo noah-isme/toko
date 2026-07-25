@@ -13,9 +13,9 @@ test.describe('Order history page', () => {
       await mockOrdersListResponse(page, [
         { id: 'order-1', orderNumber: 'ORD-001', status: 'pending_payment', total: 100000 },
         { id: 'order-2', orderNumber: 'ORD-002', status: 'paid', total: 200000 },
-        { id: 'order-3', orderNumber: 'ORD-003', status: 'processing', total: 300000 },
+        { id: 'order-3', orderNumber: 'ORD-003', status: 'packed', total: 300000 },
         { id: 'order-4', orderNumber: 'ORD-004', status: 'shipped', total: 400000 },
-        { id: 'order-5', orderNumber: 'ORD-005', status: 'completed', total: 500000 },
+        { id: 'order-5', orderNumber: 'ORD-005', status: 'delivered', total: 500000 },
         { id: 'order-6', orderNumber: 'ORD-006', status: 'cancelled', total: 150000 },
       ]);
 
@@ -32,7 +32,7 @@ test.describe('Order history page', () => {
       // Verify status labels
       await expect(page.getByText('Menunggu Pembayaran')).toBeVisible();
       await expect(page.getByText('Dibayar')).toBeVisible();
-      await expect(page.getByText('Diproses')).toBeVisible();
+      await expect(page.getByText('Dikemas')).toBeVisible();
       await expect(page.getByText('Dikirim')).toBeVisible();
       await expect(page.getByText('Selesai')).toBeVisible();
       await expect(page.getByText('Dibatalkan')).toBeVisible();
@@ -197,9 +197,9 @@ test.describe('Order confirmation page', () => {
         iconColor: 'text-green-600',
       },
       {
-        status: 'processing',
-        label: 'Sedang Diproses',
-        message: 'Pesanan Anda sedang diproses',
+        status: 'packed',
+        label: 'Sedang Dikemas',
+        message: 'Pesanan Anda sedang dikemas',
         iconColor: 'text-blue-600',
       },
       {
@@ -209,7 +209,13 @@ test.describe('Order confirmation page', () => {
         iconColor: 'text-purple-600',
       },
       {
-        status: 'completed',
+        status: 'out_for_delivery',
+        label: 'Sedang Diantar',
+        message: 'Pesanan Anda sedang diantar',
+        iconColor: 'text-purple-600',
+      },
+      {
+        status: 'delivered',
         label: 'Selesai',
         message: 'Pesanan Anda telah selesai',
         iconColor: 'text-green-600',

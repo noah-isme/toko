@@ -381,7 +381,7 @@ export const handlers = [
 
     recalculateCartTotals();
 
-    return HttpResponse.json(cart);
+    return HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) });
   }),
   http.delete(apiPath('/cart/items/:itemId'), ({ params }) => {
     const itemId = params.itemId as string;
@@ -407,7 +407,7 @@ export const handlers = [
     cart.items.splice(itemIndex, 1);
     recalculateCartTotals();
 
-    return HttpResponse.json(cart);
+    return HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) });
   }),
   http.get(apiPath('/auth/me'), () =>
     HttpResponse.json({

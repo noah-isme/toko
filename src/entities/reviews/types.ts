@@ -77,6 +77,7 @@ export interface ApiReview {
   comment: string;
   created_at: string;
   updated_at: string;
+  tenant_id: string;
 }
 
 export interface ApiReviewStats {

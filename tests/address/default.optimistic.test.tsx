@@ -7,7 +7,6 @@ import { createQueryClient, mockAddressHandlers, withQueryClient } from './utils
 import { useAddressListQuery, useSetDefaultAddressMutation } from '@/entities/address/hooks';
 import type { Address } from '@/entities/address/types';
 
-
 describe('address set default mutation', () => {
   it('marks selected address as default optimistically', async () => {
     const queryClient = createQueryClient();
@@ -16,9 +15,9 @@ describe('address set default mutation', () => {
     const seed: Address[] = [
       {
         id: 'addr-default-1',
-        fullName: 'Primary',
+        receiverName: 'Primary',
         phone: '0800000000',
-        line1: 'Jl. Lama',
+        addressLine1: 'Jl. Lama',
         city: 'Jakarta',
         province: 'DKI Jakarta',
         postalCode: '12120',
@@ -29,9 +28,9 @@ describe('address set default mutation', () => {
       },
       {
         id: 'addr-default-2',
-        fullName: 'Secondary',
+        receiverName: 'Secondary',
         phone: '0899999999',
-        line1: 'Jl. Baru',
+        addressLine1: 'Jl. Baru',
         city: 'Bandung',
         province: 'Jawa Barat',
         postalCode: '40111',

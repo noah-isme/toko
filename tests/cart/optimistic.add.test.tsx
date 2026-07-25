@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { useAddToCartMutation, useCartQuery, useProductsQuery } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
-import type { Cart } from '@/lib/api/schemas';
+import type { CartView } from '@/lib/api/schemas';
 import { handlers } from '@/mocks/handlers';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
@@ -38,7 +38,7 @@ describe('cart optimistic add mutation', () => {
       expect(cartResult.current.data).toBeDefined();
     });
 
-    const initialCart = cartResult.current.data as Cart;
+    const initialCart = cartResult.current.data as CartView;
     const initialCount = initialCart.itemCount;
 
     const { result: productsResult } = renderHook(() => useProductsQuery(), { wrapper: Wrapper });
@@ -54,13 +54,16 @@ describe('cart optimistic add mutation', () => {
     expect(availableProduct).toBeDefined();
 
     const originalAddHandler = handlers.find(
-      (handler) => handler.info?.method === 'POST' && handler.info?.path === apiPath('/carts/:cartId/items'),
+      (handler) =>
+        handler.info?.method === 'POST' && handler.info?.path === apiPath('/carts/:cartId/items'),
     );
 
     expect(originalAddHandler).toBeDefined();
 
     let resolveAdd!: () => void;
-    const addBlocker = new Promise<void>((resolve) => { resolveAdd = resolve; });
+    const addBlocker = new Promise<void>((resolve) => {
+      resolveAdd = resolve;
+    });
 
     server.use(
       http.post(apiPath('/carts/:cartId/items'), async (...args) => {
@@ -86,18 +89,20 @@ describe('cart optimistic add mutation', () => {
     });
 
     await waitFor(() => {
-      const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+      const optimisticCart = queryClient.getQueryData<CartView>(queryKeys.cart());
       expect(optimisticCart?.itemCount).toBeGreaterThan(initialCount);
     });
 
     // Unblock the server response
-    act(() => { resolveAdd(); });
+    act(() => {
+      resolveAdd();
+    });
 
     await waitFor(() => {
       expect(mutationResult.current.isSuccess).toBe(true);
     });
 
-    const finalCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+    const finalCart = queryClient.getQueryData<CartView>(queryKeys.cart());
     expect(finalCart?.itemCount).toBeGreaterThan(initialCount);
   });
 
@@ -111,7 +116,7 @@ describe('cart optimistic add mutation', () => {
       expect(cartResult.current.data).toBeDefined();
     });
 
-    const initialCart = cartResult.current.data as Cart;
+    const initialCart = cartResult.current.data as CartView;
     const initialCount = initialCart.itemCount;
 
     const { result: productsResult } = renderHook(() => useProductsQuery(), {
@@ -130,7 +135,9 @@ describe('cart optimistic add mutation', () => {
     expect(fallbackProduct).toBeDefined();
 
     let resolveError!: () => void;
-    const errorBlocker = new Promise<void>((resolve) => { resolveError = resolve; });
+    const errorBlocker = new Promise<void>((resolve) => {
+      resolveError = resolve;
+    });
 
     server.use(
       http.post(apiPath('/carts/:cartId/items'), async () => {
@@ -156,18 +163,20 @@ describe('cart optimistic add mutation', () => {
     });
 
     await waitFor(() => {
-      const optimisticCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+      const optimisticCart = queryClient.getQueryData<CartView>(queryKeys.cart());
       expect(optimisticCart?.itemCount).toBeGreaterThan(initialCount);
     });
 
     // Unblock server with error
-    act(() => { resolveError(); });
+    act(() => {
+      resolveError();
+    });
 
     await waitFor(() => {
       expect(mutationResult.current.isError).toBe(true);
     });
 
-    const revertedCart = queryClient.getQueryData<Cart>(queryKeys.cart());
+    const revertedCart = queryClient.getQueryData<CartView>(queryKeys.cart());
     expect(revertedCart?.itemCount).toBe(initialCount);
   });
 });

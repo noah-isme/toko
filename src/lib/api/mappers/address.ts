@@ -11,16 +11,12 @@ import type { Address, AddressInput } from '@/entities/address/types';
  * Transform API address response to app Address format
  */
 export function mapAddressFromApi(apiAddress: ApiAddressResponse): Address {
-  // Handle both snake_case response variants (some endpoints might return full_name, others receiver_name)
-  const fullName = apiAddress.receiver_name || (apiAddress as any).full_name || 'Tanpa Nama';
-  const line1 = apiAddress.address_line1 || (apiAddress as any).line1 || '';
-
   return {
     id: apiAddress.id,
-    fullName,
+    receiverName: apiAddress.receiver_name,
     phone: apiAddress.phone,
-    line1,
-    line2: apiAddress.address_line2,
+    addressLine1: apiAddress.address_line1,
+    addressLine2: apiAddress.address_line2,
     city: apiAddress.city,
     province: apiAddress.province,
     postalCode: apiAddress.postal_code,
@@ -36,10 +32,10 @@ export function mapAddressFromApi(apiAddress: ApiAddressResponse): Address {
  */
 export function mapAddressToApi(input: AddressInput): ApiCreateAddressRequest {
   return {
-    receiver_name: input.fullName,
+    receiver_name: input.receiverName,
     phone: input.phone,
-    address_line1: input.line1,
-    address_line2: input.line2,
+    address_line1: input.addressLine1,
+    address_line2: input.addressLine2,
     city: input.city,
     province: input.province,
     postal_code: input.postalCode,
@@ -56,10 +52,10 @@ export function mapAddressUpdateToApi(
 ): Partial<ApiCreateAddressRequest> {
   const result: Partial<ApiCreateAddressRequest> = {};
 
-  if (input.fullName !== undefined) result.receiver_name = input.fullName;
+  if (input.receiverName !== undefined) result.receiver_name = input.receiverName;
   if (input.phone !== undefined) result.phone = input.phone;
-  if (input.line1 !== undefined) result.address_line1 = input.line1;
-  if (input.line2 !== undefined) result.address_line2 = input.line2;
+  if (input.addressLine1 !== undefined) result.address_line1 = input.addressLine1;
+  if (input.addressLine2 !== undefined) result.address_line2 = input.addressLine2;
   if (input.city !== undefined) result.city = input.city;
   if (input.province !== undefined) result.province = input.province;
   if (input.postalCode !== undefined) result.postal_code = input.postalCode;

@@ -33,6 +33,18 @@ export interface PaginatedResponse<T> {
   pagination: Pagination;
 }
 
+/** Offset-based pagination (admin endpoints) — matches backend convention */
+export interface OffsetLimitPagination {
+  offset: number;
+  limit: number;
+  total?: number;
+}
+
+export interface OffsetPaginatedResponse<T> {
+  data: T[];
+  total?: number;
+}
+
 // ============================================================================
 // Notification Types
 // ============================================================================
@@ -389,8 +401,9 @@ export interface TaxQuoteResponse {
 export type OrderStatus =
   | 'pending_payment'
   | 'paid'
-  | 'processing'
+  | 'packed'
   | 'shipped'
+  | 'out_for_delivery'
   | 'delivered'
   | 'cancelled';
 
@@ -433,10 +446,8 @@ export interface OrderPricing {
   total: number;
 }
 
-export interface OrderVoucher {
-  code: string;
-  discount: number;
-}
+/** Full voucher object for order detail (matches Voucher) */
+export type OrderVoucher = Voucher;
 
 export interface OrderShipping {
   courier: string;
@@ -512,9 +523,7 @@ export interface CheckoutResponse {
 }
 
 export interface CancelOrderResponse {
-  orderId: string;
   status: OrderStatus;
-  message: string;
 }
 
 // ============================================================================
@@ -565,4 +574,250 @@ export type ApiErrorCode =
   | 'VOUCHER_INVALID'
   | 'VOUCHER_MIN_SPEND'
   | 'VOUCHER_ALREADY_USED'
-  | 'RATE_LIMIT_EXCEEDED';
+  | 'RATE_LIMIT_EXCEEDED'
+  | 'NOT_ELIGIBLE'
+  | 'INVALID_STATE'
+  | 'ANALYTICS_NOT_CONFIGURED'
+  | 'ANALYTICS_ERROR'
+  | 'CONFLICT'
+  | 'ALREADY_EXISTS'
+  | 'NOT_IMPLEMENTED';
+
+// ============================================================================
+// Voucher Types (Admin)
+// ============================================================================
+
+export type VoucherKind = 'fixed_amount' | 'percent';
+
+export interface Voucher {
+  id: string;
+  code: string;
+  kind: VoucherKind;
+  value: number;
+  percentBps?: number;
+  minSpend: number;
+  usageLimit?: number;
+  usedCount: number;
+  perUserLimit?: number;
+  validFrom: string;
+  validTo: string;
+  productIds: string[];
+  categoryIds: string[];
+  brandIds: string[];
+  combinable: boolean;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+  tenantId: string;
+}
+
+export interface CreateVoucherRequest {
+  code: string;
+  value: number;
+  kind?: VoucherKind;
+  percentBps?: number;
+  minSpend?: number;
+  usageLimit?: number;
+  validFrom?: string;
+  validTo?: string;
+  productIds?: string[];
+  categoryIds?: string[];
+  brandIds?: string[];
+  combinable?: boolean;
+  priority?: number;
+  perUserLimit?: number;
+}
+
+export interface UpdateVoucherRequest extends Partial<CreateVoucherRequest> {}
+
+export interface VoucherPreviewRequest {
+  code: string;
+  cartTotal: number;
+  userId?: string;
+  items: VoucherPreviewItem[];
+}
+
+export interface VoucherPreviewItem {
+  productId?: string;
+  categoryId?: string;
+  brandId?: string;
+  subtotal: number;
+}
+
+export interface VoucherPreviewResponse {
+  eligible: boolean;
+  discount: number;
+  eligibleSubtotal: number;
+  finalTotal: number;
+  voucher: Voucher;
+  message?: string;
+}
+
+// ============================================================================
+// Webhook Types (Admin)
+// ============================================================================
+
+export interface WebhookEndpoint {
+  id: string;
+  name: string;
+  url: string;
+  secret: string;
+  active: boolean;
+  topics: string[];
+  createdAt: string;
+  updatedAt: string;
+  tenantId: string;
+}
+
+export type WebhookDeliveryStatus = 'pending' | 'delivered' | 'failed';
+
+export interface WebhookDelivery {
+  id: string;
+  endpointId: string;
+  eventId: string;
+  status: WebhookDeliveryStatus;
+  attempt: number;
+  maxAttempt: number;
+  nextAttemptAt?: string;
+  lastError?: string;
+  responseStatus?: number;
+  responseBody?: string;
+  createdAt: string;
+  updatedAt: string;
+  tenantId: string;
+}
+
+export interface WebhookDlq {
+  id: string;
+  kind: string;
+  idempotencyKey: string;
+  attempts: number;
+  lastError: string;
+  createdAt: string;
+  message: {
+    kind: string;
+    key: string;
+    payload: Record<string, any>;
+    attempt: number;
+    maxAttempts: number;
+    availableAt: number;
+  };
+}
+
+export interface CreateWebhookEndpointRequest {
+  name: string;
+  url: string;
+  secret: string;
+  active?: boolean;
+  topics?: string[];
+}
+
+export interface UpdateWebhookEndpointRequest extends Partial<CreateWebhookEndpointRequest> {}
+
+export interface ListWebhookEndpointsParams {
+  limit?: number;
+  offset?: number;
+}
+
+export interface ListWebhookDeliveriesParams {
+  endpointId?: string;
+  eventId?: string;
+  status?: WebhookDeliveryStatus;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ReplayDlqRequest {
+  ids?: string[];
+  kind?: string;
+  limit?: number;
+}
+
+// ============================================================================
+// Analytics Types (Admin)
+// ============================================================================
+
+export interface AnalyticsQueryParams {
+  from?: string; // RFC3339
+  to?: string; // RFC3339
+  days?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SalesAnalyticsRow {
+  day: string;
+  paidOrders: number;
+  allOrders: number;
+  revenue: number;
+}
+
+export interface TopProductsAnalyticsRow {
+  productId: string;
+  qtySold: number;
+  gross: number;
+}
+
+export interface AnalyticsOverviewResponse {
+  // Not yet implemented - returns 501
+}
+
+// ============================================================================
+// Order Types Expansion
+// ============================================================================
+
+export interface OrderShippingTrackingEvent {
+  timestamp: string;
+  status: ShipmentStatus;
+  location: string;
+  description: string;
+}
+
+export interface OrderShipping {
+  courier: string;
+  service: string;
+  trackingNumber?: string;
+  estimatedDelivery?: string;
+  shippedAt?: string;
+  status: ShipmentStatus;
+  statusLabel: string;
+  tracking: OrderShippingTrackingEvent[];
+}
+
+export interface OrderStatusTransition {
+  from: OrderStatus;
+  to: OrderStatus;
+  valid: boolean;
+  reason?: string;
+}
+
+export interface PatchOrderStatusRequest {
+  status: OrderStatus;
+}
+
+/** Admin-allowed target statuses for order transitions */
+export const ALLOWED_ADMIN_ORDER_TARGETS: OrderStatus[] = [
+  'packed',
+  'shipped',
+  'out_for_delivery',
+  'delivered',
+  'cancelled',
+];
+
+/** Status rank for transition validation (matches backend orderStatusRank) */
+export const ORDER_STATUS_RANK: Record<OrderStatus, number> = {
+  pending_payment: 0,
+  paid: 1,
+  packed: 2,
+  shipped: 3,
+  out_for_delivery: 4,
+  delivered: 5,
+  cancelled: -1,
+};
+
+export function isValidOrderTransition(from: OrderStatus, to: OrderStatus): boolean {
+  const fromRank = ORDER_STATUS_RANK[from] ?? -2;
+  const toRank = ORDER_STATUS_RANK[to] ?? -2;
+  const isAllowedTarget = ALLOWED_ADMIN_ORDER_TARGETS.includes(to);
+  return isAllowedTarget && fromRank < toRank;
+}

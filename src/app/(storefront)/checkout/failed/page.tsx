@@ -104,15 +104,17 @@ function CheckoutFailedContent() {
               <h2 className="text-lg font-semibold">Detail Pengiriman</h2>
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-foreground">
-                  {orderDraft.address.fullName} • {orderDraft.address.phone}
-                </p>
-                <p className="text-muted-foreground">{orderDraft.address.detail}</p>
-                <p className="text-muted-foreground">
-                  {orderDraft.address.district}, {orderDraft.address.city}
+                  {orderDraft.address.receiverName} • {orderDraft.address.phone}
                 </p>
                 <p className="text-muted-foreground">
-                  {orderDraft.address.province} {orderDraft.address.postalCode}
+                  {orderDraft.address.addressLine1}
+                  {orderDraft.address.addressLine2 ? `, ${orderDraft.address.addressLine2}` : ''}
                 </p>
+                <p className="text-muted-foreground">
+                  {orderDraft.address.city}, {orderDraft.address.province}{' '}
+                  {orderDraft.address.postalCode}
+                </p>
+                <p className="text-muted-foreground">{orderDraft.address.country}</p>
               </div>
             </section>
 

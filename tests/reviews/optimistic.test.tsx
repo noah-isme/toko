@@ -4,11 +4,13 @@ import { HttpResponse, delay, http } from 'msw';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockCapturePosthogEvent, mockCaptureSentryException, mockAddBreadcrumb } = vi.hoisted(() => ({
-  mockCapturePosthogEvent: vi.fn(),
-  mockCaptureSentryException: vi.fn(),
-  mockAddBreadcrumb: vi.fn(),
-}));
+const { mockCapturePosthogEvent, mockCaptureSentryException, mockAddBreadcrumb } = vi.hoisted(
+  () => ({
+    mockCapturePosthogEvent: vi.fn(),
+    mockCaptureSentryException: vi.fn(),
+    mockAddBreadcrumb: vi.fn(),
+  }),
+);
 
 vi.mock('@/shared/telemetry/posthog', () => ({
   capturePosthogEvent: mockCapturePosthogEvent,
@@ -85,7 +87,19 @@ describe('reviews hooks optimistic updates', () => {
     server.use(
       http.post(apiPath('/products/:productId/reviews'), async () => {
         await createBlocker;
-        return HttpResponse.json({ id: 'server-review', status: 'pending' }, { status: 201 });
+        return HttpResponse.json(
+          {
+            id: 'server-review',
+            product_id: productId,
+            user_id: 'user-optimistic',
+            rating: 5,
+            comment: 'Produk ini sangat membantu aktivitas saya sehari-hari.',
+            created_at: '2026-07-24T10:00:00Z',
+            updated_at: '2026-07-24T10:00:00Z',
+            tenant_id: 'tenant-optimistic',
+          },
+          { status: 201 },
+        );
       }),
     );
 
@@ -116,7 +130,9 @@ describe('reviews hooks optimistic updates', () => {
     expect(optimisticStats.distribution[5]).toBe(initialStats.distribution[5] + 1);
 
     // Unblock the server response
-    act(() => { resolveCreate(); });
+    act(() => {
+      resolveCreate();
+    });
 
     await waitFor(() => {
       expect(mutationResult.current.isSuccess).toBe(true);
@@ -244,7 +260,9 @@ describe('reviews hooks optimistic updates', () => {
     expect(optimisticReview?.myVote).toBe('up');
 
     // Unblock the server response
-    act(() => { resolveVote(); });
+    act(() => {
+      resolveVote();
+    });
 
     await waitFor(() => {
       expect(mutationResult.current.isSuccess).toBe(true);

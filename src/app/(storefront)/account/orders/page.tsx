@@ -123,10 +123,10 @@ function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     pending_payment: 'Menunggu Pembayaran',
     paid: 'Dibayar',
-    processing: 'Diproses',
+    packed: 'Dikemas',
     shipped: 'Dikirim',
+    out_for_delivery: 'Dalam Pengiriman',
     delivered: 'Selesai',
-    completed: 'Selesai',
     cancelled: 'Dibatalkan',
     failed: 'Gagal',
   };
@@ -139,7 +139,8 @@ function getStatusColor(status: string) {
   if (
     s.includes('paid') ||
     s.includes('shipped') ||
-    s.includes('completed') ||
+    s.includes('out_for_delivery') ||
+    s.includes('delivered') ||
     s.includes('success')
   ) {
     return 'bg-emerald-100 text-emerald-700';
