@@ -1,0 +1,5 @@
+# Blindfold agents from ad-hoc mock state so they rely on Zod schemas and API
+# contracts (src/entities/*/schemas.ts, domain types) as the source of truth.
+src/mocks/**
+public/mockServiceWorker.js
+**/*.mock.ts

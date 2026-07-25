@@ -208,13 +208,8 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
     };
   }
 
-  // Cart promo endpoints: /cart/{cartId}/promo/validate|apply|remove
-  if (path.includes('/promo/') && method === 'POST') {
-    const action = path.split('/promo/')[1]; // 'validate', 'apply', or 'remove'
-    if (action === 'remove') {
-      // Return without data wrapper since promoResultSchema parses raw response
-      return { valid: false, promo: null };
-    }
+  // Cart promo endpoints: /carts/{cartId}/apply-voucher (POST) and /carts/{cartId}/voucher (DELETE)
+  if (path.includes('/apply-voucher') && method === 'POST') {
     const code = (body?.code || '').trim().toUpperCase();
     const promoData: Record<string, object> = {
       SAVE10: {
@@ -244,6 +239,10 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
     }
     // Return without data wrapper
     return found;
+  }
+
+  if (path.includes('/voucher') && method === 'DELETE') {
+    return { valid: false, promo: null };
   }
 
   if (path.includes('quote/shipping') && method === 'POST') {

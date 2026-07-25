@@ -88,7 +88,7 @@ function formatCurrency(value: number) {
 }
 
 export const promoHandlers = [
-  http.post(apiPath('/cart/:cartId/promo/validate'), async ({ request }) => {
+  http.post(apiPath('/carts/:cartId/apply-voucher'), async ({ request }) => {
     const body = (await request.json()) as { code?: string };
     if (!body?.code) {
       return HttpResponse.json(
@@ -102,30 +102,8 @@ export const promoHandlers = [
       return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 200 });
     }
 
-    const { promo, appliedSubtotal, finalTotal, message } = evaluation;
-    return HttpResponse.json({
-      valid: true,
-      promo,
-      appliedSubtotal,
-      finalTotal,
-      message,
-    });
-  }),
-  http.post(apiPath('/cart/:cartId/promo/apply'), async ({ request }) => {
-    const body = (await request.json()) as { code?: string };
-    if (!body?.code) {
-      return HttpResponse.json(
-        { valid: false, message: 'Kode promo wajib diisi' },
-        { status: 400 },
-      );
-    }
-
-    const evaluation = evaluatePromo(body.code);
-    if (!evaluation.valid) {
-      return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 422 });
-    }
-
-    persistCartDiscount(evaluation.discountValue, evaluation.promo);
+    // Return the calculated discount without persisting.
+    // The frontend will update the cart cache on apply success via commitPromoResultToCart.
     return HttpResponse.json({
       valid: true,
       promo: evaluation.promo,
@@ -134,7 +112,7 @@ export const promoHandlers = [
       message: evaluation.message,
     });
   }),
-  http.post(apiPath('/cart/:cartId/promo/remove'), async () => {
+  http.delete(apiPath('/carts/:cartId/voucher'), async () => {
     persistCartDiscount(undefined);
     return HttpResponse.json({ valid: false, message: 'Kode promo dihapus' });
   }),

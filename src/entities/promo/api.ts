@@ -10,7 +10,14 @@ function assertCartId(cartId: string | undefined): asserts cartId is string {
 
 function buildPromoPath(cartId: string, action: 'validate' | 'apply' | 'remove') {
   const normalizedId = encodeURIComponent(cartId);
-  return `/cart/${normalizedId}/promo/${action}` as const;
+  switch (action) {
+    case 'validate':
+      return `/carts/${normalizedId}/apply-voucher` as const;
+    case 'apply':
+      return `/carts/${normalizedId}/apply-voucher` as const;
+    case 'remove':
+      return `/carts/${normalizedId}/voucher` as const;
+  }
 }
 
 export async function validatePromo(cartId: string | undefined, code: string) {
@@ -36,7 +43,7 @@ export async function applyPromo(cartId: string | undefined, code: string) {
 export async function removePromo(cartId: string | undefined) {
   assertCartId(cartId);
   return apiClient(buildPromoPath(cartId, 'remove'), {
-    method: 'POST',
+    method: 'DELETE',
     schema: promoResultSchema,
   });
 }
