@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, TrendingUp } from 'lucide-react';
+import { Clock, Search, TrendingUp, X } from 'lucide-react';
 import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { useProducts } from '@/lib/api';
 import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
+import { useSearchStore } from '@/stores/search-store';
 
 interface SearchAutocompleteProps {
   className?: string;
@@ -27,6 +28,10 @@ export function SearchAutocomplete({
   const [isOpen, setIsOpen] = useState(false);
   const [debouncedValue, setDebouncedValue] = useState(value);
   const containerRef = useRef<HTMLDivElement>(null);
+  const recentSearches = useSearchStore((state) => state.recentSearches);
+  const addRecentSearch = useSearchStore((state) => state.addRecentSearch);
+  const removeRecentSearch = useSearchStore((state) => state.removeRecentSearch);
+  const clearRecentSearches = useSearchStore((state) => state.clearRecentSearches);
 
   const { data: searchResults } = useProducts(
     {
@@ -66,6 +71,7 @@ export function SearchAutocomplete({
 
   const handleSearch = (searchTerm: string) => {
     if (searchTerm.trim()) {
+      addRecentSearch(searchTerm);
       router.push(`/products?q=${encodeURIComponent(searchTerm)}` as Route);
       setIsOpen(false);
     }
@@ -146,6 +152,47 @@ export function SearchAutocomplete({
             <div className="p-4 text-center text-sm text-muted-foreground">No products found</div>
           ) : (
             <div className="p-2">
+              {recentSearches.length > 0 && (
+                <div className="mb-2">
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      <Clock className="mr-1 inline h-3 w-3" />
+                      Pencarian Terakhir
+                    </p>
+                    <button
+                      onClick={clearRecentSearches}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Hapus semua
+                    </button>
+                  </div>
+                  <ul>
+                    {recentSearches.map((search) => (
+                      <li
+                        key={search}
+                        className="group flex items-center rounded-md hover:bg-accent"
+                      >
+                        <button
+                          onClick={() => {
+                            setValue(search);
+                            handleSearch(search);
+                          }}
+                          className="flex-1 px-3 py-2 text-left text-sm"
+                        >
+                          {search}
+                        </button>
+                        <button
+                          aria-label={`Hapus ${search} dari riwayat pencarian`}
+                          onClick={() => removeRecentSearch(search)}
+                          className="mr-2 rounded p-1 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">
                 <TrendingUp className="mr-1 inline h-3 w-3" />
                 Popular Searches

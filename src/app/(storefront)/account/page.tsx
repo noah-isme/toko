@@ -88,6 +88,12 @@ export default function AccountPage() {
             <span>Favorites</span>
           </Link>
         </Button>
+        <Button asChild size="lg" variant="ghost" className="h-auto py-6">
+          <Link href="/account/searches" className="flex flex-col items-center gap-2">
+            <span className="text-2xl">🕘</span>
+            <span>Riwayat Pencarian</span>
+          </Link>
+        </Button>
         <Button size="lg" variant="ghost" onClick={handleLogout} className="h-auto py-6">
           <span className="flex flex-col items-center gap-2">
             <span className="text-2xl">🚪</span>
