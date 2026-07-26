@@ -5,7 +5,13 @@ import tailwindcss from 'eslint-plugin-tailwindcss';
 const eslintConfig = [
   {
     name: 'toko/ignores',
-    ignores: ['coverage/**', 'playwright-report/**', 'test-results/**'],
+    ignores: [
+      'coverage/**',
+      'playwright-report/**',
+      'test-results/**',
+      // Generated from openapi.yaml by `pnpm api:generate`.
+      'src/lib/api/generated/schema.d.ts',
+    ],
   },
   ...nextCoreWebVitals,
   {

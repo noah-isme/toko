@@ -15,6 +15,42 @@ Complete TypeScript API client implementation for the Toko e-commerce platform.
 - ✅ Comprehensive error handling
 - ✅ Indonesian localization
 
+## Generated Types & Contract Drift
+
+`openapi.yaml` (vendored from `toko-api`) is the source of truth for wire shapes.
+
+```bash
+pnpm api:sync       # refresh the vendored spec from ../toko-api
+pnpm api:generate   # openapi.yaml -> src/lib/api/generated/schema.d.ts
+pnpm api:check      # fails when the committed types are stale
+```
+
+`src/lib/api/generated/schema.d.ts` is generated — never edit it by hand;
+`pnpm api:generate` overwrites it and CI fails on a diff.
+
+The hand-written types in `types.ts` are not replaced by the generated ones,
+because a great deal of code depends on them and they are intentionally looser
+in places. Instead `generated/conformance.ts` binds the two together with
+type-level assertions: if the backend renames a field, regenerating the schema
+makes `pnpm typecheck` fail.
+
+This exists because both of the following shipped undetected — the client and
+the mocks agreed with each other while disagreeing with the server, so the
+fields simply arrived as `undefined`:
+
+- pagination was sent as `per_page` / `total_items`, read as `perPage` / `totalItems`
+- `/auth/me` sent `created_at`, the client read `createdAt`
+
+Pagination is asserted as an _exact_ key match rather than mere assignability,
+since that is precisely how it broke.
+
+### Updating the contract
+
+1. Change the backend and its `openapi.yaml`.
+2. `pnpm api:sync && pnpm api:generate`.
+3. `pnpm typecheck` — a failure in `conformance.ts` means client types in
+   `types.ts` need the same change.
+
 ## Architecture
 
 The API layer uses a clean architecture with:

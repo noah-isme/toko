@@ -4,3 +4,5 @@ out
 dist
 coverage
 pnpm-lock.yaml
+src/lib/api/generated/schema.d.ts
+openapi.yaml

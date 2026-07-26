@@ -31,7 +31,15 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Verify generated API types are current
+        # schema.d.ts is generated from openapi.yaml. Regenerating must be a
+        # no-op; a diff means someone edited the types by hand or updated the
+        # spec without running `pnpm api:generate`.
+        run: pnpm api:check
+
       - name: Type check
+        # src/lib/api/generated/conformance.ts asserts the hand-written client
+        # types still match the generated ones, so contract drift fails here.
         run: pnpm typecheck
 
       - name: Test
