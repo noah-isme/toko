@@ -4,6 +4,7 @@ import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
+import { PullToRefresh } from '@/components/pull-to-refresh';
 import { Button } from '@/components/ui/button';
 import { useOrdersQuery } from '@/entities/orders/api/hooks';
 import type { OrderListItem } from '@/entities/orders/schemas';
@@ -12,7 +13,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
 export default function OrderHistoryPage() {
-  const { data, isLoading, error } = useOrdersQuery({ page: 1, limit: 20 });
+  const { data, isLoading, error, refetch } = useOrdersQuery({ page: 1, limit: 20 });
   const orders = data?.data ?? [];
 
   if (isLoading) {
@@ -49,7 +50,7 @@ export default function OrderHistoryPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <PullToRefresh onRefresh={refetch} className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Pesanan Saya</h1>
         <p className="text-muted-foreground">Riwayat transaksi belanja Anda.</p>
@@ -60,7 +61,7 @@ export default function OrderHistoryPage() {
           <OrderCard key={order.id} order={order} />
         ))}
       </div>
-    </div>
+    </PullToRefresh>
   );
 }
 

@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pagination } from '@/components/pagination';
 import { ProductCard } from '@/components/product-card';
 import type { SortOption } from '@/components/product-sort';
+import { PullToRefresh } from '@/components/pull-to-refresh';
 import { Button } from '@/components/ui/button';
 import { useProducts } from '@/lib/api';
 import { formatCurrency } from '@/lib/api/utils';
@@ -61,7 +62,7 @@ export function ProductsCatalog() {
   const setSearchTerm = useSearchStore((state) => state.setTerm);
   const searchTermRaw = searchTermValue.trim();
   const searchTerm = searchTermRaw.toLowerCase();
-  const { data: rawProductsData, isLoading, isFetching, error } = useProducts();
+  const { data: rawProductsData, isLoading, isFetching, error, refetch } = useProducts();
   const data = rawProductsData?.data;
   const showLoadingState = isLoading || (!data && isFetching);
 
@@ -516,7 +517,7 @@ export function ProductsCatalog() {
   }, [searchTerm, selectedCategories]);
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row">
+    <PullToRefresh onRefresh={refetch} className="flex flex-col gap-6 lg:flex-row">
       <FilterSidebar
         categories={categories}
         selectedCategories={selectedCategories}
@@ -606,6 +607,6 @@ export function ProductsCatalog() {
           </>
         )}
       </section>
-    </div>
+    </PullToRefresh>
   );
 }
