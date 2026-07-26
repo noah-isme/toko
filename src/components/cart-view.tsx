@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { Price } from '@/components/price';
+import { SavedForLater } from '@/components/saved-for-later';
 import { Button } from '@/components/ui/button';
 import { PromoField } from '@/entities/promo/ui/PromoField';
 import {
@@ -17,6 +18,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
 import { useCartStore } from '@/stores/cart-store';
+import { useSavedForLaterStore } from '@/stores/saved-for-later-store';
 
 export function CartView() {
   const cartId = useCartStore((state) => state.cartId);
@@ -24,6 +26,7 @@ export function CartView() {
   const updateItemMutation = useUpdateCartItemMutation();
   const removeItemMutation = useRemoveCartItemMutation();
   const router = useRouter();
+  const saveForLater = useSavedForLaterStore((state) => state.save);
   const isBusy = isLoading || (!data && isFetching);
   const isMutatingCart = updateItemMutation.isPending || removeItemMutation.isPending;
 
@@ -32,7 +35,14 @@ export function CartView() {
   }
 
   if (!data || data.items.length === 0) {
-    return <EmptyState {...emptyCart()} />;
+    // Saving the last item empties the cart, so the parked list has to stay
+    // reachable here or it would look like the items vanished.
+    return (
+      <div className="space-y-6">
+        <EmptyState {...emptyCart()} />
+        {data ? <SavedForLater cartId={data.id} /> : null}
+      </div>
+    );
   }
 
   return (
@@ -59,6 +69,7 @@ export function CartView() {
           return (
             <li
               key={item.id}
+              data-testid="cart-item"
               className="flex items-start justify-between gap-4 rounded-lg border p-4"
             >
               <div>
@@ -104,6 +115,32 @@ export function CartView() {
                   <GuardedButton
                     variant="ghost"
                     size="sm"
+                    onClick={async () => {
+                      // Park a snapshot first: once the line leaves the cart the
+                      // server no longer knows about it.
+                      saveForLater({
+                        productId: item.productId,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        image: item.image,
+                        maxQuantity: item.maxQuantity,
+                      });
+                      await removeItemMutation.mutateAsync({
+                        itemId: item.id,
+                        cartId: data.id,
+                      });
+                    }}
+                    disabled={isUpdating}
+                    isLoading={removeItemMutation.isItemInFlight(item.id)}
+                    loadingLabel="Menyimpan…"
+                    className="ml-2 min-h-[44px]"
+                  >
+                    Simpan untuk nanti
+                  </GuardedButton>
+                  <GuardedButton
+                    variant="ghost"
+                    size="sm"
                     onClick={() =>
                       removeItemMutation.mutate({
                         itemId: item.id,
@@ -124,6 +161,8 @@ export function CartView() {
           );
         })}
       </ul>
+
+      <SavedForLater cartId={data.id} />
 
       <PromoField cartId={cartId || data.id} />
 

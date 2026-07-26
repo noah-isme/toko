@@ -47,6 +47,7 @@ vi.mock('@/lib/api/hooks', () => {
     mutateAsync: vi.fn(),
     isPending: false,
     isItemInFlight: () => false,
+    isProductInFlight: () => false,
     isGuardActive: () => false,
   };
 
@@ -54,6 +55,8 @@ vi.mock('@/lib/api/hooks', () => {
     useCartQuery: () => ({ data: cartData, isLoading: false, isFetching: false }),
     useUpdateCartItemMutation: () => mutationStub,
     useRemoveCartItemMutation: () => mutationStub,
+    // CartView renders the saved-for-later list, which adds items back.
+    useAddToCartMutation: () => mutationStub,
   };
 });
 
