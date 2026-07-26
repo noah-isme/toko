@@ -15,10 +15,93 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     });
   }
 
-  // Helper to wait for page to be fully loaded
+  // Helper to wait for page to be fully loaded.
+  // Deliberately not 'networkidle': the app polls (notification badge, payment
+  // status), so the network never truly idles and the wait resolves on timing
+  // rather than readiness. Tests assert on elements instead, which auto-wait.
   async function waitForPageLoad(page: Page) {
-    await page.waitForLoadState('networkidle');
     await page.waitForLoadState('domcontentloaded');
+  }
+
+  // Opens the first product on a listing page. The card itself is not a link —
+  // navigation happens through its "View details" anchor.
+  async function openFirstProduct(page: Page) {
+    const firstCard = page.locator('[data-testid="product-card"]').first();
+    await expect(firstCard).toBeVisible({ timeout: 15000 });
+    await firstCard.getByRole('link').first().click();
+    await waitForPageLoad(page);
+  }
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
+
+  // Registers a shopper over the API and installs the token the app reads from
+  // localStorage. Going through the API keeps checkout tests independent of the
+  // registration form's markup and validation rules.
+  async function signInViaApi(page: Page) {
+    const email = `checkout.${Date.now()}.${Math.random().toString(36).slice(2, 8)}@example.com`;
+    const password = 'Password123!';
+
+    const registerResponse = await page.request.post(`${API_URL}/auth/register`, {
+      data: { name: 'Checkout Tester', email, password },
+    });
+    expect(registerResponse.ok()).toBeTruthy();
+
+    const loginResponse = await page.request.post(`${API_URL}/auth/login`, {
+      data: { email, password },
+    });
+    expect(loginResponse.ok()).toBeTruthy();
+    const token = (await loginResponse.json()).data.accessToken as string;
+
+    await page.addInitScript((value) => {
+      window.localStorage.setItem('accessToken', value);
+    }, token);
+
+    return token;
+  }
+
+  // Seeds an address for the signed-in shopper. Done over the API rather than
+  // the address form so the test stays focused on the checkout screen.
+  async function createAddressViaApi(page: Page, token: string) {
+    const response = await page.request.post(`${API_URL}/users/me/addresses`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: {
+        label: 'Rumah',
+        receiver_name: 'Checkout Tester',
+        phone: '08123456789',
+        address_line1: 'Jl. Merdeka 1',
+        city: 'Jakarta',
+        province: 'DKI Jakarta',
+        postal_code: '10110',
+        country: 'ID',
+        is_default: true,
+      },
+    });
+    expect(response.ok()).toBeTruthy();
+  }
+
+  // Puts one product in the cart, the precondition for the checkout screens.
+  async function addFirstProductToCart(page: Page) {
+    await page.goto('/products');
+    await waitForPageLoad(page);
+    await openFirstProduct(page);
+    // The guest cart is created asynchronously on first load; clicking before it
+    // exists silently drops the item.
+    await expect
+      .poll(async () => page.evaluate(() => window.localStorage.getItem('cart-storage') !== null), {
+        timeout: 15000,
+      })
+      .toBe(true);
+
+    const addToCart = page.locator('[data-testid="add-to-cart"]');
+    await expect(addToCart).toBeEnabled({ timeout: 15000 });
+    await addToCart.click();
+
+    // The page always renders a [role="status"] live region, so waiting on that
+    // returns immediately and races the cart request. The navbar cart button
+    // label only changes once the item is actually in the cart.
+    await expect(page.getByRole('button', { name: /open cart with/i })).toBeVisible({
+      timeout: 20000,
+    });
   }
 
   test.beforeEach(async ({ page }) => {
@@ -37,8 +120,9 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await waitForPageLoad(page);
       await takeScreenshot(page, '01-homepage');
 
-      // Verify key elements are visible
-      await expect(page.getByRole('heading', { name: /produk|products/i })).toBeVisible();
+      // Verify key elements are visible. The homepage renders more than one
+      // products-related heading, so scope to the first match.
+      await expect(page.getByRole('heading', { name: /produk|products/i }).first()).toBeVisible();
     });
 
     test('should display product listing page @visual', async ({ page }) => {
@@ -58,8 +142,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await waitForPageLoad(page);
 
       // Click on first product
-      const firstProduct = page.locator('[data-testid="product-card"]').first();
-      await firstProduct.click();
+      await openFirstProduct(page);
       await waitForPageLoad(page);
       await takeScreenshot(page, '03-product-detail');
 
@@ -76,7 +159,9 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await waitForPageLoad(page);
       await takeScreenshot(page, '04-login-page');
 
-      await expect(page.getByRole('heading', { name: /sign in|login/i })).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: /welcome back|sign in|login/i }),
+      ).toBeVisible();
     });
 
     test('should display register page @visual', async ({ page }) => {
@@ -84,7 +169,9 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await waitForPageLoad(page);
       await takeScreenshot(page, '05-register-page');
 
-      await expect(page.getByRole('heading', { name: /register|daftar/i })).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: /create an account|register|daftar/i }),
+      ).toBeVisible();
     });
 
     test('should handle login with invalid credentials @visual', async ({ page }) => {
@@ -116,8 +203,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await waitForPageLoad(page);
 
       // Click first product
-      const firstProduct = page.locator('[data-testid="product-card"]').first();
-      await firstProduct.click();
+      await openFirstProduct(page);
       await waitForPageLoad(page);
 
       // Add to cart
@@ -142,8 +228,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await page.goto('/products');
       await waitForPageLoad(page);
 
-      const firstProduct = page.locator('[data-testid="product-card"]').first();
-      await firstProduct.click();
+      await openFirstProduct(page);
       await waitForPageLoad(page);
       await page.locator('[data-testid="add-to-cart"]').click();
       await page.waitForSelector('[role="status"], .toast', { timeout: 10000 });
@@ -151,99 +236,60 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       // Go to checkout
       await page.goto('/checkout');
       await waitForPageLoad(page);
+
+      await expect(page.getByRole('heading', { name: /checkout|alamat/i }).first()).toBeVisible({
+        timeout: 15000,
+      });
       await takeScreenshot(page, '09-checkout-address');
-
-      await expect(page.getByRole('heading', { name: /checkout|alamat/i })).toBeVisible();
     });
 
-    test('should display checkout shipping step @visual', async ({ page }) => {
-      // Setup: Add item to cart and go to checkout
-      await page.goto('/products');
-      await waitForPageLoad(page);
+    test('should display checkout shipping options @visual', async ({ page }) => {
+      // Shipping options only render once an address is selected, which needs a
+      // signed-in shopper with a saved address.
+      const token = await signInViaApi(page);
+      await createAddressViaApi(page, token);
 
-      const firstProduct = page.locator('[data-testid="product-card"]').first();
-      await firstProduct.click();
-      await waitForPageLoad(page);
-      await page.locator('[data-testid="add-to-cart"]').click();
-      await page.waitForSelector('[role="status"], .toast', { timeout: 10000 });
+      await addFirstProductToCart(page);
 
-      // Go to checkout
       await page.goto('/checkout');
       await waitForPageLoad(page);
 
-      // Select address
-      const addressRadio = page.getByRole('radio').first();
-      await addressRadio.click();
+      await page.getByRole('radio').first().check();
 
-      // Click continue
-      await page.getByRole('button', { name: /lanjutkan|continue/i }).click();
-      await waitForPageLoad(page);
+      // Checkout is a single page: address, shipping and payment are sections
+      // on /checkout rather than separate wizard steps.
+      await expect(
+        page.getByRole('heading', { name: /shipping options|pengiriman/i }).first(),
+      ).toBeVisible({ timeout: 30000 });
       await takeScreenshot(page, '10-checkout-shipping');
-
-      await expect(page.getByRole('heading', { name: /shipping|pengiriman/i })).toBeVisible();
     });
 
-    test('should display checkout payment step @visual', async ({ page }) => {
-      // Setup: Add item to cart and go through checkout steps
-      await page.goto('/products');
-      await waitForPageLoad(page);
-
-      const firstProduct = page.locator('[data-testid="product-card"]').first();
-      await firstProduct.click();
-      await waitForPageLoad(page);
-      await page.locator('[data-testid="add-to-cart"]').click();
-      await page.waitForSelector('[role="status"], .toast', { timeout: 10000 });
+    test('should display checkout payment methods @visual', async ({ page }) => {
+      await addFirstProductToCart(page);
 
       await page.goto('/checkout');
-      await waitForPageLoad(page);
-
-      // Select address
-      await page.getByRole('radio').first().click();
-      await page.getByRole('button', { name: /lanjutkan|continue/i }).click();
-      await waitForPageLoad(page);
-
-      // Select shipping
-      await page.locator('input[name="shipping-option"]').first().check({ force: true });
-      await page.getByRole('button', { name: /lanjutkan|continue/i }).click();
       await waitForPageLoad(page);
       await takeScreenshot(page, '11-checkout-payment');
 
-      await expect(page.getByRole('heading', { name: /payment|pembayaran/i })).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: /payment method|pembayaran/i }).first(),
+      ).toBeVisible({ timeout: 15000 });
     });
 
-    test('should display checkout review step @visual', async ({ page }) => {
-      // Setup: Add item to cart and go through all checkout steps
-      await page.goto('/products');
-      await waitForPageLoad(page);
-
-      const firstProduct = page.locator('[data-testid="product-card"]').first();
-      await firstProduct.click();
-      await waitForPageLoad(page);
-      await page.locator('[data-testid="add-to-cart"]').click();
-      await page.waitForSelector('[role="status"], .toast', { timeout: 10000 });
+    test('should offer the review/payment action on checkout @visual', async ({ page }) => {
+      await addFirstProductToCart(page);
 
       await page.goto('/checkout');
       await waitForPageLoad(page);
+      await takeScreenshot(page, '12-checkout-pay-action');
 
-      // Address
-      await page.getByRole('radio').first().click();
-      await page.getByRole('button', { name: /lanjutkan|continue/i }).click();
-      await waitForPageLoad(page);
-
-      // Shipping
-      await page.locator('input[name="shipping-option"]').first().check({ force: true });
-      await page.getByRole('button', { name: /lanjutkan|continue/i }).click();
-      await waitForPageLoad(page);
-
-      // Payment - select payment method
-      await page.locator('input[name="payment-method"]').first().check({ force: true });
-      await page.getByRole('button', { name: /lanjutkan|continue/i }).click();
-      await waitForPageLoad(page);
-      await takeScreenshot(page, '12-checkout-review');
-
-      await expect(
-        page.getByRole('heading', { name: /review|review order|konfirmasi/i }),
-      ).toBeVisible();
+      // /checkout/review is not directly addressable: it requires an ?orderId=
+      // plus the sessionStorage draft written when an order is placed. The
+      // reachable assertion here is that its entry point is present. The
+      // authenticated purchase path is covered end-to-end at the API level.
+      await expect(page.getByRole('button', { name: /bayar sekarang/i }).first()).toBeVisible({
+        timeout: 15000,
+      });
     });
   });
 
@@ -274,27 +320,34 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await waitForPageLoad(page);
       await takeScreenshot(page, '15-address-management');
 
-      await expect(page.getByRole('heading', { name: /address|alamat/i })).toBeVisible({
+      // The page has several address-related headings; assert on the first.
+      await expect(page.getByRole('heading', { name: /address|alamat/i }).first()).toBeVisible({
         timeout: 15000,
       });
     });
   });
 
   test.describe('Search & Filter', () => {
+    // Search and category browsing are query params on /products; there are no
+    // separate /search or /category routes.
     test('should display search results @visual', async ({ page }) => {
-      await page.goto('/search?q=headphone');
+      await page.goto('/products?q=kaos');
       await waitForPageLoad(page);
       await takeScreenshot(page, '16-search-results');
 
-      await expect(page.getByRole('heading', { name: /search|hasil/i })).toBeVisible();
+      await expect(page.locator('[data-testid="product-card"]').first()).toBeVisible({
+        timeout: 15000,
+      });
     });
 
     test('should display category page @visual', async ({ page }) => {
-      await page.goto('/category/audio');
+      await page.goto('/products?categories=Fashion');
       await waitForPageLoad(page);
       await takeScreenshot(page, '17-category-page');
 
-      await expect(page.getByRole('heading', { name: /audio|category/i })).toBeVisible();
+      await expect(page.locator('[data-testid="product-card"]').first()).toBeVisible({
+        timeout: 15000,
+      });
     });
   });
 
@@ -311,8 +364,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await page.goto('/products');
       await waitForPageLoad(page);
 
-      const firstProduct = page.locator('[data-testid="product-card"]').first();
-      await firstProduct.click();
+      await openFirstProduct(page);
       await waitForPageLoad(page);
       await takeScreenshot(page, '19-mobile-product-detail');
     });

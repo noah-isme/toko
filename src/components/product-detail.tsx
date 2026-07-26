@@ -90,15 +90,23 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       <div className="space-y-6">
         <div>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="text-3xl font-bold">{data.title}</h1>
+            <h1 data-testid="product-title" className="text-3xl font-bold">
+              {data.title}
+            </h1>
             <FavToggle productId={data.id} size="md" />
           </div>
           <Rating value={data.rating ?? 0} reviewCount={data.reviewCount ?? 0} className="mt-2" />
         </div>
-        <Price amount={data.price} currency={data.currency || 'IDR'} className="text-2xl" />
+        <Price
+          data-testid="product-price"
+          amount={data.price}
+          currency={data.currency || 'IDR'}
+          className="text-2xl"
+        />
         <p className="text-muted-foreground">{data.description}</p>
         <div className="space-y-2">
           <GuardedButton
+            data-testid="add-to-cart"
             size="lg"
             onClick={handleAddToCart}
             disabled={isOutOfStock}

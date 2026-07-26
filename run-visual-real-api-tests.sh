@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script to run visual E2E tests with real toko-api
-# 
+#
 # Usage: ./run-visual-real-api-tests.sh
 #
 # This script:
@@ -13,6 +13,15 @@ set -e
 TOKO_APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOKO_API_DIR="$TOKO_APP_DIR/../toko-api"
 
+# The suite drives ~24 browser scenarios from a single host. With the production
+# defaults (RATE_LIMIT_USER_MAX=120/min) it exhausts the limiter partway through,
+# and the resulting 429s surface as unrelated-looking UI failures: server-side
+# product fetches fall back to empty data, carts fail to create. Raise the
+# limits for the test API only.
+export RATE_LIMIT_GLOBAL_MAX="${RATE_LIMIT_GLOBAL_MAX:-100000}"
+export RATE_LIMIT_USER_MAX="${RATE_LIMIT_USER_MAX:-100000}"
+export RATE_LIMIT_IP_MAX="${RATE_LIMIT_IP_MAX:-100000}"
+
 echo "========================================"
 echo "Visual E2E Tests with Real Toko API"
 echo "========================================"
@@ -20,6 +29,8 @@ echo "========================================"
 # Check if toko-api is running
 if curl -s http://localhost:8080/health/live > /dev/null 2>&1; then
     echo "✓ toko-api is already running at http://localhost:8080"
+    echo "  NOTE: ensure it was started with raised RATE_LIMIT_* values,"
+    echo "        otherwise later tests will fail on 429s."
 else
     echo "Starting toko-api..."
     cd "$TOKO_API_DIR"
