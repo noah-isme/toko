@@ -2,7 +2,7 @@
 
 Dokumen ini mencantumkan backlog aktif, rencana pengembangan, dan kesenjangan (UX gaps) prioritas P2/P3 yang tersisa untuk dikerjakan pada rilis berikutnya.
 
-> **Reconciled 2026-07-22.** Item P2 (breadcrumbs, back-to-top, product comparison) dan item P3 swipe gestures telah selesai dan dipindahkan ke bagian "Selesai" di bawah. Tiga item gap baru dari `UI_UX_GAPS_ANALYSIS.md` (recent searches, search history, save for later) ditambahkan. Lihat `UI_UX_GAPS_ANALYSIS.md` untuk audit lengkap (41 item).
+> **Reconciled 2026-07-27.** Empat item terakhir (pull to refresh, recent searches, save for later, search history page) telah selesai dan dipindahkan ke bagian "Selesai". Backlog P2/P3 dari dokumen ini sekarang kosong. Lihat `UI_UX_GAPS_ANALYSIS.md` untuk audit lengkap (41 item).
 
 ---
 
@@ -40,37 +40,44 @@ Dokumen ini mencantumkan backlog aktif, rencana pengembangan, dan kesenjangan (U
 - **Frontend** (`toko`): `src/components/notification-bell.tsx` (lonceng di navbar dengan badge belum-dibaca, dropdown, polling hitung 60s), `src/app/(storefront)/account/notifications/page.tsx` (daftar berpaginasi), service + hooks `src/lib/api/services/notifications.ts`, MSW `src/mocks/handlers.notifications.ts`, tes di `tests/notifications/`.
 - **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` #11
 
----
-
-## 🚀 Backlog Fitur Prioritas Menengah (P2)
-
 ### 6. Tarik untuk Menyegarkan (Pull to Refresh - Mobile)
 
-- **Status**: ❌ **MISSING**
-- **Target Rilis**: v1.1.0 (Mobile UX)
-- **Deskripsi**: Mengintegrasikan gesture tarik ke bawah (_pull to refresh_) untuk memicu pengambilan ulang data (refetch) katalog produk dan status pesanan pada peramban mobile.
+- **Status**: ✅ **DONE** (2026-07-27)
+- **Komponen**: `src/components/pull-to-refresh.tsx`, `tests/ux/pull-to-refresh.test.tsx`
+- **Integrasi**: `ProductsCatalog` (refetch katalog) dan halaman `account/orders` (refetch daftar pesanan)
+- **Fitur**: Gestur sentuh saja, hanya aktif ketika halaman berada di posisi paling atas sehingga tidak mengganggu scroll normal. Ambang 80px dengan resistensi 0.5. Indikator mengumumkan status lewat `role="status"` dan menghormati `prefers-reduced-motion` (tanpa animasi spin).
+- **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` #13
 
 ### 7. Riwayat Pencarian (Recent Searches)
 
-- **Status**: ❌ **MISSING**
-- **Target Rilis**: v1.2.0
-- **Deskripsi**: Menyimpan riwayat istilah pencarian pengguna (bukan hanya istilah saat ini) untuk ditampilkan kembali di search autocomplete. Saat ini `src/stores/search-store.ts` hanya menyimpan _current term_.
+- **Status**: ✅ **DONE** (2026-07-27)
+- **Komponen**: `src/stores/search-store.ts`, `src/components/search-autocomplete.tsx`, `tests/search/store.test.ts`, `tests/search/autocomplete-history.test.tsx`
+- **Fitur**: Store zustand dengan `persist` menyimpan hingga 8 istilah, de-duplikasi tanpa memperhatikan huruf besar/kecil, entri terbaru di depan. Dropdown autocomplete menampilkan "Pencarian Terakhir" saat input kosong, dengan hapus per item dan hapus semua. `term` yang sedang diketik sengaja tidak ikut dipersist.
 - **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` #16
 
 ### 8. Simpan untuk Nanti (Save for Later)
 
-- **Status**: ❌ **MISSING**
-- **Target Rilis**: v1.2.0
-- **Deskripsi**: Memungkinkan pengguna memindahkan item keranjang ke daftar "simpan untuk nanti" tanpa menghapusnya sepenuhnya.
+- **Status**: ✅ **DONE** (2026-07-27)
+- **Komponen**: `src/stores/saved-for-later-store.ts`, `src/components/saved-for-later.tsx`, `src/components/cart-view.tsx`, `tests/cart/saved-for-later.store.test.ts`, `tests/cart/saved-for-later.ui.test.tsx`
+- **Fitur**: Tombol "Simpan untuk nanti" pada tiap baris keranjang memindahkan item ke daftar tersimpan (snapshot sisi klien, karena item hilang dari server begitu keluar dari keranjang). Daftar tetap terlihat ketika keranjang kosong. Bila pemindahan kembali ke keranjang gagal, item tetap tersimpan agar pilihan pengguna tidak hilang.
 - **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` #18
+
+### 9. Halaman Riwayat Pencarian (Search History Page)
+
+- **Status**: ✅ **DONE** (2026-07-27)
+- **Komponen**: `src/app/(storefront)/account/searches/page.tsx`, `tests/search/history-page.test.tsx`
+- **Integrasi**: Tautan pada dashboard `account`
+- **Fitur**: Menampilkan, menjalankan ulang, menghapus per item, dan menghapus seluruh riwayat. Empty state ketika belum ada riwayat.
+- **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` #17
+
+---
+
+## 🚀 Backlog Fitur Prioritas Menengah (P2)
+
+_Kosong — semua item P2 pada dokumen ini telah selesai._
 
 ---
 
 ## 🎨 Backlog Fitur Prioritas Rendah (P3)
 
-### 9. Halaman Riwayat Pencarian (Search History Page)
-
-- **Status**: ❌ **MISSING**
-- **Target Rilis**: Backlog
-- **Deskripsi**: Halaman khusus untuk menampilkan dan mengelola riwayat pencarian pengguna. Bergantung pada item #7 (recent searches store) terlebih dahulu.
-- **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` #17
+_Kosong — semua item P3 pada dokumen ini telah selesai._

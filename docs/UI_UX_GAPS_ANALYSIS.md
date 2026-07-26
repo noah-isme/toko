@@ -225,9 +225,11 @@ module; auto-created on order/payment/shipment events via the event bus; endpoin
 
 ---
 
-### 13. ❌ Pull to Refresh (Mobile)
+### 13. ✅ Pull to Refresh (Mobile) — DONE
 
-**Status**: MISSING
+**Status**: DONE (2026-07-27)
+
+`src/components/pull-to-refresh.tsx` — gestur sentuh pada katalog produk dan daftar pesanan, aktif hanya di posisi scroll paling atas, ambang 80px, menghormati `prefers-reduced-motion`.
 **Priority**: 🟢 P2
 
 ---
@@ -272,27 +274,33 @@ module; auto-created on order/payment/shipment events via the event bus; endpoin
 
 ---
 
-### 16. ❌ Recent Searches
+### 16. ✅ Recent Searches — DONE
 
-**Status**: MISSING
+**Status**: DONE (2026-07-27)
+
+`src/stores/search-store.ts` menyimpan hingga 8 istilah (persist, de-dupe case-insensitive); ditampilkan pada dropdown `search-autocomplete.tsx`.
 **Priority**: 🟢 P2
 
 `src/stores/search-store.ts` only stores the current search term, not a history of recent searches.
 
 ---
 
-### 17. ❌ Search History Page
+### 17. ✅ Search History Page — DONE
 
-**Status**: MISSING
+**Status**: DONE (2026-07-27)
+
+`src/app/(storefront)/account/searches/page.tsx` — lihat, jalankan ulang, hapus per item, hapus semua.
 **Priority**: ⚪ P3
 
 ---
 
 ## 🛒 Cart & Checkout Improvements
 
-### 18. ❌ Save for Later
+### 18. ✅ Save for Later — DONE
 
-**Status**: MISSING
+**Status**: DONE (2026-07-27)
+
+`src/stores/saved-for-later-store.ts` + `src/components/saved-for-later.tsx`, terintegrasi pada `cart-view.tsx`.
 **Priority**: 🟢 P2
 
 ---
@@ -631,13 +639,15 @@ Route-level splitting is handled by Next.js App Router.
 | ---------------- | ------ | ------- | ---------- | ---------- |
 | 🔴 Critical (P0) | 2      | 2       | 0          | 0          |
 | 🟡 High (P1)     | 10     | 7       | 3          | 0          |
-| 🟢 Medium (P2)   | 20     | 6       | 3          | 11         |
-| ⚪ Low (P3)      | 9      | 0       | 0          | 9          |
-| **Total**        | **41** | **21**  | **6**      | **20**     |
+| 🟢 Medium (P2)   | 20     | 9       | 3          | 8          |
+| ⚪ Low (P3)      | 9      | 1       | 0          | 8          |
+| **Total**        | **41** | **25**  | **6**      | **16**     |
 
-**Remaining work**: 26 items (6 partial + 20 missing)
+**Remaining work**: 22 items (6 partial + 16 missing)
 
 > **2026-07-22 update**: Items #8 (breadcrumbs), #9 (back-to-top), #10 (product comparison) moved to DONE. P2 counts updated: Done 3→6, Partial 4→3, Missing 13→11. Total Done 18→21.
+>
+> **2026-07-27 update**: Items #13 (pull to refresh), #16 (recent searches), #18 (save for later) and #17 (search history page) shipped. P2 Done 6→9 / Missing 11→8; P3 Done 0→1 / Missing 9→8. Total Done 21→25, Missing 20→16.
 
 ### Items marked DONE in this re-audit (previously claimed missing/incomplete):
 
@@ -664,5 +674,5 @@ Route-level splitting is handled by Next.js App Router.
 
 **Maintained By**: Development Team
 **Last Re-audited**: 2026-07-14
-**Last Updated**: 2026-07-22 (items #8, #9, #10 reconciled against shipped code)
+**Last Updated**: 2026-07-27 (items #13, #16, #17, #18 shipped)
 **Next Review**: After P2 Sprint 1
