@@ -21,14 +21,12 @@ const notificationSchema: ZodType<Notification> = z.object({
   createdAt: z.string(),
 });
 
-// Backend returns snake_case pagination keys (per_page, total_items).
-// We validate the raw response and then map to the frontend camelCase shape.
 const apiNotificationListSchema = z.object({
   data: z.array(notificationSchema),
   pagination: z.object({
     page: z.number(),
-    per_page: z.number(),
-    total_items: z.number(),
+    perPage: z.number(),
+    totalItems: z.number(),
   }),
 });
 
@@ -58,11 +56,7 @@ export const notificationsApi = {
 
     return {
       data: response.data,
-      pagination: {
-        page: response.pagination.page,
-        perPage: response.pagination.per_page,
-        totalItems: response.pagination.total_items,
-      },
+      pagination: response.pagination,
     };
   },
 

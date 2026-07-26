@@ -37,7 +37,7 @@ describe('Notifications API', () => {
     );
   });
 
-  it('list validates the snake_case backend response and returns camelCase pagination', async () => {
+  it('list validates the backend response and returns camelCase pagination', async () => {
     const result = await notificationsApi.list(1, 20);
 
     expect(result.data).toHaveLength(2);
@@ -56,9 +56,23 @@ describe('Notifications API', () => {
   it('list throws when the backend pagination is malformed', async () => {
     server.use(
       http.get(`${BASE_URL}/notifications`, () => {
+        // perPage/totalItems missing entirely — the shape the schema must reject.
         return HttpResponse.json({
           data: [],
-          pagination: { page: 1, perPage: 20, totalItems: 0 },
+          pagination: { page: 1 },
+        });
+      }),
+    );
+
+    await expect(notificationsApi.list(1, 20)).rejects.toThrow();
+  });
+
+  it('list throws when the backend sends legacy snake_case pagination', async () => {
+    server.use(
+      http.get(`${BASE_URL}/notifications`, () => {
+        return HttpResponse.json({
+          data: [],
+          pagination: { page: 1, per_page: 20, total_items: 0 },
         });
       }),
     );

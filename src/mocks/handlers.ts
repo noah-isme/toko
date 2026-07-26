@@ -417,8 +417,36 @@ export const handlers = [
         name: faker.person.fullName(),
         emailVerified: faker.datatype.boolean(),
         phone: faker.phone.number(),
+        createdAt: new Date().toISOString(),
       },
     }),
+  ),
+  // PATCH /users/me — partial profile update, echoing back the merged user.
+  http.patch(apiPath('/users/me'), async ({ request }) => {
+    const body = (await request.json()) as { name?: string; phone?: string };
+    return HttpResponse.json({
+      data: {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        name: body.name ?? faker.person.fullName(),
+        phone: body.phone,
+        emailVerified: false,
+        createdAt: new Date().toISOString(),
+      },
+    });
+  }),
+  http.post(apiPath('/auth/email/verify'), async ({ request }) => {
+    const body = (await request.json()) as { token?: string };
+    if (!body.token) {
+      return HttpResponse.json(
+        { error: { code: 'INVALID_TOKEN', message: 'invalid or expired token' } },
+        { status: 400 },
+      );
+    }
+    return HttpResponse.json({ data: { message: 'email verified' } });
+  }),
+  http.post(apiPath('/auth/email/resend'), () =>
+    HttpResponse.json({ data: { message: 'verification email sent' } }),
   ),
   ...checkoutHandlers,
   ...addressHandlers,

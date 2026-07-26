@@ -1,5 +1,44 @@
 # User Endpoints
 
+## 5.0 Update Profile
+
+```http
+PATCH /api/v1/users/me
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request:** partial — send only the fields being changed. Omitting a field
+leaves it unchanged; sending `"phone": ""` clears it.
+
+```json
+{
+  "name": "Budi Santoso",
+  "phone": "08123456789"
+}
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "data": {
+    "id": "uuid-here",
+    "name": "Budi Santoso",
+    "email": "budi@example.com",
+    "phone": "08123456789",
+    "emailVerified": false,
+    "createdAt": "2025-12-07T10:00:00Z",
+    "updatedAt": "2025-12-08T09:00:00Z"
+  }
+}
+```
+
+**Errors:** `400 VALIDATION_ERROR` when no fields are supplied or `name` is
+blank; `401 UNAUTHORIZED` without a valid token.
+
+---
+
 ## 5.1 List Addresses
 
 ```http

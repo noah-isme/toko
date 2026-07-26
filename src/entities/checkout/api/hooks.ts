@@ -27,10 +27,13 @@ const shippingQuoteInputSchema = z.object({
   address: AddressSchema,
 });
 
+// Mirrors POST /checkout/draft, which resolves the address server-side from the
+// shopper's address book rather than accepting an inline address.
 const orderDraftInputSchema = z.object({
   cartId: z.string().min(1, 'Cart id is required'),
-  address: AddressSchema,
-  shippingOptionId: z.string().min(1, 'Shipping option id is required'),
+  shippingAddressId: z.string().min(1, 'Shipping address id is required'),
+  shippingService: z.string().min(1, 'Shipping service is required'),
+  shippingCost: z.number().min(0),
   paymentMethod: z.string().optional(),
   notes: z.string().optional(),
 });

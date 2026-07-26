@@ -61,12 +61,25 @@ export const authHandlers = [
 
     return HttpResponse.json({ data: response }, { status: 201 });
   }),
-  http.post(apiPath('/auth/login'), () => {
-    // Basic login mock
+  http.post(apiPath('/auth/login'), async ({ request }) => {
+    const body = (await request.json().catch(() => null)) as {
+      email?: string;
+      password?: string;
+    } | null;
+
+    // Mirror the dev proxy in src/app/api/v1/[[...path]]/route.ts: these
+    // sentinel credentials must fail so the error path stays testable.
+    if (body?.email === 'wrong@example.com' || body?.password === 'wrongpassword') {
+      return HttpResponse.json(
+        { error: { code: 'INVALID_CREDENTIALS', message: 'Email atau password salah' } },
+        { status: 400 },
+      );
+    }
+
     const user: User = {
       id: faker.string.uuid(),
       name: faker.person.fullName(),
-      email: faker.internet.email(),
+      email: body?.email ?? faker.internet.email(),
       emailVerified: true,
       createdAt: new Date().toISOString(),
     };

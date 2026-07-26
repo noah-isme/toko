@@ -528,7 +528,7 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
     return { data: { message: 'Logged out successfully' } };
   }
 
-  if (path === 'users/me' && method === 'GET') {
+  if (path === 'auth/me' && method === 'GET') {
     return {
       data: {
         id: 'user-123',

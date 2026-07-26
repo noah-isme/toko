@@ -30,7 +30,9 @@ export const TotalsSchema = z.object({
 export const OrderDraftSchema = z.object({
   cartId: z.string().min(1, 'Cart id is required'),
   address: AddressSchema,
-  shippingOption: ShippingOptionSchema,
+  // A draft echoes the chosen service, but `etd` is only known from a shipping
+  // quote, so it is optional here unlike in ShippingOptionSchema.
+  shippingOption: ShippingOptionSchema.extend({ etd: z.string().optional() }),
   paymentMethod: z.string().optional(),
   notes: z.string().optional(),
   totals: TotalsSchema,
