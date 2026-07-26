@@ -2,12 +2,14 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.PORT ?? 3000);
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`;
+// For real API testing, use the actual API URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  timeout: 90_000,
+  timeout: 120_000,
   expect: {
-    timeout: 10_000,
+    timeout: 15_000,
   },
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -17,13 +19,48 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
-    navigationTimeout: 45_000,
-    actionTimeout: 15_000,
+    navigationTimeout: 60_000,
+    actionTimeout: 20_000,
   },
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'chromium-visual',
+      use: {
+        ...devices['Desktop Chrome'],
+        screenshot: 'on',
+      },
+    },
+    {
+      name: 'chromium-real-api',
+      use: {
+        ...devices['Desktop Chrome'],
+        screenshot: 'on',
+      },
+    },
+    {
+      name: 'mobile-chrome-visual',
+      use: {
+        ...devices['Pixel 5'],
+        screenshot: 'on',
+      },
+    },
+    {
+      name: 'mobile-safari-visual',
+      use: {
+        ...devices['iPhone 12'],
+        screenshot: 'on',
+      },
+    },
+    {
+      name: 'tablet-visual',
+      use: {
+        ...devices['iPad Pro'],
+        screenshot: 'on',
+      },
     },
   ],
   webServer: process.env.CI
@@ -34,7 +71,7 @@ export default defineConfig({
         reuseExistingServer: !process.env.CI,
         env: {
           NEXT_PUBLIC_API_MOCKING: 'false',
-          NEXT_PUBLIC_API_URL: `${BASE_URL}/api/v1`,
+          NEXT_PUBLIC_API_URL: API_URL,
         },
       }
     : undefined,

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:e2e": "NEXT_PUBLIC_API_MOCKING=true NEXT_PUBLIC_API_URL=mock next dev",
+    "dev:real-api": "NEXT_PUBLIC_API_MOCKING=false NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -14,6 +15,12 @@
     "test:ci": "vitest run --reporter=dot --pool=forks",
     "test:watch": "vitest",
     "e2e": "playwright test --reporter=line",
+    "e2e:visual": "playwright test --project=chromium-visual --reporter=line",
+    "e2e:real-api": "playwright test --project=chromium-real-api --reporter=line",
+    "e2e:visual:real-api": "playwright test visual-real-api.spec.ts --project=chromium-real-api --reporter=line",
+    "e2e:visual:real-api:config": "playwright test -c playwright.real-api.config.ts --reporter=line",
+    "e2e:mobile": "playwright test --project=mobile-chrome-visual --reporter=line",
+    "e2e:tablet": "playwright test --project=tablet-visual --reporter=line",
     "analyze": "ANALYZE=true next build",
     "format": "prettier --write .",
     "prepare": "husky install"
