@@ -146,7 +146,9 @@ function mapCartToApiCart(id: string = cart.id): ApiCart {
       qty: item.quantity,
       unitPrice: item.price.amount,
       subtotal: item.price.amount * item.quantity,
-      imageUrl: item.image ?? undefined,
+      // null, not undefined: the server sends null for a product without a
+      // thumbnail, and the mock exists to behave like the server.
+      imageUrl: item.image ?? null,
     })),
   };
 }

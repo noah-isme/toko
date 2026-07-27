@@ -1,6 +1,7 @@
 'use client';
 
 import { ShoppingCart, X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 
@@ -91,9 +92,22 @@ export function CartDrawer() {
                   key={item.id}
                   className="flex items-start justify-between gap-3 rounded-md border p-3"
                 >
-                  <div>
-                    <p className="text-sm font-medium">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                  <div className="flex items-start gap-3">
+                    {item.image ? (
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded border bg-muted">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      </div>
+                    ) : null}
+                    <div>
+                      <p className="text-sm font-medium">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                    </div>
                   </div>
                   <Price
                     amount={item.price.amount * item.quantity}

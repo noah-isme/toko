@@ -302,7 +302,8 @@ export interface CartItem {
   qty: number;
   unitPrice: number;
   subtotal: number;
-  imageUrl?: string;
+  /** Product thumbnail; null when the product has none. */
+  imageUrl?: string | null;
 }
 
 export interface CartPricing {

@@ -22,6 +22,7 @@ import type {
   ApiAddressResponse,
   ApiProduct,
   Brand,
+  CartItem,
   Category,
   Pagination,
   User,
@@ -59,6 +60,16 @@ type _UserSatisfiesClient = Expect<IsAssignable<Wire['User'], User>>;
 type _ProductListItemSatisfiesClient = Expect<IsAssignable<Wire['ProductListItem'], ApiProduct>>;
 type _CategorySatisfiesClient = Expect<IsAssignable<Wire['Category'], Category>>;
 type _BrandSatisfiesClient = Expect<IsAssignable<Wire['Brand'], Brand>>;
+
+// ---------------------------------------------------------------------------
+// Cart
+//
+// The client type previously declared an `imageUrl` the server never sent, so
+// cart thumbnails silently rendered as null against the real API while looking
+// correct under mocks. Asserting in both directions pins the key sets together:
+// a field the server drops, or one the client invents, now fails the build.
+// ---------------------------------------------------------------------------
+type _CartItemMatches = Expect<IsExactly<Required<Wire['CartItem']>, Required<CartItem>>>;
 
 // ---------------------------------------------------------------------------
 // Addresses

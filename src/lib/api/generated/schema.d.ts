@@ -4032,6 +4032,8 @@ export interface components {
             unitPrice: number;
             /** Format: int64 */
             subtotal: number;
+            /** @description Product thumbnail, joined live rather than snapshotted with the line, so it follows the product. Null when the product has none. */
+            imageUrl?: string | null;
         };
         CartPricing: {
             /** Format: int64 */
