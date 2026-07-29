@@ -6,10 +6,10 @@ test.describe('Product Discovery', () => {
 
     await expect(page.getByRole('heading', { name: 'Featured products' })).toBeVisible();
 
-    await expect(page.locator('main [role="list"]')).toBeVisible();
     await expect(page.getByTestId('product-card-skeleton')).toBeHidden();
 
-    const firstProduct = page.getByRole('listitem').first();
+    const firstProduct = page.getByTestId('product-card').first();
+    await expect(firstProduct).toBeVisible();
     const productName = await firstProduct.locator('h3').textContent();
     expect(productName).toBeTruthy();
 
@@ -18,9 +18,8 @@ test.describe('Product Discovery', () => {
 
     await expect(page).toHaveURL(/\/products\//);
 
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-
-    await expect(page.getByText('Add to cart').or(page.getByText('Out of stock'))).toBeVisible();
-    await expect(page.locator('.text-2xl').first()).toBeVisible();
+    await expect(page.getByTestId('product-title')).toBeVisible();
+    await expect(page.getByTestId('add-to-cart')).toBeVisible();
+    await expect(page.getByTestId('product-price')).toBeVisible();
   });
 });

@@ -3,6 +3,7 @@
 import React from 'react';
 
 import type { ShippingOption } from '@/entities/checkout/schemas';
+import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
 
 export interface ShippingOptionsProps {
@@ -56,10 +57,6 @@ export function ShippingOptions({ options, selectedId, onChange, disabled }: Shi
       })}
     </div>
   );
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
 }
 
 function formatEtaLabel(etd: string) {

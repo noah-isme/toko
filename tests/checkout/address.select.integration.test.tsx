@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { HttpResponse, http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,6 +9,8 @@ import CheckoutPage from '@/app/(storefront)/checkout/page';
 import { getAddressListKey } from '@/entities/address/keys';
 import { writeGuestAddresses } from '@/entities/address/storage';
 import type { Address } from '@/entities/address/types';
+import { server } from '@/mocks/server';
+import { apiPath } from '@/mocks/utils';
 
 const replaceMock = vi.fn();
 const prefetchMock = vi.fn();
@@ -117,6 +120,17 @@ describe('CheckoutPage address selection', () => {
   });
 
   it('disables checkout when no address is available', async () => {
+    // Signed-in checkout reads addresses from the API, so an empty book has to
+    // come from the API rather than from empty guest storage.
+    server.use(
+      http.get(apiPath('/users/me/addresses'), () =>
+        HttpResponse.json({
+          data: [],
+          pagination: { page: 1, perPage: 100, totalItems: 0 },
+        }),
+      ),
+    );
+
     const queryClient = createQueryClient();
     const Wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

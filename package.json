@@ -17,7 +17,7 @@
     "test": "vitest run",
     "test:ci": "vitest run --reporter=dot --pool=forks",
     "test:watch": "vitest",
-    "e2e": "playwright test --reporter=line",
+    "e2e": "NEXT_PUBLIC_API_MOCKING=true NEXT_PUBLIC_API_URL=mock playwright test --project=chromium --reporter=line",
     "e2e:visual": "playwright test --project=chromium-visual --reporter=line",
     "e2e:real-api": "playwright test -c playwright.real-api.config.ts --project=chromium-real-api --reporter=line",
     "e2e:visual:real-api": "playwright test -c playwright.real-api.config.ts --project=chromium-real-api --reporter=line",

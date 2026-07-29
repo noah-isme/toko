@@ -4,9 +4,9 @@ import type { ApiError } from './types';
 
 const DEFAULT_API_URL = 'http://localhost:8080/api/v1';
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== 'mock'
-    ? process.env.NEXT_PUBLIC_API_URL
-    : DEFAULT_API_URL;
+  process.env.NEXT_PUBLIC_API_URL === 'mock'
+    ? '/api/v1'
+    : process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL;
 
 interface ApiClientBaseOptions extends RequestInit {
   requiresAuth?: boolean;

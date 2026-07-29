@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-import { selectShipping } from './fixtures';
+import { selectAddress, selectShipping } from './fixtures';
 import { expect, test } from './fixtures/auth.fixture';
 import { installRouteWithSettledCleanup, waitForMatchingResponse } from './fixtures/route.fixture';
 
@@ -33,14 +33,10 @@ async function openCheckout(page: Page) {
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
 }
 
+// The checkout page also renders payment-method radios, so scope address
+// selection through the shared address helper instead of role='radio'.
 async function chooseQuickAddress(page: Page) {
-  // Wait for address radios to appear
-  await page.getByRole('radio').first().waitFor({ timeout: 15000 });
-  const radios = page.getByRole('radio');
-  const count = await radios.count();
-  const target = count > 1 ? radios.nth(1) : radios.first();
-  await target.click();
-  await expect(target).toHaveAttribute('aria-checked', 'true');
+  await selectAddress(page, 1);
 }
 
 test.describe('Checkout regressions', () => {

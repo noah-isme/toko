@@ -22,6 +22,7 @@ import {
 import type { PaymentCreateBody, PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
 import { useCartQuery } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
+import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
 import { getPayNowRule, normalizeDisabledMessage } from '@/shared/lib/disabledRules';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
@@ -449,11 +450,7 @@ function CheckoutReviewContent() {
         <div className="sticky bottom-0 z-40 -mx-4 flex items-center justify-between gap-4 border-t border-border/70 bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-[0_-12px_32px_rgba(15,23,42,0.12)] backdrop-blur">
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Total pembayaran</p>
-            <p className="text-lg font-semibold">
-              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-                totals.total,
-              )}
-            </p>
+            <p className="text-lg font-semibold">{formatCurrency(totals.total)}</p>
           </div>
           <button
             type="button"

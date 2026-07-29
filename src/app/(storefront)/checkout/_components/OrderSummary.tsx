@@ -3,6 +3,7 @@
 import React from 'react';
 
 import type { Totals } from '@/entities/checkout/schemas';
+import { formatCurrency } from '@/lib/api/utils';
 
 export interface OrderSummaryProps {
   totals: Pick<Totals, 'subtotal' | 'discount' | 'tax' | 'shipping' | 'total'>;
@@ -40,10 +41,6 @@ export function OrderSummary({ totals }: OrderSummaryProps) {
       </div>
     </div>
   );
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
 }
 
 // Derives the effective tax rate from the amounts the server sent, so the label

@@ -36,6 +36,7 @@ import { saveOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { PromoField } from '@/entities/promo/ui/PromoField';
 import { useCartQuery } from '@/lib/api/hooks';
 import type { PaymentMethod } from '@/lib/api/types';
+import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
 import { getCheckoutProceedRule, normalizeDisabledMessage } from '@/shared/lib/disabledRules';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
@@ -682,11 +683,7 @@ export default function CheckoutPage() {
         <div className="sticky bottom-0 z-40 -mx-4 flex items-center justify-between gap-4 border-t border-border/70 bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-[0_-12px_32px_rgba(15,23,42,0.12)] backdrop-blur">
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Total pembayaran</p>
-            <p className="text-lg font-semibold">
-              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-                computedTotals.total,
-              )}
-            </p>
+            <p className="text-lg font-semibold">{formatCurrency(computedTotals.total)}</p>
           </div>
           <button
             type="button"
@@ -724,6 +721,7 @@ function AddressSelectionList({
           <button
             key={address.id}
             type="button"
+            data-address-item=""
             role="radio"
             aria-checked={isActive}
             disabled={isBusy && isActive}

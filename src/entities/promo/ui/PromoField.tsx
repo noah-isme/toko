@@ -8,6 +8,7 @@ import { useApplyPromoMutation, useRemovePromoMutation, useValidatePromoQuery } 
 import { promoApplyInputSchema, type PromoApplyInput } from '../schemas';
 
 import { useCartQuery } from '@/lib/api/hooks';
+import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
@@ -176,8 +177,4 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
       />
     </section>
   );
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
 }

@@ -70,10 +70,8 @@ type SetDefaultContext = MutationBaseContext & {
   snapshot?: Address;
 };
 
-const isMockApi = process.env.NEXT_PUBLIC_API_URL === 'mock';
-
 function shouldUseGuestStorage(userIdOrGuestId?: string | null) {
-  return isMockApi || !userIdOrGuestId;
+  return !userIdOrGuestId;
 }
 
 function resolveOwnerId(userIdOrGuestId?: string | null) {

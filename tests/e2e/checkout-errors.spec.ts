@@ -180,47 +180,22 @@ test.describe('Checkout error handling', () => {
 
     test('out of stock item shows warning during checkout', async ({ page }) => {
       await seedCartFromHome(page);
+      await navigateToCheckout(page);
+      await selectAddress(page);
+      await selectShipping(page);
 
-      // Mock cart with out of stock item
-      await page.route(CART_ROUTE, async (route) => {
-        if (route.request().method() === 'GET') {
-          await route.fulfill({
-            status: 200,
-            body: JSON.stringify({
-              data: {
-                items: [
-                  {
-                    id: 'item-1',
-                    productId: 'product-1',
-                    name: 'Test Product',
-                    quantity: 2,
-                    availableStock: 0, // Out of stock
-                    price: 100000,
-                  },
-                ],
-                totals: { subtotal: 200000, total: 200000 },
-              },
-            }),
-            headers: { 'content-type': 'application/json' },
-          });
-        } else {
-          await route.continue();
-        }
+      await page.route(DRAFT_ROUTE, async (route) => {
+        await route.fulfill({
+          status: 409,
+          body: JSON.stringify({
+            error: { code: 'OUT_OF_STOCK', message: 'Product is out of stock' },
+          }),
+          headers: { 'content-type': 'application/json' },
+        });
       });
 
-      await navigateToCheckout(page);
-
-      // Check for out of stock indication
-      const stockWarning = page.getByText(/stok habis|out of stock|tidak tersedia/i);
-      const hasWarning = await stockWarning.isVisible().catch(() => false);
-
-      // Proceed button may be disabled
-      const proceedButton = page.getByRole('button', { name: /Bayar sekarang/i });
-      const isButtonPresent = await proceedButton.isVisible().catch(() => false);
-      const isButtonDisabled = isButtonPresent ? await proceedButton.isDisabled() : false;
-
-      // Either shows warning or adjusts UI
-      expect(hasWarning || !isButtonPresent || isButtonDisabled).toBe(true);
+      await page.getByRole('button', { name: /Bayar sekarang/i }).click();
+      await expect(page.getByText(/stok habis|out of stock|tidak tersedia/i).first()).toBeVisible();
     });
   });
 
@@ -315,7 +290,7 @@ test.describe('Checkout error handling', () => {
       await page.waitForTimeout(500);
 
       // Navigate back to cart
-      const cartLink = page.getByRole('link', { name: /cart|keranjang/i });
+      const cartLink = page.locator('a[href="/cart"]').first();
       if (await cartLink.isVisible()) {
         await cartLink.click();
         await expect(page).toHaveURL(/\/cart/);

@@ -21,7 +21,7 @@ test.describe('Checkout address flow', () => {
       await waitForAddressAnnouncement(page);
 
       // Verify selection is reflected
-      const selectedRadio = page.getByRole('radio').nth(1);
+      const selectedRadio = page.locator('[data-address-item][role="radio"]').nth(1);
       await expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
     });
 
@@ -31,11 +31,11 @@ test.describe('Checkout address flow', () => {
 
       // Select first address
       await selectAddress(page, 0);
-      const firstRadio = page.getByRole('radio').first();
+      const firstRadio = page.locator('[data-address-item][role="radio"]').first();
       await expect(firstRadio).toHaveAttribute('aria-checked', 'true');
 
       // Check if there are multiple addresses
-      const radios = page.getByRole('radio');
+      const radios = page.locator('[data-address-item][role="radio"]');
       const count = await radios.count();
 
       if (count > 1) {
@@ -184,7 +184,7 @@ test.describe('Checkout address flow', () => {
       await navigateToCheckout(page);
 
       // Check that radios have accessible labels
-      const radios = page.getByRole('radio');
+      const radios = page.locator('[data-address-item][role="radio"]');
       const count = await radios.count();
 
       for (let i = 0; i < Math.min(count, 3); i++) {
@@ -211,7 +211,7 @@ test.describe('Checkout address flow', () => {
       const initialOptions = await page.locator('input[name="shipping-option"]').count();
 
       // Check if there are multiple addresses to switch
-      const radios = page.getByRole('radio');
+      const radios = page.locator('[data-address-item][role="radio"]');
       const addressCount = await radios.count();
 
       if (addressCount > 1) {

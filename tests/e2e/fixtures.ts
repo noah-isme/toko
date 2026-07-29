@@ -52,7 +52,8 @@ export async function openCheckout(page: Page) {
  * @returns The name of the selected address
  */
 export async function selectAddress(page: Page, index = 0): Promise<string> {
-  const radios = page.getByRole('radio');
+  const radios = page.locator('[data-address-item][role="radio"]');
+  await expect(radios.first()).toBeVisible();
   const count = await radios.count();
   const target = count > index ? radios.nth(index) : radios.first();
 
@@ -68,11 +69,11 @@ export async function selectAddress(page: Page, index = 0): Promise<string> {
  * Wait for address selection announcement (accessibility)
  */
 export async function waitForAddressAnnouncement(page: Page, partialName?: string) {
-  const announcement = page.locator('p.sr-only').filter({ hasText: /Alamat/ });
-  await expect(announcement.first()).toContainText(/dipilih/i);
+  const announcement = page.locator('p[aria-live="polite"]');
+  await expect(announcement).toContainText(/Alamat .* dipilih/i);
 
   if (partialName) {
-    await expect(announcement.first()).toContainText(new RegExp(partialName.slice(0, 3), 'i'));
+    await expect(announcement).toContainText(new RegExp(partialName.slice(0, 3), 'i'));
   }
 }
 

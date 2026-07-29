@@ -72,16 +72,17 @@ export default defineConfig({
       },
     },
   ],
-  webServer: process.env.CI
-    ? {
-        command: 'pnpm dev',
-        url: BASE_URL,
-        timeout: 180_000,
-        reuseExistingServer: !process.env.CI,
-        env: {
-          NEXT_PUBLIC_API_MOCKING: API_MOCKING,
-          NEXT_PUBLIC_API_URL: API_URL,
-        },
-      }
-    : undefined,
+  // Always own the app under test. Without this, a local `pnpm e2e` assumed a
+  // manually started server and every spec failed with ERR_CONNECTION_REFUSED.
+  // Outside CI an already-running server on the port is reused.
+  webServer: {
+    command: 'pnpm dev',
+    url: BASE_URL,
+    timeout: 180_000,
+    reuseExistingServer: !process.env.CI,
+    env: {
+      NEXT_PUBLIC_API_MOCKING: API_MOCKING,
+      NEXT_PUBLIC_API_URL: API_URL,
+    },
+  },
 });
