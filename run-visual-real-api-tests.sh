@@ -55,7 +55,7 @@ echo "Visual E2E Tests with Real Toko API"
 echo "========================================"
 
 # Check if toko-api is running
-if curl -s http://localhost:8080/health/live > /dev/null 2>&1; then
+if curl --fail --silent http://localhost:8080/health/live >/dev/null 2>&1; then
     echo "✓ toko-api is already running at http://localhost:8080"
     echo "  NOTE: ensure it was started with raised RATE_LIMIT_* values,"
     echo "        otherwise later tests will fail on 429s."
