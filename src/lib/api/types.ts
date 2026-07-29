@@ -137,45 +137,45 @@ export interface SessionInfo {
 }
 
 // ============================================================================
-// Address Types (Raw API Format - snake_case)
+// Address Types (Raw API Format)
 // ============================================================================
 
 /**
- * Raw address response from API (snake_case format)
+ * Raw address response from API
  * Use Address from @/entities/address/types for app usage
  */
 export interface ApiAddressResponse {
   id: string;
-  receiver_name: string;
+  receiverName: string;
   phone: string;
-  address_line1: string;
-  address_line2?: string;
+  addressLine1: string;
+  addressLine2?: string;
   city: string;
   province: string;
-  postal_code: string;
+  postalCode: string;
   country: string;
-  is_default: boolean;
-  created_at: string;
-  updated_at: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
- * Address creation request (snake_case for API)
+ * Address creation request
  */
 export interface ApiCreateAddressRequest {
-  receiver_name: string;
+  receiverName: string;
   phone: string;
-  address_line1: string;
-  address_line2?: string;
+  addressLine1: string;
+  addressLine2?: string;
   city: string;
   province: string;
-  postal_code: string;
+  postalCode: string;
   country: string;
-  is_default?: boolean;
+  isDefault?: boolean;
 }
 
 /**
- * Address update request (snake_case for API)
+ * Address update request
  */
 export interface ApiUpdateAddressRequest extends Partial<ApiCreateAddressRequest> {}
 

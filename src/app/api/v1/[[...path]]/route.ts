@@ -47,54 +47,53 @@ const defaultCart = {
     {
       id: 'cart-item-1',
       productId: products[0].id,
-      name: products[0].title,
-      quantity: 1,
-      price: { amount: products[0].price, currency: 'IDR' },
-      image: products[0].imageUrl,
+      title: products[0].title,
+      qty: 1,
+      unitPrice: products[0].price,
+      imageUrl: products[0].imageUrl,
       maxQuantity: 20,
     },
     {
       id: 'cart-item-2',
       productId: products[1].id,
-      name: products[1].title,
-      quantity: 1,
-      price: { amount: products[1].price, currency: 'IDR' },
-      image: products[1].imageUrl,
+      title: products[1].title,
+      qty: 1,
+      unitPrice: products[1].price,
+      imageUrl: products[1].imageUrl,
       maxQuantity: 20,
     },
   ],
-  subtotal: { amount: products[0].price + products[1].price, currency: 'IDR' },
   itemCount: 2,
 };
 
 const addresses = [
   {
     id: 'address-1',
-    receiver_name: 'John Jakarta',
+    receiverName: 'John Jakarta',
     phone: '08123456789',
-    address_line1: 'Jl. Sudirman No. 12',
-    address_line2: 'Lt. 4',
+    addressLine1: 'Jl. Sudirman No. 12',
+    addressLine2: 'Lt. 4',
     city: 'Jakarta',
     province: 'DKI Jakarta',
-    postal_code: '10110',
+    postalCode: '10110',
     country: 'Indonesia',
-    is_default: true,
-    created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
+    isDefault: true,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
   },
   {
     id: 'address-2',
-    receiver_name: 'Jane Bandung',
+    receiverName: 'Jane Bandung',
     phone: '08765432109',
-    address_line1: 'Jl. Dago No. 45',
-    address_line2: '',
+    addressLine1: 'Jl. Dago No. 45',
+    addressLine2: '',
     city: 'Bandung',
     province: 'Jawa Barat',
-    postal_code: '40115',
+    postalCode: '40115',
     country: 'Indonesia',
-    is_default: false,
-    created_at: '2026-01-01T00:00:00Z',
-    updated_at: '2026-01-01T00:00:00Z',
+    isDefault: false,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
   },
 ];
 
@@ -115,19 +114,60 @@ const shippingRates = [
   },
 ];
 
-let mockPaymentPaid = false;
+// Payment progress is per browser session, not per server process. A single
+// process-wide flag made parallel Playwright workers fight over one value: one
+// spec's checkout POST reset the flag while another polled for PAID.
+const MOCK_SESSION_COOKIE = 'mockSessionId';
+const paidOrdersBySession = new Map<string, Set<string>>();
 
-function handleRoute(path: string, method: string, body: any, searchParams?: URLSearchParams) {
+function paidOrders(sessionId: string) {
+  let orders = paidOrdersBySession.get(sessionId);
+  if (!orders) {
+    orders = new Set<string>();
+    paidOrdersBySession.set(sessionId, orders);
+  }
+  return orders;
+}
+
+function handleRoute(
+  path: string,
+  method: string,
+  body: any,
+  sessionId: string,
+  searchParams?: URLSearchParams,
+) {
   if (path.startsWith('payments/') && path.endsWith('/status') && method === 'GET') {
+    const orderId = decodeURIComponent(path.slice('payments/'.length, -'/status'.length));
     return {
       data: {
-        status: mockPaymentPaid ? 'PAID' : 'PENDING',
+        status: paidOrders(sessionId).has(orderId) ? 'PAID' : 'PENDING',
       },
     };
   }
 
   if (path === 'products' && method === 'GET') {
     return { data: products, pagination: { page: 1, perPage: 20, totalItems: products.length } };
+  }
+
+  if (path.startsWith('products/') && path.endsWith('/reviews/stats') && method === 'GET') {
+    return {
+      average_rating: 0,
+      total_reviews: 0,
+      count_1_star: 0,
+      count_2_star: 0,
+      count_3_star: 0,
+      count_4_star: 0,
+      count_5_star: 0,
+    };
+  }
+
+  if (path.startsWith('products/') && path.endsWith('/reviews') && method === 'GET') {
+    return [];
+  }
+
+  if (path.startsWith('products/') && path.endsWith('/related') && method === 'GET') {
+    const slug = path.split('/')[1];
+    return { data: products.filter((product) => product.slug !== slug).slice(0, 4) };
   }
 
   if (path.startsWith('products/') && method === 'GET') {
@@ -144,17 +184,17 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
   if (path === 'users/me/addresses' && method === 'POST') {
     const newAddress = {
       id: `address-${Date.now()}`,
-      receiver_name: body?.receiver_name || 'New Receiver',
+      receiverName: body?.receiverName || 'New Receiver',
       phone: body?.phone || '08123456789',
-      address_line1: body?.address_line1 || 'Jl. New Address',
-      address_line2: body?.address_line2 || '',
+      addressLine1: body?.addressLine1 || 'Jl. New Address',
+      addressLine2: body?.addressLine2 || '',
       city: body?.city || 'Jakarta',
       province: body?.province || 'DKI Jakarta',
-      postal_code: body?.postal_code || '12345',
+      postalCode: body?.postalCode || '12345',
       country: body?.country || 'Indonesia',
-      is_default: body?.is_default || false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      isDefault: body?.isDefault || false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     return { data: newAddress };
   }
@@ -164,17 +204,17 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
     return {
       data: {
         id,
-        receiver_name: body?.receiver_name || 'Updated Receiver',
+        receiverName: body?.receiverName || 'Updated Receiver',
         phone: body?.phone || '08123456789',
-        address_line1: body?.address_line1 || 'Jl. Updated',
-        address_line2: body?.address_line2 || '',
+        addressLine1: body?.addressLine1 || 'Jl. Updated',
+        addressLine2: body?.addressLine2 || '',
         city: body?.city || 'Jakarta',
         province: body?.province || 'DKI Jakarta',
-        postal_code: body?.postal_code || '12345',
+        postalCode: body?.postalCode || '12345',
         country: body?.country || 'Indonesia',
-        is_default: body?.is_default || false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        isDefault: body?.isDefault || false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
     };
   }
@@ -184,11 +224,8 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
   }
 
   if ((path === 'carts' || path === 'cart' || path.startsWith('carts/')) && method === 'GET') {
-    const totalAmount = defaultCart.items.reduce(
-      (sum, item) => sum + item.price.amount * item.quantity,
-      0,
-    );
-    const totalQty = defaultCart.items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalAmount = defaultCart.items.reduce((sum, item) => sum + item.unitPrice * item.qty, 0);
+    const totalQty = defaultCart.items.reduce((sum, item) => sum + item.qty, 0);
     return {
       data: {
         id: defaultCart.id,
@@ -250,13 +287,14 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
   }
 
   if (path === 'checkout' && method === 'POST') {
-    mockPaymentPaid = false; // Reset payment status when creating a new order/checkout
+    // A fresh order starts unpaid again.
+    paidOrders(sessionId).delete('order-success-id');
     return {
       data: {
         orderId: 'order-success-id',
         orderNumber: 'ORD-SUCCESS-NUM',
         status: 'pending_payment',
-        total: defaultCart.subtotal.amount,
+        total: defaultCart.items.reduce((sum, item) => sum + item.unitPrice * item.qty, 0),
         currency: 'IDR',
         paymentMethod: body?.paymentMethod || 'bank_transfer',
       },
@@ -273,7 +311,8 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
   }
 
   if (path === 'payments/intent' && method === 'POST') {
-    mockPaymentPaid = true; // Set to PAID when payment intent (Bayar Sekarang) is initiated
+    // "Bayar Sekarang" settles immediately in the mock.
+    paidOrders(sessionId).add(String(body?.orderId ?? 'order-success-id'));
     return {
       data: {
         provider: body?.provider || 'midtrans',
@@ -460,12 +499,10 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
     if (method === 'PATCH' && path.includes('/items/')) {
       const itemId = path.split('/items/')[1];
       const qty: number = body?.qty ?? body?.quantity ?? 1;
-      items = defaultCart.items.map((item) =>
-        item.id === itemId ? { ...item, quantity: qty } : item,
-      );
+      items = defaultCart.items.map((item) => (item.id === itemId ? { ...item, qty } : item));
     }
-    const totalAmount = items.reduce((sum, item) => sum + item.price.amount * item.quantity, 0);
-    const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalAmount = items.reduce((sum, item) => sum + item.unitPrice * item.qty, 0);
+    const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
     return {
       data: {
         id: defaultCart.id,
@@ -599,7 +636,15 @@ function handleRoute(path: string, method: string, body: any, searchParams?: URL
   return null;
 }
 
-function jsonResponse(result: any) {
+function jsonResponse(result: any, sessionId: string, isNewSession: boolean) {
+  const response = buildResponse(result);
+  if (isNewSession) {
+    response.cookies.set(MOCK_SESSION_COOKIE, sessionId, { path: '/', httpOnly: false });
+  }
+  return response;
+}
+
+function buildResponse(result: any) {
   if (!result) {
     return NextResponse.json({ message: 'Not Found' }, { status: 404 });
   }
@@ -610,44 +655,53 @@ function jsonResponse(result: any) {
   return NextResponse.json(result);
 }
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> }) {
+function resolveSession(req: NextRequest) {
+  const existing = req.cookies.get(MOCK_SESSION_COOKIE)?.value;
+  if (existing) {
+    return { sessionId: existing, isNewSession: false };
+  }
+  return { sessionId: crypto.randomUUID(), isNewSession: true };
+}
+
+async function readJsonBody(req: NextRequest) {
+  try {
+    return await req.json();
+  } catch {
+    return null;
+  }
+}
+
+async function handle(
+  req: NextRequest,
+  params: Promise<{ path?: string[] }>,
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+) {
   const paramsData = await params;
   const path = paramsData.path?.join('/') || '';
-  const result = handleRoute(path, 'GET', null, req.nextUrl.searchParams);
-  return jsonResponse(result);
+  const { sessionId, isNewSession } = resolveSession(req);
+  const body = method === 'POST' || method === 'PATCH' ? await readJsonBody(req) : null;
+  const result = handleRoute(path, method, body, sessionId, req.nextUrl.searchParams);
+  return jsonResponse(result, sessionId, isNewSession);
+}
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> }) {
+  return handle(req, params, 'GET');
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> }) {
-  const paramsData = await params;
-  const path = paramsData.path?.join('/') || '';
-  let body = null;
-  try {
-    body = await req.json();
-  } catch {}
-  const result = handleRoute(path, 'POST', body, req.nextUrl.searchParams);
-  return jsonResponse(result);
+  return handle(req, params, 'POST');
 }
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ path?: string[] }> },
 ) {
-  const paramsData = await params;
-  const path = paramsData.path?.join('/') || '';
-  let body = null;
-  try {
-    body = await req.json();
-  } catch {}
-  const result = handleRoute(path, 'PATCH', body, req.nextUrl.searchParams);
-  return jsonResponse(result);
+  return handle(req, params, 'PATCH');
 }
 
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ path?: string[] }> },
 ) {
-  const paramsData = await params;
-  const path = paramsData.path?.join('/') || '';
-  const result = handleRoute(path, 'DELETE', null, req.nextUrl.searchParams);
-  return jsonResponse(result);
+  return handle(req, params, 'DELETE');
 }

@@ -66,14 +66,14 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       headers: { Authorization: `Bearer ${token}` },
       data: {
         label: 'Rumah',
-        receiver_name: 'Checkout Tester',
+        receiverName: 'Checkout Tester',
         phone: '08123456789',
-        address_line1: 'Jl. Merdeka 1',
+        addressLine1: 'Jl. Merdeka 1',
         city: 'Jakarta',
         province: 'DKI Jakarta',
-        postal_code: '10110',
+        postalCode: '10110',
         country: 'ID',
-        is_default: true,
+        isDefault: true,
       },
     });
     expect(response.ok()).toBeTruthy();

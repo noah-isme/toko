@@ -74,11 +74,11 @@ type _CartItemMatches = Expect<IsExactly<Required<Wire['CartItem']>, Required<Ca
 // ---------------------------------------------------------------------------
 // Addresses
 //
-// These payloads are snake_case on both sides, unlike the rest of the API. The
-// assertion pins that down: switching one side to camelCase breaks the build.
+// Address payloads use camelCase on both sides. The API schema does not expose
+// the client-side timestamps, so omit those before checking assignability.
 // ---------------------------------------------------------------------------
 type _AddressSatisfiesClient = Expect<
-  IsAssignable<Wire['Address'], Omit<ApiAddressResponse, 'created_at' | 'updated_at'>>
+  IsAssignable<Wire['Address'], Omit<ApiAddressResponse, 'createdAt' | 'updatedAt'>>
 >;
 
 // A named export keeps this a module rather than a global script, and gives the

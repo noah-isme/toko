@@ -3830,9 +3830,9 @@ export interface components {
             rating: number;
             comment?: string | null;
             /** Format: date-time */
-            created_at: string;
+            createdAt: string;
             /** Format: date-time */
-            updated_at: string;
+            updatedAt: string;
             /** Format: uuid */
             tenant_id: string;
         };
@@ -3858,7 +3858,7 @@ export interface components {
             price: number;
             image_url?: string | null;
             /** Format: date-time */
-            created_at: string;
+            createdAt: string;
         };
         FavoriteToggleRequest: {
             /** Format: uuid */
@@ -4076,32 +4076,32 @@ export interface components {
         UpdateCartItemRequest: {
             qty: number;
         };
-        /** @description Address payloads use snake_case on both request and response, unlike the rest of the API. The storefront maps explicitly. */
+        /** @description Address payloads use camelCase on both request and response. */
         Address: {
             /** Format: uuid */
             id: string;
             label?: string;
-            receiver_name: string;
+            receiverName: string;
             phone: string;
             country: string;
             province: string;
             city: string;
-            postal_code: string;
-            address_line1: string;
-            address_line2?: string;
-            is_default: boolean;
+            postalCode: string;
+            addressLine1: string;
+            addressLine2?: string;
+            isDefault: boolean;
         };
         AddressRequest: {
             label?: string;
-            receiver_name: string;
+            receiverName: string;
             phone: string;
             country: string;
             province: string;
             city: string;
-            postal_code: string;
-            address_line1: string;
-            address_line2?: string;
-            is_default?: boolean;
+            postalCode: string;
+            addressLine1: string;
+            addressLine2?: string;
+            isDefault?: boolean;
         };
         ApiError: {
             error: {
@@ -4261,9 +4261,9 @@ export interface components {
             priority: number;
             percent_bps?: number | null;
             /** Format: date-time */
-            created_at: string;
+            createdAt: string;
             /** Format: date-time */
-            updated_at: string;
+            updatedAt: string;
             /** Format: uuid */
             tenant_id: string;
         };
@@ -4334,9 +4334,9 @@ export interface components {
             active: boolean;
             topics: string[];
             /** Format: date-time */
-            created_at: string;
+            createdAt: string;
             /** Format: date-time */
-            updated_at: string;
+            updatedAt: string;
             /** Format: uuid */
             tenant_id: string;
         };
@@ -4357,9 +4357,9 @@ export interface components {
             response_status?: number | null;
             response_body?: string | null;
             /** Format: date-time */
-            created_at: string;
+            createdAt: string;
             /** Format: date-time */
-            updated_at: string;
+            updatedAt: string;
             /** Format: uuid */
             tenant_id: string;
         };
@@ -4383,7 +4383,7 @@ export interface components {
                 [key: string]: unknown;
             };
             /** Format: date-time */
-            created_at: string;
+            createdAt: string;
         };
         AdminQueueDLQItem: {
             /** Format: uuid */

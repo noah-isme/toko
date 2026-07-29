@@ -49,9 +49,14 @@ function setDefaultAddressInMemory(id: string) {
 }
 
 export const addressHandlers = [
-  http.get(apiPath('/addresses'), () => HttpResponse.json(addressListSchema.parse(addresses))),
+  http.get(apiPath('/users/me/addresses'), () =>
+    HttpResponse.json({
+      data: addressListSchema.parse(addresses),
+      pagination: { page: 1, perPage: 100, totalItems: addresses.length },
+    }),
+  ),
 
-  http.post(apiPath('/addresses'), async ({ request }) => {
+  http.post(apiPath('/users/me/addresses'), async ({ request }) => {
     const payload = await request.json().catch(() => null);
     const parsed = addressInputSchema.safeParse(payload);
 
@@ -74,10 +79,10 @@ export const addressHandlers = [
 
     addresses = [newAddress, ...addresses];
 
-    return HttpResponse.json(addressSchema.parse(newAddress), { status: 201 });
+    return HttpResponse.json({ data: addressSchema.parse(newAddress) }, { status: 201 });
   }),
 
-  http.patch(apiPath('/addresses/:id'), async ({ params, request }) => {
+  http.patch(apiPath('/users/me/addresses/:id'), async ({ params, request }) => {
     const payload = await request.json().catch(() => null);
     const parsed = addressUpdateInputSchema.safeParse(payload);
 
@@ -103,10 +108,10 @@ export const addressHandlers = [
       }));
     }
 
-    return HttpResponse.json(addressSchema.parse(addresses[targetIndex]));
+    return HttpResponse.json({ data: addressSchema.parse(addresses[targetIndex]) });
   }),
 
-  http.delete(apiPath('/addresses/:id'), ({ params }) => {
+  http.delete(apiPath('/users/me/addresses/:id'), ({ params }) => {
     const id = params.id as string;
     const target = addresses.find((address) => address.id === id);
 
@@ -123,7 +128,7 @@ export const addressHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.post(apiPath('/addresses/:id/default'), ({ params }) => {
+  http.post(apiPath('/users/me/addresses/:id/default'), ({ params }) => {
     const id = params.id as string;
     const found = setDefaultAddressInMemory(id);
 
@@ -132,6 +137,6 @@ export const addressHandlers = [
     }
 
     const current = addresses.find((address) => address.id === id)!;
-    return HttpResponse.json(addressSchema.parse(current));
+    return HttpResponse.json({ data: addressSchema.parse(current) });
   }),
 ];
