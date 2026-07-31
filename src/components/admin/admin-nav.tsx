@@ -10,6 +10,7 @@
 import {
   BarChart3,
   Boxes,
+  ClipboardList,
   LayoutDashboard,
   Package,
   Settings,
@@ -41,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin/vouchers', label: 'Vouchers', icon: Ticket },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/webhooks', label: 'Webhooks', icon: Webhook },
+  { href: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
