@@ -1,1 +1,0 @@
-create tests e2e for all feature
