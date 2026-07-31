@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Banknote, CreditCard, Landmark, Smartphone, Wallet, type LucideIcon } from 'lucide-react';
 
 import { PAYMENT_METHOD_LABELS } from '@/lib/api/constants';
 import type { PaymentMethod } from '@/lib/api/types';
@@ -17,43 +17,43 @@ const PAYMENT_METHODS: Array<{
   value: PaymentMethod;
   label: string;
   description: string;
-  icon: string;
+  icon: LucideIcon;
 }> = [
   {
     value: 'bank_transfer',
     label: PAYMENT_METHOD_LABELS.bank_transfer,
     description: 'Transfer manual ke rekening bank',
-    icon: '🏦',
+    icon: Landmark,
   },
   {
     value: 'virtual_account',
     label: PAYMENT_METHOD_LABELS.virtual_account,
     description: 'Bayar melalui Virtual Account',
-    icon: '💳',
+    icon: Wallet,
   },
   {
     value: 'credit_card',
     label: PAYMENT_METHOD_LABELS.credit_card,
     description: 'Pembayaran dengan kartu kredit',
-    icon: '💳',
+    icon: CreditCard,
   },
   {
     value: 'ewallet_gopay',
     label: PAYMENT_METHOD_LABELS.ewallet_gopay,
     description: 'Bayar dengan GoPay',
-    icon: '📱',
+    icon: Smartphone,
   },
   {
     value: 'ewallet_ovo',
     label: PAYMENT_METHOD_LABELS.ewallet_ovo,
     description: 'Bayar dengan OVO',
-    icon: '📱',
+    icon: Smartphone,
   },
   {
     value: 'ewallet_dana',
     label: PAYMENT_METHOD_LABELS.ewallet_dana,
     description: 'Bayar dengan DANA',
-    icon: '📱',
+    icon: Smartphone,
   },
 ];
 
@@ -84,9 +84,7 @@ export function PaymentMethodSelector({
             )}
           >
             <div className="flex items-start gap-3">
-              <span className="text-2xl" aria-hidden="true">
-                {method.icon}
-              </span>
+              <method.icon className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               <div className="flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold text-foreground">{method.label}</p>

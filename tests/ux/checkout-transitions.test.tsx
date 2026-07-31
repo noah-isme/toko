@@ -82,7 +82,7 @@ describe('checkout transitions', () => {
       </QueryClientProvider>,
     );
 
-    const cta = getByRole('link', { name: /proceed to checkout/i });
+    const cta = getByRole('link', { name: /lanjut ke pembayaran/i });
     fireEvent.focus(cta);
 
     expect(routerMock.prefetch).toHaveBeenCalledWith('/checkout');

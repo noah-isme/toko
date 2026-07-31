@@ -17,6 +17,8 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /** True when the signed-in user carries the `admin` role. */
+  isAdmin: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
@@ -160,6 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
+        isAdmin: hasRole(user, 'admin'),
         login,
         register,
         logout,
@@ -170,6 +173,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
+}
+
+/**
+ * Case-insensitive role check. The backend sends lowercase role slugs, but the
+ * comparison is normalised so a differently cased payload still matches.
+ */
+export function hasRole(user: User | null, role: string): boolean {
+  if (!user?.roles) return false;
+  const target = role.toLowerCase();
+  return user.roles.some((entry) => entry.toLowerCase() === target);
 }
 
 function shouldEvictAccessToken(error: unknown): boolean {

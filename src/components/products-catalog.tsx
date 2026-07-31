@@ -1,6 +1,6 @@
 'use client';
 
-import { FolderOpen, Package, SearchX } from 'lucide-react';
+import { FolderOpen, Package, SearchX, X } from 'lucide-react';
 import type { Route } from 'next';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -62,11 +62,26 @@ export function ProductsCatalog() {
   const setSearchTerm = useSearchStore((state) => state.setTerm);
   const searchTermRaw = searchTermValue.trim();
   const searchTerm = searchTermRaw.toLowerCase();
-  const { data: rawProductsData, isLoading, isFetching, error, refetch } = useProducts();
+  const {
+    data: rawProductsData,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useProducts({ limit: 100 });
   const data = rawProductsData?.data;
   const showLoadingState = isLoading || (!data && isFetching);
 
   const normalizeFacet = useCallback((value: string) => value.trim().toLowerCase(), []);
+  const toSlug = useCallback(
+    (value: string) =>
+      value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, ''),
+    [],
+  );
   const normalizedCategorySelections = useMemo(
     () => selectedCategories.map(normalizeFacet),
     [normalizeFacet, selectedCategories],
@@ -89,16 +104,34 @@ export function ProductsCatalog() {
         : true;
       const categoryMatchValue = normalizeFacet(product.categoryName ?? '');
       const categoryIdValue = normalizeFacet(product.categoryId ?? '');
+      const categorySlugValue = toSlug(product.categoryName ?? (product as any).category ?? '');
       const matchesCategory =
         normalizedCategorySelections.length === 0 ||
-        normalizedCategorySelections.includes(categoryIdValue) ||
-        normalizedCategorySelections.includes(categoryMatchValue);
+        normalizedCategorySelections.some((sel) => {
+          const normSel = normalizeFacet(sel);
+          const slugSel = toSlug(sel);
+          return (
+            normSel === categoryMatchValue ||
+            normSel === categoryIdValue ||
+            slugSel === categorySlugValue ||
+            slugSel === toSlug(product.categoryId ?? '')
+          );
+        });
       const brandMatchValue = normalizeFacet(product.brandName ?? '');
       const brandIdValue = normalizeFacet(product.brandId ?? '');
+      const brandSlugValue = toSlug(product.brandName ?? (product as any).brand ?? '');
       const matchesBrand =
         normalizedBrandSelections.length === 0 ||
-        normalizedBrandSelections.includes(brandIdValue) ||
-        normalizedBrandSelections.includes(brandMatchValue);
+        normalizedBrandSelections.some((sel) => {
+          const normSel = normalizeFacet(sel);
+          const slugSel = toSlug(sel);
+          return (
+            normSel === brandMatchValue ||
+            normSel === brandIdValue ||
+            slugSel === brandSlugValue ||
+            slugSel === toSlug(product.brandId ?? '')
+          );
+        });
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
       const matchesRating = !ratingFilter || (product.rating ?? 0) >= ratingFilter;
       const matchesStock = !inStockOnly || product.inStock || product.stock > 0;
@@ -214,8 +247,11 @@ export function ProductsCatalog() {
     const parseBoolean = (value: string | null) => value === '1' || value === 'true';
 
     const query = params.get('q') ?? '';
-    const categoryParams = parseList(params.get('categories'));
-    const brandParams = parseList(params.get('brands'));
+    const categoryParams = [
+      ...parseList(params.get('categories')),
+      ...parseList(params.get('category')),
+    ];
+    const brandParams = [...parseList(params.get('brands')), ...parseList(params.get('brand'))];
     const ratingParam = parseNumber(params.get('rating'));
     const minPriceParam = parseNumber(params.get('minPrice'));
     const maxPriceParam = parseNumber(params.get('maxPrice'));
@@ -234,8 +270,10 @@ export function ProductsCatalog() {
 
     const nextCategories = categoryParams.length
       ? categoryParams.map((value) => {
+          const normVal = normalizeFacet(value);
+          const slugVal = toSlug(value);
           const match = categories.find(
-            (option) => normalizeFacet(option) === normalizeFacet(value),
+            (option) => normalizeFacet(option) === normVal || toSlug(option) === slugVal,
           );
           return match ?? value;
         })
@@ -247,7 +285,11 @@ export function ProductsCatalog() {
 
     const nextBrands = brandParams.length
       ? brandParams.map((value) => {
-          const match = brands.find((option) => normalizeFacet(option) === normalizeFacet(value));
+          const normVal = normalizeFacet(value);
+          const slugVal = toSlug(value);
+          const match = brands.find(
+            (option) => normalizeFacet(option) === normVal || toSlug(option) === slugVal,
+          );
           return match ?? value;
         })
       : [];
@@ -537,12 +579,12 @@ export function ProductsCatalog() {
         onClearFilters={clearFilters}
       />
       <section className="flex-1 space-y-6">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex flex-col gap-4 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Featured products</h1>
-            <p className="text-sm text-muted-foreground">
-              {filteredAndSortedProducts.length} products available
-              {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
+            <h1 className="text-xl font-extrabold tracking-tight text-foreground">Semua Produk</h1>
+            <p className="text-xs text-muted-foreground">
+              {filteredAndSortedProducts.length} produk tersedia
+              {totalPages > 1 && ` — Halaman ${currentPage} dari ${totalPages}`}
             </p>
           </div>
           <ProductSort value={sortBy} onChange={handleSortChange} />
@@ -557,7 +599,7 @@ export function ProductsCatalog() {
                 onClick={chip.onRemove}
               >
                 <span>{chip.label}</span>
-                <span className="text-xs text-muted-foreground group-hover:text-primary">×</span>
+                <X className="h-3 w-3 text-muted-foreground group-hover:text-primary" />
               </button>
             ))}
             {hasActiveFilters ? (

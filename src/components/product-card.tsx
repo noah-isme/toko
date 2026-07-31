@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye } from 'lucide-react';
+import { Eye, ShoppingCart } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,7 +10,6 @@ import { Price } from '@/components/price';
 import { CompareToggle } from '@/components/product-compare-toggle';
 import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { Product } from '@/lib/api';
@@ -32,22 +31,27 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
-  // Use API Contract fields: imageUrl (primary), title, price, stock, inStock
   const image = product.imageUrl || (product.images && product.images[0]) || '';
   const isOutOfStock = !product.inStock || product.stock <= 0;
+  const hasDiscount =
+    (product.discountPercent && product.discountPercent > 0) ||
+    (product.originalPrice && product.originalPrice > product.price);
+  const discountPct =
+    product.discountPercent ??
+    (product.originalPrice && product.originalPrice > product.price
+      ? Math.round((1 - product.price / product.originalPrice) * 100)
+      : null);
 
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
   const [showQuickView, setShowQuickView] = useState(false);
 
   const handleAddToCart = async () => {
-    // Ensure cart exists before adding
     if (!cartId) {
       console.error('Failed to create cart: cartId not initialized on bootstrap');
       return;
     }
-
-    const payload = {
+    mutate({
       productId: product.id,
       quantity: 1,
       name: product.title,
@@ -55,71 +59,110 @@ export function ProductCard({ product, className }: ProductCardProps) {
       image: image,
       maxQuantity: product.stock,
       cartId,
-    };
-
-    mutate(payload);
+    });
   };
 
   return (
     <>
-      <Card
+      <div
         data-testid="product-card"
         className={cn(
-          'flex flex-col focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background',
+          'group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-150 hover:border-primary/50 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background',
           className,
         )}
       >
-        <CardHeader className="space-y-3">
-          <div className="group relative aspect-square w-full overflow-hidden rounded-md border bg-muted">
-            {image ? (
-              <Image
-                src={image}
-                alt={product.title}
-                fill
-                className="object-cover"
-                sizes="(min-width: 768px) 33vw, 100vw"
-                placeholder="blur"
-                blurDataURL={blurPlaceholder}
-              />
-            ) : null}
-            <div className="absolute right-2 top-2 flex flex-col gap-2">
-              <FavToggle productId={product.id} size="sm" />
-              <CompareToggle productId={product.id} size="sm" />
-            </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
-              onClick={() => setShowQuickView(true)}
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Quick View
-            </Button>
+        {/* Product Image */}
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+          {image ? (
+            <Image
+              src={image}
+              alt={product.title}
+              fill
+              className="object-cover transition-transform duration-200 group-hover:scale-105"
+              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
+              placeholder="blur"
+              blurDataURL={blurPlaceholder}
+            />
+          ) : null}
+
+          {/* Discount Badge */}
+          {hasDiscount && discountPct ? (
+            <span className="shadow-xs absolute left-2 top-2 rounded-md bg-rose-600 px-2 py-0.5 text-xs font-bold text-white">
+              -{discountPct}%
+            </span>
+          ) : null}
+
+          {/* Actions top-right */}
+          <div className="absolute right-2 top-2 flex flex-col gap-1.5">
+            <FavToggle productId={product.id} size="sm" />
+            <CompareToggle productId={product.id} size="sm" />
           </div>
-          <CardTitle className="line-clamp-2 text-base">{product.title}</CardTitle>
+
+          {/* Quick View on hover */}
+          <Button
+            variant="secondary"
+            size="sm"
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+            onClick={() => setShowQuickView(true)}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Lihat Cepat
+          </Button>
+        </div>
+
+        {/* Card Body */}
+        <div className="flex flex-1 flex-col gap-3 p-4">
+          {/* Rating */}
           <Rating value={product.rating ?? 0} reviewCount={product.reviewCount ?? 0} />
-        </CardHeader>
-        <CardContent className="flex-1 space-y-2 text-sm text-muted-foreground">
-          <p className="line-clamp-3">{product.description || 'No description available'}</p>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-3">
-          <Price amount={product.price} currency={product.currency || 'IDR'} className="text-lg" />
-          <div className="flex flex-col gap-2">
+
+          {/* Title */}
+          <Link href={`/products/${product.slug}`} className="flex-1">
+            <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors hover:text-primary">
+              {product.title}
+            </h3>
+          </Link>
+
+          {/* Price + CTA */}
+          <div className="flex items-center justify-between gap-2 border-t border-border/50 pt-3">
+            <div>
+              {product.originalPrice && product.originalPrice > product.price ? (
+                <div className="text-xs text-muted-foreground line-through">
+                  <Price
+                    amount={product.originalPrice}
+                    currency={product.currency || 'IDR'}
+                    locale="id-ID"
+                    className="text-xs font-normal text-muted-foreground line-through"
+                  />
+                </div>
+              ) : null}
+              <Price
+                amount={product.price}
+                currency={product.currency || 'IDR'}
+                locale="id-ID"
+                className="text-base font-extrabold tracking-tight text-foreground"
+              />
+            </div>
             <GuardedButton
-              variant="secondary"
+              size="sm"
               onClick={handleAddToCart}
               disabled={isOutOfStock}
               isLoading={isProductInFlight(product.id)}
-              loadingLabel="Menambahkan…"
+              loadingLabel="..."
+              className="shrink-0 gap-1.5 transition-transform duration-150 active:scale-[0.97]"
             >
-              {isOutOfStock ? 'Out of stock' : 'Add to cart'}
+              {isOutOfStock ? (
+                'Habis'
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4" />
+                  Keranjang
+                </>
+              )}
             </GuardedButton>
-            <Button asChild>
-              <Link href={`/products/${product.slug}`}>View details</Link>
-            </Button>
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
+
       {showQuickView ? (
         <ProductQuickView
           slug={product.slug}

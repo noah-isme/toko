@@ -7,6 +7,7 @@ export { cartApi } from './cart';
 export { ordersApi } from './orders';
 export { addressApi } from './address';
 export { notificationsApi } from './notifications';
+export { adminApi } from './admin';
 
 // Re-export all types
 export type * from '../types';

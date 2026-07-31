@@ -75,6 +75,12 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  /**
+   * Role slugs granted to the user, e.g. `['customer']` or `['customer', 'admin']`.
+   * The backend always sends this array; it is optional here so older cached
+   * payloads without it still typecheck.
+   */
+  roles?: string[];
   emailVerified?: boolean;
   phone?: string;
   createdAt: string;

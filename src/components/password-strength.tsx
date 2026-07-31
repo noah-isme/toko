@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, Circle } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -150,7 +151,11 @@ function RequirementItem({ met, text }: { met: boolean; text: string }) {
           met ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground',
         )}
       >
-        {met ? '✓' : '○'}
+        {met ? (
+          <Check className="h-2.5 w-2.5" aria-hidden="true" />
+        ) : (
+          <Circle className="h-2.5 w-2.5" aria-hidden="true" />
+        )}
       </div>
       <span className={cn(met ? 'text-foreground' : 'text-muted-foreground')}>{text}</span>
     </div>

@@ -99,7 +99,7 @@ function CheckoutSuccessContent() {
             <path d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold">Pembayaran Berhasil! 🎉</h1>
+        <h1 className="text-3xl font-bold">Pembayaran Berhasil!</h1>
         <p className="text-sm text-muted-foreground">
           Terima kasih! Pesanan Anda dengan nomor{' '}
           <span className="font-semibold text-foreground">{orderId}</span> telah berhasil dibuat.

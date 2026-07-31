@@ -10,22 +10,34 @@ const nextConfig = {
   typedRoutes: true,
   images: {
     remotePatterns: [
+      // ── Production / mock CDNs ──────────────────────────────────────────
       {
         protocol: 'https',
         hostname: 'loremflickr.com',
-        pathname: '/**'
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'cdn.example',
-        pathname: '/**'
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        pathname: '/**'
-      }
-    ]
+        pathname: '/**',
+      },
+      // ── Local development (real API running on localhost) ───────────────
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+        pathname: '/**',
+      },
+    ],
   }
 };
 

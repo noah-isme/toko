@@ -49,7 +49,14 @@ export function CartView() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold">Shopping cart</h1>
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+            Keranjang Belanja
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Tinjau produk sebelum melanjutkan ke pembayaran
+          </p>
+        </div>
         <DelayedLoader
           active={isMutatingCart}
           label="Menyimpan perubahan keranjang…"
@@ -75,7 +82,7 @@ export function CartView() {
             >
               <div className="flex items-start gap-4">
                 {item.image ? (
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border bg-muted">
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border bg-muted">
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -149,7 +156,7 @@ export function CartView() {
                       loadingLabel="Menyimpan…"
                       className="ml-2 min-h-[44px]"
                     >
-                      Simpan untuk nanti
+                      Simpan Nanti
                     </GuardedButton>
                     <GuardedButton
                       variant="ghost"
@@ -180,31 +187,70 @@ export function CartView() {
 
       <PromoField cartId={cartId || data.id} />
 
-      <div className="flex items-center justify-between rounded-lg border bg-card p-4">
-        <span className="text-sm text-muted-foreground">Subtotal</span>
-        <Price
-          amount={data.subtotal.amount}
-          currency={data.subtotal.currency}
-          className="text-lg"
-        />
+      {/* Order Summary Card */}
+      <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+        <h2 className="border-b border-border pb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+          Ringkasan Pesanan
+        </h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Subtotal ({data.itemCount} barang)</span>
+            <Price
+              amount={data.subtotal.amount}
+              currency={data.subtotal.currency}
+              className="font-bold text-foreground"
+            />
+          </div>
+          {(data as any).totals?.discount ? (
+            <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
+              <span>Diskon</span>
+              <span className="font-bold">
+                -
+                <Price
+                  amount={(data as any).totals.discount}
+                  currency={data.subtotal.currency}
+                  className="font-bold text-emerald-600 dark:text-emerald-400"
+                />
+              </span>
+            </div>
+          ) : null}
+          {(data as any).totals?.tax ? (
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Pajak</span>
+              <Price
+                amount={(data as any).totals.tax}
+                currency={data.subtotal.currency}
+                className="font-semibold text-foreground"
+              />
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between border-t border-border pt-2">
+            <span className="font-bold text-foreground">Total</span>
+            <Price
+              amount={data.subtotal.amount}
+              currency={data.subtotal.currency}
+              className="text-lg font-extrabold tracking-tight text-foreground"
+            />
+          </div>
+        </div>
+        <Button
+          asChild
+          size="lg"
+          className="min-h-[44px] w-full font-bold transition-all duration-150 active:scale-[0.99]"
+          onFocus={() => {
+            if (typeof router.prefetch === 'function') {
+              void router.prefetch('/checkout');
+            }
+          }}
+          onMouseEnter={() => {
+            if (typeof router.prefetch === 'function') {
+              void router.prefetch('/checkout');
+            }
+          }}
+        >
+          <Link href="/checkout">Lanjut ke Pembayaran →</Link>
+        </Button>
       </div>
-      <Button
-        asChild
-        size="lg"
-        className="min-h-[44px] px-6"
-        onFocus={() => {
-          if (typeof router.prefetch === 'function') {
-            void router.prefetch('/checkout');
-          }
-        }}
-        onMouseEnter={() => {
-          if (typeof router.prefetch === 'function') {
-            void router.prefetch('/checkout');
-          }
-        }}
-      >
-        <Link href="/checkout">Proceed to checkout</Link>
-      </Button>
     </div>
   );
 }

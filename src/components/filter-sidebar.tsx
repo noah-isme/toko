@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Filter } from 'lucide-react';
+import { ChevronDown, Filter, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { BrandFilter } from '@/components/brand-filter';
@@ -130,7 +130,11 @@ export function FilterSidebar({
                         checked={isActive}
                         onChange={() => onRatingChange?.(isActive ? null : value)}
                       />
-                      <span>{value}★ ke atas</span>
+                      <span className="flex items-center gap-1">
+                        {value}
+                        <Star className="inline h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                        ke atas
+                      </span>
                     </label>
                   );
                 })}

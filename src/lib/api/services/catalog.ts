@@ -2,6 +2,7 @@
  * Catalog API Service (Products, Categories, Brands)
  */
 import { apiClient } from '../apiClient';
+import { mapApiProductToProduct } from '../mappers/product';
 import type {
   ApiResponse,
   PaginatedResponse,
@@ -47,33 +48,41 @@ export const catalogApi = {
     if (filters?.inStock !== undefined) params.append('inStock', filters.inStock.toString());
     if (filters?.sort) params.append('sort', filters.sort);
     if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.limit) {
+      params.append('limit', filters.limit.toString());
+    } else {
+      params.append('limit', '100');
+    }
 
     const query = params.toString();
     const path = query ? `/products?${query}` : '/products';
 
-    return await apiClient<PaginatedResponse<Product>>(path, {
+    const response = await apiClient<PaginatedResponse<any>>(path, {
       method: 'GET',
     });
+    return {
+      ...response,
+      data: response.data.map(mapApiProductToProduct) as any,
+    };
   },
 
   /**
    * Get product detail by slug
    */
   async getProduct(slug: string): Promise<ProductDetail> {
-    const response = await apiClient<ApiResponse<ProductDetail>>(`/products/${slug}`, {
+    const response = await apiClient<ApiResponse<any>>(`/products/${slug}`, {
       method: 'GET',
     });
-    return response.data;
+    return mapApiProductToProduct(response.data) as any;
   },
 
   /**
    * Get related products
    */
   async getRelatedProducts(slug: string): Promise<Product[]> {
-    const response = await apiClient<ApiResponse<Product[]>>(`/products/${slug}/related`, {
+    const response = await apiClient<ApiResponse<any[]>>(`/products/${slug}/related`, {
       method: 'GET',
     });
-    return response.data;
+    return response.data.map(mapApiProductToProduct) as any;
   },
 };

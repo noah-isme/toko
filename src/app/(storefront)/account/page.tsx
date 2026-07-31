@@ -1,5 +1,6 @@
 'use client';
 
+import { Clock, Heart, LogOut, MapPin, Package, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -66,37 +67,37 @@ export default function AccountPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Button asChild size="lg" className="h-auto py-6">
           <Link href="/account/profile" className="flex flex-col items-center gap-2">
-            <span className="text-2xl">👤</span>
+            <UserCircle className="h-6 w-6" aria-hidden="true" />
             <span>Profile</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="secondary" className="h-auto py-6">
           <Link href="/account/orders" className="flex flex-col items-center gap-2">
-            <span className="text-2xl">📦</span>
+            <Package className="h-6 w-6" aria-hidden="true" />
             <span>View Orders</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="outline" className="h-auto py-6">
           <Link href="/account/addresses" className="flex flex-col items-center gap-2">
-            <span className="text-2xl">📍</span>
+            <MapPin className="h-6 w-6" aria-hidden="true" />
             <span>Manage Addresses</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="ghost" className="h-auto py-6">
           <Link href="/favorites" className="flex flex-col items-center gap-2">
-            <span className="text-2xl">❤️</span>
+            <Heart className="h-6 w-6" aria-hidden="true" />
             <span>Favorites</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="ghost" className="h-auto py-6">
           <Link href="/account/searches" className="flex flex-col items-center gap-2">
-            <span className="text-2xl">🕘</span>
+            <Clock className="h-6 w-6" aria-hidden="true" />
             <span>Riwayat Pencarian</span>
           </Link>
         </Button>
         <Button size="lg" variant="ghost" onClick={handleLogout} className="h-auto py-6">
           <span className="flex flex-col items-center gap-2">
-            <span className="text-2xl">🚪</span>
+            <LogOut className="h-6 w-6" aria-hidden="true" />
             <span>Logout</span>
           </span>
         </Button>
