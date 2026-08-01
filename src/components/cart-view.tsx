@@ -47,10 +47,11 @@ export function CartView() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+          <p className="eyebrow">Your bag</p>
+          <h1 className="font-display text-4xl leading-none text-foreground sm:text-5xl">
             Keranjang Belanja
           </h1>
           <p className="text-xs text-muted-foreground">
@@ -78,7 +79,7 @@ export function CartView() {
             <li
               key={item.id}
               data-testid="cart-item"
-              className="flex items-start justify-between gap-4 rounded-lg border p-4"
+              className="flex items-start justify-between gap-4 rounded-2xl border border-border/80 bg-card p-4 shadow-[0_12px_28px_-28px_rgba(43,32,22,0.5)] transition-shadow hover:shadow-[0_18px_32px_-27px_rgba(43,32,22,0.52)]"
             >
               <div className="flex items-start gap-4">
                 {item.image ? (
@@ -188,7 +189,7 @@ export function CartView() {
       <PromoField cartId={cartId || data.id} />
 
       {/* Order Summary Card */}
-      <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+      <div className="premium-surface space-y-3 rounded-2xl p-5 sm:ml-auto sm:max-w-md">
         <h2 className="border-b border-border pb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
           Ringkasan Pesanan
         </h2>

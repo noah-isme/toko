@@ -42,7 +42,7 @@ const ProductSort = dynamic(
 
 const ITEMS_PER_PAGE = 12;
 
-export function ProductsCatalog() {
+export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -579,9 +579,11 @@ export function ProductsCatalog() {
         onClearFilters={clearFilters}
       />
       <section className="flex-1 space-y-6">
-        <header className="flex flex-col gap-4 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex flex-col gap-4 border-b border-border/80 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight text-foreground">Semua Produk</h1>
+            {showHeader ? (
+              <h1 className="font-display text-3xl text-foreground">Semua Produk</h1>
+            ) : null}
             <p className="text-xs text-muted-foreground">
               {filteredAndSortedProducts.length} produk tersedia
               {totalPages > 1 && ` — Halaman ${currentPage} dari ${totalPages}`}
@@ -595,7 +597,7 @@ export function ProductsCatalog() {
               <button
                 key={chip.id}
                 type="button"
-                className="group inline-flex items-center gap-2 rounded-full border border-border/70 bg-background px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
+                className="group inline-flex items-center gap-2 rounded-full border border-border/70 bg-card px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
                 onClick={chip.onRemove}
               >
                 <span>{chip.label}</span>
@@ -634,7 +636,7 @@ export function ProductsCatalog() {
           </div>
         ) : (
           <>
-            <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" role="list">
+            <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" role="list">
               {paginatedProducts.map((product) => (
                 <li key={product.id} className="list-none">
                   <ProductCard product={product} />

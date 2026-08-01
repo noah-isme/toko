@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
+import { AuthShell } from '@/components/auth-shell';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Input } from '@/components/ui/input';
 import type { LoginInput } from '@/entities/auth/schemas';
@@ -48,13 +49,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Welcome back</h1>
-        <p className="text-sm text-muted-foreground">Sign in to continue to your account.</p>
-      </div>
+    <AuthShell
+      eyebrow="Kembali ke toko"
+      title="Welcome back"
+      description="Sign in to continue to your account and curated collection."
+    >
       <form
-        className="space-y-4"
+        className="space-y-5"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
         aria-busy={formState.isSubmitting || authLoading ? 'true' : undefined}
@@ -107,7 +108,7 @@ export default function LoginPage() {
           ) : null}
         </div>
         <GuardedButton
-          className="w-full"
+          className="w-full shadow-[0_12px_24px_-16px_rgba(43,32,22,0.9)]"
           type="submit"
           isLoading={formState.isSubmitting || authLoading}
           loadingLabel="Signing in..."
@@ -115,12 +116,15 @@ export default function LoginPage() {
           Sign in
         </GuardedButton>
       </form>
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link className="text-primary" href="/register">
+        <Link
+          className="font-semibold text-primary underline-offset-4 hover:underline"
+          href="/register"
+        >
           Register
         </Link>
       </p>
-    </div>
+    </AuthShell>
   );
 }

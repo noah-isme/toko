@@ -11,31 +11,34 @@ import {
   Shirt,
   Flame,
 } from 'lucide-react';
+import type { Route } from 'next';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
 export function LandingHero() {
   return (
-    <section className="grid gap-4 lg:grid-cols-3">
+    <section className="grid gap-5 lg:grid-cols-3">
       {/* Main Promo Bento Card (2 cols wide on desktop) */}
-      <div className="shadow-xs relative flex flex-col justify-between rounded-2xl border border-border bg-card p-6 sm:p-8 lg:col-span-2">
-        <div className="max-w-xl space-y-6">
+      <div className="relative flex flex-col justify-between overflow-hidden rounded-[2rem] border border-border/80 bg-card p-7 shadow-[0_24px_60px_-42px_rgba(43,32,22,0.5)] sm:p-10 lg:col-span-2">
+        <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,hsl(41_55%_75%_/_0.38),transparent_66%)]" />
+        <div className="reveal-up relative max-w-xl space-y-6">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-accent/60 px-3 py-1 text-xs font-bold text-primary">
             <ShoppingBag className="h-3.5 w-3.5" />
             <span>Platform Belanja Resmi</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl font-extrabold leading-[1.15] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-            Belanja Produk Original, <span className="text-primary">Harga Terbaik Hari Ini.</span>
+          <h1 className="font-display text-5xl leading-[0.92] text-foreground sm:text-6xl lg:text-7xl">
+            Pilihan untuk hidup yang{' '}
+            <span className="italic text-[hsl(35_46%_42%)]">lebih indah.</span>
           </h1>
 
           {/* Description */}
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Nikmati promo spesial, garansi resmi 100% original, dan gratis ongkir ke seluruh
-            Indonesia tanpa syarat tersembunyi.
+            Temukan produk pilihan dengan kualitas yang terasa, layanan yang dapat diandalkan, dan
+            detail yang diperhatikan.
           </p>
 
           {/* Action CTAs */}
@@ -45,8 +48,8 @@ export function LandingHero() {
               size="lg"
               className="gap-2 bg-primary font-bold text-primary-foreground transition-all duration-150 hover:bg-primary/90 active:scale-[0.98]"
             >
-              <Link href="/products">
-                Mulai Belanja Now
+              <Link href={'/featured-products' as Route}>
+                Lihat koleksi pilihan
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -63,7 +66,7 @@ export function LandingHero() {
         </div>
 
         {/* Benefit Items Footer */}
-        <div className="mt-8 grid grid-cols-3 gap-3 border-t border-border pt-4 text-xs font-semibold text-muted-foreground">
+        <div className="relative mt-8 grid grid-cols-3 gap-3 border-t border-border pt-5 text-xs font-semibold text-muted-foreground">
           <div className="flex items-center gap-2">
             <Truck className="h-4 w-4 shrink-0 text-primary" />
             <span className="truncate">Gratis Ongkir</span>

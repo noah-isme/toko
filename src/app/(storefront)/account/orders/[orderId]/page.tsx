@@ -69,7 +69,7 @@ export default function OrderDetailPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6">
+    <div className="mx-auto w-full max-w-5xl space-y-7">
       <Breadcrumbs
         items={[
           { label: 'Beranda', href: '/' },
@@ -81,7 +81,7 @@ export default function OrderDetailPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Nomor pesanan</p>
-          <h1 className="text-2xl font-bold">{order.orderNumber}</h1>
+          <h1 className="font-display text-4xl leading-none">{order.orderNumber}</h1>
           <p className="text-sm text-muted-foreground">Dibuat {formatDateTime(order.createdAt)}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass}`}>
@@ -111,9 +111,9 @@ export default function OrderDetailPage() {
         ) : null}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+      <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-4">
-          <section className="rounded-lg border bg-card p-6">
+          <section className="premium-surface rounded-2xl p-6">
             <h2 className="text-lg font-semibold">Produk dalam pesanan</h2>
             <ul className="mt-4 space-y-4">
               {order.items.map((item) => (

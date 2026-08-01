@@ -58,7 +58,7 @@ export function ProductImageGallery({ images, productName, className }: ProductI
     return (
       <div
         className={cn(
-          'relative aspect-square overflow-hidden rounded-lg border bg-muted',
+          'relative aspect-square overflow-hidden rounded-[1.5rem] border border-border/80 bg-muted',
           className,
         )}
       >
@@ -76,7 +76,7 @@ export function ProductImageGallery({ images, productName, className }: ProductI
       {/* Main Image */}
       <div
         className={cn(
-          'relative aspect-square overflow-hidden rounded-lg border bg-muted',
+          'relative aspect-square overflow-hidden rounded-[1.5rem] border border-border/80 bg-muted shadow-[0_16px_40px_-30px_rgba(43,32,22,0.55)]',
           isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in',
         )}
         onClick={() => setIsZoomed(!isZoomed)}
@@ -96,7 +96,10 @@ export function ProductImageGallery({ images, productName, className }: ProductI
           src={currentImage}
           alt={`${productName} - Image ${selectedIndex + 1}`}
           fill
-          className={cn('object-cover transition-transform duration-300', isZoomed && 'scale-150')}
+          className={cn(
+            'object-cover transition-transform duration-500 ease-out motion-reduce:transition-none',
+            isZoomed && 'scale-150',
+          )}
           sizes="(min-width: 1024px) 50vw, 100vw"
           priority={selectedIndex === 0}
           placeholder="blur"

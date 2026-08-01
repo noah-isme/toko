@@ -75,7 +75,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] lg:gap-14">
       <div className="space-y-4">
         <ProductImageGallery
           images={data.imageUrl ? [data.imageUrl, ...(data.images || [])] : data.images || []}
@@ -87,10 +87,13 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
           )}
         </div>
       </div>
-      <div className="space-y-6">
+      <div className="premium-surface h-fit space-y-6 rounded-[1.5rem] p-6 sm:p-8 lg:sticky lg:top-24">
         <div>
           <div className="flex items-start justify-between gap-4">
-            <h1 data-testid="product-title" className="text-3xl font-bold">
+            <h1
+              data-testid="product-title"
+              className="font-display text-4xl leading-none text-foreground sm:text-5xl"
+            >
               {data.title}
             </h1>
             <FavToggle productId={data.id} size="md" />
@@ -101,9 +104,19 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
           data-testid="product-price"
           amount={data.price}
           currency={data.currency || 'IDR'}
-          className="text-2xl"
+          className="text-3xl font-extrabold"
         />
-        <p className="text-muted-foreground">{data.description}</p>
+        <p className="leading-7 text-muted-foreground">{data.description}</p>
+        <div className="grid grid-cols-2 gap-3 border-y border-border/80 py-4 text-xs">
+          <p>
+            <span className="block font-semibold text-foreground">Pengiriman terlindungi</span>
+            <span className="text-muted-foreground">Diproses dengan teliti</span>
+          </p>
+          <p>
+            <span className="block font-semibold text-foreground">Belanja aman</span>
+            <span className="text-muted-foreground">Pembayaran terverifikasi</span>
+          </p>
+        </div>
         <div className="space-y-2">
           <GuardedButton
             data-testid="add-to-cart"
@@ -112,6 +125,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             disabled={isOutOfStock}
             isLoading={isProductInFlight(data.id)}
             loadingLabel="Menambahkan…"
+            className="w-full"
           >
             {isOutOfStock ? 'Out of stock' : 'Add to cart'}
           </GuardedButton>

@@ -15,7 +15,7 @@ import { ProductsCatalog } from '@/components/products-catalog';
  */
 export function LandingPage() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-12 sm:space-y-16">
       <LandingHero />
       <CategoryQuickNav />
       <FlashSaleSection />

@@ -3,36 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --background: 36 33% 97%;
+  --foreground: 24 18% 12%;
 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted: 36 18% 91%;
+  --muted-foreground: 24 9% 42%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --popover: 36 33% 99%;
+  --popover-foreground: 24 18% 12%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card: 36 38% 99%;
+  --card-foreground: 24 18% 12%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
+  --border: 30 15% 84%;
+  --input: 30 15% 84%;
 
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 28 24% 17%;
+  --primary-foreground: 40 33% 97%;
 
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 38 24% 91%;
+  --secondary-foreground: 28 24% 17%;
 
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --accent: 41 38% 89%;
+  --accent-foreground: 28 24% 17%;
 
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
-  --ring: 215 20.2% 65.1%;
+  --ring: 35 46% 42%;
 
-  --radius: 0.75rem;
+  --radius: 1rem;
 }
 
 @layer base {
@@ -42,6 +42,16 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    background-image: radial-gradient(
+      circle at top left,
+      hsl(41 45% 92% / 0.65),
+      transparent 32rem
+    );
+  }
+
+  ::selection {
+    background: hsl(41 54% 72% / 0.55);
+    color: hsl(var(--foreground));
   }
 }
 
@@ -61,6 +71,59 @@
 
     .prm\:no-transition {
       transition: none !important;
+    }
+  }
+
+  .font-display {
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: -0.04em;
+  }
+
+  .premium-surface {
+    @apply border border-border/80 bg-card shadow-[0_12px_40px_-28px_rgba(43,32,22,0.38)];
+  }
+
+  .eyebrow {
+    @apply text-[0.68rem] font-bold uppercase tracking-[0.18em] text-muted-foreground;
+  }
+
+  .lift-on-hover {
+    @apply transition duration-300 ease-out motion-reduce:transition-none hover:-translate-y-1 hover:shadow-[0_18px_38px_-24px_rgba(43,32,22,0.45)];
+  }
+
+  .reveal-up {
+    animation: reveal-up 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .reveal-up-delay {
+    animation: reveal-up 520ms 110ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      110deg,
+      hsl(var(--muted)) 8%,
+      hsl(var(--card)) 18%,
+      hsl(var(--muted)) 33%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position-x: -200%;
     }
   }
 }

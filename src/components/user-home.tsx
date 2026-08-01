@@ -33,17 +33,17 @@ export function UserHome() {
   const [activeTab, setActiveTab] = useState<'recommended' | 'popular' | 'deals'>('recommended');
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Personalized Bento Hero Header */}
       <section className="grid gap-4 lg:grid-cols-3">
         {/* Welcome Card (2 cols) */}
-        <div className="shadow-xs flex flex-col justify-between space-y-6 rounded-2xl border border-border bg-card p-6 sm:p-8 lg:col-span-2">
+        <div className="relative flex flex-col justify-between space-y-6 overflow-hidden rounded-[2rem] border border-border/80 bg-card p-6 shadow-[0_18px_45px_-36px_rgba(43,32,22,0.5)] sm:p-8 lg:col-span-2">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-md border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
               <Sparkles className="h-3.5 w-3.5" />
               <span>Akun Terverifikasi</span>
             </div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+            <h1 className="font-display text-4xl leading-none text-foreground sm:text-5xl">
               Selamat datang kembali, {displayName}!
             </h1>
             <p className="text-xs text-muted-foreground sm:text-sm">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { CartView } from '@/components/cart-view';
+import { CustomerGuard } from '@/components/customer-guard';
 
 export const metadata: Metadata = {
   title: 'Keranjang Belanja',
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function CartPage() {
-  return <CartView />;
+  return (
+    <CustomerGuard>
+      <CartView />
+    </CustomerGuard>
+  );
 }

@@ -47,8 +47,9 @@ const NotificationBell = dynamic(
 const navLinks = [
   { href: '/' as Route, label: 'Home' },
   { href: '/products' as Route, label: 'Products' },
-  { href: '/cart' as Route, label: 'Cart' },
-  { href: '/account/orders' as Route, label: 'Orders' },
+  { href: '/featured-products' as Route, label: 'Featured' },
+  { href: '/cart' as Route, label: 'Cart', requiresAuth: true },
+  { href: '/account/orders' as Route, label: 'Orders', requiresAuth: true },
 ];
 
 export function Navbar() {
@@ -56,38 +57,40 @@ export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <Container className="flex h-16 items-center gap-6">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-xl">
+      <Container className="flex h-[4.5rem] items-center gap-6">
         <Link
           href="/"
           className={cn(
-            'rounded-md px-2 py-1 text-lg font-semibold tracking-tight',
+            'font-display rounded-md px-2 py-1 text-2xl font-semibold tracking-tight',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           )}
         >
           toko
         </Link>
         <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              className={cn(
-                'rounded-md px-2 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                pathname === link.href
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-              href={link.href}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks
+            .filter((link) => !link.requiresAuth || isAuthenticated)
+            .map((link) => (
+              <Link
+                key={link.href}
+                className={cn(
+                  'rounded-md px-2 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                  pathname === link.href
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+                href={link.href}
+              >
+                {link.label}
+              </Link>
+            ))}
         </nav>
         <div className="ml-auto flex flex-1 items-center justify-end gap-3">
           <Suspense fallback={null}>
             <SearchAutocomplete className="hidden md:flex" />
           </Suspense>
-          <CartDrawer />
+          {isAuthenticated ? <CartDrawer /> : null}
           {isAuthenticated && user ? (
             <>
               <NotificationBell />

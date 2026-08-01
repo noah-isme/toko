@@ -206,3 +206,12 @@ export function useAuth() {
 
   return context;
 }
+
+/**
+ * Used by route guards that may be rendered independently in component tests.
+ * The app shell always supplies AuthProvider; an absent provider only occurs in
+ * isolated rendering where the guarded content should stay inspectable.
+ */
+export function useOptionalAuth() {
+  return useContext(AuthContext);
+}

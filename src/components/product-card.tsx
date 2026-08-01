@@ -67,18 +67,18 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <div
         data-testid="product-card"
         className={cn(
-          'group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-150 hover:border-primary/50 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background',
+          'group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_12px_30px_-27px_rgba(43,32,22,0.46)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-[0_20px_35px_-26px_rgba(43,32,22,0.52)] focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background motion-reduce:transition-none',
           className,
         )}
       >
         {/* Product Image */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/70">
           {image ? (
             <Image
               src={image}
               alt={product.title}
               fill
-              className="object-cover transition-transform duration-200 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.045] motion-reduce:transition-none"
               sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 100vw"
               placeholder="blur"
               blurDataURL={blurPlaceholder}
@@ -111,7 +111,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </div>
 
         {/* Card Body */}
-        <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="p-4.5 flex flex-1 flex-col gap-3">
           {/* Rating */}
           <Rating value={product.rating ?? 0} reviewCount={product.reviewCount ?? 0} />
 

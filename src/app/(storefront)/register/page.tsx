@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
+import { AuthShell } from '@/components/auth-shell';
 import { PasswordStrength } from '@/components/password-strength';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Input } from '@/components/ui/input';
@@ -64,13 +65,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Create an account</h1>
-        <p className="text-sm text-muted-foreground">Start shopping with toko today.</p>
-      </div>
+    <AuthShell
+      eyebrow="Mulai koleksi Anda"
+      title="Create an account"
+      description="Start shopping with toko today, with a more personal experience."
+    >
       <form
-        className="space-y-4"
+        className="space-y-5"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
         aria-busy={formState.isSubmitting || authLoading ? 'true' : undefined}
@@ -194,12 +195,15 @@ export default function RegisterPage() {
           Register
         </GuardedButton>
       </form>
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link className="text-primary" href="/login">
+        <Link
+          className="font-semibold text-primary underline-offset-4 hover:underline"
+          href="/login"
+        >
           Sign in
         </Link>
       </p>
-    </div>
+    </AuthShell>
   );
 }
