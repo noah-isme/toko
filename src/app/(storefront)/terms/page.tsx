@@ -1,0 +1,3 @@
+export default function TermsPage() {
+  return <article className="prose prose-slate dark:prose-invert max-w-3xl"><h1>Syarat dan Ketentuan</h1><p>Dengan menggunakan toko, Anda menyetujui ketentuan pemesanan, pembayaran, pengiriman, pengembalian, dan penggunaan akun yang berlaku.</p><h2>Pesanan dan pembayaran</h2><p>Harga, ketersediaan, promo, dan batas pembayaran dapat berubah sampai pesanan dikonfirmasi. Pesanan yang belum dibayar dapat kedaluwarsa.</p><h2>Pengembalian</h2><p>Ajukan pengembalian melalui halaman <a href="/returns">Pengembalian Pesanan</a>. Setiap permintaan diperiksa berdasarkan status pesanan dan kebijakan produk.</p><h2>Dukungan</h2><p>Gunakan <a href="/account/support">Pusat Bantuan</a> untuk pertanyaan atau kendala transaksi.</p></article>;
+}

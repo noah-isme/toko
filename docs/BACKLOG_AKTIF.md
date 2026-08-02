@@ -2,7 +2,7 @@
 
 Dokumen ini mencantumkan backlog aktif, rencana pengembangan, dan kesenjangan (UX gaps) prioritas P2/P3 yang tersisa untuk dikerjakan pada rilis berikutnya.
 
-> **Reconciled 2026-07-27.** Empat item terakhir (pull to refresh, recent searches, save for later, search history page) telah selesai dan dipindahkan ke bagian "Selesai". Backlog P2/P3 dari dokumen ini sekarang kosong. Lihat `UI_UX_GAPS_ANALYSIS.md` untuk audit lengkap (41 item).
+> **Reconciled 2026-08-02.** Backlog fitur yang disebut di audit sudah disinkronkan: voucher discovery, flash sales, payment instructions, returns/support, privacy controls, language routing, dan dua endpoint 501 telah memiliki implementasi. Audit UX tetap menjadi daftar referensi 41 item dan masih memiliki pekerjaan lain; dokumen ini tidak lagi mengklaim backlog kosong.
 
 ---
 
@@ -70,14 +70,25 @@ Dokumen ini mencantumkan backlog aktif, rencana pengembangan, dan kesenjangan (U
 - **Fitur**: Menampilkan, menjalankan ulang, menghapus per item, dan menghapus seluruh riwayat. Empty state ketika belum ada riwayat.
 - **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` #17
 
+### 10. Fitur API yang ditutup pada 2026-08-02
+
+- **Promosi**: voucher discovery dan flash-sale campaigns kini memakai endpoint publik serta harga/stok dari server (`/vouchers`, `/flash-sales`).
+- **Pembayaran**: instruksi metode pembayaran, detail bank/QR, dan unggah bukti tersedia di `/checkout/review`.
+- **Privasi**: preferensi, ekspor data, dan penghapusan akun tersedia di `/account/privacy`.
+- **Operasi pelanggan**: pengembalian dan dukungan tersedia di `/returns` dan `/account/support`, termasuk workflow admin.
+- **Lokalisasi**: prefix locale (`/id`, `/en`, `/zh`, `/ja`, `/ko`) dipertahankan middleware.
+- **API**: analytics overview dan penghapusan review tidak lagi mengembalikan `501 Not Implemented`.
+
+Detail endpoint dan migration ada di kontrak [frontend](contracts/README.md) dan [backend](../../toko-api/docs/contracts/README.md).
+
 ---
 
 ## 🚀 Backlog Fitur Prioritas Menengah (P2)
 
-_Kosong — semua item P2 pada dokumen ini telah selesai._
+Pekerjaan P2 yang belum menjadi bagian dari pass ini tetap dilacak di `UI_UX_GAPS_ANALYSIS.md` bagian **Re-audit Results**. Review berikutnya harus memindahkan item ke daftar selesai di sini setelah diverifikasi terhadap kode, bukan hanya berdasarkan rencana.
 
 ---
 
 ## 🎨 Backlog Fitur Prioritas Rendah (P3)
 
-_Kosong — semua item P3 pada dokumen ini telah selesai._
+Pekerjaan P3 yang tersisa juga mengikuti tabel audit terbaru. Angka dan status resmi berada di satu tempat tersebut agar backlog dan audit tidak saling bertentangan.

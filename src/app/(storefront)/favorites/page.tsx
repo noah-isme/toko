@@ -1,12 +1,11 @@
 'use client';
 
 import { HeartCrack, HeartOff } from 'lucide-react';
-import { useMemo } from 'react';
 
 import { ProductCard } from '@/components/product-card';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
-import { useProducts } from '@/lib/api';
+import type { FavoriteItem } from '@/entities/favorites/types';
 import { emptyFavorites, emptyFavoritesUnavailable } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { FavoritesGridSkeleton } from '@/shared/ui/skeletons/FavoritesGridSkeleton';
@@ -14,15 +13,6 @@ import { FavoritesGridSkeleton } from '@/shared/ui/skeletons/FavoritesGridSkelet
 export default function FavoritesPage() {
   const userId = getGuestId() ?? undefined;
   const { data: favorites, isLoading: isLoadingFavorites } = useFavoritesQuery(userId);
-  const { data: rawProductsData } = useProducts();
-  const products = rawProductsData?.data;
-
-  const favoriteProducts = useMemo(() => {
-    if (!favorites || !products) return [];
-
-    const favoriteIds = new Set(favorites.map((fav) => fav.productId));
-    return products.filter((product) => favoriteIds.has(product.id));
-  }, [favorites, products]);
 
   if (isLoadingFavorites) {
     return (
@@ -51,15 +41,25 @@ export default function FavoritesPage() {
         </p>
       </div>
 
-      {favoriteProducts.length === 0 ? (
-        <EmptyState icon={<HeartCrack aria-hidden="true" />} {...emptyFavoritesUnavailable()} />
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {favoriteProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {favorites.map((fav: FavoriteItem) => (
+          <ProductCard
+            key={fav.productId}
+            product={{
+              id: fav.productId,
+              slug: fav.productSlug,
+              title: fav.productName,
+              price: fav.price,
+              imageUrl: fav.imageUrl,
+              rating: 0,
+              reviewCount: 0,
+              inStock: true,
+              stock: 10,
+              currency: 'IDR',
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

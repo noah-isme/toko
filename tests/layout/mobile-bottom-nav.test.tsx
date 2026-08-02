@@ -27,6 +27,10 @@ vi.mock('@/lib/api/hooks', () => {
   };
 });
 
+vi.mock('@/components/providers/AuthProvider', () => ({
+  useAuth: () => ({ isAuthenticated: true }),
+}));
+
 function createQueryClient() {
   return new QueryClient({
     defaultOptions: {

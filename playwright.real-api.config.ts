@@ -8,7 +8,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  testMatch: '**/visual-real-api.spec.ts',
+  testMatch: '**/*real-api.spec.ts',
   timeout: 120_000,
   expect: {
     timeout: 15_000,

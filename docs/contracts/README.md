@@ -1,8 +1,8 @@
-# Documentation API Contract - Toko API
+# Frontend API Contract Index
 
-**Version:** 0.2.0  
-**Base URL:** `https://api.toko.com/api/v1` (production) | `http://localhost:8080/api/v1` (development)  
-**Last Updated:** 2026-07-24
+The storefront consumes the versioned REST API at `NEXT_PUBLIC_API_URL`. The backend contract is canonical; this index documents the frontend-facing modules and adapters. See the [backend contract index](../../toko-api/docs/contracts/README.md) for authoritative request and response details.
+
+**Last Updated:** 2026-08-02
 
 ## 📋 Table of Contents
 
@@ -12,8 +12,12 @@
 - [Checkout](checkout.md)
 - [Orders](orders.md)
 - [Payment](payment.md)
+- [Promotions](promotions.md)
 - [Notifications](notifications.md)
 - [User Addresses](user.md)
+- [Privacy & Account](privacy.md)
+- [Returns & Support](customer-operations.md)
+- [Tenant Operations](operations.md)
 - [Reviews](reviews.md)
 - [Favorites](favorites.md)
 - [Analytics](analytics.md)

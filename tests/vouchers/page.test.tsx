@@ -118,7 +118,7 @@ describe('VouchersPage', () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText(/berlaku/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/berlaku/i).length).toBeGreaterThan(0);
       },
       { timeout: 10000 },
     );

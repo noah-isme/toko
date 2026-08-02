@@ -404,3 +404,49 @@ export function useAdminAuditLogs(
     staleTime: STALE_TIME,
   });
 }
+
+export function useAdminInventory() {
+  return useQuery({
+    queryKey: ['admin', 'inventory'],
+    queryFn: () => adminApi.getInventory(),
+    staleTime: 15_000,
+  });
+}
+
+export function useUpdateAdminInventory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { stock?: number; delta?: number } }) =>
+      adminApi.updateInventory(id, data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'inventory'] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.products() });
+    },
+  });
+}
+
+export function useAdminCustomers() {
+  return useQuery({
+    queryKey: ['admin', 'customers'],
+    queryFn: () => adminApi.getCustomers(),
+    staleTime: 30_000,
+  });
+}
+
+export function useStoreSettings() {
+  return useQuery({
+    queryKey: ['admin', 'settings'],
+    queryFn: () => adminApi.getSettings(),
+    staleTime: 30_000,
+  });
+}
+
+export function useUpdateStoreSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (settings: Record<string, unknown>) => adminApi.updateSettings(settings),
+    onSuccess: (data) => {
+      queryClient.setQueryData(['admin', 'settings'], data);
+    },
+  });
+}

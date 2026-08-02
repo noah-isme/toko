@@ -1,6 +1,6 @@
 # toko storefront
 
-A modular Next.js storefront powered by TypeScript, Tailwind CSS, shadcn/ui, and TanStack Query. The project is wired to consume a RESTful backend at `http://localhost:8080/api/v1` by default and ships with a mock API powered by MSW for local development.
+A modular Next.js storefront powered by TypeScript, Tailwind CSS, shadcn/ui, and TanStack Query. The project ships with a mock API powered by MSW for local development and can consume the Toko REST API through `NEXT_PUBLIC_API_URL`.
 
 ## Requirements
 
@@ -43,8 +43,12 @@ src/
 
 ## API mocking vs. real backend
 
-- **Mocking (default):** MSW automatically intercepts requests when `NODE_ENV=development` and `NEXT_PUBLIC_API_MOCKING` is not set to `false`.
-- **Real backend:** Set `NEXT_PUBLIC_API_MOCKING=false` and adjust `NEXT_PUBLIC_API_URL` to point at your backend. No code changes are required.
+- **Mocking (default):** Set `NEXT_PUBLIC_API_URL=mock` (the value in `.env.example`) to use the built-in MSW handlers.
+- **Real backend:** Set `NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1` and `NEXT_PUBLIC_API_MOCKING=false` to use `toko-api`. Include `NEXT_PUBLIC_TENANT_ID` when the backend is running in a multi-tenant environment.
+
+## API-backed storefront areas
+
+The current storefront routes backed by the API include `/vouchers`, `/flash-sales`, `/returns`, `/account/support`, `/account/privacy`, `/checkout/review` payment instructions, and the admin `/admin/returns`, `/admin/support`, `/admin/inventory`, and `/admin/customers` pages. Locale-prefixed paths such as `/en/products` are rewritten to the same App Router pages by middleware.
 
 ## Testing & quality gates
 
@@ -65,9 +69,10 @@ The GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/work
 
 For detailed guides, implementation status, and future backlogs, refer to:
 
-- [Implementation Status](file:///home/noah/project/toko-app/toko/docs/STATUS_IMPLEMENTASI.md) — Current state of storefront integrations.
-- [Integration Guide](file:///home/noah/project/toko-app/toko/docs/GUIDE_INTEGRASI.md) — Technical instructions for local development and API consumption.
-- [Active Backlog](file:///home/noah/project/toko-app/toko/docs/BACKLOG_AKTIF.md) — Current UX gaps, P2/P3 backlogs, and roadmap items.
+- [Implementation Status](docs/STATUS_IMPLEMENTASI.md) — Current state of storefront integrations.
+- [Integration Guide](docs/GUIDE_INTEGRASI.md) — Technical instructions for local development and API consumption.
+- [API Contract Index](docs/contracts/README.md) — Frontend-facing API modules and adapters.
+- [Active Backlog](docs/BACKLOG_AKTIF.md) — Current UX gaps, P2/P3 backlogs, and roadmap items.
 
 ## License
 

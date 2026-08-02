@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Price } from '@/components/price';
 import { ProductImageGallery } from '@/components/product-image-gallery';
@@ -24,6 +24,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const { data, isLoading, isFetching, error } = useProduct(slug);
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!error) {
@@ -49,8 +50,15 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
     throw new Error('Produk tidak ditemukan');
   }
 
-  // Use API Contract fields
-  const isOutOfStock = !data.inStock || data.stock <= 0;
+  const variants = data.variants ?? [];
+  const activeVariantId =
+    selectedVariantId && variants.some((variant) => variant.id === selectedVariantId)
+      ? selectedVariantId
+      : variants.find((variant) => variant.stock > 0)?.id ?? variants[0]?.id ?? null;
+  const selectedVariant = variants.find((variant) => variant.id === activeVariantId);
+  const availableStock = selectedVariant?.stock ?? data.stock;
+  const displayPrice = selectedVariant?.price ?? data.price;
+  const isOutOfStock = !data.inStock || availableStock <= 0;
 
   const handleAddToCart = async () => {
     // Ensure cart exists before adding
@@ -65,11 +73,12 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
 
     mutate({
       productId: data.id,
+      variantId: activeVariantId,
       quantity: 1,
       name: data.title,
-      price: { amount: data.price, currency: data.currency || 'IDR' },
+      price: { amount: displayPrice, currency: data.currency || 'IDR' },
       image: data.imageUrl || (data.images && data.images[0]) || null,
-      maxQuantity: data.stock,
+      maxQuantity: availableStock,
       cartId,
     });
   };
@@ -102,7 +111,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
         </div>
         <Price
           data-testid="product-price"
-          amount={data.price}
+          amount={displayPrice}
           currency={data.currency || 'IDR'}
           className="text-3xl font-extrabold"
         />
@@ -117,13 +126,41 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             <span className="text-muted-foreground">Pembayaran terverifikasi</span>
           </p>
         </div>
+        {variants.length > 0 && (
+          <div className="space-y-2" aria-label="Pilih varian">
+            <p className="text-sm font-semibold">Pilih varian</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {variants.map((variant) => {
+                const label = Object.values(variant.attributes).join(' / ') || variant.sku || variant.id;
+                return (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    disabled={variant.stock <= 0}
+                    onClick={() => setSelectedVariantId(variant.id)}
+                    className={`rounded-xl border px-3 py-3 text-left text-sm transition ${
+                      activeVariantId === variant.id
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/60'
+                    } ${variant.stock <= 0 ? 'cursor-not-allowed opacity-45' : ''}`}
+                  >
+                    <span className="block font-medium">{label}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {variant.stock > 0 ? `${variant.stock} tersedia` : 'Habis'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <div className="space-y-2">
           <GuardedButton
             data-testid="add-to-cart"
             size="lg"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
-            isLoading={isProductInFlight(data.id)}
+            isLoading={isProductInFlight(data.id, activeVariantId)}
             loadingLabel="Menambahkan…"
             className="w-full"
           >

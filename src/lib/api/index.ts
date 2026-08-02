@@ -22,7 +22,7 @@
 export { apiClient, setAccessToken, getAccessToken, ApiClientError } from './apiClient';
 
 // Services
-export { authApi, catalogApi, cartApi, ordersApi, addressApi, notificationsApi } from './services';
+export { authApi, catalogApi, cartApi, ordersApi, addressApi, notificationsApi, promotionsApi, privacyApi, paymentApi } from './services';
 
 // React Query Hooks
 export {

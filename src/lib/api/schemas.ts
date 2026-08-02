@@ -27,6 +27,17 @@ export const productSchema = z.object({
   reviewCount: z.number().int().nonnegative().optional(),
   tags: z.array(z.string()).optional().default([]),
   createdAt: z.string().optional(),
+  variants: z
+    .array(
+      z.object({
+        id: z.string(),
+        sku: z.string().optional().nullable(),
+        price: z.number(),
+        stock: z.number().int().nonnegative(),
+        attributes: z.record(z.string(), z.string()),
+      }),
+    )
+    .optional(),
 });
 
 export const productListSchema = z.array(productSchema);
@@ -63,6 +74,7 @@ export const cartSchema = z.object({
 export const cartViewItemSchema = z.object({
   id: z.string(),
   productId: z.string(),
+  variantId: z.string().optional().nullable(),
   name: z.string(),
   quantity: z.number().int().min(1),
   price: z.object({ amount: z.number(), currency: z.string() }),
@@ -89,6 +101,7 @@ export const userSchema = z.object({
 export const addToCartInputSchema = z.object({
   productId: z.string(),
   variantId: z.string().optional(), // Optional - not all products have variants
+  campaignId: z.string().optional(),
   qty: z.number().int().min(1).max(99).default(1),
 });
 

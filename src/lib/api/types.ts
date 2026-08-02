@@ -204,6 +204,9 @@ export interface ApiProduct {
   categoryId?: string;
   brand?: string;
   brandName?: string;
+  variants?: ProductVariant[];
+  images?: string[];
+  specs?: Array<{ key: string; value: string }>;
 }
 
 export interface ApiProductListResponse {
@@ -242,8 +245,7 @@ export interface ProductImage {
 
 export interface ProductVariant {
   id: string;
-  name: string;
-  sku: string;
+  sku?: string | null;
   price: number;
   stock: number;
   attributes: Record<string, string>;
@@ -271,6 +273,7 @@ export interface Product {
   reviewCount?: number;
   tags?: string[];
   createdAt?: string;
+  variants?: ProductVariant[];
 }
 
 export interface ProductDetail extends Product {
@@ -303,6 +306,7 @@ export interface CartItem {
   id: string;
   productId: string;
   variantId?: string | null;
+  campaignId?: string | null;
   title: string;
   slug: string;
   qty: number;
@@ -342,6 +346,7 @@ export interface CreateCartResponse {
 export interface AddCartItemRequest {
   productId: string;
   variantId?: string | null;
+  campaignId?: string | null;
   qty: number;
 }
 

@@ -29,4 +29,4 @@ GET /api/v1/analytics/overview
 Authorization: Bearer <admin_token>
 ```
 
-Admin-only. Currently **not implemented** and returns `501 Not Implemented`.
+Admin-only. Returns the configured date-range summary with revenue, order counts, paid order counts, and average order value. See the backend contract for the response shape.

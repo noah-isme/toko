@@ -1,7 +1,7 @@
 # 📋 UI/UX API Integration Checklist
 
-> **Tanggal**: 2025-12-07 (updated 2026-07-13)
-> **Status**: Implementation Complete (P0–P3, Critical Gaps Resolved)
+> **Tanggal**: 2025-12-07 (reconciled 2026-08-02)
+> **Status**: Historical implementation checklist; current gap status is maintained in [UI/UX Gaps Analysis](UI_UX_GAPS_ANALYSIS.md).
 > **Tujuan**: Menyesuaikan semua UI/UX dengan kontrak API yang sudah diimplementasi
 
 ---
@@ -213,7 +213,7 @@ Checklist ini memastikan semua halaman dan komponen UI menggunakan API yang bena
   - [ ] Display payment method options
   - [ ] Radio button selection
   - [ ] Payment method icons/logos
-  - [ ] Show payment instructions
+  - [x] Show payment instructions
 - [ ] **Order Summary** (Sidebar/Bottom)
   - [ ] Cart items summary (collapsed list)
   - [ ] Subtotal
@@ -273,7 +273,7 @@ Checklist ini memastikan semua halaman dan komponen UI menggunakan API yang bena
   - [ ] Payment info
   - [ ] Receipt/invoice link
 - [ ] **Next Steps**
-  - [ ] Payment instructions (jika belum dibayar)
+  - [x] Payment instructions (jika belum dibayar)
   - [ ] Payment link/button
   - [ ] Track order button
   - [ ] Continue shopping button
@@ -374,7 +374,7 @@ Checklist ini memastikan semua halaman dan komponen UI menggunakan API yang bena
   - [ ] Payment method dari `order.payment.method`
   - [ ] Payment status
   - [ ] Paid date (if paid)
-  - [ ] Payment instructions (if pending)
+  - [x] Payment instructions (if pending)
   - [ ] Payment link (if available)
 - [ ] **Pricing Breakdown**
   - [ ] Subtotal

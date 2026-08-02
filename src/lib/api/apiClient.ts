@@ -7,6 +7,7 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_URL === 'mock'
     ? '/api/v1'
     : process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL;
+const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID?.trim();
 
 interface ApiClientBaseOptions extends RequestInit {
   requiresAuth?: boolean;
@@ -102,7 +103,11 @@ export async function apiClient<T = unknown>(
   const { headers, requiresAuth = false, ...init } = options;
   const requestHeaders = new Headers(headers);
 
-  if (!requestHeaders.has('Content-Type') && init.body) {
+  if (TENANT_ID && !requestHeaders.has('X-Tenant-ID')) {
+    requestHeaders.set('X-Tenant-ID', TENANT_ID);
+  }
+
+  if (!requestHeaders.has('Content-Type') && init.body && !(init.body instanceof FormData)) {
     requestHeaders.set('Content-Type', 'application/json');
   }
 

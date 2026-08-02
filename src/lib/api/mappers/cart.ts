@@ -6,6 +6,7 @@ export function mapApiCartItemToCartItem(apiItem: ApiCartItem, currency: string)
   return {
     id: apiItem.id,
     productId: apiItem.productId,
+    variantId: apiItem.variantId ?? null,
     name: apiItem.title,
     quantity: apiItem.qty,
     price: {

@@ -37,5 +37,6 @@ export function mapApiProductToProduct(apiProduct: ApiProduct | Product): Produc
     reviewCount: asAny.reviewCount || 0,
     tags: asAny.tags || asAny.badges || [],
     createdAt: asAny.createdAt,
+    variants: Array.isArray(asAny.variants) ? asAny.variants : undefined,
   };
 }

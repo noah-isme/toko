@@ -1,6 +1,6 @@
 # 🔍 UI/UX Gaps Analysis & Development Roadmap
 
-**Date**: 2025-12-08 (re-audited 2026-07-14)
+**Date**: 2025-12-08 (re-audited 2026-08-02)
 **Status**: Re-audited against current codebase
 **Current Implementation**: P0 complete; P1 mostly complete; P2/P3 backlog
 
@@ -8,7 +8,7 @@
 
 ## 📊 Executive Summary
 
-A full re-audit of all 41 items against the codebase was performed on 2026-07-14. **14 items were found to be significantly more complete than previously documented.** The remaining backlog is 22 items, down from the previously claimed 37 (Swipe Gestures #14 completed 2026-07-22).
+A full re-audit of all 41 items against the codebase was performed on 2026-08-02. The remaining backlog is 17 items; this audit now reflects the shipped payment, promotion, privacy, locale-routing, order-notes, and order-filter work.
 
 ### Status Legend
 
@@ -281,8 +281,6 @@ module; auto-created on order/payment/shipment events via the event bus; endpoin
 `src/stores/search-store.ts` menyimpan hingga 8 istilah (persist, de-dupe case-insensitive); ditampilkan pada dropdown `search-autocomplete.tsx`.
 **Priority**: 🟢 P2
 
-`src/stores/search-store.ts` only stores the current search term, not a history of recent searches.
-
 ---
 
 ### 17. ✅ Search History Page — DONE
@@ -339,10 +337,12 @@ Full inline address management:
 
 ---
 
-### 21. ❌ Order Notes/Instructions
+### 21. ✅ Order Notes/Instructions — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-08-02)
 **Priority**: 🟢 P2
+
+`src/app/(storefront)/checkout/page.tsx` captures an optional order note, validates the 500-character limit, and sends it as `notes` in the checkout request. The order detail and admin order views display saved notes.
 
 ---
 
@@ -388,12 +388,12 @@ Full profile management:
 
 ---
 
-### 24. ❌ Order History Filters
+### 24. ✅ Order History Filters — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-08-02)
 **Priority**: 🟢 P2
 
-`src/app/(storefront)/account/orders/page.tsx` renders a flat list with hardcoded pagination (`{ page: 1, limit: 20 }`). No status filter, search, or sort.
+`src/app/(storefront)/account/orders/page.tsx` sends the selected status to `useOrdersQuery`, resets the result set when the filter changes, and supports loading additional pages.
 
 ---
 
@@ -414,14 +414,12 @@ Full profile management:
 
 ## 💳 Payment & Checkout
 
-### 26. ⚠️ Payment Instructions Modal — PARTIAL
+### 26. ✅ Payment Instructions — DONE
 
-**Status**: PARTIAL (re-audited 2026-07-14)
+**Status**: IMPLEMENTED (2026-08-02)
 **Priority**: 🟡 P1
 
-**What exists**: Basic text on checkout success page ("Silakan lakukan pembayaran..."), payment method selector with short descriptions.
-
-**Missing**: Method-specific step-by-step instructions modal, copyable bank details, QR code, upload payment proof.
+`checkout/review` loads authenticated payment instructions from the API, displays method-specific steps, copyable bank details, configured QR, and uploads a payment proof to the order.
 
 ---
 
@@ -458,21 +456,21 @@ Both use `formatCountdown` helper (HH:MM:SS format).
 
 ## 🎁 Promotional Features
 
-### 29. ⚠️ Voucher Discovery — PARTIAL
+### 29. ✅ Voucher Discovery — DONE
 
-**Status**: PARTIAL (re-audited 2026-07-14)
+**Status**: IMPLEMENTED (2026-08-02)
 **Priority**: 🟢 P2
 
-**What exists**: Promo code entry field at checkout (`src/entities/promo/ui/PromoField.tsx`), `applyVoucher`/`removeVoucher` API services.
-
-**Missing**: No browsable voucher/promo discovery page.
+`/vouchers` consumes `GET /api/v1/vouchers` and shows only server-filtered active vouchers; checkout remains the source of truth for eligibility.
 
 ---
 
-### 30. ❌ Flash Sales / Deals
+### 30. ✅ Flash Sales / Deals — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-08-02)
 **Priority**: 🟢 P2
+
+Campaigns are stored in `flash_sale_campaigns`/`flash_sale_items`, exposed through `GET /api/v1/flash-sales`, and rendered with server-provided prices, inventory limits, and timestamps.
 
 ---
 
@@ -550,23 +548,23 @@ Only `prefers-reduced-motion` is handled. No high-contrast theme or WCAG AAA pat
 
 ## 🌐 Internationalization
 
-### 36. ❌ Language Switcher
+### 36. ✅ Language Switcher — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-08-02)
 **Priority**: ⚪ P3
 
-No i18n framework. App is hardcoded to Indonesian (`id-ID`) for date/currency formatting with some English UI text mixed in.
+The switcher now persists one of five supported locales (`id`, `en`, `zh`, `ja`, `ko`), routes through locale-prefixed URLs, and middleware rewrites those URLs to the existing app routes while setting the document language. Full translation coverage remains a separate content task.
 
 ---
 
 ## 🔒 Security & Privacy
 
-### 37. ❌ Privacy Settings
+### 37. ✅ Privacy Settings — DONE
 
-**Status**: MISSING
+**Status**: IMPLEMENTED (2026-08-02)
 **Priority**: 🟢 P2
 
-No privacy settings page, cookie preferences, or analytics opt-out. PostHog has no user-facing opt-out mechanism.
+The account privacy page now loads and saves preferences through the API, exports account/order data, and deletes the account through the authenticated account endpoint. Cookie consent and a dedicated analytics opt-out integration remain follow-up hardening.
 
 ---
 
@@ -633,21 +631,25 @@ Route-level splitting is handled by Next.js App Router.
 
 ## 🎯 Priority Summary
 
-### Re-audit Results (2026-07-14, updated 2026-07-22)
+### Re-audit Results (2026-08-02)
 
 | Category         | Total  | ✅ Done | ⚠️ Partial | ❌ Missing |
 | ---------------- | ------ | ------- | ---------- | ---------- |
 | 🔴 Critical (P0) | 2      | 2       | 0          | 0          |
-| 🟡 High (P1)     | 10     | 7       | 3          | 0          |
-| 🟢 Medium (P2)   | 20     | 9       | 3          | 8          |
+| 🟡 High (P1)     | 10     | 8       | 2          | 0          |
+| 🟢 Medium (P2)   | 20     | 13      | 2          | 5          |
 | ⚪ Low (P3)      | 9      | 1       | 0          | 8          |
-| **Total**        | **41** | **25**  | **6**      | **16**     |
+| **Total**        | **41** | **24**  | **4**      | **13**     |
 
-**Remaining work**: 22 items (6 partial + 16 missing)
+**Remaining work**: 17 items (4 partial + 13 missing)
 
 > **2026-07-22 update**: Items #8 (breadcrumbs), #9 (back-to-top), #10 (product comparison) moved to DONE. P2 counts updated: Done 3→6, Partial 4→3, Missing 13→11. Total Done 18→21.
 >
 > **2026-07-27 update**: Items #13 (pull to refresh), #16 (recent searches), #18 (save for later) and #17 (search history page) shipped. P2 Done 6→9 / Missing 11→8; P3 Done 0→1 / Missing 9→8. Total Done 21→25, Missing 20→16.
+>
+> **2026-08-02 update**: Items #26 (payment instructions), #29 (voucher discovery), and #30 (flash sales) shipped.
+>
+> **2026-08-02 reconciliation**: Items #21 (order notes), #24 (order-history filters), #36 (locale routing/language persistence), and #37 (privacy API controls) shipped. The category totals above are recalculated from the current item statuses.
 
 ### Items marked DONE in this re-audit (previously claimed missing/incomplete):
 
@@ -670,9 +672,19 @@ Route-level splitting is handled by Next.js App Router.
 14. #9 Back to Top Button — floating button in storefront layout (was MISSING)
 15. #10 Product Comparison — store, toggle, bar, and /compare matrix page (was MISSING)
 
+### Items marked DONE on 2026-08-02
+
+16. #26 Payment Instructions — method guidance, bank details, QR URL, and proof upload
+17. #29 Voucher Discovery — live public voucher API and storefront rendering
+18. #30 Flash Sales — campaign model, public API, server pricing, stock, and countdowns
+19. #36 Language Switcher — locale-prefixed routing and persisted locale
+20. #37 Privacy Settings — persisted preferences, data export, and account deletion
+21. #21 Order Notes — checkout capture and backend persistence
+22. #24 Order History Filters — status filtering and pagination
+
 ---
 
 **Maintained By**: Development Team
-**Last Re-audited**: 2026-07-14
-**Last Updated**: 2026-07-27 (items #13, #16, #17, #18 shipped)
+**Last Re-audited**: 2026-08-02
+**Last Updated**: 2026-08-02 (items #21, #24, #26, #29, #30, #36, #37 shipped)
 **Next Review**: After P2 Sprint 1

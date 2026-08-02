@@ -3,25 +3,93 @@
 import { ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Price } from '@/components/price';
 import { PullToRefresh } from '@/components/pull-to-refresh';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useOrdersQuery } from '@/entities/orders/api/hooks';
 import type { OrderListItem } from '@/entities/orders/schemas';
+import { cn } from '@/lib/utils';
 import { emptyOrders } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
+const STATUS_OPTIONS = [
+  { value: '', label: 'Semua Status' },
+  { value: 'pending_payment', label: 'Menunggu Pembayaran' },
+  { value: 'paid', label: 'Dibayar' },
+  { value: 'packed', label: 'Dikemas' },
+  { value: 'shipped', label: 'Dikirim' },
+  { value: 'out_for_delivery', label: 'Dalam Pengiriman' },
+  { value: 'delivered', label: 'Selesai' },
+  { value: 'cancelled', label: 'Dibatalkan' },
+  { value: 'failed', label: 'Gagal' },
+] as const;
+
 export default function OrderHistoryPage() {
-  const { data, isLoading, error, refetch } = useOrdersQuery({ page: 1, limit: 20 });
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [allOrders, setAllOrders] = useState<OrderListItem[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const { data, isLoading, error, refetch } = useOrdersQuery({
+    page,
+    limit: 20,
+    status: statusFilter || undefined,
+  });
+
   const orders = data?.data ?? [];
 
-  if (isLoading) {
+  React.useEffect(() => {
+    if (page === 1) {
+      setAllOrders(orders);
+    } else {
+      setAllOrders((prev) => [...prev, ...orders]);
+    }
+    setHasMore(orders.length >= 20);
+  }, [orders, page]);
+
+  const handleLoadMore = () => {
+    if (hasMore && !isLoadingMore) {
+      setIsLoadingMore(true);
+      setPage((p) => p + 1);
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleFilterChange = (newStatus: string) => {
+    setStatusFilter(newStatus);
+    setPage(1);
+    setAllOrders([]);
+  };
+
+  if (isLoading && page === 1) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Pesanan Saya</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Pesanan Saya</h1>
+          <Select value={statusFilter} onValueChange={handleFilterChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter status" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="rounded-lg border p-4">
@@ -46,7 +114,7 @@ export default function OrderHistoryPage() {
     );
   }
 
-  if (orders.length === 0) {
+  if (allOrders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <EmptyState icon={<ShoppingBag aria-hidden="true" />} {...emptyOrders()} />
@@ -55,17 +123,44 @@ export default function OrderHistoryPage() {
   }
 
   return (
-    <PullToRefresh onRefresh={refetch} className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Pesanan Saya</h1>
-        <p className="text-muted-foreground">Riwayat transaksi belanja Anda.</p>
+    <PullToRefresh onRefresh={() => { refetch(); setPage(1); setAllOrders([]); }} className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Pesanan Saya</h1>
+          <p className="text-muted-foreground">Riwayat transaksi belanja Anda.</p>
+        </div>
+        <Select value={statusFilter} onValueChange={handleFilterChange}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter status" />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid gap-4">
-        {orders.map((order) => (
+        {allOrders.map((order) => (
           <OrderCard key={order.id} order={order} />
         ))}
       </div>
+
+      {hasMore && (
+        <div className="text-center">
+          <Button
+            variant="outline"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="w-full sm:w-auto"
+          >
+            {isLoadingMore ? 'Memuat...' : 'Muat Lebih Banyak'}
+          </Button>
+        </div>
+      )}
     </PullToRefresh>
   );
 }

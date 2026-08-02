@@ -1,15 +1,18 @@
 'use client';
 
-import { X, ShoppingCart, Heart } from 'lucide-react';
+import { X, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { useAuth } from '@/components/providers/AuthProvider';
 import { QuantityPicker } from '@/components/quantity-picker';
 import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getGuestId } from '@/entities/favorites/storage';
+import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { useToast } from '@/hooks/use-toast';
 import { useProduct, useAddToCart, formatCurrency } from '@/lib/api';
 import { useCartStore } from '@/stores/cart-store';
@@ -26,6 +29,8 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
   const { cartId } = useCartStore();
   const addToCart = useAddToCart(cartId || '');
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+  const userId = getGuestId() ?? undefined;
 
   const handleAddToCart = async () => {
     if (!cartId) {
@@ -150,9 +155,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       {addToCart.isPending ? 'Adding...' : 'Add to Cart'}
                     </Button>
-                    <Button variant="outline" size="icon" aria-label="Add to wishlist">
-                      <Heart className="h-4 w-4" />
-                    </Button>
+                    <FavToggle productId={product.id} size="sm" userIdOrGuestId={userId} />
                   </div>
                 </div>
 

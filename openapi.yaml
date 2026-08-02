@@ -267,6 +267,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+    delete:
+      summary: Delete the authenticated account and anonymize retained orders
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Account deleted }
+  /api/v1/users/me/privacy:
+    get:
+      summary: Get privacy preferences
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Privacy preferences } }
+    put:
+      summary: Save privacy preferences
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marketingEmails: { type: boolean }
+                orderUpdates: { type: boolean }
+                securityAlerts: { type: boolean }
+                profileVisibility: { type: string, enum: [public, friends, private] }
+                dataProcessing: { type: boolean }
+                analyticsTracking: { type: boolean }
+      responses: { '200': { description: Privacy preferences saved } }
+  /api/v1/users/me/data-export:
+    get:
+      summary: Export the authenticated user's data
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: JSON data export } }
   /api/v1/users/me/addresses:
     get:
       summary: List saved addresses
@@ -560,7 +592,7 @@ paths:
         '500':
           description: Server error
     delete:
-      summary: Delete a product review (not implemented)
+      summary: Delete the authenticated customer's product review
       security:
         - bearerAuth: []
       parameters:
@@ -572,8 +604,16 @@ paths:
             format: uuid
           description: Product ID
       responses:
-        '501':
-          description: Not implemented
+        '204':
+          description: Review deleted
+        '400':
+          description: Invalid product ID
+        '401':
+          description: Unauthorized
+        '404':
+          description: Review not found
+        '500':
+          description: Server error
   /api/v1/products/{id}/reviews/stats:
     get:
       summary: Get product review stats
@@ -847,6 +887,21 @@ paths:
           description: Authentication required
         '500':
           description: Address not found, cart empty, or tenant missing
+  /api/v1/checkout/draft:
+    post:
+      summary: Preview checkout totals before creating an order
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutRequest'
+      responses:
+        '201': { description: Checkout draft }
+        '400': { description: Invalid checkout draft }
+        '401': { description: Authentication required }
   /api/v1/orders:
     get:
       summary: List user orders
@@ -1546,12 +1601,62 @@ paths:
   /api/v1/analytics/overview:
     get:
       summary: Overview for dashboard
-      description: Dashboard summary. Not currently implemented.
+      description: Aggregated order and revenue metrics for the requested date range.
       security:
         - bearerAuth: []
       responses:
-        '501':
-          description: Not implemented
+        '200': { description: Analytics overview }
+        '400': { description: Invalid range }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Analytics service error }
+  /api/v1/vouchers:
+    get:
+      summary: List active public vouchers
+      responses: { '200': { description: Active vouchers } }
+  /api/v1/flash-sales:
+    get:
+      summary: List scheduled and active flash-sale campaigns
+      responses: { '200': { description: Flash-sale campaigns and server-calculated prices } }
+  /api/v1/admin/flash-sales:
+    post:
+      summary: Create a flash-sale campaign
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, startsAt, endsAt, items]
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                status: { type: string }
+                startsAt: { type: string, format: date-time }
+                endsAt: { type: string, format: date-time }
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [productId, salePrice]
+                    properties:
+                      productId: { type: string, format: uuid }
+                      salePrice: { type: integer, minimum: 0 }
+                      stockLimit: { type: integer, minimum: 1, nullable: true }
+      responses: { '201': { description: Campaign created } }
+  /api/v1/admin/flash-sales/{id}:
+    patch:
+      summary: Update flash-sale campaign status
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusRequest' }
+      responses: { '200': { description: Campaign status updated } }
   /api/v1/payments/intent:
     post:
       summary: Create or reuse a payment intent
@@ -1583,6 +1688,29 @@ paths:
           description: Order not found
         '500':
           description: Payment provider error
+  /api/v1/payments/{orderId}/instructions:
+    get:
+      summary: Get payment instructions for an order
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: orderId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { '200': { description: Payment instructions } }
+  /api/v1/payments/{orderId}/proof:
+    post:
+      summary: Upload payment proof
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: orderId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [proof]
+              properties:
+                proof: { type: string, format: binary }
+      responses: { '201': { description: Payment proof stored } }
   /api/v1/webhooks/shipping/{courier}:
     post:
       summary: Shipping webhook receiver (idempotent)
@@ -1767,6 +1895,724 @@ paths:
           description: Unauthorized
         '500':
           description: Server error
+  /api/v1/admin/products:
+    get:
+      summary: List products (admin)
+      description: |
+        Paginated product list for the admin dashboard. Unlike the public catalog
+        endpoint this returns management fields (aggregate stock, variant count,
+        primary SKU) and bypasses the catalog cache.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: search
+          in: query
+          description: Case-insensitive match on title or slug
+          schema: { type: string }
+        - name: category
+          in: query
+          description: Category slug filter
+          schema: { type: string }
+        - name: brand
+          in: query
+          description: Brand slug filter
+          schema: { type: string }
+        - name: inStock
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Product page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, pagination]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminProduct'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Server error }
+    post:
+      summary: Create product (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductCreateRequest'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, slug]
+                    properties:
+                      id: { type: string, format: uuid }
+                      slug: { type: string }
+        '400': { description: Invalid request }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '409': { description: Slug already exists }
+        '500': { description: Server error }
+  /api/v1/admin/products/{id}:
+    get:
+      summary: Get product detail (admin)
+      description: Accepts either a product UUID or a product slug.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+          description: Product UUID or slug
+      responses:
+        '200':
+          description: Product detail
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminProductDetail'
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Product not found }
+        '500': { description: Server error }
+    patch:
+      summary: Update product (admin)
+      description: |
+        Partial update. Only keys present in the request body are changed;
+        sending an explicit null clears a nullable field.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+          description: Product UUID or slug
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductUpdateRequest'
+      responses:
+        '204': { description: Product updated }
+        '400': { description: Invalid request }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Product not found }
+        '409': { description: Slug already exists }
+        '500': { description: Server error }
+    delete:
+      summary: Delete product (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+          description: Product UUID or slug
+      responses:
+        '204': { description: Product deleted }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Product not found }
+        '409': { description: Product is referenced by existing orders }
+        '500': { description: Server error }
+  /api/v1/admin/products/{id}/stock:
+    patch:
+      summary: Update product stock (admin)
+      description: |
+        Writes the primary variant stock, creating a variant when the product has
+        none, and keeps the denormalized products.in_stock flag consistent.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+          description: Product UUID or slug
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: At least one of stock or inStock is required.
+              properties:
+                stock: { type: integer, minimum: 0 }
+                inStock: { type: boolean }
+      responses:
+        '200':
+          description: Stock updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id: { type: string, format: uuid }
+                      inStock: { type: boolean }
+                      stock: { type: [integer, "null"] }
+        '400': { description: Invalid request }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Product not found }
+        '500': { description: Server error }
+  /api/v1/admin/categories:
+    get:
+      summary: List categories (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Categories with product counts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminTaxonomy'
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Server error }
+    post:
+      summary: Create category (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTaxonomyRequest'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminTaxonomy'
+        '400': { description: Invalid request }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '409': { description: Slug already exists }
+        '500': { description: Server error }
+  /api/v1/admin/categories/{id}:
+    patch:
+      summary: Update category (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTaxonomyRequest'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminTaxonomy'
+        '400': { description: Invalid request }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Category not found }
+        '409': { description: Slug already exists }
+        '500': { description: Server error }
+    delete:
+      summary: Delete category (admin)
+      description: Child categories and products have their reference set to null.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Category deleted }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Category not found }
+        '500': { description: Server error }
+  /api/v1/admin/brands:
+    get:
+      summary: List brands (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Brands with product counts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminTaxonomy'
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Server error }
+    post:
+      summary: Create brand (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTaxonomyRequest'
+      responses:
+        '201':
+          description: Brand created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminTaxonomy'
+        '400': { description: Invalid request }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '409': { description: Brand name or slug already exists }
+        '500': { description: Server error }
+  /api/v1/admin/brands/{id}:
+    patch:
+      summary: Update brand (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminTaxonomyRequest'
+      responses:
+        '200':
+          description: Brand updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminTaxonomy'
+        '400': { description: Invalid request }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Brand not found }
+        '409': { description: Brand name or slug already exists }
+        '500': { description: Server error }
+    delete:
+      summary: Delete brand (admin)
+      description: Products referencing the brand have their reference set to null.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Brand deleted }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Brand not found }
+        '500': { description: Server error }
+  /api/v1/admin/orders:
+    get:
+      summary: List orders (admin)
+      description: Cross-user order list with customer, payment, and shipment summary fields.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: status
+          in: query
+          description: Order status filter. Omit or pass "all" for no filter.
+          schema:
+            type: string
+            enum: [all, PENDING_PAYMENT, PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED]
+        - name: search
+          in: query
+          description: Match on order number, customer name, or customer email
+          schema: { type: string }
+        - name: startDate
+          in: query
+          schema: { type: string, description: 'RFC3339 timestamp or YYYY-MM-DD' }
+        - name: endDate
+          in: query
+          schema: { type: string, description: 'RFC3339 timestamp or YYYY-MM-DD' }
+      responses:
+        '200':
+          description: Order page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, pagination]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminOrderSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400': { description: Invalid filter }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Server error }
+  /api/v1/admin/orders/stats:
+    get:
+      summary: Order statistics (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema: { type: string }
+        - name: endDate
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Aggregated order counters
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminOrderStats'
+        '400': { description: Invalid filter }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Server error }
+  /api/v1/admin/orders/{id}:
+    get:
+      summary: Get order detail (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Order detail with line items
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminOrderDetail'
+        '400': { description: Invalid order ID }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '404': { description: Order not found }
+        '500': { description: Server error }
+  /api/v1/admin/vouchers/stats:
+    get:
+      summary: Voucher statistics (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Aggregated voucher counters
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [totalVouchers, activeVouchers, totalUsage]
+                    properties:
+                      totalVouchers: { type: integer }
+                      activeVouchers: { type: integer }
+                      totalUsage: { type: integer }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Server error }
+  /api/v1/admin/analytics/overview:
+    get:
+      summary: Dashboard overview (admin)
+      description: Revenue, order, customer, and product counters plus top products by revenue.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: range
+          in: query
+          description: Rolling window. Unrecognized values fall back to 30d.
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, all]
+            default: 30d
+      responses:
+        '200':
+          description: Overview metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AdminAnalyticsOverview'
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden }
+        '500': { description: Server error }
+  /api/v1/tenant:
+    get:
+      summary: Get the current tenant context
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Tenant metadata }
+        '401': { description: Unauthorized }
+  /api/v1/onboarding:
+    post:
+      summary: Create a new store tenant for the authenticated user
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug]
+              properties:
+                name: { type: string }
+                slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' }
+      responses:
+        '201': { description: Tenant created }
+        '409': { description: Tenant slug already exists }
+  /api/v1/orders/{orderId}/returns:
+    post:
+      summary: Request a return for an eligible order
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: orderId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReturnRequest' }
+      responses:
+        '201': { description: Return request created }
+        '409': { description: Order is not eligible or has an active return }
+  /api/v1/returns:
+    get:
+      summary: List the current customer's returns
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Return requests } }
+  /api/v1/returns/{returnId}:
+    get:
+      summary: Get a return request
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: returnId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { '200': { description: Return request detail } }
+  /api/v1/support/tickets:
+    get:
+      summary: List customer support tickets
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Support tickets } }
+    post:
+      summary: Open a support ticket
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SupportTicketRequest' }
+      responses: { '201': { description: Support ticket created } }
+  /api/v1/support/tickets/{ticketId}/messages:
+    post:
+      summary: Add a message to a support ticket
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: ticketId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SupportMessageRequest' }
+      responses: { '201': { description: Message created } }
+  /api/v1/admin/customers:
+    get:
+      summary: List customers for the current tenant
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Customer list } }
+  /api/v1/admin/inventory:
+    get:
+      summary: List variant inventory
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Inventory list } }
+  /api/v1/admin/inventory/{variantId}:
+    patch:
+      summary: Set or adjust variant stock
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: variantId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stock: { type: integer, minimum: 0 }
+                delta: { type: integer }
+      responses: { '200': { description: Inventory updated } }
+  /api/v1/admin/returns:
+    get:
+      summary: List tenant return requests
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Return requests } }
+  /api/v1/admin/returns/{returnId}:
+    patch:
+      summary: Update return workflow status
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: returnId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusRequest' }
+      responses: { '200': { description: Return status updated } }
+  /api/v1/admin/returns/{returnId}/refund:
+    post:
+      summary: Issue a provider-backed refund for a return
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: returnId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { '200': { description: Refund issued } }
+  /api/v1/admin/support/tickets:
+    get:
+      summary: List tenant support tickets
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Support tickets } }
+  /api/v1/admin/support/tickets/{ticketId}:
+    patch:
+      summary: Update support ticket status
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: ticketId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusRequest' }
+      responses: { '200': { description: Ticket status updated } }
+  /api/v1/admin/support/tickets/{ticketId}/messages:
+    post:
+      summary: Add an agent message to a ticket
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: ticketId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SupportMessageRequest' }
+      responses: { '201': { description: Message created } }
+  /api/v1/admin/settings:
+    get:
+      summary: Read tenant store configuration
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Store configuration } }
+    patch:
+      summary: Update tenant store configuration
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses: { '200': { description: Store configuration updated } }
+  /api/v1/admin/onboarding:
+    post:
+      summary: Complete tenant onboarding
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: true }
+      responses: { '200': { description: Tenant onboarding saved } }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1774,6 +2620,288 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    ReturnRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 1 }
+        notes: { type: string }
+    StatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    SupportTicketRequest:
+      type: object
+      required: [subject, message]
+      properties:
+        subject: { type: string, minLength: 1 }
+        message: { type: string, minLength: 1 }
+        orderId: { type: string, format: uuid }
+    SupportMessageRequest:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, minLength: 1 }
+    AdminProduct:
+      type: object
+      required: [id, title, slug, price, inStock, stock, badges, variantCount, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        slug: { type: string }
+        price: { type: integer, description: Minor currency units }
+        compareAt: { type: [integer, "null"] }
+        inStock: { type: boolean }
+        stock: { type: integer, description: Sum of variant stock }
+        thumbnail: { type: [string, "null"] }
+        badges:
+          type: array
+          items: { type: string }
+        description: { type: [string, "null"] }
+        categoryId: { type: [string, "null"], format: uuid }
+        categoryName: { type: [string, "null"] }
+        brandId: { type: [string, "null"], format: uuid }
+        brandName: { type: [string, "null"] }
+        variantCount: { type: integer }
+        sku: { type: [string, "null"], description: Primary variant SKU }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AdminProductDetail:
+      allOf:
+        - $ref: '#/components/schemas/AdminProduct'
+        - type: object
+          required: [images, specs, variants]
+          properties:
+            images:
+              type: array
+              items:
+                type: object
+                required: [id, url, sortOrder]
+                properties:
+                  id: { type: string, format: uuid }
+                  url: { type: string }
+                  sortOrder: { type: integer }
+            specs:
+              type: array
+              items:
+                $ref: '#/components/schemas/AdminProductSpec'
+            variants:
+              type: array
+              items:
+                type: object
+                required: [id, price, stock, attributes]
+                properties:
+                  id: { type: string, format: uuid }
+                  sku: { type: [string, "null"] }
+                  price: { type: integer }
+                  stock: { type: integer }
+                  attributes: { type: object, additionalProperties: true }
+    AdminProductSpec:
+      type: object
+      required: [key, value]
+      properties:
+        key: { type: string }
+        value: { type: string }
+    AdminProductVariantInput:
+      type: object
+      description: Omit id to insert a new variant; provide id to update an existing one.
+      properties:
+        id: { type: string, format: uuid }
+        sku: { type: [string, "null"] }
+        price: { type: integer }
+        stock: { type: integer }
+        attributes: { type: object, additionalProperties: true }
+    AdminProductCreateRequest:
+      type: object
+      required: [title, price]
+      properties:
+        title: { type: string }
+        slug: { type: string, description: Derived from title when omitted }
+        price: { type: integer, minimum: 0 }
+        compareAt: { type: [integer, "null"] }
+        inStock: { type: boolean, default: true }
+        thumbnail: { type: [string, "null"] }
+        badges:
+          type: array
+          items: { type: string }
+        description: { type: [string, "null"] }
+        categoryId: { type: [string, "null"], format: uuid }
+        brandId: { type: [string, "null"], format: uuid }
+        images:
+          type: array
+          items: { type: string }
+        specs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductSpec'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductVariantInput'
+    AdminProductUpdateRequest:
+      type: object
+      description: |
+        All properties are optional. Absent keys are left unchanged; an explicit
+        null clears the corresponding nullable column. Supplying images or specs
+        replaces the whole collection.
+      properties:
+        title: { type: string }
+        slug: { type: string }
+        price: { type: integer, minimum: 0 }
+        compareAt: { type: [integer, "null"] }
+        inStock: { type: boolean }
+        thumbnail: { type: [string, "null"] }
+        badges:
+          type: array
+          items: { type: string }
+        description: { type: [string, "null"] }
+        categoryId: { type: [string, "null"], format: uuid }
+        brandId: { type: [string, "null"], format: uuid }
+        images:
+          type: array
+          items: { type: string }
+        specs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductSpec'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductVariantInput'
+    AdminTaxonomy:
+      type: object
+      required: [id, name, slug, productCount, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        parentId: { type: [string, "null"], format: uuid, description: Categories only }
+        productCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AdminTaxonomyRequest:
+      type: object
+      properties:
+        name: { type: string }
+        slug: { type: string, description: Derived from name when omitted }
+        parentId: { type: [string, "null"], format: uuid, description: Categories only }
+    AdminOrderSummary:
+      type: object
+      required: [id, status, paymentStatus, currency, total, subtotal, discount, tax, shipping, itemsCount, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        orderNumber: { type: [string, "null"] }
+        userId: { type: [string, "null"], format: uuid }
+        customerName: { type: [string, "null"] }
+        customerEmail: { type: [string, "null"] }
+        status:
+          type: string
+          enum: [PENDING_PAYMENT, PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED]
+        paymentStatus: { type: string, description: "Latest payment status; empty string when no payment row exists" }
+        currency: { type: string }
+        total: { type: integer }
+        subtotal: { type: integer }
+        discount: { type: integer }
+        tax: { type: integer }
+        shipping: { type: integer }
+        voucherCode: { type: [string, "null"] }
+        itemsCount: { type: integer }
+        courier: { type: [string, "null"] }
+        trackingNumber: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AdminOrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/AdminOrderSummary'
+        - type: object
+          required: [shippingAddress, shippingOption, items]
+          properties:
+            shippingAddress: { type: object, additionalProperties: true }
+            shippingOption: { type: object, additionalProperties: true }
+            notes: { type: [string, "null"] }
+            items:
+              type: array
+              items:
+                type: object
+                required: [id, title, slug, qty, unitPrice, subtotal]
+                properties:
+                  id: { type: string, format: uuid }
+                  productId: { type: [string, "null"], format: uuid }
+                  variantId: { type: [string, "null"], format: uuid }
+                  title: { type: string }
+                  slug: { type: string }
+                  qty: { type: integer }
+                  unitPrice: { type: integer }
+                  subtotal: { type: integer }
+    AdminOrderStats:
+      type: object
+      required: [totalOrders, totalRevenue, pendingOrders, paidOrders, shippedOrders, deliveredOrders, cancelledOrders, averageOrderValue]
+      properties:
+        totalOrders: { type: integer }
+        totalRevenue: { type: integer, description: Excludes cancelled orders }
+        pendingOrders: { type: integer }
+        paidOrders: { type: integer }
+        shippedOrders: { type: integer }
+        deliveredOrders: { type: integer }
+        cancelledOrders: { type: integer }
+        averageOrderValue: { type: integer }
+    AdminVoucher:
+      type: object
+      required: [id, code, kind, value, minSpend, usedCount, combinable, priority, productIds, categoryIds, brandIds, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        kind:
+          type: string
+          enum: [percent, fixed_amount]
+        value: { type: integer }
+        percentBps: { type: [integer, "null"] }
+        minSpend: { type: integer }
+        usageLimit: { type: [integer, "null"] }
+        usedCount: { type: integer }
+        perUserLimit: { type: [integer, "null"] }
+        validFrom: { type: [string, "null"], format: date-time }
+        validTo: { type: [string, "null"], format: date-time }
+        combinable: { type: boolean }
+        priority: { type: integer }
+        productIds:
+          type: array
+          items: { type: string, format: uuid }
+        categoryIds:
+          type: array
+          items: { type: string, format: uuid }
+        brandIds:
+          type: array
+          items: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AdminAnalyticsOverview:
+      type: object
+      required: [range, totalRevenue, totalOrders, totalCustomers, totalProducts, averageOrderValue, topProducts]
+      properties:
+        range: { type: string, enum: [7d, 30d, 90d, all] }
+        totalRevenue: { type: integer }
+        totalOrders: { type: integer }
+        totalCustomers: { type: integer }
+        totalProducts: { type: integer }
+        averageOrderValue: { type: integer }
+        pendingOrders: { type: integer }
+        paidOrders: { type: integer }
+        shippedOrders: { type: integer }
+        deliveredOrders: { type: integer }
+        cancelledOrders: { type: integer }
+        topProducts:
+          type: array
+          items:
+            type: object
+            required: [productId, title, slug, unitsSold, revenue]
+            properties:
+              productId: { type: string, format: uuid }
+              title: { type: string }
+              slug: { type: string }
+              unitsSold: { type: integer }
+              revenue: { type: integer }
     CheckoutRequest:
       type: object
       required:
@@ -2340,6 +3468,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        campaignId:
+          type: string
+          format: uuid
+          nullable: true
         title:
           type: string
         slug:
@@ -2421,6 +3553,10 @@ components:
           type: string
           format: uuid
         variantId:
+          type: string
+          format: uuid
+          nullable: true
+        campaignId:
           type: string
           format: uuid
           nullable: true

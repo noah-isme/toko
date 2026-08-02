@@ -21,6 +21,9 @@ describe('LanguageSwitcher', () => {
 
   beforeEach(() => {
     queryClient = createQueryClient();
+    document.cookie = 'toko-locale=; Max-Age=0; Path=/';
+    window.history.replaceState({}, '', '/');
+    document.documentElement.lang = 'id';
   });
 
   function Wrapper({ children }: { children: React.ReactNode }) {

@@ -71,6 +71,7 @@ export default function CheckoutPage() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(
     'bank_transfer',
   );
+  const [orderNotes, setOrderNotes] = useState<string>('');
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [isUsingCachedQuote, setIsUsingCachedQuote] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
@@ -436,6 +437,7 @@ export default function CheckoutPage() {
         shippingService: selectedShippingOption.id,
         shippingCost: selectedShippingOption.cost,
         paymentMethod: selectedPaymentMethod,
+        notes: orderNotes.trim() || undefined,
       });
 
       const draft: OrderDraft = {
@@ -618,6 +620,26 @@ export default function CheckoutPage() {
               onSelect={setSelectedPaymentMethod}
               disabled={isProcessing}
             />
+          </section>
+
+          <section className="space-y-4 rounded-lg border p-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold">Catatan Pesanan (Opsional)</h2>
+              <p className="text-sm text-muted-foreground">
+                Tambahkan instruksi khusus untuk pesanan Anda (mis. “Telepon sebelum dikirim”, “Tinggalkan di depan pintu”).
+              </p>
+            </div>
+            <textarea
+              className="min-h-[80px] w-full resize-none rounded-lg border border-input bg-background p-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring"
+              placeholder="Tulis catatan Anda di sini... (maks 500 karakter)"
+              maxLength={500}
+              value={orderNotes}
+              onChange={(e) => setOrderNotes(e.target.value)}
+              disabled={isProcessing}
+            />
+            <p className="text-right text-xs text-muted-foreground">
+              {orderNotes.length}/500
+            </p>
           </section>
 
           {checkoutMutation.error ? (

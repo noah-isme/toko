@@ -22,6 +22,8 @@ const DEFAULT_MAX_QUANTITY = 99;
 
 type AddCartItemVariables = {
   productId: string;
+  variantId?: string | null;
+  campaignId?: string | null;
   quantity: number;
   name: string;
   price: CartViewItem['price'];
@@ -193,9 +195,9 @@ export function useAddToCartMutation() {
   const { toast } = useToast();
 
   const mutation = useGuardedMutation<CartView, Error, AddCartItemVariables, MutationContext>(
-    (variables) => `add:${variables.productId}`,
+    (variables) => `add:${variables.productId}:${variables.variantId ?? 'base'}:${variables.campaignId ?? 'regular'}`,
     {
-      mutationFn: async ({ productId, quantity, cartId }) => {
+      mutationFn: async ({ productId, variantId, campaignId, quantity, cartId }) => {
         if (!cartId) {
           throw new Error('Cart ID is required to add items');
         }
@@ -204,7 +206,7 @@ export function useAddToCartMutation() {
         }
         const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}/items`, {
           method: 'POST',
-          body: JSON.stringify(addToCartInputSchema.parse({ productId, qty: quantity })),
+          body: JSON.stringify(addToCartInputSchema.parse({ productId, variantId, campaignId, qty: quantity })),
           // Schema removed because we handle wrapped response manually
           requiresAuth: true,
         });
@@ -214,14 +216,16 @@ export function useAddToCartMutation() {
         return cartViewSchema.parse(mappedCart);
       },
       onMutate: async (variables) => {
-        const { productId, quantity, name, price, image, maxQuantity, cartId } = variables;
+        const { productId, variantId, quantity, name, price, image, maxQuantity, cartId } = variables;
         await cancelCartQueries(queryClient, cartId);
 
         const previousCart = readCartCache(queryClient, cartId);
         const baseCart = previousCart ?? createFallbackCart(cartId, price.currency);
         const optimisticCart = patchCartItems(baseCart, (items) => {
           const nextItems = [...items];
-          const existingIndex = nextItems.findIndex((item) => item.productId === productId);
+          const existingIndex = nextItems.findIndex(
+            (item) => item.productId === productId && (item.variantId ?? null) === (variantId ?? null),
+          );
           const increment = clampQuantity(quantity, maxQuantity);
 
           if (existingIndex >= 0) {
@@ -238,6 +242,7 @@ export function useAddToCartMutation() {
             nextItems.push({
               id: `optimistic-${productId}`,
               productId,
+              variantId: variantId ?? null,
               name,
               quantity: increment,
               price,
@@ -256,7 +261,7 @@ export function useAddToCartMutation() {
       onSuccess: (data, variables) => {
         writeCartCache(queryClient, variables.cartId, data);
         toast({
-          id: `cart-${variables.productId}-add-success`,
+          id: `cart-${variables.productId}-${variables.variantId ?? 'base'}-add-success`,
           title: 'Ditambahkan ke keranjang',
           variant: 'success',
         });
@@ -264,7 +269,7 @@ export function useAddToCartMutation() {
       onError: (error, variables, context) => {
         writeCartCache(queryClient, variables.cartId, context?.previousCart);
         toast({
-          id: `cart-${variables.productId}-add-error`,
+          id: `cart-${variables.productId}-${variables.variantId ?? 'base'}-add-error`,
           title: 'Gagal menambahkan ke keranjang',
           description: normalizeError(error),
           variant: 'destructive',
@@ -279,7 +284,8 @@ export function useAddToCartMutation() {
   return useMemo(
     () => ({
       ...mutation,
-      isProductInFlight: (productId: string) => mutation.isGuardActive(`add:${productId}`),
+      isProductInFlight: (productId: string, variantId?: string | null) =>
+        mutation.isGuardActive(`add:${productId}:${variantId ?? 'base'}`),
     }),
     [mutation],
   );

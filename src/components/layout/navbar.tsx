@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { Container } from '@/components/layout/container';
+import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import {
@@ -88,6 +89,7 @@ export function Navbar() {
         </nav>
         <div className="ml-auto flex flex-1 items-center justify-end gap-3">
           <Suspense fallback={null}>
+          <LanguageSwitcher />
             <SearchAutocomplete className="hidden md:flex" />
           </Suspense>
           {isAuthenticated ? <CartDrawer /> : null}

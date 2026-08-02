@@ -403,6 +403,26 @@ function buildQuery(params: object): string {
   return query ? `?${query}` : '';
 }
 
+export interface AdminInventoryItem {
+  variantId: string;
+  productId: string;
+  sku?: string | null;
+  productTitle: string;
+  price: number;
+  stock: number;
+}
+
+export interface AdminCustomer {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface StoreSettings {
+  [key: string]: unknown;
+}
+
 export const adminApi = {
   // ============ Products ============
 
@@ -728,6 +748,44 @@ export const adminApi = {
     return apiClient<PaginatedResponse<AuditLog>>(`/admin/audit-logs${buildQuery(params)}`, {
       requiresAuth: true,
     });
+  },
+
+  async getInventory(): Promise<AdminInventoryItem[]> {
+    const response = await apiClient<ApiResponse<AdminInventoryItem[]>>('/admin/inventory', {
+      requiresAuth: true,
+    });
+    return response.data ?? [];
+  },
+
+  async updateInventory(id: string, data: { stock?: number; delta?: number }) {
+    return apiClient<ApiResponse<AdminInventoryItem>>(`/admin/inventory/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+  },
+
+  async getCustomers(): Promise<AdminCustomer[]> {
+    const response = await apiClient<ApiResponse<AdminCustomer[]>>('/admin/customers', {
+      requiresAuth: true,
+    });
+    return response.data ?? [];
+  },
+
+  async getSettings(): Promise<StoreSettings> {
+    const response = await apiClient<ApiResponse<StoreSettings>>('/admin/settings', {
+      requiresAuth: true,
+    });
+    return response.data ?? {};
+  },
+
+  async updateSettings(settings: StoreSettings): Promise<StoreSettings> {
+    const response = await apiClient<ApiResponse<StoreSettings>>('/admin/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(settings),
+      requiresAuth: true,
+    });
+    return response.data ?? {};
   },
 };
 

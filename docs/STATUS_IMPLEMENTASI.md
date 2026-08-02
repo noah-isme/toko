@@ -12,6 +12,18 @@ Aplikasi Toko menggunakan arsitektur modular Next.js 16 (App Router) dengan:
 - **Query & State Syncing**: TanStack React Query (v5) untuk caching server state dan Zustand untuk client state (cart, favorites).
 - **Type Safety**: TypeScript dengan validasi Zod untuk schema runtime.
 
+## 🔌 Integrasi API storefront terbaru
+
+Fitur yang sebelumnya hanya visual atau simulasi kini menggunakan kontrak API:
+
+- Promosi: `/vouchers` dan `/flash-sales` membaca voucher serta campaign aktif dari backend.
+- Pembayaran: `/checkout/review` memuat instruksi metode pembayaran, detail bank/QR, dan mengunggah bukti pembayaran.
+- Akun: `/account/privacy` memuat dan menyimpan preferensi, mengekspor data, serta menghapus akun melalui API.
+- Operasi pelanggan: `/returns` dan `/account/support` terhubung ke workflow pengembalian dan tiket dukungan.
+- Lokalisasi: middleware mendukung prefix `id`, `en`, `zh`, `ja`, dan `ko`; cakupan terjemahan penuh masih merupakan pekerjaan konten terpisah.
+
+Detail endpoint ada di [indeks kontrak frontend](contracts/README.md) dan kontrak backend canonical di `toko-api/docs/contracts`.
+
 ---
 
 ## 🎯 Status Fitur Utama (P0 - P1)
