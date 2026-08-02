@@ -30,6 +30,28 @@ The development server runs at [http://localhost:3000](http://localhost:3000). M
 | `pnpm test:watch` | Run Vitest in watch mode.                            |
 | `pnpm format`     | Format the repository with Prettier.                 |
 
+### PWA / Offline Support
+
+The storefront includes Progressive Web App capabilities:
+
+- **Service Worker** (via `next-pwa` + Workbox): Auto-registers in production with `skipWaiting` for instant updates
+- **Runtime caching**: Google Fonts (1yr), images (30d), API responses (5min NetworkFirst)
+- **Offline fallback**: `/offline` page with auto-reload when connectivity restored
+- **Web App Manifest**: Installable with `display: standalone`, SVG maskable icons
+- **Cache headers**: `stale-while-revalidate=86400` for all optimized images
+
+To test offline capability locally, run `pnpm build && pnpm start` (service worker is disabled in development).
+
+### Granular Code Splitting
+
+Key pages use `React.lazy` + `Suspense` to defer heavy components until needed:
+
+- **Product detail** (`/products/[slug]`): `ReviewStats`, `ReviewForm`, `ReviewList` lazy-loaded with shared skeleton
+- **Checkout** (`/checkout`): `ShippingOptions`, `PaymentMethodSelector`, `OrderSummary` lazy-loaded with individual skeletons
+- **Product image gallery**: Inner gallery component extracted for lazy loading
+
+This produces 100+ separate chunks in `.next/static/chunks/`, reducing initial JavaScript payload.
+
 ### Folder structure
 
 ```

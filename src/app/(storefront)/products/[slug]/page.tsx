@@ -1,17 +1,63 @@
 import type { Metadata } from 'next';
+import { Suspense, lazy } from 'react';
 
 import { ProductDetail } from '@/components/product-detail';
 import { RelatedProductList } from '@/components/related-product-list';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
-import { ReviewForm } from '@/entities/reviews/ui/ReviewForm';
-import { ReviewList } from '@/entities/reviews/ui/ReviewList';
-import { ReviewStats } from '@/entities/reviews/ui/ReviewStats';
 import { mapApiProductToProduct } from '@/lib/api/mappers/product';
 import { productSchema } from '@/lib/api/schemas';
 import type { ApiProduct, ApiResponse } from '@/lib/api/types';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical } from '@/shared/seo/seo';
+
+const ReviewStats = lazy(() =>
+  import('@/entities/reviews/ui/ReviewStats').then((mod) => ({ default: mod.ReviewStats })),
+);
+const ReviewForm = lazy(() =>
+  import('@/entities/reviews/ui/ReviewForm').then((mod) => ({ default: mod.ReviewForm })),
+);
+const ReviewList = lazy(() =>
+  import('@/entities/reviews/ui/ReviewList').then((mod) => ({ default: mod.ReviewList })),
+);
+
+function ReviewSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
+        <div className="animate-pulse space-y-4 rounded-lg border border-border/60 p-4">
+          <div className="h-5 w-1/2 bg-muted" />
+          <div className="h-10 w-24 bg-muted" />
+          <div className="space-y-2">
+            {[5, 4, 3, 2, 1].map((rating) => (
+              <div key={rating} className="flex items-center gap-2">
+                <div className="h-3 w-4 bg-muted" />
+                <div className="h-2 flex-1 bg-muted" />
+                <div className="h-3 w-8 bg-muted" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="animate-pulse space-y-4 rounded-lg border border-border/60 p-4">
+          <div className="h-5 w-1/3 bg-muted" />
+          <div className="h-4 w-full bg-muted" />
+          <div className="h-4 w-11/12 bg-muted" />
+          <div className="h-8 w-32 bg-muted" />
+        </div>
+      </div>
+      <div className="animate-pulse space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="space-y-2 rounded-lg border border-border/50 p-4">
+            <div className="h-4 w-1/5 bg-muted" />
+            <div className="h-4 w-full bg-muted" />
+            <div className="h-4 w-11/12 bg-muted" />
+            <div className="h-8 w-32 bg-muted" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -145,11 +191,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <ProductDetail slug={slug} />
         <RelatedProductList slug={slug} />
         <section id="reviews" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
-            <ReviewStats productId={resolvedProductId} />
-            <ReviewForm productId={resolvedProductId} />
-          </div>
-          <ReviewList productId={resolvedProductId} pageSize={5} />
+          <Suspense fallback={<ReviewSkeleton />}>
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
+              <ReviewStats productId={resolvedProductId} />
+              <ReviewForm productId={resolvedProductId} />
+            </div>
+            <ReviewList productId={resolvedProductId} pageSize={5} />
+          </Suspense>
         </section>
       </div>
     </>

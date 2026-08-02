@@ -21,6 +21,7 @@ import {
   Tag,
   Ticket,
   Webhook,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -45,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin/brands', label: 'Brands', icon: Tag },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/admin/vouchers', label: 'Vouchers', icon: Ticket },
+  { href: '/admin/flash-sales', label: 'Flash Sales', icon: Zap },
   { href: '/admin/returns', label: 'Returns', icon: RotateCcw },
   { href: '/admin/support', label: 'Support', icon: MessageCircle },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },

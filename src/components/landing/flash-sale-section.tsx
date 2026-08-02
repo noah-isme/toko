@@ -9,50 +9,72 @@ import { Price } from '@/components/price';
 import { Button } from '@/components/ui/button';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
-import { useProducts, Product } from '@/lib/api';
+import {
+  promotionsApi,
+  type FlashSaleCampaign,
+  type FlashSaleItem,
+} from '@/lib/api/services/promotions';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { useCartStore } from '@/stores/cart-store';
 
 export function FlashSaleSection() {
-  const { data: rawProducts, isLoading } = useProducts();
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
 
-  // Live Countdown Timer (Target: 5 hours from now)
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 59, seconds: 59 });
+  const [campaigns, setCampaigns] = useState<FlashSaleCampaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { hours: prev.hours, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 0, minutes: 0, seconds: 0 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
   }, []);
 
-  const flashProducts: Product[] = rawProducts?.data?.slice(0, 4) || [];
+  useEffect(() => {
+    let cancelled = false;
+    promotionsApi
+      .listFlashSales()
+      .then((items) => {
+        if (!cancelled) setCampaigns(items);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Gagal memuat flash sale.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  if (isLoading) {
+  const active = campaigns.find(
+    (campaign) =>
+      new Date(campaign.startsAt).getTime() <= now && new Date(campaign.endsAt).getTime() > now,
+  );
+
+  if (loading) {
     return <FlashSaleSkeleton />;
   }
 
-  if (flashProducts.length === 0) {
+  if (error || !active || active.items.length === 0) {
     return null;
   }
 
-  const handleAddToCart = (product: Product) => {
-    if (!cartId) return;
-    const image = product.imageUrl || (product.images && product.images[0]) || '';
+  const items = active.items.slice(0, 4);
+  const timeLeft = countdown(active.endsAt, now);
+
+  const handleAdd = (item: FlashSaleItem) => {
+    if (!cartId || item.stock <= 0) return;
     mutate({
-      productId: product.id,
+      productId: item.productId,
+      campaignId: active.id,
       quantity: 1,
-      name: product.title,
-      price: { amount: product.price, currency: product.currency || 'IDR' },
-      image,
-      maxQuantity: product.stock,
+      name: item.title,
+      price: { amount: item.salePrice, currency: 'IDR' },
+      image: item.thumbnail ?? '',
+      maxQuantity: item.stock,
       cartId,
     });
   };
@@ -93,15 +115,14 @@ export function FlashSaleSection() {
 
       {/* Product Items Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {flashProducts.map((product: Product, idx: number) => {
-          const discountPct = 15 + ((idx * 7) % 25);
-          const originalPrice = Math.round(product.price * (1 + discountPct / 100));
-          const image = product.imageUrl || (product.images && product.images[0]) || '';
-          const isAdding = isProductInFlight(product.id);
+        {items.map((item) => {
+          const discountPct = Math.round(item.discountBps / 100);
+          const image = item.thumbnail || '';
+          const isAdding = isProductInFlight(item.productId);
 
           return (
             <div
-              key={product.id}
+              key={item.id}
               className="group flex flex-col justify-between rounded-xl border border-border bg-background p-3.5 transition-all duration-150 hover:border-primary/50 hover:shadow-md"
             >
               {/* Product Image & Badges */}
@@ -110,7 +131,7 @@ export function FlashSaleSection() {
                   {image ? (
                     <Image
                       src={image}
-                      alt={product.title}
+                      alt={item.title}
                       fill
                       className="object-cover transition-transform duration-200 group-hover:scale-105"
                       sizes="(min-width: 768px) 25vw, 50vw"
@@ -120,13 +141,13 @@ export function FlashSaleSection() {
                     -{discountPct}%
                   </span>
                   <div className="absolute right-2 top-2">
-                    <FavToggle productId={product.id} size="sm" />
+                    <FavToggle productId={item.productId} size="sm" />
                   </div>
                 </div>
 
-                <Link href={`/products/${product.slug}`}>
+                <Link href={`/products/${item.slug}`}>
                   <h3 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors hover:text-primary">
-                    {product.title}
+                    {item.title}
                   </h3>
                 </Link>
               </div>
@@ -135,11 +156,13 @@ export function FlashSaleSection() {
               <div className="mt-4 space-y-3 border-t border-border/40 pt-3">
                 <div>
                   <div className="text-xs text-muted-foreground line-through">
-                    Rp {originalPrice.toLocaleString('id-ID')}
+                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                      item.originalPrice,
+                    )}
                   </div>
                   <Price
-                    amount={product.price}
-                    currency={product.currency || 'IDR'}
+                    amount={item.salePrice}
+                    currency="IDR"
                     className="text-base font-extrabold tracking-tight text-foreground"
                   />
                 </div>
@@ -147,7 +170,7 @@ export function FlashSaleSection() {
                 <Button
                   size="sm"
                   className="w-full gap-2 transition-transform duration-150 active:scale-[0.98]"
-                  onClick={() => handleAddToCart(product)}
+                  onClick={() => handleAdd(item)}
                   disabled={isAdding}
                 >
                   <ShoppingCart className="h-4 w-4" />
@@ -161,14 +184,24 @@ export function FlashSaleSection() {
 
       <div className="pt-2 text-center">
         <Link
-          href="/products"
+          href="/flash-sales"
           className="inline-flex items-center text-xs font-bold text-primary hover:underline"
         >
-          Lihat Semua Produk Flash Sale <ArrowRight className="ml-1 h-3.5 w-3.5" />
+          Lihat Semua Flash Sale <ArrowRight className="ml-1 h-3.5 w-3.5" />
         </Link>
       </div>
     </section>
   );
+}
+
+function countdown(target: string, now: number) {
+  const seconds = Math.max(0, Math.floor((new Date(target).getTime() - now) / 1000));
+  return {
+    days: Math.floor(seconds / 86400),
+    hours: Math.floor((seconds % 86400) / 3600),
+    minutes: Math.floor((seconds % 3600) / 60),
+    seconds: seconds % 60,
+  };
 }
 
 function TimerBlock({ value, label }: { value: number; label: string }) {

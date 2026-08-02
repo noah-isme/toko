@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertTriangle, Edit, Plus, Search, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -164,11 +165,12 @@ export default function ProductsPage() {
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
                               {product.thumbnail ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
+                                <Image
                                   src={product.thumbnail}
                                   alt=""
-                                  className="h-full w-full object-cover"
+                                  fill
+                                  className="object-cover"
+                                  sizes="40px"
                                 />
                               ) : null}
                             </div>

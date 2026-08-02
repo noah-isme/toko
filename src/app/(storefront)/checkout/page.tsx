@@ -5,10 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-
-import { OrderSummary } from './_components/OrderSummary';
-import { PaymentMethodSelector } from './_components/PaymentMethodSelector';
-import { ShippingOptions } from './_components/ShippingOptions';
+import { Suspense, lazy } from 'react';
 
 import { CheckoutStepper } from '@/components/checkout-stepper';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -48,6 +45,18 @@ import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { CheckoutSkeleton } from '@/shared/ui/skeletons/CheckoutSkeleton';
 import { useCartStore } from '@/stores/cart-store';
+
+const ShippingOptions = lazy(() =>
+  import('./_components/ShippingOptions').then((mod) => ({ default: mod.ShippingOptions })),
+);
+const PaymentMethodSelector = lazy(() =>
+  import('./_components/PaymentMethodSelector').then((mod) => ({
+    default: mod.PaymentMethodSelector,
+  })),
+);
+const OrderSummary = lazy(() =>
+  import('./_components/OrderSummary').then((mod) => ({ default: mod.OrderSummary })),
+);
 
 const EMPTY_ADDRESSES: SavedAddress[] = [];
 
@@ -599,12 +608,14 @@ export default function CheckoutPage() {
                     ? `${isUsingCachedQuote ? 'Ongkir terakhir' : 'Ongkir diperbarui'} ${lastQuoteLabel}`
                     : 'Ongkir diperbarui otomatis saat alamat atau keranjang berubah.'}
               </p>
-              <ShippingOptions
-                options={shippingOptions}
-                selectedId={selectedShippingId ?? undefined}
-                onChange={(id) => setSelectedShippingId(id)}
-                disabled={isProcessing}
-              />
+              <Suspense fallback={<ShippingOptionsSkeleton />}>
+                <ShippingOptions
+                  options={shippingOptions}
+                  selectedId={selectedShippingId ?? undefined}
+                  onChange={(id) => setSelectedShippingId(id)}
+                  disabled={isProcessing}
+                />
+              </Suspense>
             </section>
           ) : null}
 
@@ -615,18 +626,21 @@ export default function CheckoutPage() {
                 Select how you want to pay for your order.
               </p>
             </div>
-            <PaymentMethodSelector
-              selectedMethod={selectedPaymentMethod}
-              onSelect={setSelectedPaymentMethod}
-              disabled={isProcessing}
-            />
+            <Suspense fallback={<PaymentMethodSelectorSkeleton />}>
+              <PaymentMethodSelector
+                selectedMethod={selectedPaymentMethod}
+                onSelect={setSelectedPaymentMethod}
+                disabled={isProcessing}
+              />
+            </Suspense>
           </section>
 
           <section className="space-y-4 rounded-lg border p-6">
             <div className="space-y-1">
               <h2 className="text-lg font-semibold">Catatan Pesanan (Opsional)</h2>
               <p className="text-sm text-muted-foreground">
-                Tambahkan instruksi khusus untuk pesanan Anda (mis. “Telepon sebelum dikirim”, “Tinggalkan di depan pintu”).
+                Tambahkan instruksi khusus untuk pesanan Anda (mis. “Telepon sebelum dikirim”,
+                “Tinggalkan di depan pintu”).
               </p>
             </div>
             <textarea
@@ -637,9 +651,7 @@ export default function CheckoutPage() {
               onChange={(e) => setOrderNotes(e.target.value)}
               disabled={isProcessing}
             />
-            <p className="text-right text-xs text-muted-foreground">
-              {orderNotes.length}/500
-            </p>
+            <p className="text-right text-xs text-muted-foreground">{orderNotes.length}/500</p>
           </section>
 
           {checkoutMutation.error ? (
@@ -690,7 +702,9 @@ export default function CheckoutPage() {
         <aside id={orderSummaryId} className="lg:sticky lg:top-24">
           <div className="space-y-6">
             <PromoField cartId={activeCartId} />
-            <OrderSummary totals={computedTotals} />
+            <Suspense fallback={<OrderSummarySkeleton />}>
+              <OrderSummary totals={computedTotals} />
+            </Suspense>
           </div>
         </aside>
       </div>
@@ -886,4 +900,45 @@ function formatAddressText(
   postalCode: string,
 ) {
   return [line1, line2, `${city}, ${province}`, postalCode].filter(Boolean).join(' • ');
+}
+
+function ShippingOptionsSkeleton() {
+  return (
+    <div className="animate-pulse space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="h-20 rounded-lg border border-border/50 bg-muted" />
+      ))}
+    </div>
+  );
+}
+
+function PaymentMethodSelectorSkeleton() {
+  return (
+    <div className="animate-pulse space-y-3">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="h-20 rounded-lg border border-border/50 bg-muted" />
+      ))}
+    </div>
+  );
+}
+
+function OrderSummarySkeleton() {
+  return (
+    <div className="animate-pulse space-y-4 rounded-lg border p-6">
+      <div className="h-5 w-1/3 bg-muted" />
+      <div className="h-4 w-full bg-muted" />
+      <div className="space-y-2">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <div className="h-4 w-1/3 bg-muted" />
+            <div className="h-4 w-1/4 bg-muted" />
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between border-t pt-4">
+        <div className="h-5 w-1/4 bg-muted" />
+        <div className="h-5 w-1/3 bg-muted" />
+      </div>
+    </div>
+  );
 }

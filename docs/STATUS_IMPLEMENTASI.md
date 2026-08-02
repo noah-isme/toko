@@ -68,6 +68,44 @@ Sistem telemetri aktif untuk memantau UX gap dan stubs dari sisi produksi:
 
 ---
 
+## 🌐 PWA / Offline Capability
+
+### 1. Service Worker (Workbox via next-pwa)
+
+- **Status**: ✅ **SELESAI** (2026-08-02)
+- **Lokasi**: [next.config.mjs](file:///home/noah/project/toko-app/toko/next.config.mjs), [public/sw.js](file:///home/noah/project/toko-app/toko/public/sw.js)
+- **Detail**: Menggunakan `next-pwa` wrapper dengan konfigurasi Workbox:
+  - `register: true` + `skipWaiting: true` — SW auto-registers dan update instan di production
+  - `disable: process.env.NODE_ENV === 'development'` — tidak mengganggu dev server
+  - Runtime caching strategies:
+    - Google Fonts (CacheFirst, 1 tahun, max 4 entries)
+    - Static images (CacheFirst, 30 hari, max 100 entries)
+    - API calls (NetworkFirst, 5 menit TTL, timeout 10s, max 50 entries)
+  - Fallback offline page: `/offline` (document handler)
+
+### 2. Web App Manifest
+
+- **Status**: ✅ **SELESAI** (2026-08-02)
+- **Lokasi**: [public/manifest.json](file:///home/noah/project/toko-app/toko/public/manifest.json), [public/icon-192.svg](file:///home/noah/project/toko-app/toko/public/icon-192.svg), [public/icon-512.svg](file:///home/noah/project/toko-app/toko/public/icon-512.svg)
+- **Detail**: PWA manifest dengan `display: standalone`, theme colors, SVG icons (maskable), categories: shopping/lifestyle
+- **Integrasi**: `manifest: '/manifest.json'` di metadata root layout ([src/app/layout.tsx](file:///home/noah/project/toko-app/toko/src/app/layout.tsx))
+
+### 3. Offline Fallback Page
+
+- **Status**: ✅ **SELESAI** (2026-08-02)
+- **Lokasi**: [src/app/offline/page.tsx](file:///home/noah/project/toko-app/toko/src/app/offline/page.tsx)
+- **Detail**: Halaman offline yang informatif dengan auto-reload saat `window.online` event, tombol "Try again", link ke homepage, daftar fitur yang masih tersedia offline (cached pages, products)
+
+### 4. Cache-Control Headers (stale-while-revalidate)
+
+- **Status**: ✅ **SELESAI** (2026-08-02)
+- **Lokasi**: [next.config.mjs](file:///home/noah/project/toko-app/toko/next.config.mjs) — fungsi `async headers()`
+- **Detail**: `Cache-Control: public, max-age=31536000, immutable, stale-while-revalidate=86400` untuk:
+  - `/_next/image/*` (Next.js Image Optimization)
+  - Semua ekstensi gambar: `.avif`, `.webp`, `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`
+
+---
+
 ## 🛠️ Riwayat Tes Kontrak (Contract Testing)
 
 - **Lokasi**: [api-contract.test.ts](file:///home/noah/project/toko-app/toko/src/lib/api/__tests__/api-contract.test.ts)

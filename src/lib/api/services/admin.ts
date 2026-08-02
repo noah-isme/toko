@@ -207,6 +207,66 @@ export interface ShipmentData {
 }
 
 // ============================================================================
+// Flash Sales
+// ============================================================================
+
+export type AdminFlashSaleStatus = 'DRAFT' | 'SCHEDULED' | 'ACTIVE' | 'ENDED';
+
+export interface AdminFlashSaleItem {
+  id: string;
+  productId: string;
+  title: string;
+  slug: string;
+  originalPrice: number;
+  salePrice: number;
+  discountBps: number;
+  stock: number;
+  stockLimit?: number | null;
+  soldCount: number;
+  thumbnail?: string | null;
+}
+
+export interface AdminFlashSale {
+  id: string;
+  name: string;
+  slug: string;
+  status: AdminFlashSaleStatus;
+  startsAt: string;
+  endsAt: string;
+  items: AdminFlashSaleItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminFlashSaleItemInput {
+  productId: string;
+  salePrice: number;
+  stockLimit?: number | null;
+}
+
+export interface AdminFlashSaleInput {
+  name: string;
+  slug: string;
+  status?: AdminFlashSaleStatus;
+  startsAt: string;
+  endsAt: string;
+  items: AdminFlashSaleItemInput[];
+}
+
+export interface AdminFlashSaleListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: AdminFlashSaleStatus | 'all';
+}
+
+export interface AdminFlashSaleStatusUpdate {
+  id: string;
+  status: AdminFlashSaleStatus;
+  updatedAt: string;
+}
+
+// ============================================================================
 // Vouchers
 // ============================================================================
 
@@ -634,6 +694,47 @@ export const adminApi = {
       method: 'DELETE',
       requiresAuth: true,
     });
+  },
+
+  // ============ Flash Sales ============
+
+  async getFlashSales(
+    params: AdminFlashSaleListParams = {},
+  ): Promise<PaginatedResponse<AdminFlashSale>> {
+    return apiClient<PaginatedResponse<AdminFlashSale>>(`/admin/flash-sales${buildQuery(params)}`, {
+      requiresAuth: true,
+    });
+  },
+
+  async getFlashSale(id: string): Promise<AdminFlashSale> {
+    const response = await apiClient<ApiResponse<AdminFlashSale>>(`/admin/flash-sales/${id}`, {
+      requiresAuth: true,
+    });
+    return response.data;
+  },
+
+  async createFlashSale(data: AdminFlashSaleInput): Promise<{ id: string }> {
+    const response = await apiClient<ApiResponse<{ id: string }>>('/admin/flash-sales', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+    return response.data;
+  },
+
+  async updateFlashSaleStatus(
+    id: string,
+    status: AdminFlashSaleStatus,
+  ): Promise<AdminFlashSaleStatusUpdate> {
+    const response = await apiClient<ApiResponse<AdminFlashSaleStatusUpdate>>(
+      `/admin/flash-sales/${id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+        requiresAuth: true,
+      },
+    );
+    return response.data;
   },
 
   // ============ Analytics ============

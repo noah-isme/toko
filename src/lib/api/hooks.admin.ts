@@ -10,6 +10,9 @@ import { queryKeys } from './queryKeys';
 import {
   adminApi,
   type AdminAnalyticsRange,
+  type AdminFlashSaleInput,
+  type AdminFlashSaleListParams,
+  type AdminFlashSaleStatus,
   type AdminOrderListParams,
   type AdminOrderStatus,
   type AdminProductInput,
@@ -276,6 +279,48 @@ export function useDeleteAdminVoucher() {
     mutationFn: (code: string) => adminApi.deleteVoucher(code),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin', 'vouchers'] });
+    },
+  });
+}
+
+// ============================================================================
+// Flash Sales
+// ============================================================================
+
+export function useAdminFlashSales(params: AdminFlashSaleListParams = {}) {
+  return useQuery({
+    queryKey: queryKeys.admin.flashSales(params),
+    queryFn: () => adminApi.getFlashSales(params),
+    staleTime: STALE_TIME,
+  });
+}
+
+export function useAdminFlashSale(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.admin.flashSale(id ?? ''),
+    queryFn: () => adminApi.getFlashSale(id as string),
+    enabled: Boolean(id),
+    staleTime: STALE_TIME,
+  });
+}
+
+export function useCreateAdminFlashSale() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AdminFlashSaleInput) => adminApi.createFlashSale(data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'flash-sales'] });
+    },
+  });
+}
+
+export function useUpdateAdminFlashSaleStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: AdminFlashSaleStatus }) =>
+      adminApi.updateFlashSaleStatus(id, status),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'flash-sales'] });
     },
   });
 }

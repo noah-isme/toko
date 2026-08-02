@@ -17,7 +17,7 @@ interface ProductImageGalleryProps {
   className?: string;
 }
 
-export function ProductImageGallery({ images, productName, className }: ProductImageGalleryProps) {
+function ProductImageGalleryInner({ images, productName, className }: ProductImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -186,3 +186,5 @@ export function ProductImageGallery({ images, productName, className }: ProductI
     </div>
   );
 }
+
+export const ProductImageGallery = ProductImageGalleryInner;

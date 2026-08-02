@@ -9,6 +9,7 @@ export async function createWorker() {
       stop: () => {},
     };
   }
-  const { setupWorker } = await import('msw/browser');
+  const msw = await import('msw');
+  const { setupWorker } = msw as any;
   return setupWorker(...handlers);
 }
