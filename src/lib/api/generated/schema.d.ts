@@ -5736,7 +5736,31 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List messages for a customer support ticket */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    ticketId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Ticket conversation in chronological order */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: components["schemas"]["SupportMessage"][];
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         /** Add a message to a support ticket */
         post: {
@@ -6071,7 +6095,31 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List messages for a tenant support ticket */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    ticketId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Ticket conversation in chronological order */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: components["schemas"]["SupportMessage"][];
+                        };
+                    };
+                };
+            };
+        };
         put?: never;
         /** Add an agent message to a ticket */
         post: {
@@ -6221,6 +6269,19 @@ export interface components {
         };
         SupportMessageRequest: {
             message: string;
+        };
+        SupportMessage: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ticketId: string;
+            /** Format: uuid */
+            authorId: string;
+            /** @enum {string} */
+            authorType: "customer" | "agent";
+            message: string;
+            /** Format: date-time */
+            createdAt: string;
         };
         AdminProduct: {
             /** Format: uuid */

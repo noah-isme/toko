@@ -6,6 +6,7 @@ import { addressHandlers } from './handlers/addressHandlers';
 import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
 import { checkoutHandlers } from './handlers.checkout';
+import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
 import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
@@ -550,6 +551,7 @@ export const handlers = [
   ...checkoutHandlers,
   ...addressHandlers,
   ...paymentHandlers,
+  ...customerOperationsHandlers,
   ...favoritesHandlers,
   ...notificationsHandlers,
   ...promoHandlers,

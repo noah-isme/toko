@@ -36,12 +36,37 @@ export const paymentHandlers = [
         orderId: String(params.orderId),
         provider: 'mock',
         channel: 'bank_transfer',
-        steps: ['Transfer sesuai total pesanan.', 'Simpan bukti pembayaran.', 'Unggah bukti pembayaran.'],
+        steps: [
+          'Transfer sesuai total pesanan.',
+          'Simpan bukti pembayaran.',
+          'Unggah bukti pembayaran.',
+        ],
         bank: { name: 'Bank Mock', accountName: 'Toko Demo', accountNumber: '1234567890' },
         qrUrl: null,
       },
     }),
   ),
+  http.post(apiPath('/payments/:orderId/proof'), async ({ params, request }) => {
+    let filename = 'payment-proof';
+    try {
+      const form = await request.formData();
+      const proof = form.get('proof');
+      if (proof && typeof proof !== 'string') filename = proof.name;
+    } catch {
+      // MSW's Node adapter cannot parse every jsdom FormData implementation;
+      // the real API performs the authoritative multipart validation.
+    }
+    return HttpResponse.json(
+      {
+        data: {
+          id: 'payment-proof-mock-001',
+          orderId: String(params.orderId),
+          filename,
+        },
+      },
+      { status: 201 },
+    );
+  }),
   http.post(apiPath('/payments/intent'), async ({ request }) => {
     const payload = await request.json();
     const parsed = PaymentCreateBodySchema.safeParse(payload);
