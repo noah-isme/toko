@@ -209,3 +209,124 @@ GET /api/v1/products/{slug}/related
   ]
 }
 ```
+
+---
+
+## 2.6 Frequently Bought Together
+
+```http
+GET /api/v1/products/{productId}/frequently-bought-together
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "title": "MacBook Pro 14 M3",
+      "slug": "macbook-pro-14-m3",
+      "price": 25000000,
+      "thumbnail": "https://cdn.toko.com/products/mbp14.jpg",
+      "rating": 4.9,
+      "inStock": true
+    }
+  ]
+}
+```
+
+Returns products frequently purchased together with the specified product.
+
+---
+
+## 2.7 Customers Also Viewed
+
+```http
+GET /api/v1/products/{productId}/also-viewed
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "title": "MacBook Air M2",
+      "slug": "macbook-air-m2",
+      "price": 18000000,
+      "thumbnail": "https://cdn.toko.com/products/mba-m2.jpg",
+      "rating": 4.8,
+      "inStock": true
+    }
+  ]
+}
+```
+
+Returns products that other customers viewed after viewing the specified product.
+
+---
+
+## 2.8 Personalized Recommendations
+
+```http
+GET /api/v1/recommendations/personalized?limit=10
+Authorization: Bearer <access_token>
+```
+
+**Query Parameters:**
+
+- `limit` (integer): Number of recommendations to return (default: 10)
+
+**Response:** `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "title": "Samsung Galaxy S24",
+      "slug": "samsung-galaxy-s24",
+      "price": 12000000,
+      "thumbnail": "https://cdn.toko.com/products/s24.jpg",
+      "rating": 4.8,
+      "inStock": true
+    }
+  ]
+}
+```
+
+Returns personalized product recommendations for the authenticated user based on their browsing and purchase history.
+
+---
+
+## 2.9 Trending Products
+
+```http
+GET /api/v1/recommendations/trending?limit=10
+```
+
+**Query Parameters:**
+
+- `limit` (integer): Number of trending products to return (default: 10)
+
+**Response:** `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "title": "iPhone 15 Pro",
+      "slug": "iphone-15-pro",
+      "price": 25000000,
+      "thumbnail": "https://cdn.toko.com/products/iphone15pro.jpg",
+      "rating": 4.9,
+      "inStock": true
+    }
+  ]
+}
+```
+
+Returns currently trending/popular products across the platform.

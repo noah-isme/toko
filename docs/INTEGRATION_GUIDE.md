@@ -147,6 +147,80 @@ export function ProductList() {
 }
 ```
 
+### Product Recommendations
+
+```typescript
+'use client';
+
+import {
+  useFrequentlyBoughtTogether,
+  useCustomersAlsoViewed,
+  usePersonalizedRecommendations,
+  useTrendingProducts,
+  formatCurrency
+} from '@/lib/api';
+import { ProductCard } from '@/components/ui/ProductCard';
+
+export function ProductRecommendations({ productId }: { productId: string }) {
+  const { data: freqBought } = useFrequentlyBoughtTogether(productId, { enabled: !!productId });
+  const { data: alsoViewed } = useCustomersAlsoViewed(productId, { enabled: !!productId });
+  const { data: personalized } = usePersonalizedRecommendations(5);
+  const { data: trending } = useTrendingProducts(5);
+
+  if (!freqBought?.data?.length && !alsoViewed?.data?.length) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-8">
+      {freqBought?.data?.length && (
+        <section>
+          <h2 className="text-xl font-semibold mb-4">Frequently Bought Together</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {freqBought.data.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {alsoViewed?.data?.length && (
+        <section>
+          <h2 className="text-xl font-semibold mb-4">Customers Also Viewed</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {alsoViewed.data.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {personalized?.data?.length && (
+        <section>
+          <h2 className="text-xl font-semibold mb-4">Recommended for You</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {personalized.data.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {trending?.data?.length && (
+        <section>
+          <h2 className="text-xl font-semibold mb-4">Trending Now</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {trending.data.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+```
+
 ### Cart Component
 
 ```typescript
