@@ -146,7 +146,78 @@ function handleRoute(
   }
 
   if (path === 'products' && method === 'GET') {
-    return { data: products, pagination: { page: 1, perPage: 20, totalItems: products.length } };
+    // Handle query parameters from searchParams
+    const queryParams = new URLSearchParams(searchParams?.toString() || '');
+    const q = queryParams.get('q');
+    const category = queryParams.get('category');
+    const brand = queryParams.get('brand');
+    const minPrice = queryParams.get('minPrice');
+    const maxPrice = queryParams.get('maxPrice');
+    const inStock = queryParams.get('inStock');
+    const sort = queryParams.get('sort');
+    const page = parseInt(queryParams.get('page') || '1', 10);
+    const perPage = parseInt(queryParams.get('limit') || '20', 10);
+
+    let filteredProducts = [...products];
+
+    // Apply filters
+    if (q) {
+      const query = q.toLowerCase();
+      filteredProducts = filteredProducts.filter(
+        (p) =>
+          p.title.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query) ||
+          p.categoryName.toLowerCase().includes(query) ||
+          p.brandName.toLowerCase().includes(query),
+      );
+    }
+    if (category) {
+      filteredProducts = filteredProducts.filter(
+        (p) => p.categoryId === category || p.categoryName.toLowerCase() === category.toLowerCase(),
+      );
+    }
+    if (brand) {
+      filteredProducts = filteredProducts.filter(
+        (p) => p.brandId === brand || p.brandName.toLowerCase() === brand.toLowerCase(),
+      );
+    }
+    if (minPrice) {
+      filteredProducts = filteredProducts.filter((p) => p.price >= parseInt(minPrice, 10));
+    }
+    if (maxPrice) {
+      filteredProducts = filteredProducts.filter((p) => p.price <= parseInt(maxPrice, 10));
+    }
+    if (inStock === 'true') {
+      filteredProducts = filteredProducts.filter((p) => p.inStock && p.stock > 0);
+    }
+
+    // Apply sorting
+    if (sort) {
+      switch (sort) {
+        case 'price:asc':
+          filteredProducts.sort((a, b) => a.price - b.price);
+          break;
+        case 'price:desc':
+          filteredProducts.sort((a, b) => b.price - a.price);
+          break;
+        case 'name:asc':
+          filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case 'name:desc':
+          filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
+          break;
+      }
+    }
+
+    // Apply pagination
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const paginatedProducts = filteredProducts.slice(start, end);
+
+    return {
+      data: paginatedProducts,
+      pagination: { page, perPage, totalItems: filteredProducts.length },
+    };
   }
 
   if (path.startsWith('products/') && path.endsWith('/reviews/stats') && method === 'GET') {
@@ -168,6 +239,100 @@ function handleRoute(
   if (path.startsWith('products/') && path.endsWith('/related') && method === 'GET') {
     const slug = path.split('/')[1];
     return { data: products.filter((product) => product.slug !== slug).slice(0, 4) };
+  }
+
+  // Q&A endpoints
+  if (path.match(/^products\/[^\/]+\/questions$/) && method === 'GET') {
+    const productId = path.split('/')[1];
+    const page = parseInt(searchParams?.get('page') || '1', 10);
+    const limit = parseInt(searchParams?.get('limit') || '10', 10);
+    const sort = searchParams?.get('sort') || 'recent';
+
+    // Generate mock questions for this product
+    const questionCount = 5;
+    const questions = Array.from({ length: questionCount }).map((_, i) => ({
+      id: `question-${productId}-${i}`,
+      product_id: productId,
+      user_id: `user-${i}`,
+      question: `Pertanyaan ${i + 1} untuk produk ${productId}`,
+      answer: i < 3 ? `Jawaban untuk pertanyaan ${i + 1}` : null,
+      answered_by: i < 3 ? 'Admin' : null,
+      answered_at: i < 3 ? new Date(Date.now() - i * 86400000).toISOString() : null,
+      created_at: new Date(Date.now() - i * 86400000).toISOString(),
+      updated_at: new Date(Date.now() - i * 86400000).toISOString(),
+      tenant_id: 'tenant-mock',
+    }));
+
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginated = questions.slice(start, end);
+
+    return {
+      data: paginated,
+      meta: {
+        page,
+        limit,
+        total: questions.length,
+        total_pages: Math.ceil(questions.length / limit),
+      },
+    };
+  }
+
+  if (path.match(/^questions\/[^\/]+$/) && method === 'GET') {
+    const questionId = path.split('/')[1];
+    return {
+      id: questionId,
+      product_id: 'mock-product',
+      user_id: 'user-1',
+      question: 'Pertanyaan contoh',
+      answer: 'Jawaban contoh',
+      answered_by: 'Admin',
+      answered_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      tenant_id: 'tenant-mock',
+    };
+  }
+
+  if (path.match(/^products\/[^\/]+\/questions$/) && method === 'POST') {
+    const productId = path.split('/')[1];
+    return {
+      id: `question-new-${Date.now()}`,
+      product_id: productId,
+      user_id: 'current-user',
+      question: body?.question || '',
+      answer: null,
+      answered_by: null,
+      answered_at: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      tenant_id: 'tenant-mock',
+    };
+  }
+
+  if (path.match(/^questions\/[^\/]+\/answer$/) && method === 'POST') {
+    const questionId = path.split('/')[1];
+    return {
+      id: questionId,
+      product_id: 'mock-product',
+      user_id: 'user-1',
+      question: 'Pertanyaan contoh',
+      answer: body?.answer || '',
+      answered_by: 'Admin',
+      answered_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      tenant_id: 'tenant-mock',
+    };
+  }
+
+  if (path.match(/^questions\/[^\/]+\/vote$/) && method === 'POST') {
+    const questionId = path.split('/')[1];
+    const dir = body?.dir;
+    return {
+      helpfulCount: dir === 'up' ? 1 : 0,
+      myVote: dir === 'up' ? 'up' : null,
+    };
   }
 
   if (path.startsWith('products/') && method === 'GET') {
@@ -352,6 +517,12 @@ function handleRoute(
   }
 
   if (path === 'orders' && method === 'GET') {
+    // Handle query parameters from searchParams
+    const queryParams = new URLSearchParams(searchParams?.toString() || '');
+    const status = queryParams.get('status');
+    const page = parseInt(queryParams.get('page') || '1', 10);
+    const limit = parseInt(queryParams.get('limit') || '20', 10);
+
     const ordersList = [
       {
         id: 'order-1',
@@ -408,10 +579,25 @@ function handleRoute(
         createdAt: new Date().toISOString(),
       },
     ];
+
+    // Apply status filter if provided
+    let filteredOrders = ordersList;
+    if (status) {
+      filteredOrders = ordersList.filter((o) => o.status === status);
+    }
+
+    // Apply pagination
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedOrders = filteredOrders.slice(start, end);
+
     return {
-      data: ordersList,
+      data: paginatedOrders,
       meta: {
-        total: ordersList.length,
+        page,
+        limit,
+        total: filteredOrders.length,
+        totalPages: Math.ceil(filteredOrders.length / limit),
       },
     };
   }

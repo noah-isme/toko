@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
 import { z } from 'zod';
 
 import {
@@ -45,8 +46,14 @@ export type OrdersQueryParams = z.infer<typeof ordersQueryParamsSchema>;
 export type OrdersListResponse = z.infer<typeof ordersListResponseSchema>;
 
 export function useOrdersQuery(params?: OrdersQueryParams) {
+  // Extract primitive values for stable query key
+  const status = params?.status ?? 'all';
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? 20;
+  const queryKey = ['orders', status, page, limit];
+
   return useQuery<OrdersListResponse, ApiClientError>({
-    queryKey: queryKeys.orders(params ?? {}),
+    queryKey,
     queryFn: async () => {
       const filters = ordersQueryParamsSchema.parse(params ?? {});
       const searchParams = new URLSearchParams();

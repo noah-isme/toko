@@ -8,13 +8,6 @@ import React, { useState } from 'react';
 import { Price } from '@/components/price';
 import { PullToRefresh } from '@/components/pull-to-refresh';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useOrdersQuery } from '@/entities/orders/api/hooks';
 import type { OrderListItem } from '@/entities/orders/schemas';
 import { cn } from '@/lib/utils';
@@ -23,7 +16,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'Semua Status' },
+  { value: 'all', label: 'Semua Status' },
   { value: 'pending_payment', label: 'Menunggu Pembayaran' },
   { value: 'paid', label: 'Dibayar' },
   { value: 'packed', label: 'Dikemas' },
@@ -35,17 +28,23 @@ const STATUS_OPTIONS = [
 ] as const;
 
 export default function OrderHistoryPage() {
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [allOrders, setAllOrders] = useState<OrderListItem[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { data, isLoading, error, refetch } = useOrdersQuery({
-    page,
-    limit: 20,
-    status: statusFilter || undefined,
-  });
+  // Use useMemo for stable params object to prevent infinite re-fetch
+  const queryParams = React.useMemo(
+    () => ({
+      status: statusFilter === 'all' ? undefined : statusFilter,
+      page,
+      limit: 20,
+    }),
+    [statusFilter, page],
+  );
+
+  const { data, isLoading, error, refetch } = useOrdersQuery(queryParams);
 
   const orders = data?.data ?? [];
 
@@ -59,7 +58,7 @@ export default function OrderHistoryPage() {
   }, [orders, page]);
 
   const handleLoadMore = () => {
-    if (hasMore && !isLoadingMore) {
+    if (hasMore && !isLoadingMore && orders.length > 0) {
       setIsLoadingMore(true);
       setPage((p) => p + 1);
       setIsLoadingMore(false);
@@ -67,6 +66,7 @@ export default function OrderHistoryPage() {
   };
 
   const handleFilterChange = (newStatus: string) => {
+    if (newStatus === statusFilter) return;
     setStatusFilter(newStatus);
     setPage(1);
     setAllOrders([]);
@@ -77,18 +77,7 @@ export default function OrderHistoryPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Pesanan Saya</h1>
-          <Select value={statusFilter} onValueChange={handleFilterChange}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter status" />
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="w-[200px] text-sm text-muted-foreground">Filter status</div>
         </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -123,24 +112,20 @@ export default function OrderHistoryPage() {
   }
 
   return (
-    <PullToRefresh onRefresh={() => { refetch(); setPage(1); setAllOrders([]); }} className="space-y-6">
+    <PullToRefresh
+      onRefresh={() => {
+        refetch();
+        setPage(1);
+        setAllOrders([]);
+      }}
+      className="space-y-6"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Pesanan Saya</h1>
           <p className="text-muted-foreground">Riwayat transaksi belanja Anda.</p>
         </div>
-        <Select value={statusFilter} onValueChange={handleFilterChange}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filter status" />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="w-[200px] text-sm text-muted-foreground">Filter status</div>
       </div>
 
       <div className="grid gap-4">

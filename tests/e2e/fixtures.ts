@@ -12,7 +12,13 @@ import { installSeededSession } from './fixtures/auth.fixture';
 export async function seedCartFromHome(page: Page, count = 1) {
   await installSeededSession(page);
   await page.goto('/cart');
-  await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
+  // Dismiss cookie dialog if present
+  try {
+    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+  } catch {
+    // Cookie dialog not present
+  }
+  await expect(page.getByRole('heading', { name: 'Keranjang Belanja' })).toBeVisible();
   await expect(page.locator('ul li').nth(count - 1)).toBeVisible();
 }
 
@@ -26,7 +32,7 @@ export async function navigateToCheckout(page: Page) {
     await expect(page).toHaveURL(/\/cart$/);
   }
 
-  const proceedLink = page.getByRole('link', { name: 'Proceed to checkout' });
+  const proceedLink = page.getByRole('link', { name: 'Lanjut ke Pembayaran' });
   await proceedLink.click();
   await expect(page).toHaveURL(/\/checkout/);
 }
@@ -40,6 +46,12 @@ export async function openCheckout(page: Page) {
     localStorage.setItem('accessToken', 'mock-token');
   });
   await page.goto('/checkout');
+  // Dismiss cookie dialog if present
+  try {
+    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+  } catch {
+    // Cookie dialog not present
+  }
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
 }
 
@@ -163,9 +175,19 @@ export async function verifyCheckoutSuccess(page: Page) {
 /**
  * Navigate to order history page
  */
-export async function goToOrderHistory(page: Page) {
+export async function goToOrderHistory(page: Page, options?: { expectEmpty?: boolean }) {
   await page.goto('/account/orders');
-  await expect(page.getByRole('heading', { name: 'Pesanan Saya' })).toBeVisible();
+  // Dismiss cookie dialog if present
+  try {
+    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+  } catch {
+    // Cookie dialog not present
+  }
+  if (options?.expectEmpty) {
+    await expect(page.getByRole('heading', { name: 'Belum ada pesanan' })).toBeVisible();
+  } else {
+    await expect(page.getByRole('heading', { name: 'Pesanan Saya' })).toBeVisible();
+  }
 }
 
 /**
@@ -174,6 +196,12 @@ export async function goToOrderHistory(page: Page) {
 export async function goToOrderConfirmation(page: Page, orderId: string) {
   await page.goto(`/order/confirmation/${orderId}`);
   await page.waitForLoadState('networkidle');
+  // Dismiss cookie dialog if present
+  try {
+    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+  } catch {
+    // Cookie dialog not present
+  }
 }
 
 /**

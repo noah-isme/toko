@@ -1,5 +1,3 @@
-import { expect, test } from '@playwright/test';
-
 import {
   completePayment,
   expectToast,
@@ -13,6 +11,7 @@ import {
   selectAddress,
   selectShipping,
 } from './fixtures';
+import { expect, test } from './fixtures/auth.fixture';
 
 const PAYMENT_INTENT_ROUTE = '**/api/v1/payments/intent';
 const ORDER_ROUTE = '**/api/v1/orders/*';
