@@ -4,15 +4,30 @@ import { expect, test } from './fixtures/auth.fixture';
 
 const QA_CHANNEL_KEY = '__TOKO_QA_CHANNEL__';
 
+async function dismissCookieDialog(page: Page) {
+  const cookieDialog = page.getByRole('dialog', { name: 'We value your privacy' });
+  if (await cookieDialog.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await page.getByRole('button', { name: 'Accept All' }).click();
+    await expect(cookieDialog).toBeHidden({ timeout: 5000 });
+  }
+}
+
 async function seedCartFromHome(page: Page) {
   await page.goto('/cart');
-  await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
+  // Try to dismiss cookie consent dialog if present (non-blocking)
+  try {
+    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+  } catch {
+    // Cookie dialog not present or already dismissed
+  }
+  await expect(page.getByRole('heading', { name: 'Keranjang Belanja' })).toBeVisible({ timeout: 15000 });
 }
 
 async function goToCheckout(page: Page) {
-  const proceedLink = page.getByRole('link', { name: 'Proceed to checkout' });
+  const proceedLink = page.getByRole('link', { name: 'Lanjut ke Pembayaran' });
   await proceedLink.click();
   await expect(page).toHaveURL(/\/checkout/);
+  await dismissCookieDialog(page);
 }
 
 async function pickQuickAddress(page: Page) {

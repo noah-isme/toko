@@ -7,6 +7,7 @@ export function mapApiReviewToReview(apiReview: ApiReview): Review {
     author: apiReview.user_id, // Map user_id to author for display
     rating: apiReview.rating as ReviewRating,
     body: apiReview.comment, // Map comment -> body
+    photos: apiReview.photos ?? [], // Map photos if present
     createdAt: apiReview.created_at,
     // The backend API does not return these fields. They are frontend-only
     // defaults so the Review entity shape stays consistent with the UI.

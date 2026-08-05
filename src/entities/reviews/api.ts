@@ -30,6 +30,7 @@ const apiReviewSchema: ZodType<ApiReview> = z.object({
   user_id: z.string(),
   rating: z.number().int().min(1).max(5),
   comment: z.string(),
+  photos: z.array(z.string().url()).optional(),
   created_at: z.string(),
   updated_at: z.string(),
   tenant_id: z.string(),
@@ -139,6 +140,32 @@ export async function createReview(
 ): Promise<Pick<Review, 'id' | 'status'>> {
   const parsedProductId = productIdSchema.parse(productId);
   const parsedPayload = reviewCreateInputSchema.parse(payload);
+
+  const photos = parsedPayload.photos;
+  const hasPhotos = photos && photos.length > 0;
+
+  if (hasPhotos) {
+    // Use FormData for multipart upload with photos
+    const formData = new FormData();
+    formData.append('rating', String(parsedPayload.rating));
+    formData.append('comment', parsedPayload.body);
+    
+    for (const photo of photos!) {
+      formData.append('photos', photo);
+    }
+
+    const response = await apiClient(`/products/${encodeURIComponent(parsedProductId)}/reviews`, {
+      method: 'POST',
+      body: formData,
+      schema: reviewCreateResponseSchema,
+      requiresAuth: true,
+    });
+
+    return {
+      id: response.id,
+      status: 'pending',
+    };
+  }
 
   // Backend expects { rating, comment } - map body to comment
   const response = await apiClient(`/products/${encodeURIComponent(parsedProductId)}/reviews`, {

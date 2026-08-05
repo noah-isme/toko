@@ -85,4 +85,46 @@ export const catalogApi = {
     });
     return response.data.map(mapApiProductToProduct) as any;
   },
+
+  /**
+   * Get frequently bought together products
+   */
+  async getFrequentlyBoughtTogether(productId: string): Promise<Product[]> {
+    const response = await apiClient<ApiResponse<any[]>>(`/products/${productId}/frequently-bought-together`, {
+      method: 'GET',
+    });
+    return response.data.map(mapApiProductToProduct) as any;
+  },
+
+  /**
+   * Get customers also viewed products
+   */
+  async getCustomersAlsoViewed(productId: string): Promise<Product[]> {
+    const response = await apiClient<ApiResponse<any[]>>(`/products/${productId}/also-viewed`, {
+      method: 'GET',
+    });
+    return response.data.map(mapApiProductToProduct) as any;
+  },
+
+  /**
+   * Get personalized recommendations for current user
+   */
+  async getPersonalizedRecommendations(limit: number = 10): Promise<Product[]> {
+    const response = await apiClient<ApiResponse<any[]>>(
+      `/recommendations/personalized?limit=${limit}`,
+      { method: 'GET' },
+    );
+    return response.data.map(mapApiProductToProduct) as any;
+  },
+
+  /**
+   * Get trending/popular products
+   */
+  async getTrendingProducts(limit: number = 10): Promise<Product[]> {
+    const response = await apiClient<ApiResponse<any[]>>(
+      `/recommendations/trending?limit=${limit}`,
+      { method: 'GET' },
+    );
+    return response.data.map(mapApiProductToProduct) as any;
+  },
 };

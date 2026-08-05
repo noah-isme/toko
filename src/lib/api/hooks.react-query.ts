@@ -36,6 +36,10 @@ export const queryKeys = {
     products: (filters?: ProductFilters) => ['catalog', 'products', filters] as const,
     product: (slug: string) => ['catalog', 'product', slug] as const,
     relatedProducts: (slug: string) => ['catalog', 'relatedProducts', slug] as const,
+    frequentlyBoughtTogether: (productId: string) => ['catalog', 'frequentlyBoughtTogether', productId] as const,
+    customersAlsoViewed: (productId: string) => ['catalog', 'customersAlsoViewed', productId] as const,
+    personalizedRecommendations: ['catalog', 'personalizedRecommendations'] as const,
+    trendingProducts: ['catalog', 'trendingProducts'] as const,
   },
   cart: {
     detail: (cartId: string | null) => ['cart', cartId] as const,
@@ -141,6 +145,40 @@ export function useRelatedProducts(slug: string) {
     queryKey: queryKeys.catalog.relatedProducts(slug),
     queryFn: () => catalogApi.getRelatedProducts(slug),
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useFrequentlyBoughtTogether(productId: string) {
+  return useQuery({
+    queryKey: queryKeys.catalog.frequentlyBoughtTogether(productId),
+    queryFn: () => catalogApi.getFrequentlyBoughtTogether(productId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useCustomersAlsoViewed(productId: string) {
+  return useQuery({
+    queryKey: queryKeys.catalog.customersAlsoViewed(productId),
+    queryFn: () => catalogApi.getCustomersAlsoViewed(productId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function usePersonalizedRecommendations(limit: number = 10, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: [...queryKeys.catalog.personalizedRecommendations, limit],
+    queryFn: () => catalogApi.getPersonalizedRecommendations(limit),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
+  });
+}
+
+export function useTrendingProducts(limit: number = 10, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: [...queryKeys.catalog.trendingProducts, limit],
+    queryFn: () => catalogApi.getTrendingProducts(limit),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
   });
 }
 

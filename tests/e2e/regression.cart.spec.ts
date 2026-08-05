@@ -7,7 +7,13 @@ const CART_ITEM_ROUTE = '**/api/v1/carts/*/items/**';
 
 async function openCart(page: Page) {
   await page.goto('/cart');
-  await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
+  // Wait for and dismiss cookie consent dialog (it blocks all interactions)
+  const cookieDialog = page.getByRole('dialog', { name: 'We value your privacy' });
+  await expect(cookieDialog).toBeVisible({ timeout: 15000 });
+  await page.getByRole('button', { name: 'Accept All' }).click();
+  await expect(cookieDialog).toBeHidden({ timeout: 5000 });
+  // Wait for cart heading
+  await expect(page.getByText('Keranjang Belanja')).toBeVisible({ timeout: 15000 });
 }
 
 test.describe('Cart regressions', () => {

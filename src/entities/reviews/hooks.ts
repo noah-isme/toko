@@ -187,6 +187,7 @@ export function useCreateReviewMutation(productId: string | undefined) {
         author: 'Anda',
         rating: input.rating as ReviewRating,
         body: input.body,
+        photos: input.photos ? Array.from(input.photos).map((f) => URL.createObjectURL(f)) : [],
         createdAt: new Date().toISOString(),
         status: 'pending',
         helpfulCount: 0,

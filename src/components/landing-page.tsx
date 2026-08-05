@@ -1,14 +1,17 @@
 'use client';
 
-import { BrandsSection } from '@/components/brands-section';
-import { CategoriesSection } from '@/components/categories-section';
-import { CategoryQuickNav } from '@/components/landing/category-quick-nav';
-import { FlashSaleSection } from '@/components/landing/flash-sale-section';
-import { LandingCTA } from '@/components/landing/landing-cta';
-import { LandingFeatures } from '@/components/landing/landing-features';
-import { LandingHero } from '@/components/landing/landing-hero';
-import { LandingTestimonials } from '@/components/landing/landing-testimonials';
-import { ProductsCatalog } from '@/components/products-catalog';
+import { Suspense } from 'react';
+
+import { LazyWrapper } from '@/components/lazy-components';
+import { LazyLandingHero } from '@/components/lazy-components';
+import { LazyCategoryQuickNav } from '@/components/lazy-components';
+import { LazyFlashSaleSection } from '@/components/lazy-components';
+import { LazyLandingFeatures } from '@/components/lazy-components';
+import { LazyCategoriesSection } from '@/components/lazy-components';
+import { LazyBrandsSection } from '@/components/lazy-components';
+import { LazyProductsCatalog } from '@/components/lazy-components';
+import { LazyLandingTestimonials } from '@/components/lazy-components';
+import { LazyLandingCTA } from '@/components/lazy-components';
 
 /**
  * Public landing page for guests/unauthenticated users with Bento Minimalist layout
@@ -16,15 +19,33 @@ import { ProductsCatalog } from '@/components/products-catalog';
 export function LandingPage() {
   return (
     <div className="space-y-12 sm:space-y-16">
-      <LandingHero />
-      <CategoryQuickNav />
-      <FlashSaleSection />
-      <LandingFeatures />
-      <CategoriesSection />
-      <BrandsSection />
-      <ProductsCatalog />
-      <LandingTestimonials />
-      <LandingCTA />
+      <LazyWrapper fallbackVariant="hero">
+        <LazyLandingHero />
+      </LazyWrapper>
+      <LazyWrapper>
+        <LazyCategoryQuickNav />
+      </LazyWrapper>
+      <LazyWrapper>
+        <LazyFlashSaleSection />
+      </LazyWrapper>
+      <LazyWrapper>
+        <LazyLandingFeatures />
+      </LazyWrapper>
+      <LazyWrapper>
+        <LazyCategoriesSection />
+      </LazyWrapper>
+      <LazyWrapper>
+        <LazyBrandsSection />
+      </LazyWrapper>
+      <LazyWrapper fallbackVariant="grid">
+        <LazyProductsCatalog />
+      </LazyWrapper>
+      <LazyWrapper>
+        <LazyLandingTestimonials />
+      </LazyWrapper>
+      <LazyWrapper>
+        <LazyLandingCTA />
+      </LazyWrapper>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { LazyWrapper, LazyPushPreferencesCard } from '@/components/lazy-components';
 import { Button } from '@/components/ui/button';
 import {
   formatDateTime,
@@ -85,6 +86,10 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6">
+      <LazyWrapper>
+        <LazyPushPreferencesCard />
+      </LazyWrapper>
+
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Notifikasi</h1>

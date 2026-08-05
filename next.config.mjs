@@ -119,6 +119,36 @@ const nextConfig = {
           },
         ],
       },
+      {
+        // Static assets (fonts, JS, CSS)
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        // API routes - short cache with stale-while-revalidate
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=60, stale-while-revalidate=300, stale-if-error=86400',
+          },
+        ],
+      },
+      {
+        // HTML pages - moderate cache with stale-while-revalidate for instant reload
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate, stale-while-revalidate=60',
+          },
+        ],
+      },
     ];
   },
 };

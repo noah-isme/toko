@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { AuthShell } from '@/components/auth-shell';
 import { PasswordStrength } from '@/components/password-strength';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { SocialLoginButton, SocialLoginDivider, SocialLoginGroup } from '@/components/social-login';
 import { Input } from '@/components/ui/input';
 import type { RegisterInput } from '@/entities/auth/schemas';
 import { registerInputSchema } from '@/entities/auth/schemas';
@@ -195,6 +196,18 @@ export default function RegisterPage() {
           Register
         </GuardedButton>
       </form>
+      <SocialLoginDivider label="or continue with" />
+      <SocialLoginGroup>
+        <SocialLoginButton provider="google" onClick={() => window.location.href = '/api/auth/google'}>
+          Continue with Google
+        </SocialLoginButton>
+        <SocialLoginButton provider="github" onClick={() => window.location.href = '/api/auth/github'}>
+          Continue with GitHub
+        </SocialLoginButton>
+        <SocialLoginButton provider="apple" onClick={() => window.location.href = '/api/auth/apple'}>
+          Continue with Apple
+        </SocialLoginButton>
+      </SocialLoginGroup>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
         <Link

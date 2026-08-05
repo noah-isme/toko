@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { ProductsCatalog } from '@/components/products-catalog';
+import { AdvancedSearchResults } from '@/entities/search/ui/AdvancedSearchResults';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { breadcrumbJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical } from '@/shared/seo/seo';
@@ -55,9 +55,9 @@ export default function ProductsPage() {
           <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
             Jelajahi produk pilihan untuk ruang, rutinitas, dan momen keseharian Anda.
           </p>
-        </header>
-        <Suspense fallback={<ProductCardSkeleton />}>
-          <ProductsCatalog showHeader={false} />
+       </header>
+        <Suspense fallback={<div className="space-y-4"><ProductCardSkeleton /><ProductCardSkeleton /><ProductCardSkeleton /><ProductCardSkeleton /></div>}>
+          <AdvancedSearchResults />
         </Suspense>
       </div>
     </>

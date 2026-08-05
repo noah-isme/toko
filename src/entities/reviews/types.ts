@@ -14,6 +14,7 @@ export interface Review {
   author?: string;
   rating: ReviewRating;
   body: string;
+  photos?: string[];
   createdAt: string;
   status: ReviewStatus;
   helpfulCount: number;
@@ -64,6 +65,7 @@ export const reviewCreateInputSchema = z.object({
     .trim()
     .min(10, 'Minimal 10 karakter')
     .max(1000, 'Maksimum 1000 karakter'),
+  photos: z.array(z.instanceof(File)).max(5, 'Maksimal 5 foto').optional(),
 });
 
 export type ReviewCreateInput = z.infer<typeof reviewCreateInputSchema>;
@@ -75,6 +77,7 @@ export interface ApiReview {
   user_id: string;
   rating: number;
   comment: string;
+  photos?: string[];
   created_at: string;
   updated_at: string;
   tenant_id: string;

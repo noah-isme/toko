@@ -116,7 +116,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <Rating value={product.rating ?? 0} reviewCount={product.reviewCount ?? 0} />
 
           {/* Title */}
-          <Link href={`/products/${product.slug}`} className="flex-1">
+          <Link href={`/products/${product.slug}`} className="flex-1" data-testid="product-title-link">
             <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors hover:text-primary">
               {product.title}
             </h3>

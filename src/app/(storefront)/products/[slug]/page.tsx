@@ -20,6 +20,9 @@ const ReviewForm = lazy(() =>
 const ReviewList = lazy(() =>
   import('@/entities/reviews/ui/ReviewList').then((mod) => ({ default: mod.ReviewList })),
 );
+const ProductQASection = lazy(() =>
+  import('@/entities/qa/ui/ProductQASection').then((mod) => ({ default: mod.ProductQASection })),
+);
 
 function ReviewSkeleton() {
   return (
@@ -197,6 +200,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <ReviewForm productId={resolvedProductId} />
             </div>
             <ReviewList productId={resolvedProductId} pageSize={5} />
+          </Suspense>
+        </section>
+        <section id="qa" className="space-y-6 border-t border-border/60 pt-12">
+          <Suspense fallback={<ReviewSkeleton />}>
+            <ProductQASection productId={resolvedProductId} />
           </Suspense>
         </section>
       </div>

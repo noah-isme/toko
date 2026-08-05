@@ -6,6 +6,7 @@ import { memo } from 'react';
 import { useVoteHelpfulMutation } from '../hooks';
 import type { Review } from '../types';
 
+import { ReviewImageGallery } from '@/components/image-upload';
 import { cn } from '@/lib/utils';
 
 interface ReviewItemProps {
@@ -89,6 +90,9 @@ export const ReviewItem = memo(function ReviewItem({ review }: ReviewItemProps) 
         <span className="text-sm font-medium text-muted-foreground">{review.rating}/5</span>
       </div>
       <p className="text-sm leading-relaxed text-foreground">{review.body}</p>
+      {review.photos && review.photos.length > 0 && (
+        <ReviewImageGallery images={review.photos} />
+      )}
       <div>
         <button
           type="button"

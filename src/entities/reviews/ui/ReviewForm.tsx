@@ -8,8 +8,10 @@ import { reviewCreateInputSchema, type ReviewCreateInput } from '../types';
 
 import { Stars } from './Stars';
 
+import { ImageUpload } from '@/components/image-upload';
 import { cn } from '@/lib/utils';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
+import { useToast } from '@/shared/ui/toast';
 
 export interface ReviewFormProps {
   productId: string;
@@ -22,13 +24,15 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
     defaultValues: {
       rating: undefined,
       body: '',
+      photos: [],
     },
   });
 
   const { mutate, isPending, isProductInFlight } = useCreateReviewMutation(productId);
   const bodyValue = form.watch('body') ?? '';
+  const photoFiles = form.watch('photos') ?? [];
   const remaining = 1000 - bodyValue.length;
-
+  const { toast } = useToast();
   const ratingError = form.formState.errors.rating?.message;
   const ratingErrorId = ratingError ? 'review-rating-error' : undefined;
   const bodyError = form.formState.errors.body?.message;
@@ -123,6 +127,21 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
             {remaining} karakter tersisa
           </span>
         </div>
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">
+          Foto (opsional)
+        </label>
+        <ImageUpload
+          value={photoFiles}
+          onChange={(files) => form.setValue('photos', files, { shouldValidate: true })}
+          maxFiles={5}
+          maxSizeMB={5}
+          disabled={isSubmitting}
+        />
+        <p className="text-xs text-muted-foreground">
+          Tambahkan hingga 5 foto untuk menunjukkan produk secara nyata. Format: JPEG, PNG, WebP, GIF (max 5MB per file).
+        </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <GuardedButton

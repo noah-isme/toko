@@ -10,6 +10,7 @@ import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
 import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
+import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
 import { apiPath, type MockCart } from './utils';
 
@@ -556,5 +557,6 @@ export const handlers = [
   ...notificationsHandlers,
   ...promoHandlers,
   ...reviewsHandlers,
+  ...qaHandlers,
   ...authHandlers,
 ];

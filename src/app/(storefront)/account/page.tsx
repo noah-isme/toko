@@ -1,9 +1,10 @@
 'use client';
 
-import { Clock, Heart, LogOut, MapPin, Package, UserCircle } from 'lucide-react';
+import { Clock, Heart, LogOut, MapPin, Package, UserCircle, Award } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { LazyWrapper, LazyLoyaltyDashboard } from '@/components/lazy-components';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { RecentOrders } from '@/components/recent-orders';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
@@ -95,6 +96,12 @@ export default function AccountPage() {
             <span>Riwayat Pencarian</span>
           </Link>
         </Button>
+        <Button asChild size="lg" variant="ghost" className="h-auto py-6">
+          <Link href="/account/loyalty" className="flex flex-col items-center gap-2">
+            <Award className="h-6 w-6" aria-hidden="true" />
+            <span>Loyalitas</span>
+          </Link>
+        </Button>
         <Button size="lg" variant="ghost" onClick={handleLogout} className="h-auto py-6">
           <span className="flex flex-col items-center gap-2">
             <LogOut className="h-6 w-6" aria-hidden="true" />
@@ -104,6 +111,10 @@ export default function AccountPage() {
       </div>
 
       <RecentOrders limit={5} />
+      
+      <LazyWrapper>
+        <LazyLoyaltyDashboard />
+      </LazyWrapper>
     </div>
   );
 }

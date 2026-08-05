@@ -30,7 +30,19 @@ async function openCheckout(page: Page) {
   });
 
   await page.goto('/checkout');
+  await dismissCookieDialog(page);
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
+}
+
+async function dismissCookieDialog(page: Page) {
+  try {
+    const cookieDialog = page.getByRole('dialog', { name: 'We value your privacy' });
+    await cookieDialog.waitFor({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Accept All' }).click();
+    await expect(cookieDialog).toBeHidden({ timeout: 5000 });
+  } catch {
+    // Cookie dialog not present
+  }
 }
 
 // The checkout page also renders payment-method radios, so scope address

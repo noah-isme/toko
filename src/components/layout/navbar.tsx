@@ -2,14 +2,15 @@
 
 import { User, LogIn, LogOut, ShoppingCart } from 'lucide-react';
 import type { Route } from 'next';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { Container } from '@/components/layout/container';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
+import { LazyWrapper, LazyCartDrawer, LazySearchAutocomplete, LazyNotificationBell } from '@/components/lazy-components';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { ThemeSelector } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,31 +20,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-
-const CartDrawer = dynamic(() => import('@/components/cart-drawer').then((mod) => mod.CartDrawer), {
-  ssr: false,
-  loading: () => (
-    <Button variant="ghost" className="relative gap-2">
-      <ShoppingCart aria-hidden="true" className="h-5 w-5" />
-      <span aria-hidden="true" className="sr-only sm:not-sr-only">
-        Cart
-      </span>
-    </Button>
-  ),
-});
-
-const SearchAutocomplete = dynamic(
-  () => import('@/components/search-autocomplete').then((mod) => mod.SearchAutocomplete),
-  {
-    ssr: false,
-    loading: () => <div className="h-10 w-full max-w-lg rounded-md border bg-muted/20" />,
-  },
-);
-
-const NotificationBell = dynamic(
-  () => import('@/components/notification-bell').then((mod) => mod.NotificationBell),
-  { ssr: false },
-);
 
 const navLinks = [
   { href: '/' as Route, label: 'Home' },
@@ -89,13 +65,22 @@ export function Navbar() {
         </nav>
         <div className="ml-auto flex flex-1 items-center justify-end gap-3">
           <Suspense fallback={null}>
-          <LanguageSwitcher />
-            <SearchAutocomplete className="hidden md:flex" />
+            <LanguageSwitcher />
+            <ThemeSelector />
+            <LazyWrapper>
+              <LazySearchAutocomplete className="hidden md:flex" />
+            </LazyWrapper>
           </Suspense>
-          {isAuthenticated ? <CartDrawer /> : null}
+          {isAuthenticated ? (
+            <LazyWrapper>
+              <LazyCartDrawer />
+            </LazyWrapper>
+          ) : null}
           {isAuthenticated && user ? (
             <>
-              <NotificationBell />
+              <LazyWrapper>
+                <LazyNotificationBell />
+              </LazyWrapper>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
@@ -143,7 +128,9 @@ export function Navbar() {
       <div className="border-t bg-muted/30 py-3 md:hidden">
         <Container>
           <Suspense fallback={null}>
-            <SearchAutocomplete />
+            <LazyWrapper>
+              <LazySearchAutocomplete />
+            </LazyWrapper>
           </Suspense>
         </Container>
       </div>

@@ -8,6 +8,7 @@ import { AppInitializer } from '@/components/providers/AppInitializer';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import { cn } from '@/lib/utils';
 import { RouteFocusHandler } from '@/shared/lib/useRouteFocus';
 import DevVitalsOverlay from '@/shared/rum/DevVitalsOverlay';
@@ -68,15 +69,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <ErrorBoundary>
             <QueryProvider>
               <AuthProvider>
-                <AppInitializer />
-                <div
-                  id="main-content"
-                  tabIndex={-1}
-                  role="main"
-                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                >
-                  {children}
-                </div>
+                <ThemeProvider>
+                  <AppInitializer />
+                  <div
+                    id="main-content"
+                    tabIndex={-1}
+                    role="main"
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  >
+                    {children}
+                  </div>
+                </ThemeProvider>
               </AuthProvider>
             </QueryProvider>
           </ErrorBoundary>
