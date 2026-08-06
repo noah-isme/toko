@@ -40,6 +40,7 @@ describe('Reviews API', () => {
       status: 'approved',
       helpfulCount: 0,
       myVote: null,
+      photos: [],
     });
   });
 

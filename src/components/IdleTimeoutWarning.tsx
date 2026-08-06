@@ -5,7 +5,13 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 interface IdleTimeoutWarningProps {
   /** Time in milliseconds before showing warning (default: 13 minutes - 1 min before token refresh) */
@@ -30,7 +36,7 @@ export function IdleTimeoutWarning({
   const { isAuthenticated, refreshUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  
+
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -42,9 +48,9 @@ export function IdleTimeoutWarning({
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
     if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-    
+
     lastActivityRef.current = Date.now();
-    
+
     if (!isAuthenticated) return;
 
     // Set warning timer
@@ -52,7 +58,7 @@ export function IdleTimeoutWarning({
       setIsOpen(true);
       const remaining = logoutTime - warningTime;
       setCountdown(Math.ceil(remaining / 1000));
-      
+
       // Start countdown
       countdownIntervalRef.current = setInterval(() => {
         setCountdown((prev) => {
@@ -89,7 +95,7 @@ export function IdleTimeoutWarning({
   const handleExtend = async () => {
     isExtendingRef.current = true;
     setIsOpen(false);
-    
+
     try {
       if (onExtendSession) {
         await onExtendSession();
@@ -127,13 +133,13 @@ export function IdleTimeoutWarning({
 
     // Add activity listeners
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    events.forEach(event => window.addEventListener(event, handleActivity, { passive: true }));
+    events.forEach((event) => window.addEventListener(event, handleActivity, { passive: true }));
 
     return () => {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
       if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-      events.forEach(event => window.removeEventListener(event, handleActivity));
+      events.forEach((event) => window.removeEventListener(event, handleActivity));
     };
   }, [isAuthenticated, resetTimers, handleActivity]);
 
@@ -159,21 +165,21 @@ export function IdleTimeoutWarning({
           <AlertCircle className="mx-auto h-12 w-12 text-amber-500" aria-hidden="true" />
           <DialogTitle className="text-center">Sesi akan berakhir</DialogTitle>
           <DialogDescription className="text-center">
-            Anda tidak aktif selama beberapa menit. Sesi Anda akan berakhir dalam <strong>{countdownText}</strong>.
-            Klik "Lanjutkan" untuk tetap masuk.
+            Anda tidak aktif selama beberapa menit. Sesi Anda akan berakhir dalam{' '}
+            <strong>{countdownText}</strong>. Klik &ldquo;Lanjutkan&rdquo; untuk tetap masuk.
           </DialogDescription>
         </DialogHeader>
         <div className="mt-6 flex gap-3">
-          <Button 
-            variant="outline" 
-            className="flex-1" 
+          <Button
+            variant="outline"
+            className="flex-1"
             onClick={handleLogout}
             disabled={isExtendingRef.current}
           >
             Keluar
           </Button>
-          <Button 
-            className="flex-1 bg-primary" 
+          <Button
+            className="flex-1 bg-primary"
             onClick={handleExtend}
             disabled={isExtendingRef.current}
           >
@@ -188,6 +194,6 @@ export function IdleTimeoutWarning({
 // Hook for easy integration
 export function useIdleTimeoutWarning() {
   const { isAuthenticated } = useAuth();
-  
+
   return isAuthenticated ? <IdleTimeoutWarning /> : null;
 }

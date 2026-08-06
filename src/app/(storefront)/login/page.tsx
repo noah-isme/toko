@@ -109,6 +109,7 @@ export default function LoginPage() {
           ) : null}
         </div>
         <GuardedButton
+          data-testid="login-submit"
           className="w-full shadow-[0_12px_24px_-16px_rgba(43,32,22,0.9)]"
           type="submit"
           isLoading={formState.isSubmitting || authLoading}
@@ -119,13 +120,22 @@ export default function LoginPage() {
       </form>
       <SocialLoginDivider label="or continue with" />
       <SocialLoginGroup>
-        <SocialLoginButton provider="google" onClick={() => window.location.href = '/api/auth/google'}>
+        <SocialLoginButton
+          provider="google"
+          onClick={() => (window.location.href = '/api/auth/google')}
+        >
           Continue with Google
         </SocialLoginButton>
-        <SocialLoginButton provider="github" onClick={() => window.location.href = '/api/auth/github'}>
+        <SocialLoginButton
+          provider="github"
+          onClick={() => (window.location.href = '/api/auth/github')}
+        >
           Continue with GitHub
         </SocialLoginButton>
-        <SocialLoginButton provider="apple" onClick={() => window.location.href = '/api/auth/apple'}>
+        <SocialLoginButton
+          provider="apple"
+          onClick={() => (window.location.href = '/api/auth/apple')}
+        >
           Continue with Apple
         </SocialLoginButton>
       </SocialLoginGroup>

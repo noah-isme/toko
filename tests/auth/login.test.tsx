@@ -68,7 +68,7 @@ describe('LoginPage', () => {
 
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sign in/i })).toBeInTheDocument();
+    expect(screen.getByTestId('login-submit')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Forgot password\?/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Register/i })).toBeInTheDocument();
   });
@@ -82,7 +82,7 @@ describe('LoginPage', () => {
     });
 
     const emailInput = screen.getByLabelText(/Email/i);
-    const submitButton = screen.getByRole('button', { name: /Sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
 
     await user.type(emailInput, 'invalid-email');
     await user.click(submitButton);
@@ -98,7 +98,7 @@ describe('LoginPage', () => {
       expect(screen.getByRole('heading', { name: /Welcome back/i })).toBeInTheDocument();
     });
 
-    const submitButton = screen.getByRole('button', { name: /Sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
     await user.click(submitButton);
 
     expect(await screen.findByText(/Email wajib diisi/i)).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe('LoginPage', () => {
 
     const emailInput = screen.getByLabelText(/Email/i);
     const passwordInput = screen.getByLabelText(/^Password$/i);
-    const submitButton = screen.getByRole('button', { name: /Sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
@@ -155,7 +155,7 @@ describe('LoginPage', () => {
 
     const emailInput = screen.getByLabelText(/Email/i);
     const passwordInput = screen.getByLabelText(/^Password$/i);
-    const submitButton = screen.getByRole('button', { name: /Sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'wrongpassword');
@@ -181,7 +181,7 @@ describe('LoginPage', () => {
 
     const emailInput = screen.getByLabelText(/Email/i);
     const passwordInput = screen.getByLabelText(/^Password$/i);
-    const submitButton = screen.getByRole('button', { name: /Sign in/i });
+    const submitButton = screen.getByTestId('login-submit');
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');

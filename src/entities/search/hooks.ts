@@ -2,7 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { searchApi } from './api';
-import type { SearchFilters, SearchFacet, SearchResult, SearchSuggestion, SavedSearch } from './types';
+import type {
+  SearchFilters,
+  SearchFacet,
+  SearchResult,
+  SearchSuggestion,
+  SavedSearch,
+} from './types';
 import { SORT_OPTIONS } from './types';
 
 import { normalizeError } from '@/shared/lib/normalizeError';
@@ -34,11 +40,17 @@ export const searchKeys: SearchKeys = {
   saved: [...SEARCH_KEYS_BASE, 'saved'] as const,
 };
 
-export function useSearchQuery<T>(filters: SearchFilters, dataSchema: unknown, options?: { enabled?: boolean }) {
+export function useSearchQuery<T>(
+  filters: SearchFilters,
+  dataSchema: unknown,
+  options?: { enabled?: boolean },
+) {
   return useQuery<SearchResult<T>>({
     queryKey: searchKeys.results(filters),
     queryFn: () => searchApi.search(filters, dataSchema as any),
-    enabled: options?.enabled !== false && (!!filters.query || !!filters.categories?.length || !!filters.brands?.length),
+    enabled:
+      options?.enabled !== false &&
+      (!!filters.query || !!filters.categories?.length || !!filters.brands?.length),
     placeholderData: (previousData) => previousData,
   });
 }
@@ -47,7 +59,9 @@ export function useSearchFacetsQuery(filters: SearchFilters, options?: { enabled
   return useQuery<SearchFacet[]>({
     queryKey: searchKeys.facets(filters),
     queryFn: () => searchApi.getFacets(filters),
-    enabled: options?.enabled !== false && (!!filters.query || !!filters.categories?.length || !!filters.brands?.length),
+    enabled:
+      options?.enabled !== false &&
+      (!!filters.query || !!filters.categories?.length || !!filters.brands?.length),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
@@ -89,8 +103,15 @@ export function useSaveSearchMutation() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ name, filters, alertEnabled }: { name: string; filters: SearchFilters; alertEnabled?: boolean }) =>
-      searchApi.saveSearch(name, filters, alertEnabled),
+    mutationFn: ({
+      name,
+      filters,
+      alertEnabled,
+    }: {
+      name: string;
+      filters: SearchFilters;
+      alertEnabled?: boolean;
+    }) => searchApi.saveSearch(name, filters, alertEnabled),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: searchKeys.saved });
       capturePosthogEvent('search_save', { searchId: data.id, name: data.name });
@@ -146,15 +167,17 @@ export function useToggleSavedSearchAlertMutation() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => searchApi.toggleSavedSearchAlert(id, enabled),
+    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
+      searchApi.toggleSavedSearchAlert(id, enabled),
     onMutate: async ({ id, enabled }) => {
       await queryClient.cancelQueries({ queryKey: searchKeys.saved });
       const previous = queryClient.getQueryData<SavedSearch[]>(searchKeys.saved);
-      
+
       if (previous) {
-        queryClient.setQueryData(searchKeys.saved, previous.map((s) => 
-          s.id === id ? { ...s, alertEnabled: enabled } : s
-        ));
+        queryClient.setQueryData(
+          searchKeys.saved,
+          previous.map((s) => (s.id === id ? { ...s, alertEnabled: enabled } : s)),
+        );
       }
       return { previous };
     },
@@ -188,23 +211,26 @@ export function useToggleSavedSearchAlertMutation() {
 export function useSearchUrl(filters: SearchFilters, basePath = '/products') {
   return useMemo(() => {
     const params = new URLSearchParams();
-    
+
     if (filters.query) params.set('q', filters.query);
     if (filters.categories?.length) params.set('categories', filters.categories.join(','));
     if (filters.brands?.length) params.set('brands', filters.brands.join(','));
-    if (filters.priceRange) params.set('price', `${filters.priceRange[0]},${filters.priceRange[1]}`);
-    if (filters.rating !== null && filters.rating !== undefined) params.set('rating', filters.rating.toString());
+    if (filters.priceRange)
+      params.set('price', `${filters.priceRange[0]},${filters.priceRange[1]}`);
+    if (filters.rating !== null && filters.rating !== undefined)
+      params.set('rating', filters.rating.toString());
     if (filters.inStockOnly) params.set('inStock', 'true');
     if (filters.discountOnly) params.set('discount', 'true');
     if (filters.sortBy && filters.sortBy !== 'relevance') params.set('sort', filters.sortBy);
     if (filters.page && filters.page > 1) params.set('page', filters.page.toString());
-    if (filters.pageSize && filters.pageSize !== 12) params.set('limit', filters.pageSize.toString());
+    if (filters.pageSize && filters.pageSize !== 12)
+      params.set('limit', filters.pageSize.toString());
     if (filters.attributes) {
       Object.entries(filters.attributes).forEach(([key, values]) => {
         if (values.length) params.set(`attr_${key}`, values.join(','));
       });
     }
-    
+
     return `${basePath}?${params.toString()}`;
   }, [filters, basePath]);
 }
@@ -215,12 +241,13 @@ export function useSearchUrl(filters: SearchFilters, basePath = '/products') {
  */
 export function buildSearchUrl(filters: SearchFilters, basePath = '/products'): string {
   const params = new URLSearchParams();
-  
+
   if (filters.query) params.set('q', filters.query);
   if (filters.categories?.length) params.set('categories', filters.categories.join(','));
   if (filters.brands?.length) params.set('brands', filters.brands.join(','));
   if (filters.priceRange) params.set('price', `${filters.priceRange[0]},${filters.priceRange[1]}`);
-  if (filters.rating !== null && filters.rating !== undefined) params.set('rating', filters.rating.toString());
+  if (filters.rating !== null && filters.rating !== undefined)
+    params.set('rating', filters.rating.toString());
   if (filters.inStockOnly) params.set('inStock', 'true');
   if (filters.discountOnly) params.set('discount', 'true');
   if (filters.sortBy && filters.sortBy !== 'relevance') params.set('sort', filters.sortBy);
@@ -231,14 +258,15 @@ export function buildSearchUrl(filters: SearchFilters, basePath = '/products'): 
       if (values.length) params.set(`attr_${key}`, values.join(','));
     });
   }
-  
+
   return `${basePath}?${params.toString()}`;
 }
 
 export function useSearchStateFromUrl(searchParams: URLSearchParams): SearchFilters {
+  const searchKey = searchParams.toString();
   return useMemo(() => {
     return parseSearchStateFromUrl(searchParams);
-  }, [searchParams.toString()]);
+  }, [searchKey]);
 }
 
 /**
@@ -260,7 +288,7 @@ export function parseSearchStateFromUrl(searchParams: URLSearchParams): SearchFi
     attributes: Object.fromEntries(
       Array.from(searchParams.entries())
         .filter(([key]) => key.startsWith('attr_'))
-        .map(([key, value]) => [key.replace('attr_', ''), value.split(',').filter(Boolean)])
+        .map(([key, value]) => [key.replace('attr_', ''), value.split(',').filter(Boolean)]),
     ),
   };
 }
@@ -274,7 +302,8 @@ export function useActiveFilterCount(filters: SearchFilters) {
     if (filters.rating) count++;
     if (filters.inStockOnly) count++;
     if (filters.discountOnly) count++;
-    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000)) count++;
+    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000))
+      count++;
     if (filters.attributes) {
       Object.values(filters.attributes).forEach((values) => {
         count += values.length;
