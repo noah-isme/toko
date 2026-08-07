@@ -1,5 +1,9 @@
 # In-App Notifications
 
+> **Canonical contract:** The authoritative contract lives in the [backend notifications documentation](../../../toko-api/docs/contracts/notifications.md).
+
+> **Last Updated:** 2026-08-07
+
 Per-user in-app notifications. Notifications are created automatically as a side
 effect of order and shipment lifecycle events (see [Webhooks](webhooks.md) for
 the underlying domain topics) and read back through the endpoints below.

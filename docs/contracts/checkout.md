@@ -1,5 +1,9 @@
 # Checkout Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend checkout documentation](../../../toko-api/docs/contracts/checkout.md).
+
+> **Last Updated:** 2026-08-07
+
 ## 4.1 Create Order (Checkout)
 
 ```http

@@ -1,5 +1,9 @@
 # User Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend user documentation](../../../toko-api/docs/contracts/user.md).
+
+> **Last Updated:** 2026-08-07
+
 ## 5.0 Update Profile
 
 ```http

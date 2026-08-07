@@ -1,5 +1,7 @@
 # Webhook Endpoints
 
+> **Canonical contract:** This is a frontend-facing summary. The authoritative contract lives in the [backend webhooks documentation](../../../toko-api/docs/contracts/webhooks.md).
+
 Webhooks are public endpoints invoked by external payment gateways and shipping couriers. They do **not** require a `Bearer` token; authentication is provider-specific (signature verification, API keys, etc.).
 
 ---
@@ -26,9 +28,9 @@ The `{provider}` path parameter is the configured payment provider key (e.g. `mi
 }
 ```
 
-**Response:** `200 OK`
+**Response:** `200 OK` (empty body)
 
-On success the backend updates the order payment status and may trigger voucher settlement. The response body is empty.
+On success the backend updates the order payment status and may trigger voucher settlement.
 
 **Common Error Response:**
 
@@ -75,17 +77,41 @@ POST /api/v1/webhooks/shipping/jne?orderId=order-uuid&tracking=JP1234567890&stat
 
 **Fields:**
 
-- `orderId` — required
-- `trackingNumber` — optional
-- `externalStatus` / `status` — required
-- `description` — optional
-- `location` — optional
-- `occurredAt` — optional, RFC3339
+- `orderId` — required, order UUID or order number resolved by the service
+- `trackingNumber` — optional, courier tracking number
+- `externalStatus` / `status` — required, external courier status label
+- `description` — optional, human-readable event description
+- `location` — optional, event location
+- `occurredAt` — optional, RFC3339 timestamp
 
-**Recognised external status labels:** `picked`, `pickup`, `shipped`, `in_transit`, `in-transit`, `out_for_delivery`, `out-for-delivery`, `delivered`.
+**Recognised external status labels** (case-insensitive):
+
+- `picked`, `pickup` → `PICKED`
+- `shipped`, `in_transit`, `in-transit` → `SHIPPED`
+- `out_for_delivery`, `out-for-delivery` → `OUT_FOR_DELIVERY`
+- `delivered` → `DELIVERED`
+
+Unknown statuses are rejected with `400 Bad Request`.
 
 **Response:** `204 No Content`
 
-On success the backend appends a shipment event and updates the shipment status. The response body is empty.
+On success the backend appends a shipment event and updates the shipment status.
+
+**Common Error Response:**
+
+```json
+{
+  "error": {
+    "code": "INVALID_STATE",
+    "message": "shipment transition not allowed"
+  }
+}
+```
 
 Common error codes: `INTERNAL`, `BAD_REQUEST`, `REPLAY`, `NOT_FOUND`, `INVALID_STATE`, `INTERNAL`.
+
+---
+
+## Admin Webhook Management
+
+Admin-facing webhook configuration (CRUD, deliveries, replay, DLQ) is documented in [`admin.md`](admin.md#66-create-webhook-endpoint).

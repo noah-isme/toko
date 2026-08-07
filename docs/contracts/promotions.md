@@ -1,5 +1,9 @@
 # Promotions
 
+> **Canonical contract:** The authoritative contract lives in the [backend promotions documentation](../../../toko-api/docs/contracts/promotions.md).
+
+> **Last Updated:** 2026-08-07
+
 The storefront uses server-owned promotion data; checkout remains the authority for voucher eligibility and final pricing.
 
 - `GET /api/v1/vouchers` is consumed by `/vouchers` through `promotionsApi.listVouchers()`.

@@ -1,5 +1,9 @@
 # Catalog Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend catalog documentation](../../../toko-api/docs/contracts/catalog.md).
+
+> **Last Updated:** 2026-08-07
+
 ## 2.1 List Categories
 
 ```http

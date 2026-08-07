@@ -1,5 +1,7 @@
 # Tenant Operations
 
+> **Last Updated:** 2026-08-07
+
 Admin storefront pages consume the tenant-scoped operational endpoints documented by the backend:
 
 - `/admin/customers` — customer directory.

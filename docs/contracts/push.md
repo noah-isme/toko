@@ -1,6 +1,10 @@
 # Web Push — Frontend Contract
 
+> **Canonical contract:** The authoritative contract lives in the [backend push documentation](../../../toko-api/docs/contracts/push.md).
+
 Frontend consumes web push through the `webPush` entity module. All routes require authentication.
+
+> **Last Updated:** 2026-08-07
 
 ## API Surface
 

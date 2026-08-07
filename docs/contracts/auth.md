@@ -1,5 +1,9 @@
 # Authentication & User Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend auth documentation](../../../toko-api/docs/contracts/auth.md).
+
+> **Last Updated:** 2026-08-07
+
 ## 1.1 Register
 
 ```http

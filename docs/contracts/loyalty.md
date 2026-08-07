@@ -1,5 +1,9 @@
 # Loyalty — Frontend Contract
 
+> **Canonical contract:** The authoritative contract lives in the [backend loyalty documentation](../../../toko-api/docs/contracts/loyalty.md).
+
+> **Last Updated:** 2026-08-07
+
 Frontend consumes loyalty through the `loyalty` entity module. All routes require authentication and are scoped to the current user.
 
 ## API Surface

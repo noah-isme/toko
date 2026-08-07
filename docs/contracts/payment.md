@@ -1,5 +1,9 @@
 # Payment Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend payment documentation](../../../toko-api/docs/contracts/payment.md).
+
+> **Last Updated:** 2026-08-07
+
 ## 6.1 Create or Reuse Payment Intent
 
 ```http

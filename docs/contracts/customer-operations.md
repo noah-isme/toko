@@ -1,5 +1,9 @@
 # Returns & Support — Frontend Contract
 
+> **Canonical contract:** The authoritative contract lives in the [backend customer-operations documentation](../../../toko-api/docs/contracts/customer-operations.md).
+
+> **Last Updated:** 2026-08-07
+
 Frontend consumes returns and support through the `customerOperations` entity module. All routes require authentication.
 
 ## API Surface

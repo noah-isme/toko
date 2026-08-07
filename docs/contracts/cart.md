@@ -1,5 +1,9 @@
 # Cart Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend cart documentation](../../../toko-api/docs/contracts/cart.md).
+
+> **Last Updated:** 2026-08-07
+
 ## 3.1 Create Cart (Guest)
 
 ```http
@@ -8,6 +12,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "anonId": "optional-client-generated-uuid"
@@ -15,6 +20,7 @@ Content-Type: application/json
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "data": {
@@ -26,6 +32,7 @@ Content-Type: application/json
 ```
 
 **Notes:**
+
 - Jika `anonId` tidak diberikan, server akan generate baru
 - Simpan `cartId` dan `anonId` di localStorage untuk guest checkout
 - Cart expired setelah 7 hari tidak aktif
@@ -39,6 +46,7 @@ GET /api/v1/carts/{cartId}
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -80,6 +88,7 @@ Authorization: Bearer <token> (optional untuk guest)
 ```
 
 **Request:**
+
 ```json
 {
   "productId": "product-uuid",
@@ -92,6 +101,7 @@ Authorization: Bearer <token> (optional untuk guest)
 Returns updated cart (sama dengan Get Cart response)
 
 **Error Cases:**
+
 - `OUT_OF_STOCK`: Qty melebihi stock available
 - `CART_EXPIRED`: Cart sudah expired
 - `NOT_FOUND`: Product/variant tidak ditemukan
@@ -106,6 +116,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "qty": 3
@@ -136,6 +147,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "code": "DISC20"
@@ -143,6 +155,7 @@ Content-Type: application/json
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -152,6 +165,7 @@ Content-Type: application/json
 ```
 
 **Error Cases:**
+
 - `VOUCHER_INVALID`: Voucher tidak ditemukan, expired, atau sudah habis
 - `VOUCHER_MIN_SPEND`: Subtotal tidak memenuhi minimum pembelian
 - `VOUCHER_ALREADY_USED`: User sudah menggunakan voucher (jika ada limit per user)
@@ -165,6 +179,7 @@ DELETE /api/v1/carts/{cartId}/voucher
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -183,6 +198,7 @@ Content-Type: application/json
 ```
 
 **Request:**
+
 ```json
 {
   "destination": "Jakarta Selatan",
@@ -192,6 +208,7 @@ Content-Type: application/json
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [
@@ -214,6 +231,7 @@ Content-Type: application/json
 ```
 
 **Supported Couriers:**
+
 - `jne` - JNE
 - `pos` - Pos Indonesia
 - `tiki` - TIKI
@@ -229,6 +247,7 @@ POST /api/v1/carts/{cartId}/quote/tax
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -250,6 +269,7 @@ Authorization: Bearer <token>
 ```
 
 **Request:**
+
 ```json
 {
   "cartId": "guest-cart-uuid"
@@ -257,6 +277,7 @@ Authorization: Bearer <token>
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": {
@@ -266,6 +287,7 @@ Authorization: Bearer <token>
 ```
 
 **Notes:**
+
 - Gunakan endpoint ini setelah user login
 - Guest cart akan di-merge ke user cart
 - Duplicate items akan di-increment quantity-nya

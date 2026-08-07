@@ -1,5 +1,9 @@
 # Favorites Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend favorites documentation](../../../toko-api/docs/contracts/favorites.md).
+
+> **Last Updated:** 2026-08-07
+
 All favorites endpoints require authentication.
 
 ## 8.1 List User Favorites

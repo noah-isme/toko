@@ -1,5 +1,9 @@
 # Privacy & Account
 
+> **Canonical contract:** The authoritative contract lives in the [backend privacy documentation](../../../toko-api/docs/contracts/privacy.md).
+
+> **Last Updated:** 2026-08-07
+
 The account privacy page uses authenticated API calls rather than simulated delays:
 
 - `GET /api/v1/users/me/privacy` loads saved preferences.

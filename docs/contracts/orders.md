@@ -1,5 +1,9 @@
 # Order Management Endpoints
 
+> **Canonical contract:** The authoritative contract lives in the [backend orders documentation](../../../toko-api/docs/contracts/orders.md).
+
+> **Last Updated:** 2026-08-07
+
 ## 4.2 List User Orders
 
 ```http

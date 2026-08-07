@@ -1,5 +1,9 @@
 # Product Q&A — Frontend Contract
 
+> **Canonical contract:** The authoritative contract lives in the [backend Q&A documentation](../../../toko-api/docs/contracts/qa.md).
+
+> **Last Updated:** 2026-08-07
+
 Frontend consumes Q&A through the `qa` entity module. All routes are product-scoped; `{id}` is the product UUID.
 
 ## API Surface
