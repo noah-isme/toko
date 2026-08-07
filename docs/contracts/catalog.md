@@ -222,6 +222,10 @@ GET /api/v1/products/{slug}/related
 GET /api/v1/products/{productId}/frequently-bought-together
 ```
 
+**Path Parameters:**
+
+- `productId` (string, UUID or slug): Product identifier (UUID or slug)
+
 **Response:** `200 OK`
 
 ```json
@@ -240,7 +244,7 @@ GET /api/v1/products/{productId}/frequently-bought-together
 }
 ```
 
-Returns products frequently purchased together with the specified product.
+Returns products frequently purchased together with the specified product, based on order history analysis. Accepts both UUID and slug as product identifier.
 
 ---
 
@@ -249,6 +253,10 @@ Returns products frequently purchased together with the specified product.
 ```http
 GET /api/v1/products/{productId}/also-viewed
 ```
+
+**Path Parameters:**
+
+- `productId` (string, UUID or slug): Product identifier (UUID or slug)
 
 **Response:** `200 OK`
 
@@ -268,7 +276,7 @@ GET /api/v1/products/{productId}/also-viewed
 }
 ```
 
-Returns products that other customers viewed after viewing the specified product.
+Returns products that other customers viewed after viewing the specified product, based on collaborative filtering of user view history. Accepts both UUID and slug as product identifier.
 
 ---
 
@@ -301,7 +309,7 @@ Authorization: Bearer <access_token>
 }
 ```
 
-Returns personalized product recommendations for the authenticated user based on their browsing and purchase history.
+Returns personalized product recommendations for the authenticated user based on their browsing history (viewed categories and brands). Falls back to trending products for anonymous users.
 
 ---
 
@@ -333,7 +341,7 @@ GET /api/v1/recommendations/trending?limit=10
 }
 ```
 
-Returns currently trending/popular products across the platform.
+Returns currently trending/popular products across the platform, sorted by rating and recency.
 
 ---
 
@@ -345,15 +353,15 @@ The catalog endpoints use **two different identifier types** for product referen
 | ------------------------------------------------------ | -------------- | ------------------- | -------------------------------------- |
 | `GET /products/{slug}`                                 | `slug`         | Human-readable slug | `samsung-galaxy-s24`                   |
 | `GET /products/{slug}/related`                         | `slug`         | Human-readable slug | `samsung-galaxy-s24`                   |
-| `GET /products/{productId}/frequently-bought-together` | `productId`    | UUID                | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
-| `GET /products/{productId}/also-viewed`                | `productId`    | UUID                | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
+| `GET /products/{productId}/frequently-bought-together` | `productId`    | **UUID or slug**    | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
+| `GET /products/{productId}/also-viewed`                | `productId`    | **UUID or slug**    | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
 
 ### Guidelines
 
 1. **Slug-based endpoints** (`/products/{slug}`, `/products/{slug}/related`): Use the product's SEO-friendly slug. These are the primary public-facing endpoints.
 
-2. **UUID-based endpoints** (`/products/{productId}/frequently-bought-together`, `/products/{productId}/also-viewed`): Use the product's internal UUID. These are recommendation endpoints that operate on internal identifiers.
+2. **Flexible identifier endpoints** (`/products/{productId}/frequently-bought-together`, `/products/{productId}/also-viewed`): Accept both UUID and slug. The backend resolves the reference by trying UUID first, then falling back to slug lookup.
 
-3. **Frontend integration**: When calling UUID-based endpoints, you must first resolve the product's UUID (either from a prior slug-based detail call, or from the product list response which includes `id` fields).
+3. **Frontend integration**: When calling flexible identifier endpoints, you can use either the product's UUID (from a prior detail call) or its slug directly.
 
-4. **Backend consideration**: Future API versions should standardize on a single identifier type (preferably UUID for all internal endpoints, with slug-only for public product detail).
+4. **Backend implementation**: The resolver tries UUID parsing first, then falls back to slug lookup — matching the pattern used in the reviews handler.
