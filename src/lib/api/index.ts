@@ -22,7 +22,17 @@
 export { apiClient, setAccessToken, getAccessToken, ApiClientError } from './apiClient';
 
 // Services
-export { authApi, catalogApi, cartApi, ordersApi, addressApi, notificationsApi, promotionsApi, privacyApi, paymentApi } from './services';
+export {
+  authApi,
+  catalogApi,
+  cartApi,
+  ordersApi,
+  addressApi,
+  notificationsApi,
+  promotionsApi,
+  privacyApi,
+  paymentApi,
+} from './services';
 
 // React Query Hooks
 export {
@@ -36,6 +46,10 @@ export {
   useProducts,
   useProduct,
   useRelatedProducts,
+  useFrequentlyBoughtTogether,
+  useCustomersAlsoViewed,
+  usePersonalizedRecommendations,
+  useTrendingProducts,
   useCart,
   useAddToCart,
   useUpdateCartItem,

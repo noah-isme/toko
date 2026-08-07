@@ -15,6 +15,7 @@ import { useState } from 'react';
 
 import { CategoryQuickNav } from '@/components/landing/category-quick-nav';
 import { FlashSaleSection } from '@/components/landing/flash-sale-section';
+import { PersonalizedRecommendations } from '@/components/personalized-recommendations';
 import { ProductsCatalog } from '@/components/products-catalog';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -176,7 +177,11 @@ export function UserHome() {
           </div>
         </div>
 
-        <ProductsCatalog />
+        {activeTab === 'recommended' ? (
+          <PersonalizedRecommendations limit={8} />
+        ) : (
+          <ProductsCatalog />
+        )}
       </section>
     </div>
   );

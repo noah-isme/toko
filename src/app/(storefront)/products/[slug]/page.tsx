@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { Suspense, lazy } from 'react';
 
+import {
+  LazyFrequentlyBoughtTogether,
+  LazyCustomersAlsoViewed,
+} from '@/components/lazy-components';
 import { ProductDetail } from '@/components/product-detail';
 import { RelatedProductList } from '@/components/related-product-list';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
@@ -193,6 +197,46 @@ export default async function ProductPage({ params }: ProductPageProps) {
         />
         <ProductDetail slug={slug} />
         <RelatedProductList slug={slug} />
+        <Suspense
+          fallback={
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold tracking-tight">Frequently Bought Together</h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex flex-col space-y-3">
+                    <div className="aspect-square w-full rounded-xl bg-muted" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-full rounded bg-muted" />
+                      <div className="h-4 w-[80%] rounded bg-muted" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+        >
+          <LazyFrequentlyBoughtTogether productId={slug} />
+        </Suspense>
+        <Suspense
+          fallback={
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold tracking-tight">Customers Also Viewed</h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex flex-col space-y-3">
+                    <div className="aspect-square w-full rounded-xl bg-muted" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-full rounded bg-muted" />
+                      <div className="h-4 w-[80%] rounded bg-muted" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+        >
+          <LazyCustomersAlsoViewed productId={slug} />
+        </Suspense>
         <section id="reviews" className="space-y-6">
           <Suspense fallback={<ReviewSkeleton />}>
             <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
