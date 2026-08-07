@@ -95,6 +95,15 @@ Detail endpoint dan migration ada di kontrak [frontend](contracts/README.md) dan
   - Both Turbopack and Webpack builds pass, SW artifacts generated in `public/` (`sw.js`, `workbox-*.js`, `fallback-*.js`)
 - **Sumber audit**: Performance & offline capability recommendations
 
+### 12. Pengaturan Notifikasi Push (Push Settings Page)
+
+- **Status**: ✅ **DONE** (2026-08-07)
+- **Komponen**: `src/app/(storefront)/account/push-settings/page.tsx`, `src/entities/web-push/ui/PushPreferencesCard.tsx`
+- **Fitur**: Halaman pengelolaan preferensi notifikasi push real-time di dashboard akun (`/account/push-settings`). Menggunakan `LazyPushPreferencesCard` yang lazy-loaded. Mendukung enable/disable notifikasi, konfigurasi per-tipe (pesanan, flash sale, penurunan harga, ulasan, loyalitas, umum), kirim notifikasi tes, dan status pendaftaran endpoint. Terintegrasi di navigasi dashboard akun dengan ikon Bell.
+- **Backend** (`toko-api`): Endpoint `/push/vapid-key`, `/push/subscription`, `/push/preferences`, `/push/send-test` (lihat `docs/contracts/push.md`).
+- **Frontend** (`toko`): Entity `web-push` dengan hooks `usePushPreferencesQuery`, `usePushSubscription`, `useUpdatePushPreferencesMutation`, `useSendTestPushMutation`. Banner promosi di halaman notifikasi (`PushNotificationBanner`).
+- **Sumber audit**: `UI_UX_GAPS_ANALYSIS.md` - Web Push contract implementation
+
 ---
 
 ## 🚀 Backlog Fitur Prioritas Menengah (P2)

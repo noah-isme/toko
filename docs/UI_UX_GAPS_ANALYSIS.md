@@ -686,5 +686,5 @@ PWA sudah lengkap: `sw.js`, `workbox-*.js`, `manifest.json` di `public/`; `next-
 
 **Maintained By**: Development Team
 **Last Re-audited**: 2026-08-07
-**Last Updated**: 2026-08-07 (items #5, #31, #35, #39, #40, #41 shipped — semua 41 item DONE)
+**Last Updated**: 2026-08-07 (items #5, #31, #35, #39, #40, #41 shipped — semua 41 item DONE; added `/account/push-settings` page for web push preferences)
 **Next Review**: Setelah fitur baru ditambahkan ke backlog

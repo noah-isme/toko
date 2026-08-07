@@ -19,6 +19,7 @@ Fitur yang sebelumnya hanya visual atau simulasi kini menggunakan kontrak API:
 - Promosi: `/vouchers` dan `/flash-sales` membaca voucher serta campaign aktif dari backend.
 - Pembayaran: `/checkout/review` memuat instruksi metode pembayaran, detail bank/QR, dan mengunggah bukti pembayaran.
 - Akun: `/account/privacy` memuat dan menyimpan preferensi, mengekspor data, serta menghapus akun melalui API.
+- **Akun: `/account/push-settings` mengelola preferensi notifikasi push real-time (enable/disable, per-tipe config, test notification).**
 - Operasi pelanggan: `/returns` dan `/account/support` terhubung ke workflow pengembalian dan tiket dukungan.
 - Dukungan: riwayat pesan customer dan admin dimuat dari endpoint transcript; MSW juga mencakup privacy, returns, support, admin operations, dan payment proof.
 - Lokalisasi: middleware mendukung prefix `id`, `en`, `zh`, `ja`, dan `ko`; cakupan terjemahan penuh masih merupakan pekerjaan konten terpisah.

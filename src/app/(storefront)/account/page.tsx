@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Heart, LogOut, MapPin, Package, UserCircle, Award } from 'lucide-react';
+import { Bell, Clock, Heart, LogOut, MapPin, Package, UserCircle, Award } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -102,6 +102,12 @@ export default function AccountPage() {
             <span>Loyalitas</span>
           </Link>
         </Button>
+        <Button asChild size="lg" variant="ghost" className="h-auto py-6">
+          <Link href="/account/push-settings" className="flex flex-col items-center gap-2">
+            <Bell className="h-6 w-6" aria-hidden="true" />
+            <span>Notifikasi Push</span>
+          </Link>
+        </Button>
         <Button size="lg" variant="ghost" onClick={handleLogout} className="h-auto py-6">
           <span className="flex flex-col items-center gap-2">
             <LogOut className="h-6 w-6" aria-hidden="true" />
@@ -111,7 +117,7 @@ export default function AccountPage() {
       </div>
 
       <RecentOrders limit={5} />
-      
+
       <LazyWrapper>
         <LazyLoyaltyDashboard />
       </LazyWrapper>
