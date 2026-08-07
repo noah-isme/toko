@@ -1,9 +1,9 @@
 'use client';
 
-import { Star, ThumbsUp } from 'lucide-react';
+import { Loader2, Star, ThumbsUp, Trash2 } from 'lucide-react';
 import { memo } from 'react';
 
-import { useVoteHelpfulMutation } from '../hooks';
+import { useDeleteReviewMutation, useVoteHelpfulMutation } from '../hooks';
 import type { Review } from '../types';
 
 import { ReviewImageGallery } from '@/components/image-upload';
@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 
 interface ReviewItemProps {
   review: Review;
+  isOwner?: boolean;
+  productId?: string;
 }
 
 function formatReviewDate(value: string) {
@@ -48,14 +50,30 @@ function renderStatus(status: Review['status']) {
   );
 }
 
-export const ReviewItem = memo(function ReviewItem({ review }: ReviewItemProps) {
-  const { mutate, isPending, isReviewInFlight } = useVoteHelpfulMutation(review.id);
+export const ReviewItem = memo(function ReviewItem({
+  review,
+  isOwner,
+  productId,
+}: ReviewItemProps) {
+  const { mutate: voteMutate, isPending, isReviewInFlight } = useVoteHelpfulMutation(review.id);
+  const { mutate: deleteMutate, isProductInFlight } = useDeleteReviewMutation(
+    isOwner ? productId : undefined,
+    isOwner ? review.author : undefined,
+  );
   const helpfulActive = review.myVote === 'up';
   const voteInFlight = isPending || isReviewInFlight();
+  const deleteInFlight = isProductInFlight();
 
   const handleHelpfulToggle = () => {
     const nextDir = helpfulActive ? 'clear' : 'up';
-    mutate(nextDir);
+    voteMutate(nextDir);
+  };
+
+  const handleDelete = () => {
+    if (!confirm('Hapus ulasan ini? Tindakan ini tidak dapat dibatalkan.')) {
+      return;
+    }
+    deleteMutate();
   };
 
   return (
@@ -68,7 +86,28 @@ export const ReviewItem = memo(function ReviewItem({ review }: ReviewItemProps) 
           <p className="text-sm font-semibold text-foreground">{review.author ?? 'Anonim'}</p>
           <p className="text-xs text-muted-foreground">{formatReviewDate(review.createdAt)}</p>
         </div>
-        {renderStatus(review.status)}
+        <div className="flex items-center gap-2">
+          {renderStatus(review.status)}
+          {isOwner && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleteInFlight}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-md border border-destructive/30 px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                deleteInFlight && 'opacity-60',
+              )}
+              aria-label="Hapus ulasan ini"
+            >
+              {deleteInFlight ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              ) : (
+                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              Hapus
+            </button>
+          )}
+        </div>
       </header>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
@@ -90,9 +129,7 @@ export const ReviewItem = memo(function ReviewItem({ review }: ReviewItemProps) 
         <span className="text-sm font-medium text-muted-foreground">{review.rating}/5</span>
       </div>
       <p className="text-sm leading-relaxed text-foreground">{review.body}</p>
-      {review.photos && review.photos.length > 0 && (
-        <ReviewImageGallery images={review.photos} />
-      )}
+      {review.photos && review.photos.length > 0 && <ReviewImageGallery images={review.photos} />}
       <div>
         <button
           type="button"

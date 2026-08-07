@@ -63,16 +63,16 @@ Pembagian layer:
 
 Semua endpoint rekomendasi sekarang memiliki kontrak frontend lengkap.
 
-### 5. Review Delete Endpoint — ⚠️ MASIH GAP
+### 5. Review Delete Endpoint — ✅ DIREKONSILIASI
 
 **Backend** (`openapi.yaml` line 711): `DELETE /api/v1/products/{id}/reviews` ada.  
-**Frontend** (`src/entities/reviews/api.ts`): Belum ada fungsi delete review.  
-**Status**: Belum diselesaikan — perlu ditambahkan di sprint berikutnya.
+**Frontend** (`src/entities/reviews/api.ts`): `deleteReview()` ditambahkan 2026-08-07 dengan `useDeleteReviewMutation` (optimistic removal + rollback), tombol hapus di `ReviewItem` (owner-only), dan passing `isOwner` dari `ReviewList` via `useAuth()`.  
+**Status**: ✅ **DONE**.
 
-### 6. Route-Level Loading States — ⚠️ MASIH GAP
+### 6. Route-Level Loading States — ✅ DIREKONSILIASI
 
-Beberapa komponen masih pakai raw `Skeleton`. Belum ada `loading.tsx` di route `src/app/`.  
-**Status**: Belum diselesaikan — perlu ditambahkan di sprint berikutnya.
+6 file `loading.tsx` ditambahkan di route strategis: `products/[slug]`, `products`, `account`, `cart`, `checkout`, `admin`. Menggunakan skeleton components yang sudah ada.  
+**Status**: ✅ **DONE**.
 
 ---
 
@@ -84,8 +84,8 @@ Beberapa komponen masih pakai raw `Skeleton`. Belum ada `loading.tsx` di route `
 | ~~Rekonsiliasi UI_UX_GAPS_ANALYSIS.md~~                    | ~~Update #41 jadi DONE, perbaiki hitungan P3~~                                      | ✅ DONE |
 | ~~Bangun UI untuk personalized recommendations, FBT, CAV~~ | ~~Komponen + hooks + wiring~~                                                       | ✅ DONE |
 | ~~Aktifkan WebP/AVIF di next.config.mjs~~                  | ~~Sudah ada di line 71~~                                                            | ✅ DONE |
-| **P2 Sprint**                                              | Tambahkan fungsi delete review ke `src/entities/reviews/api.ts` dan UI hapus review | ⏳ TODO |
-| **P2 Sprint**                                              | Tambahkan `loading.tsx` di route strategis (products, orders, account)              | ⏳ TODO |
+| **P2 Sprint**                                              | Tambahkan fungsi delete review ke `src/entities/reviews/api.ts` dan UI hapus review | ✅ DONE |
+| **P2 Sprint**                                              | Tambahkan `loading.tsx` di route strategis (products, orders, account)              | ✅ DONE |
 | ~~High contrast mode / WCAG AAA patterns~~                 | ~~Sudah ada~~                                                                       | ✅ DONE |
 | ~~Idle timeout warning sebelum auto-logout~~               | ~~Sudah ada~~                                                                       | ✅ DONE |
 
@@ -98,7 +98,7 @@ Beberapa komponen masih pakai raw `Skeleton`. Belum ada `loading.tsx` di route `
 - Quick Start Frontend dengan contoh kode jelas
 - Audit UX rutin dengan tracking per-item detail
 - Backlog aktif terdokumentasi dengan referensi commit
-- **Semua 41 item UX/UI audit telah diselesaikan** (kecuali 2 gap review delete dan loading states)
+- **Semua 41 item UX/UI audit telah diselesaikan** — tidak ada gap tersisa
 
 ---
 

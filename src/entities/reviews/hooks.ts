@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useReducer, useRef } from 'react';
 
-import { createReview, getReviewStats, listReviews, voteHelpful } from './api';
+import { createReview, deleteReview, getReviewStats, listReviews, voteHelpful } from './api';
 import { getReviewListKey, getReviewStatsKey } from './keys';
 import type {
   Review,
@@ -499,5 +499,136 @@ export function useVoteHelpfulMutation(reviewId: string) {
       isReviewInFlight: () => has(`vote:${reviewId}`),
     }),
     [has, mutate, mutation, reviewId],
+  );
+}
+
+interface DeleteReviewContext {
+  previousLists: ReviewListEntry[];
+}
+
+export function useDeleteReviewMutation(productId: string | undefined, currentUserId?: string) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { add, remove, has } = useInFlightRegistry();
+
+  const mutation = useMutation<void, Error, void, DeleteReviewContext>({
+    mutationFn: () => {
+      if (!productId) {
+        throw new Error('productId is required to delete a review');
+      }
+
+      const sentry = getSentry();
+      sentry?.addBreadcrumb?.({
+        category: 'reviews',
+        level: 'info',
+        message: 'review:delete',
+        data: { productId },
+      });
+
+      return deleteReview(productId);
+    },
+    onMutate: async () => {
+      if (!productId || !currentUserId) {
+        return { previousLists: [] };
+      }
+
+      await queryClient.cancelQueries({ queryKey: ['reviews', 'list', productId] });
+
+      const previousLists: ReviewListEntry[] = [];
+      const listEntries = getListQueries(productId, queryClient);
+
+      for (const [key, data] of listEntries) {
+        if (!data) {
+          continue;
+        }
+
+        previousLists.push([key, data]);
+
+        const nextData: ReviewListResponse = {
+          ...data,
+          data: data.data.filter((review) => review.author !== currentUserId),
+          meta: {
+            ...data.meta,
+            total: Math.max(0, (data.meta.total ?? data.data.length) - 1),
+          },
+        };
+
+        queryClient.setQueryData(key, nextData);
+      }
+
+      return { previousLists };
+    },
+    onError: (error, _variables, context) => {
+      if (productId) {
+        for (const [key, data] of context?.previousLists ?? []) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+
+      captureSentryException(error, {
+        tags: { feature: 'reviews', action: 'delete' },
+        extra: { productId },
+      });
+
+      toast({
+        id: `review-delete-${productId}-error`,
+        title: 'Gagal menghapus ulasan',
+        description: normalizeError(error),
+        variant: 'destructive',
+      });
+    },
+    onSuccess: () => {
+      if (productId) {
+        capturePosthogEvent('review_delete', { productId });
+      }
+
+      toast({
+        id: `review-delete-${productId}-success`,
+        title: 'Ulasan dihapus',
+        description: 'Ulasan Anda telah dihapus.',
+        variant: 'success',
+      });
+    },
+    onSettled: () => {
+      if (!productId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({ queryKey: ['reviews', 'list', productId] });
+      void queryClient.invalidateQueries({ queryKey: getReviewStatsKey(productId) });
+    },
+  });
+
+  type DeleteMutateOptions = Parameters<typeof mutation.mutate>[1];
+
+  const mutate = useCallback(
+    (options?: DeleteMutateOptions) => {
+      if (!productId) {
+        return;
+      }
+
+      const guardKey = `delete:${productId}`;
+      if (!add(guardKey)) {
+        return;
+      }
+
+      mutation.mutate(undefined, {
+        ...options,
+        onSettled: (data, error, variables, context, mutationContext) => {
+          remove(guardKey);
+          options?.onSettled?.(data, error, variables, context, mutationContext);
+        },
+      });
+    },
+    [add, mutation, productId, remove],
+  );
+
+  return useMemo(
+    () => ({
+      ...mutation,
+      mutate,
+      isProductInFlight: () => (productId ? has(`delete:${productId}`) : false),
+    }),
+    [has, mutate, mutation, productId],
   );
 }

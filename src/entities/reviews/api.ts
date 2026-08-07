@@ -149,7 +149,7 @@ export async function createReview(
     const formData = new FormData();
     formData.append('rating', String(parsedPayload.rating));
     formData.append('comment', parsedPayload.body);
-    
+
     for (const photo of photos!) {
       formData.append('photos', photo);
     }
@@ -195,5 +195,14 @@ export async function voteHelpful(
     method: 'POST',
     body: JSON.stringify({ dir: parsedDir }),
     schema: reviewVoteResponseSchema,
+  });
+}
+
+export async function deleteReview(productId: string): Promise<void> {
+  const parsedProductId = productIdSchema.parse(productId);
+
+  await apiClient(`/products/${encodeURIComponent(parsedProductId)}/reviews`, {
+    method: 'DELETE',
+    requiresAuth: true,
   });
 }

@@ -8,6 +8,7 @@ import type { ReviewListParams, ReviewSort } from '../types';
 
 import { ReviewItem } from './ReviewItem';
 
+import { useAuth } from '@/components/providers/AuthProvider';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
@@ -26,6 +27,7 @@ export interface ReviewListProps {
 export function ReviewList({ productId, pageSize = 5, className }: ReviewListProps) {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<ReviewSort>('recent');
+  const { user } = useAuth();
 
   const queryParams = useMemo<ReviewListParams>(
     () => ({
@@ -92,7 +94,12 @@ export function ReviewList({ productId, pageSize = 5, className }: ReviewListPro
       ) : data && data.data.length > 0 ? (
         <div className="space-y-3" aria-busy={isFetching ? 'true' : undefined}>
           {data.data.map((review) => (
-            <ReviewItem key={review.id} review={review} />
+            <ReviewItem
+              key={review.id}
+              review={review}
+              isOwner={Boolean(user && review.author === user.id)}
+              productId={productId}
+            />
           ))}
         </div>
       ) : (
