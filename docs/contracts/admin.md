@@ -385,28 +385,33 @@ Returns a paginated list of audit logs.
 
 **Response:** `200 OK`
 
-Note: the backend currently returns a raw array, not the standard `{ "data": ... }` envelope.
-
 ```json
-[
-  {
-    "id": "audit-uuid",
-    "actor_kind": "user",
-    "actor_user_id": "user-uuid",
-    "action": "UPDATE",
-    "resource_type": "order",
-    "resource_id": "order-uuid",
-    "method": "PATCH",
-    "path": "/api/v1/admin/orders/order-uuid/status",
-    "route": "/api/v1/admin/orders/{id}/status",
-    "status": 204,
-    "ip": "127.0.0.1",
-    "user_agent": "Mozilla/5.0",
-    "request_id": "req-uuid",
-    "metadata": {},
-    "created_at": "2025-12-01T00:00:00Z"
+{
+  "data": [
+    {
+      "id": "audit-uuid",
+      "actor_kind": "user",
+      "actor_user_id": "user-uuid",
+      "action": "UPDATE",
+      "resource_type": "order",
+      "resource_id": "order-uuid",
+      "method": "PATCH",
+      "path": "/api/v1/admin/orders/order-uuid/status",
+      "route": "/api/v1/admin/orders/{id}/status",
+      "status": 204,
+      "ip": "127.0.0.1",
+      "user_agent": "Mozilla/5.0",
+      "request_id": "req-uuid",
+      "metadata": {},
+      "created_at": "2025-12-01T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "perPage": 50,
+    "totalItems": 42
   }
-]
+}
 ```
 
 Common error codes: `UNAUTHORIZED`, `FORBIDDEN`, `AUDIT_NOT_CONFIGURED`, `AUDIT_QUERY_FAILED`, `INTERNAL`.
