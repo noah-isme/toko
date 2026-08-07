@@ -108,3 +108,27 @@ export type { Address, AddressInput } from '@/entities/address/types';
 
 // Mappers
 export { mapAddressFromApi, mapAddressToApi, mapAddressUpdateToApi } from './mappers';
+
+// Response Normalizer
+export {
+  normalizeResponse,
+  normalizeArrayResponse,
+  normalizeObjectResponse,
+  extractData,
+  isEnvelopedResponse,
+  mapRawReviewToNormalized,
+  mapRawReviewStatsToNormalized,
+  mapRawFavoriteToNormalized,
+  snakeToCamelCase,
+  mapArraySnakeToCamel,
+  NON_STANDARD_ENVELOPE_ENDPOINTS,
+  type StandardEnvelope,
+  type EnvelopedResponse,
+  type RawReview,
+  type NormalizedReview,
+  type RawReviewStats,
+  type NormalizedReviewStats,
+  type RawFavorite,
+  type NormalizedFavorite,
+  type NonStandardEndpoint,
+} from './responseNormalizer';

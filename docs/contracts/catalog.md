@@ -330,3 +330,26 @@ GET /api/v1/recommendations/trending?limit=10
 ```
 
 Returns currently trending/popular products across the platform.
+
+---
+
+## ⚠️ Path Parameter Convention Notice
+
+The catalog endpoints use **two different identifier types** for product references:
+
+| Endpoint                                               | Path Parameter | Identifier Type     | Example                                |
+| ------------------------------------------------------ | -------------- | ------------------- | -------------------------------------- |
+| `GET /products/{slug}`                                 | `slug`         | Human-readable slug | `samsung-galaxy-s24`                   |
+| `GET /products/{slug}/related`                         | `slug`         | Human-readable slug | `samsung-galaxy-s24`                   |
+| `GET /products/{productId}/frequently-bought-together` | `productId`    | UUID                | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
+| `GET /products/{productId}/also-viewed`                | `productId`    | UUID                | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
+
+### Guidelines
+
+1. **Slug-based endpoints** (`/products/{slug}`, `/products/{slug}/related`): Use the product's SEO-friendly slug. These are the primary public-facing endpoints.
+
+2. **UUID-based endpoints** (`/products/{productId}/frequently-bought-together`, `/products/{productId}/also-viewed`): Use the product's internal UUID. These are recommendation endpoints that operate on internal identifiers.
+
+3. **Frontend integration**: When calling UUID-based endpoints, you must first resolve the product's UUID (either from a prior slug-based detail call, or from the product list response which includes `id` fields).
+
+4. **Backend consideration**: Future API versions should standardize on a single identifier type (preferably UUID for all internal endpoints, with slug-only for public product detail).
