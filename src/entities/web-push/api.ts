@@ -30,7 +30,7 @@ export const webPushApi = {
    * Get the VAPID public key for client-side subscription.
    */
   async getVapidPublicKey(): Promise<string> {
-    const response = await apiClient('/push/vapid-public-key', {
+    const response = await apiClient('/push/vapid-key', {
       method: 'GET',
       requiresAuth: true,
       schema: vapidPublicKeySchema,
@@ -42,7 +42,7 @@ export const webPushApi = {
    * Subscribe the current user to push notifications.
    */
   async subscribe(input: PushSubscriptionInput): Promise<PushSubscriptionResponse> {
-    const response = await apiClient('/push/subscribe', {
+    const response = await apiClient('/push/subscription', {
       method: 'POST',
       requiresAuth: true,
       body: JSON.stringify(input),
@@ -56,7 +56,7 @@ export const webPushApi = {
    */
   async unsubscribe(endpoint?: string): Promise<PushSubscriptionResponse> {
     const params = endpoint ? new URLSearchParams({ endpoint }) : undefined;
-    const response = await apiClient(`/push/unsubscribe${params ? `?${params.toString()}` : ''}`, {
+    const response = await apiClient(`/push/subscription${params ? `?${params.toString()}` : ''}`, {
       method: 'DELETE',
       requiresAuth: true,
       schema: pushSubscriptionResponseSchema,
@@ -79,7 +79,9 @@ export const webPushApi = {
   /**
    * Update the current user's push notification preferences.
    */
-  async updatePreferences(preferences: Partial<PushPreferences>): Promise<PushSubscriptionResponse> {
+  async updatePreferences(
+    preferences: Partial<PushPreferences>,
+  ): Promise<PushSubscriptionResponse> {
     const response = await apiClient('/push/preferences', {
       method: 'PATCH',
       requiresAuth: true,
@@ -93,7 +95,7 @@ export const webPushApi = {
    * Send a test push notification (for debugging).
    */
   async sendTestNotification(): Promise<PushSubscriptionResponse> {
-    const response = await apiClient('/push/test', {
+    const response = await apiClient('/push/send-test', {
       method: 'POST',
       requiresAuth: true,
       schema: pushSubscriptionResponseSchema,
