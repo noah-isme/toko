@@ -1,31 +1,46 @@
 import type { MetadataRoute } from 'next';
 
 import { productListSchema } from '@/lib/api/schemas';
+import { getPublicEnv, isIndexableDeployment } from '@/shared/config/env';
 import { abs, siteUrl } from '@/shared/seo/seo';
 
 async function fetchProductSlugs() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl || apiUrl === 'mock') {
+  const { apiUrl, apiMocking, tenantId } = getPublicEnv();
+  if (!apiUrl || apiUrl === 'mock' || apiMocking) {
     return [];
   }
 
   try {
     const endpoint = `${apiUrl.replace(/\/$/, '')}/products`;
+    const headers = new Headers({ Accept: 'application/json' });
+    if (tenantId) {
+      headers.set('X-Tenant-ID', tenantId);
+    }
+
     const response = await fetch(endpoint, {
-      headers: { Accept: 'application/json' },
+      headers,
+      cache: 'no-store',
     });
 
     if (!response.ok) {
       return [];
     }
 
-    const data = await response.json();
-    const parsed = productListSchema.safeParse(data);
-    if (!parsed.success) {
-      return [];
+    const data: unknown = await response.json();
+    const direct = productListSchema.safeParse(data);
+    if (direct.success) {
+      return direct.data.map((product) => product.slug);
     }
 
-    return parsed.data.map((product) => product.slug);
+    // The catalog contract wraps list results in `{ data, pagination }`.
+    if (typeof data === 'object' && data !== null && 'data' in data) {
+      const wrapped = productListSchema.safeParse(data.data);
+      if (wrapped.success) {
+        return wrapped.data.map((product) => product.slug);
+      }
+    }
+
+    return [];
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn('Failed to fetch products for sitemap', error);
@@ -36,6 +51,10 @@ async function fetchProductSlugs() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!isIndexableDeployment()) {
+    return [];
+  }
+
   const slugs = await fetchProductSlugs();
   const lastModified = new Date();
 

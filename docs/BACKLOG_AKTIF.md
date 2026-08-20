@@ -87,12 +87,12 @@ Detail endpoint dan migration ada di kontrak [frontend](contracts/README.md) dan
 - **Komponen**: `next.config.mjs` (next-pwa config), `public/manifest.json`, `public/icon-192.svg`, `public/icon-512.svg`, `src/app/offline/page.tsx`, `src/app/layout.tsx`
 - **Detail**:
   - Installed `next-pwa@latest` with Workbox
-  - Configured runtime caching: Google Fonts (CacheFirst, 1yr), Images (CacheFirst, 30d), API (NetworkFirst, 5min)
+  - Configured runtime caching: Google Fonts (CacheFirst, 1yr) and Images (CacheFirst, 30d); authenticated and mutable API responses are excluded
   - Offline fallback page at `/offline` with auto-reload on reconnection
-  - Service worker auto-registers in production (`register: true, skipWaiting: true`)
+  - Generated `/pwa-sw.js` auto-registers in production (`register: true, skipWaiting: true`) and imports push handlers from `worker/index.js`; development retains the legacy `/sw.js`
   - Web App Manifest linked in root layout metadata
   - Cache-Control headers with `stale-while-revalidate=86400` for images and Next.js image optimization
-  - Both Turbopack and Webpack builds pass, SW artifacts generated in `public/` (`sw.js`, `workbox-*.js`, `fallback-*.js`)
+  - Production uses the Webpack build because next-pwa is Webpack-based; Workbox artifacts are generated into `public/` during deploy and ignored in source control
 - **Sumber audit**: Performance & offline capability recommendations
 
 ### 12. Pengaturan Notifikasi Push (Push Settings Page)

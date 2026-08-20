@@ -6,16 +6,16 @@ import { registerServiceWorker } from '@/lib/sw-registration';
 import { useCartStore } from '@/stores/cart-store';
 
 export function AppInitializer() {
-  const hasStarted = useRef(false);
+  const hasInitializedGuestCart = useRef(false);
   const anonId = useCartStore((state) => state.anonId);
   const initGuestCart = useCartStore((state) => state.initGuestCart);
 
   useEffect(() => {
-    if (hasStarted.current) {
+    if (hasInitializedGuestCart.current) {
       return;
     }
 
-    hasStarted.current = true;
+    hasInitializedGuestCart.current = true;
     if (anonId) {
       return;
     }
@@ -25,10 +25,6 @@ export function AppInitializer() {
 
   // Register service worker for push notifications
   useEffect(() => {
-    if (hasStarted.current) {
-      return;
-    }
-    
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       void registerServiceWorker();
     }

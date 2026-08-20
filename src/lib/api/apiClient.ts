@@ -2,12 +2,13 @@ import { z } from 'zod';
 
 import type { ApiError } from './types';
 
-const DEFAULT_API_URL = 'http://localhost:8080/api/v1';
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL === 'mock'
-    ? '/api/v1'
-    : process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL;
-const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID?.trim();
+import { getApiBaseUrl, getPublicEnv } from '@/shared/config/env';
+
+// Environment variables are embedded into the Next.js bundle at build time.
+// Resolve them once so test suites that temporarily mutate process.env do not
+// change the base URL halfway through an in-flight request.
+const API_URL = getApiBaseUrl();
+const TENANT_ID = getPublicEnv().tenantId;
 
 interface ApiClientBaseOptions extends RequestInit {
   requiresAuth?: boolean;
@@ -102,7 +103,6 @@ export async function apiClient<T = unknown>(
 ): Promise<T> {
   const { headers, requiresAuth = false, ...init } = options;
   const requestHeaders = new Headers(headers);
-
   if (TENANT_ID && !requestHeaders.has('X-Tenant-ID')) {
     requestHeaders.set('X-Tenant-ID', TENANT_ID);
   }

@@ -1,1 +1,3 @@
-export const isMock = () => (process.env.NEXT_PUBLIC_API_URL ?? 'mock') === 'mock';
+import { isMockEnvironment } from './env';
+
+export const isMock = isMockEnvironment;

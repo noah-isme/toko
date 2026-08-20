@@ -78,6 +78,18 @@ web_modules/
 .next
 out
 
+# next-pwa build artifacts (generated into public during production builds)
+public/pwa-sw.js
+public/pwa-sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+public/worker-*.js
+public/worker-*.js.map
+public/fallback-*.js
+
+# Vercel CLI project metadata and pulled environment files
+.vercel/
+
 # Nuxt.js build / generate output
 .nuxt
 dist

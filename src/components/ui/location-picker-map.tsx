@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 
 import { Button } from '@/components/ui/button';
+import { searchGeocoding } from '@/lib/geocoding/client';
 
 interface LocationPickerMapProps {
   initialPosition?: LatLngTuple;
@@ -137,17 +138,15 @@ export default function LocationPickerMap({
     setNoResult(false);
 
     try {
-      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
-      if (!res.ok) {
-        throw new Error('Search failed');
-      }
-
-      const data = await res.json();
-      const results = Array.isArray(data) ? data : [];
+      const results = await searchGeocoding(query, 5);
 
       if (results.length > 0) {
-        const lat = parseFloat(results[0].lat);
-        const lon = parseFloat(results[0].lon);
+        const lat = Number(results[0].lat);
+        const lon = Number(results[0].lon);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+          setNoResult(true);
+          return;
+        }
         // Updating position triggers LocationMarker effect which flies the map
         const newPos: LatLngTuple = [lat, lon];
         setPosition(newPos);

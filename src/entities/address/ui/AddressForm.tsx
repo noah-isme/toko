@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LocationPicker } from '@/components/ui/location-picker';
 import { indonesiaRegions } from '@/entities/address/data/id-region';
+import { reverseGeocode, searchGeocoding } from '@/lib/geocoding/client';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -169,15 +170,7 @@ export function AddressForm({
       setIsLocationSearching(true);
       setLocationError(null);
       try {
-        const response = await fetch(
-          `/api/geocode/search?q=${encodeURIComponent(trimmed)}&limit=6`,
-          { signal: controller.signal },
-        );
-        if (!response.ok) {
-          throw new Error('Location search failed');
-        }
-        const data = await response.json();
-        const results = Array.isArray(data) ? data : [];
+        const results = await searchGeocoding(trimmed, 6, controller.signal);
         const mapped = results.map((result, index) => {
           const address = result?.address ?? {};
           const city =
@@ -272,17 +265,12 @@ export function AddressForm({
     const timer = setTimeout(async () => {
       setIsPostalChecking(true);
       try {
-        const response = await fetch(
-          `/api/geocode/search?q=${encodeURIComponent(
-            `${normalizedPostal} ${city} ${province}`,
-          )}&limit=1`,
-          { signal: controller.signal },
+        const results = await searchGeocoding(
+          `${normalizedPostal} ${city} ${province}`,
+          1,
+          controller.signal,
         );
-        if (!response.ok) {
-          throw new Error('Postal validation failed');
-        }
-        const data = await response.json();
-        const result = Array.isArray(data) ? data[0] : null;
+        const result = results[0];
         const resultPostal = result?.address?.postcode
           ? normalizePostalCode(result.address.postcode)
           : '';
@@ -316,12 +304,7 @@ export function AddressForm({
   const handleLocationSelect = async (lat: number, lng: number) => {
     setIsGeocoding(true);
     try {
-      const response = await fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`);
-
-      if (!response.ok) throw new Error('Failed to fetch address');
-
-      const data = await response.json();
-      const address = data.address;
+      const { address } = await reverseGeocode(lat, lng);
 
       // Map Nominatim fields to our schema
       if (address) {

@@ -1,0 +1,52 @@
+name: Production configuration validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-config:
+    name: Validate production-shaped build
+    runs-on: ubuntu-latest
+    env:
+      # These non-routable domains exercise the production contract without
+      # exposing or requiring real tenant, API, payment, or telemetry secrets.
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://api.toko.invalid/api/v1
+      NEXT_PUBLIC_API_MOCKING: 'false'
+      NEXT_PUBLIC_TENANT_ID: ci-deployment-validation
+      NEXT_PUBLIC_SITE_URL: https://shop.toko.invalid
+      NEXT_PUBLIC_CDN_URL: https://cdn.toko.invalid
+      NEXT_PUBLIC_APP_NAME: toko
+      NEXT_PUBLIC_RUM_DEST: none
+      NEXT_PUBLIC_RUM_SAMPLE: '0'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js from .nvmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate production environment contract
+        run: pnpm deployment:validate -- --production
+
+      - name: Build with production-shaped public configuration
+        run: pnpm build

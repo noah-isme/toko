@@ -1,23 +1,16 @@
-const DEFAULT_SITE_URL = 'http://localhost:3000';
+import { getPublicEnv } from '@/shared/config/env';
 
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const publicEnv = getPublicEnv();
 
-if (process.env.NODE_ENV !== 'production' && (!rawSiteUrl || rawSiteUrl === DEFAULT_SITE_URL)) {
+if (process.env.NODE_ENV !== 'production' && (!rawSiteUrl || rawSiteUrl === publicEnv.siteUrl)) {
   console.warn(
-    'NEXT_PUBLIC_SITE_URL is not defined. Falling back to http://localhost:3000. Set it in your environment to generate accurate metadata.',
+    `NEXT_PUBLIC_SITE_URL is not defined. Falling back to ${publicEnv.siteUrl}. Set it in your environment to generate accurate metadata.`,
   );
 }
 
-export const siteUrl = (() => {
-  try {
-    return new URL(rawSiteUrl ?? DEFAULT_SITE_URL).toString().replace(/\/$/, '');
-  } catch (error) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('Invalid NEXT_PUBLIC_SITE_URL provided. Falling back to default.', error);
-    }
-    return DEFAULT_SITE_URL;
-  }
-})();
+/** The validated deployment origin used for canonical URLs and metadata. */
+export const siteUrl = publicEnv.siteUrl;
 
 export const metadataBase = new URL(siteUrl);
 

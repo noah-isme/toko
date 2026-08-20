@@ -4,8 +4,8 @@ A modular Next.js storefront powered by TypeScript, Tailwind CSS, shadcn/ui, and
 
 ## Requirements
 
-- Node.js 20+
-- pnpm 8+
+- Node.js 20.19.5 (see `.nvmrc`)
+- pnpm 10.5.2
 
 ## Getting started
 
@@ -19,23 +19,25 @@ The development server runs at [http://localhost:3000](http://localhost:3000). M
 
 ### Available scripts
 
-| Command           | Description                                          |
-| ----------------- | ---------------------------------------------------- |
-| `pnpm dev`        | Start the Next.js development server with MSW mocks. |
-| `pnpm build`      | Create an optimized production build.                |
-| `pnpm start`      | Run the production server.                           |
-| `pnpm lint`       | Lint the project using ESLint.                       |
-| `pnpm typecheck`  | Run TypeScript in no-emit mode.                      |
-| `pnpm test`       | Execute Vitest test suites once.                     |
-| `pnpm test:watch` | Run Vitest in watch mode.                            |
-| `pnpm format`     | Format the repository with Prettier.                 |
+| Command                    | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+| `pnpm dev`                 | Start the Next.js development server with MSW mocks. |
+| `pnpm build`               | Create an optimized production build.                |
+| `pnpm start`               | Run the production server.                           |
+| `pnpm lint`                | Lint the project using ESLint.                       |
+| `pnpm typecheck`           | Run TypeScript in no-emit mode.                      |
+| `pnpm test`                | Execute Vitest test suites once.                     |
+| `pnpm test:ci`             | Execute Vitest in CI-friendly forked-worker mode.    |
+| `pnpm test:watch`          | Run Vitest in watch mode.                            |
+| `pnpm deployment:validate` | Validate local or production-shaped variables.       |
+| `pnpm format`              | Format the repository with Prettier.                 |
 
 ### PWA / Offline Support
 
 The storefront includes Progressive Web App capabilities:
 
-- **Service Worker** (via `next-pwa` + Workbox): Auto-registers in production with `skipWaiting` for instant updates
-- **Runtime caching**: Google Fonts (1yr), images (30d), API responses (5min NetworkFirst)
+- **Service Worker** (via `next-pwa` + Workbox): Auto-registers the generated `/pwa-sw.js` in production with `skipWaiting` for instant updates; development keeps the legacy `/sw.js` push worker
+- **Runtime caching**: Google Fonts (1yr) and images (30d); API responses are not cached by the service worker
 - **Offline fallback**: `/offline` page with auto-reload when connectivity restored
 - **Web App Manifest**: Installable with `display: standalone`, SVG maskable icons
 - **Cache headers**: `stale-while-revalidate=86400` for all optimized images
@@ -68,6 +70,8 @@ src/
 - **Mocking (default):** Set `NEXT_PUBLIC_API_URL=mock` (the value in `.env.example`) to use the built-in MSW handlers.
 - **Real backend:** Set `NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1` and `NEXT_PUBLIC_API_MOCKING=false` to use `toko-api`. Include `NEXT_PUBLIC_TENANT_ID` when the backend is running in a multi-tenant environment.
 
+For Vercel project setup, Preview/staging tenants, CORS and cookie prerequisites, production-shaped validation, manual promotion, and rollback commands, see [Vercel deployment](docs/VERCEL_DEPLOYMENT.md).
+
 ## API-backed storefront areas
 
 The current storefront routes backed by the API include `/vouchers`, `/flash-sales`, `/returns`, `/account/support`, `/account/privacy`, `/checkout/review` payment instructions, and the admin `/admin/returns`, `/admin/support`, `/admin/inventory`, and `/admin/customers` pages. Locale-prefixed paths such as `/en/products` are rewritten to the same App Router pages by middleware.
@@ -78,7 +82,7 @@ The repository enforces formatting and linting through Husky + lint-staged. The 
 
 ## Continuous integration
 
-The GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) installs dependencies, runs linting, type checks, tests, and builds the application on every push and pull request.
+The GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) installs dependencies, runs linting, type checks, tests, and builds the application on every push and pull request. [Production configuration validation](.github/workflows/production-validation.yml) also builds with production-shaped, non-routable public variables and does not require real API credentials.
 
 ## Contributing
 

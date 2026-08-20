@@ -11,6 +11,7 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { mapApiProductToProduct } from '@/lib/api/mappers/product';
 import { productSchema } from '@/lib/api/schemas';
 import type { ApiProduct, ApiResponse } from '@/lib/api/types';
+import { getPublicEnv } from '@/shared/config/env';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical } from '@/shared/seo/seo';
@@ -71,15 +72,21 @@ interface ProductPageProps {
 }
 
 async function fetchProduct(slug: string) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl || apiUrl === 'mock') {
+  const { apiUrl, apiMocking, tenantId } = getPublicEnv();
+  if (!apiUrl || apiUrl === 'mock' || apiMocking) {
     return null;
   }
 
   try {
     const endpoint = `${apiUrl.replace(/\/$/, '')}/products/${slug}`;
+    const headers = new Headers({ Accept: 'application/json' });
+    if (tenantId) {
+      headers.set('X-Tenant-ID', tenantId);
+    }
+
     const response = await fetch(endpoint, {
-      headers: { Accept: 'application/json' },
+      headers,
+      cache: 'no-store',
     });
 
     if (!response.ok) {

@@ -8,6 +8,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import 'leaflet-defaulticon-compatibility';
 import type { TrackingEvent } from '@/lib/api/types';
+import { searchGeocoding } from '@/lib/geocoding/client';
 
 const CITY_COORDS: Record<string, LatLngTuple> = {
   jakarta: [-6.2088, 106.8456],
@@ -62,17 +63,12 @@ export default function TrackingMap({ tracking, className }: TrackingMapProps) {
         // If not found statically, query the dynamic geocoding endpoint
         if (!coords) {
           try {
-            const res = await fetch(
-              `/api/geocode/search?q=${encodeURIComponent(event.location)}&limit=1`,
-            );
-            if (res.ok) {
-              const data = await res.json();
-              if (data && data[0]) {
-                const lat = parseFloat(data[0].lat);
-                const lon = parseFloat(data[0].lon);
-                if (!isNaN(lat) && !isNaN(lon)) {
-                  coords = [lat, lon];
-                }
+            const data = await searchGeocoding(event.location, 1);
+            if (data[0]) {
+              const lat = Number(data[0].lat);
+              const lon = Number(data[0].lon);
+              if (Number.isFinite(lat) && Number.isFinite(lon)) {
+                coords = [lat, lon];
               }
             }
           } catch (err) {

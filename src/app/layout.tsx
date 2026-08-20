@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { ReactNode, Suspense } from 'react';
 
 import './globals.css';
@@ -9,15 +8,12 @@ import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { cn } from '@/lib/utils';
 import { RouteFocusHandler } from '@/shared/lib/useRouteFocus';
 import DevVitalsOverlay from '@/shared/rum/DevVitalsOverlay';
 import { abs, metadataBase, siteUrl } from '@/shared/seo/seo';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { SkipToContent } from '@/shared/ui/SkipToContent';
 import { Toaster } from '@/shared/ui/toast';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 const appName = 'toko';
 const defaultDescription = 'Modern modular storefront for the toko e-commerce experience.';
@@ -60,7 +56,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn('min-h-screen bg-background font-sans antialiased', inter.variable)}>
+      <body className="min-h-screen bg-background font-sans antialiased">
         <SkipToContent />
         <MockServiceWorkerProvider>
           <Suspense fallback={null}>

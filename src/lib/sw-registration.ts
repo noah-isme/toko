@@ -1,5 +1,6 @@
 // Service Worker Registration Script
-// This script registers the service worker for push notifications
+// This script registers the next-pwa worker, which imports the push handlers
+// from worker/index.js during production builds.
 
 export interface ServiceWorkerRegistrationResult {
   success: boolean;
@@ -13,7 +14,8 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   }
 
   try {
-    const registration = await navigator.serviceWorker.register('/sw.js', {
+    const workerPath = process.env.NODE_ENV === 'production' ? '/pwa-sw.js' : '/sw.js';
+    const registration = await navigator.serviceWorker.register(workerPath, {
       scope: '/',
     });
 
@@ -21,7 +23,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
     await navigator.serviceWorker.ready;
 
     console.log('Service Worker registered successfully:', registration.scope);
-    
+
     return { success: true, registration };
   } catch (error) {
     console.error('Service Worker registration failed:', error);
@@ -64,7 +66,9 @@ export async function updateServiceWorker(): Promise<void> {
   }
 }
 
-export function onServiceWorkerUpdate(callback: (registration: ServiceWorkerRegistration) => void): () => void {
+export function onServiceWorkerUpdate(
+  callback: (registration: ServiceWorkerRegistration) => void,
+): () => void {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
     return () => {};
   }

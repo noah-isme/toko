@@ -74,14 +74,14 @@ Sistem telemetri aktif untuk memantau UX gap dan stubs dari sisi produksi:
 ### 1. Service Worker (Workbox via next-pwa)
 
 - **Status**: ✅ **SELESAI** (2026-08-02)
-- **Lokasi**: [next.config.mjs](file:///home/noah/project/toko-app/toko/next.config.mjs), [public/sw.js](file:///home/noah/project/toko-app/toko/public/sw.js)
+- **Lokasi**: [next.config.mjs](file:///home/noah/project/toko-app/toko/next.config.mjs), generated `public/pwa-sw.js`, and `worker/index.js`
 - **Detail**: Menggunakan `next-pwa` wrapper dengan konfigurasi Workbox:
   - `register: true` + `skipWaiting: true` — SW auto-registers dan update instan di production
   - `disable: process.env.NODE_ENV === 'development'` — tidak mengganggu dev server
   - Runtime caching strategies:
     - Google Fonts (CacheFirst, 1 tahun, max 4 entries)
     - Static images (CacheFirst, 30 hari, max 100 entries)
-    - API calls (NetworkFirst, 5 menit TTL, timeout 10s, max 50 entries)
+    - API calls are excluded from service-worker caching to protect authenticated and mutable data
   - Fallback offline page: `/offline` (document handler)
 
 ### 2. Web App Manifest

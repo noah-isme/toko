@@ -7,6 +7,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const withPWAConfig = withPWA({
   dest: 'public',
+  // Keep the hand-written push-notification worker at /sw.js. next-pwa owns
+  // its generated worker under a separate name so production builds cannot
+  // overwrite push handling or its registration contract.
+  sw: 'pwa-sw.js',
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
@@ -44,23 +48,34 @@ const withPWAConfig = withPWA({
         },
       },
     },
-    {
-      urlPattern: /^https:\/\/api\./i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'api',
-        networkTimeoutSeconds: 10,
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 5 * 60,
-        },
-      },
-    },
   ],
   fallbacks: {
     document: '/offline',
   },
 });
+
+function configuredRemotePattern(raw) {
+  if (!raw || raw === 'mock') return null;
+
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+
+    return {
+      protocol: url.protocol.slice(0, -1),
+      hostname: url.hostname,
+      ...(url.port ? { port: url.port } : {}),
+      pathname: '/**',
+    };
+  } catch {
+    return null;
+  }
+}
+
+const configuredImagePatterns = [
+  configuredRemotePattern(process.env.NEXT_PUBLIC_API_URL),
+  configuredRemotePattern(process.env.NEXT_PUBLIC_CDN_URL),
+].filter(Boolean);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -70,6 +85,7 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
+      ...configuredImagePatterns,
       // ── Production / mock CDNs ──────────────────────────────────────────
       {
         protocol: 'https',
@@ -102,6 +118,36 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Baseline security headers for every document and route response.
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(self)',
+          },
+          ...(process.env.NODE_ENV === 'production'
+            ? [
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=63072000; includeSubDomains; preload',
+                },
+              ]
+            : []),
+        ],
+      },
+      {
         source: '/_next/image(.*)',
         headers: [
           {
@@ -130,22 +176,13 @@ const nextConfig = {
         ],
       },
       {
-        // API routes - short cache with stale-while-revalidate
-        source: '/api/(.*)',
+        // API responses may contain credentials, cart state, or other mutable
+        // data. Keep them out of browser and shared caches by default.
+        source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=60, stale-while-revalidate=300, stale-if-error=86400',
-          },
-        ],
-      },
-      {
-        // HTML pages - moderate cache with stale-while-revalidate for instant reload
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate, stale-while-revalidate=60',
+            value: 'private, no-store, max-age=0, must-revalidate',
           },
         ],
       },

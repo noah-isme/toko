@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { SEED_BRANDS, SEED_CATEGORIES, SEED_PRODUCTS } from '@/mocks/data';
 
+// The built-in API is a development/test fixture. Keep its development
+// default for existing local and E2E workflows, but require an explicit opt-in
+// in production deployments before it can return any mock data.
+const MOCK_API_ENABLED =
+  process.env.NODE_ENV === 'production'
+    ? process.env.NEXT_PUBLIC_API_MOCKING === 'true'
+    : process.env.NEXT_PUBLIC_API_MOCKING !== 'false';
+
 // Stable UUID generator from slug seed
 function stableUuid(str: string) {
   let hash = 0;
@@ -824,6 +832,7 @@ function handleRoute(
 
 function jsonResponse(result: any, sessionId: string, isNewSession: boolean) {
   const response = buildResponse(result);
+  response.headers.set('Cache-Control', 'private, no-store, max-age=0, must-revalidate');
   if (isNewSession) {
     response.cookies.set(MOCK_SESSION_COOKIE, sessionId, { path: '/', httpOnly: false });
   }
@@ -862,6 +871,18 @@ async function handle(
   params: Promise<{ path?: string[] }>,
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
 ) {
+  if (!MOCK_API_ENABLED) {
+    return NextResponse.json(
+      { message: 'Not Found' },
+      {
+        status: 404,
+        headers: {
+          'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
+        },
+      },
+    );
+  }
+
   const paramsData = await params;
   const path = paramsData.path?.join('/') || '';
   const { sessionId, isNewSession } = resolveSession(req);

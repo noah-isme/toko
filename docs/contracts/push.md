@@ -119,7 +119,11 @@ Debug-only endpoint. Returns `{ success: true, message: string }`.
 
 ## Service Worker
 
-The frontend registers a service worker at `sw.js` (see `public/sw.js`) that listens for `push` events and displays notifications via `self.registration.showNotification()`. The service worker is registered on the loyalty/push settings page after the user grants the browser `Notification` permission.
+The frontend registers the generated `/pwa-sw.js` in production. `next-pwa`
+imports `worker/index.js`, which listens for `push` events and displays
+notifications via `self.registration.showNotification()`. Development keeps
+the legacy `public/sw.js` fallback because next-pwa is disabled there. The
+worker is registered during app initialization before a user subscribes.
 
 ## Error Handling
 
