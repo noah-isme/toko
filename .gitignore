@@ -156,3 +156,8 @@ test-results/
 
 # Agent scratch dirs
 .qwen/
+.agents/
+.codex/
+
+# graphify knowledge graph output
+graphify-out/

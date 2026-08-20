@@ -1,6 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
+
 - `src/app/` holds Next.js App Router routes and layouts (for example, `src/app/(storefront)/products/[slug]/page.tsx`).
 - `src/components/` contains reusable UI building blocks; `src/entities/`, `src/hooks/`, `src/lib/`, and `src/shared/` group domain, hooks, API/helpers, and shared utilities.
 - `src/mocks/` contains MSW handlers and setup; `src/stores/` holds Zustand state.
@@ -8,6 +9,7 @@
 - Some unit tests live alongside code under `src/**/__tests__/`.
 
 ## Build, Test, and Development Commands
+
 - `pnpm dev`: start the local Next.js server with MSW mocks enabled.
 - `pnpm build` / `pnpm start`: create and run a production build.
 - `pnpm lint`: run ESLint (Next.js + custom import and Tailwind rules).
@@ -17,21 +19,39 @@
 - `pnpm format`: format with Prettier.
 
 ## Coding Style & Naming Conventions
+
 - TypeScript is the default; keep modules small and favor hooks/utilities in `src/hooks/` and `src/lib/`.
 - Prettier enforces 2-space indentation, single quotes, semicolons, trailing commas, and 100-char lines.
 - ESLint enforces ordered imports and Tailwind class ordering; rely on `pnpm lint` and `pnpm format` before commits.
 - File naming follows existing patterns: `page.tsx` for routes, `*.test.tsx` for Vitest, and `*.spec.ts` for Playwright.
 
 ## Testing Guidelines
+
 - Use Vitest + Testing Library for component and integration tests in `tests/` or `src/**/__tests__/`.
 - Use Playwright for user flows in `tests/e2e/`.
 - Test names are descriptive and user-focused; follow the existing `feature.action.test.tsx` or `feature.flow.spec.ts` style.
 
 ## Commit & Pull Request Guidelines
+
 - Commit messages follow Conventional Commits (`feat:`, `fix(scope):`, `docs:`, `refactor:`, `chore:`, `test:`), enforced by commitlint.
 - PRs must follow `.github/PULL_REQUEST_TEMPLATE.md` with a short summary and a testing checklist.
 - Run `pnpm lint && pnpm typecheck && pnpm test && pnpm build` before opening a PR.
 
 ## Configuration & Mocking
+
 - Copy `.env.example` to `.env.local` for local setup.
 - MSW is enabled by default in development; set `NEXT_PUBLIC_API_MOCKING=false` and adjust `NEXT_PUBLIC_API_URL` to use a real backend.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+Rules:
+
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

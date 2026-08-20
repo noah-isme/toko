@@ -1,105 +1,176 @@
-# toko storefront
+# Toko Storefront
 
-A modular Next.js storefront powered by TypeScript, Tailwind CSS, shadcn/ui, and TanStack Query. The project ships with a mock API powered by MSW for local development and can consume the Toko REST API through `NEXT_PUBLIC_API_URL`.
+[![CI](https://github.com/noah-isme/toko/actions/workflows/ci.yml/badge.svg)](https://github.com/noah-isme/toko/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-20.19.x-green.svg)](.nvmrc)
+[![pnpm](https://img.shields.io/badge/pnpm-10.5.2-orange.svg)](package.json)
 
-## Requirements
+A modular Next.js storefront powered by TypeScript, Tailwind CSS, shadcn/ui, and TanStack Query. Ships with a complete mock API via MSW for frontend-only development and consumes the Toko REST API in production.
 
-- Node.js 20.19.5 (see `.nvmrc`)
-- pnpm 10.5.2
+---
 
-## Getting started
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Available Scripts](#available-scripts)
+- [Project Structure](#project-structure)
+- [API Mocking vs. Real Backend](#api-mocking-vs-real-backend)
+- [Testing & Quality Gates](#testing--quality-gates)
+- [Continuous Integration](#continuous-integration)
+- [PWA / Offline Support](#pwa--offline-support)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) 20.19.x (see [`.nvmrc`](.nvmrc))
+- [pnpm](https://pnpm.io/) 10.5.2
+
+## Getting Started
 
 ```bash
+# 1. Install dependencies
 pnpm install
+
+# 2. Copy environment variables
 cp .env.example .env.local
+
+# 3. Start the dev server
 pnpm dev
 ```
 
-The development server runs at [http://localhost:3000](http://localhost:3000). Mock data is served through MSW and can be disabled by setting `NEXT_PUBLIC_API_MOCKING=false` in `.env.local`.
+The development server runs at [http://localhost:3000](http://localhost:3000). Mock data is served through MSW by default and can be disabled by setting `NEXT_PUBLIC_API_MOCKING=false` in `.env.local`.
 
-### Available scripts
+## Available Scripts
 
-| Command                    | Description                                          |
-| -------------------------- | ---------------------------------------------------- |
-| `pnpm dev`                 | Start the Next.js development server with MSW mocks. |
-| `pnpm build`               | Create an optimized production build.                |
-| `pnpm start`               | Run the production server.                           |
-| `pnpm lint`                | Lint the project using ESLint.                       |
-| `pnpm typecheck`           | Run TypeScript in no-emit mode.                      |
-| `pnpm test`                | Execute Vitest test suites once.                     |
-| `pnpm test:ci`             | Execute Vitest in CI-friendly forked-worker mode.    |
-| `pnpm test:watch`          | Run Vitest in watch mode.                            |
-| `pnpm deployment:validate` | Validate local or production-shaped variables.       |
-| `pnpm format`              | Format the repository with Prettier.                 |
+| Command                    | Description                                         |
+| -------------------------- | --------------------------------------------------- |
+| `pnpm dev`                 | Start the Next.js development server with MSW mocks |
+| `pnpm build`               | Create an optimized production build                |
+| `pnpm start`               | Run the production server                           |
+| `pnpm lint`                | Lint the project with ESLint                        |
+| `pnpm typecheck`           | Run TypeScript type checking (no emit)              |
+| `pnpm test`                | Execute Vitest test suites once                     |
+| `pnpm test:ci`             | Execute Vitest in CI-friendly forked-worker mode    |
+| `pnpm test:watch`          | Run Vitest in watch mode                            |
+| `pnpm e2e`                 | Run Playwright end-to-end tests                     |
+| `pnpm format`              | Format the repository with Prettier                 |
+| `pnpm deployment:validate` | Validate deployment environment variables           |
+| `pnpm analyze`             | Build with bundle analyzer enabled                  |
 
-### PWA / Offline Support
-
-The storefront includes Progressive Web App capabilities:
-
-- **Service Worker** (via `next-pwa` + Workbox): Auto-registers the generated `/pwa-sw.js` in production with `skipWaiting` for instant updates; development keeps the legacy `/sw.js` push worker
-- **Runtime caching**: Google Fonts (1yr) and images (30d); API responses are not cached by the service worker
-- **Offline fallback**: `/offline` page with auto-reload when connectivity restored
-- **Web App Manifest**: Installable with `display: standalone`, SVG maskable icons
-- **Cache headers**: `stale-while-revalidate=86400` for all optimized images
-
-To test offline capability locally, run `pnpm build && pnpm start` (service worker is disabled in development).
-
-### Granular Code Splitting
-
-Key pages use `React.lazy` + `Suspense` to defer heavy components until needed:
-
-- **Product detail** (`/products/[slug]`): `ReviewStats`, `ReviewForm`, `ReviewList` lazy-loaded with shared skeleton
-- **Checkout** (`/checkout`): `ShippingOptions`, `PaymentMethodSelector`, `OrderSummary` lazy-loaded with individual skeletons
-- **Product image gallery**: Inner gallery component extracted for lazy loading
-
-This produces 100+ separate chunks in `.next/static/chunks/`, reducing initial JavaScript payload.
-
-### Folder structure
+## Project Structure
 
 ```
-src/
-├─ app/                # Next.js App Router routes and layouts
-├─ components/         # UI primitives, widgets, and layout building blocks
-├─ lib/                # API client helpers, schemas, utilities
-├─ mocks/              # MSW handlers and worker/server setup
-├─ stores/             # Zustand stores for shared client state
+toko/
+├── .github/               # CI workflows, PR and issue templates
+├── docs/                   # Detailed guides, API contracts, ADRs
+│   ├── adr/                # Architecture Decision Records
+│   └── contracts/          # Frontend API contract documentation
+├── public/                 # Static assets, manifest, service workers
+├── src/
+│   ├── app/                # Next.js App Router
+│   │   ├── (storefront)/   #   Customer-facing pages
+│   │   ├── (admin)/        #   Admin dashboard pages
+│   │   └── api/            #   API routes (health, geocode, proxy)
+│   ├── components/         # UI primitives (shadcn/ui) and feature components
+│   ├── entities/           # Domain modules (cart, orders, reviews, auth, ...)
+│   ├── hooks/              # Shared React hooks
+│   ├── lib/                # API client, utilities, schemas, geocoding
+│   ├── mocks/              # MSW handlers and setup
+│   ├── shared/             # Cross-cutting: config, telemetry, SEO, RUM
+│   └── stores/             # Zustand stores (cart, compare, search history)
+├── tests/                  # Vitest test suites
+│   └── e2e/                # Playwright end-to-end specs
+├── AGENTS.md               # Agent / AI coding guidelines
+├── ARCHITECTURE.md         # System architecture overview
+├── DESIGN.md               # Design system and component reference
+├── PRD.md                  # Product Requirements Document
+└── ROADMAP.md              # Planned work and technical debt
 ```
 
-## API mocking vs. real backend
+## API Mocking vs. Real Backend
 
-- **Mocking (default):** Set `NEXT_PUBLIC_API_URL=mock` (the value in `.env.example`) to use the built-in MSW handlers.
-- **Real backend:** Set `NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1` and `NEXT_PUBLIC_API_MOCKING=false` to use `toko-api`. Include `NEXT_PUBLIC_TENANT_ID` when the backend is running in a multi-tenant environment.
+| Mode               | Configuration                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| **Mock (default)** | `NEXT_PUBLIC_API_URL=mock` — uses built-in MSW handlers                                                         |
+| **Real backend**   | `NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1` and `NEXT_PUBLIC_API_MOCKING=false` — connects to `toko-api` |
 
-For Vercel project setup, Preview/staging tenants, CORS and cookie prerequisites, production-shaped validation, manual promotion, and rollback commands, see [Vercel deployment](docs/VERCEL_DEPLOYMENT.md).
+Include `NEXT_PUBLIC_TENANT_ID` when the backend runs in a multi-tenant environment.
 
-## API-backed storefront areas
+For Vercel project setup, preview/staging tenants, CORS prerequisites, and production validation, see [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md).
 
-The current storefront routes backed by the API include `/vouchers`, `/flash-sales`, `/returns`, `/account/support`, `/account/privacy`, `/checkout/review` payment instructions, and the admin `/admin/returns`, `/admin/support`, `/admin/inventory`, and `/admin/customers` pages. Locale-prefixed paths such as `/en/products` are rewritten to the same App Router pages by middleware.
+## Testing & Quality Gates
 
-## Testing & quality gates
+The repository enforces quality through multiple layers:
 
-The repository enforces formatting and linting through Husky + lint-staged. The CI workflow runs linting, type-checking, tests, and the production build to ensure regressions are caught automatically.
+- **Husky + lint-staged** — pre-commit hooks run ESLint and Prettier on staged files
+- **Vitest + Testing Library** — component and integration tests in `tests/` and `src/**/__tests__/`
+- **Playwright** — end-to-end tests for critical user flows in `tests/e2e/`
+- **TypeScript** — strict mode with `noEmit` type checking
+- **API contract conformance** — `pnpm api:check` verifies generated types match the OpenAPI spec
 
-## Continuous integration
+Run the full quality gate locally before opening a PR:
 
-The GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) installs dependencies, runs linting, type checks, tests, and builds the application on every push and pull request. [Production configuration validation](.github/workflows/production-validation.yml) also builds with production-shaped, non-routable public variables and does not require real API credentials.
+```bash
+pnpm lint && pnpm typecheck && pnpm test && pnpm build
+```
 
-## Contributing
+## Continuous Integration
 
-1. Create a new branch for your feature or fix.
-2. Make your changes and include tests where possible.
-3. Run `pnpm lint && pnpm typecheck && pnpm test && pnpm build` before opening a pull request.
-4. Follow the provided PR template.
+GitHub Actions workflows run on every push and pull request to `main`:
+
+- [**CI**](.github/workflows/ci.yml) — install → lint → api:check → typecheck → test → build → e2e
+- [**Production Validation**](.github/workflows/production-validation.yml) — builds with production-shaped variables (no real API credentials required)
+
+## PWA / Offline Support
+
+The storefront is a Progressive Web App:
+
+- **Service Worker** (via `next-pwa` + Workbox): auto-registers `/pwa-sw.js` in production with `skipWaiting`
+- **Runtime caching**: Google Fonts (1 year) and images (30 days); API responses are excluded
+- **Offline fallback**: `/offline` page with auto-reload on connectivity restoration
+- **Web App Manifest**: installable with `display: standalone`, SVG maskable icons
+- **Push notifications**: separate `/sw.js` worker for push events
+
+> **Note:** Service worker is disabled in development. Test offline capability with `pnpm build && pnpm start`.
 
 ## Documentation
 
-For detailed guides, implementation status, and future backlogs, refer to:
+### Project-Level
 
-- [Implementation Status](docs/STATUS_IMPLEMENTASI.md) — Current state of storefront integrations.
-- [Integration Guide](docs/GUIDE_INTEGRASI.md) — Technical instructions for local development and API consumption.
-- [API Contract Index](docs/contracts/README.md) — Frontend-facing API modules and adapters.
-- [Active Backlog](docs/BACKLOG_AKTIF.md) — Current UX gaps, P2/P3 backlogs, and roadmap items.
+| Document                           | Purpose                                                            |
+| ---------------------------------- | ------------------------------------------------------------------ |
+| [PRD.md](PRD.md)                   | Why we're building this — product requirements and success metrics |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture, layer structure, and tech stack               |
+| [DESIGN.md](DESIGN.md)             | Design system, component library, and interaction patterns         |
+| [ROADMAP.md](ROADMAP.md)           | Planned milestones, future work, and technical debt                |
+| [AGENTS.md](AGENTS.md)             | Guidelines for AI coding agents working in this repo               |
+| [docs/adr/](docs/adr/)             | Architecture Decision Records (8 ADRs)                             |
+
+### Detailed Guides
+
+| Document                                             | Purpose                                        |
+| ---------------------------------------------------- | ---------------------------------------------- |
+| [Implementation Status](docs/STATUS_IMPLEMENTASI.md) | Current state of feature integrations          |
+| [Integration Guide](docs/GUIDE_INTEGRASI.md)         | Technical instructions for API consumption     |
+| [API Contract Index](docs/contracts/README.md)       | Frontend-facing API modules and adapters       |
+| [Active Backlog](docs/BACKLOG_AKTIF.md)              | UX gaps, P2/P3 backlogs, and remaining work    |
+| [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md)       | Deployment setup and environment configuration |
+
+## Contributing
+
+1. Fork the repository and create a feature branch.
+2. Make your changes and include tests where applicable.
+3. Run the [quality gate](#testing--quality-gates) before opening a PR.
+4. Follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages (`feat:`, `fix:`, `docs:`, etc.).
+5. Fill out the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
+
+See [AGENTS.md](AGENTS.md) for coding style, naming conventions, and testing guidelines.
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
