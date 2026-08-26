@@ -1,18 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
-import {
-  LazyWrapper,
-  LazyProductRecommendations,
-  LazyProductQASection,
-} from '@/components/lazy-components';
 import { Price } from '@/components/price';
 import { ProductImageGallery } from '@/components/product-image-gallery';
+import { ProductRecommendations } from '@/components/product-recommendations';
 import { Rating } from '@/components/rating';
 import { SocialShare } from '@/components/social-share';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
+import { ProductQASection } from '@/entities/qa/ui/ProductQASection';
 import { useProduct } from '@/lib/api';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -185,12 +182,12 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
           </div>
         </div>
       </div>
-      <LazyWrapper>
-        <LazyProductRecommendations productId={data.id} />
-      </LazyWrapper>
-      <LazyWrapper>
-        <LazyProductQASection productId={data.id} />
-      </LazyWrapper>
+      <Suspense fallback={<div className="h-48 animate-pulse rounded-xl bg-muted" />}>
+        <ProductRecommendations productId={data.id} />
+      </Suspense>
+      <Suspense fallback={<div className="h-48 animate-pulse rounded-xl bg-muted" />}>
+        <ProductQASection productId={data.id} />
+      </Suspense>
     </>
   );
 }

@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 
-import {
-  LazyFrequentlyBoughtTogether,
-  LazyCustomersAlsoViewed,
-} from '@/components/lazy-components';
+import { CustomersAlsoViewed } from '@/components/customers-also-viewed';
+import { FrequentlyBoughtTogether } from '@/components/frequently-bought-together';
 import { ProductDetail } from '@/components/product-detail';
 import { RelatedProductList } from '@/components/related-product-list';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { ProductQASection } from '@/entities/qa/ui/ProductQASection';
+import { ReviewForm } from '@/entities/reviews/ui/ReviewForm';
+import { ReviewList } from '@/entities/reviews/ui/ReviewList';
+import { ReviewStats } from '@/entities/reviews/ui/ReviewStats';
 import { mapApiProductToProduct } from '@/lib/api/mappers/product';
 import { productSchema } from '@/lib/api/schemas';
 import type { ApiProduct, ApiResponse } from '@/lib/api/types';
@@ -15,19 +17,6 @@ import { getPublicEnv } from '@/shared/config/env';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical } from '@/shared/seo/seo';
-
-const ReviewStats = lazy(() =>
-  import('@/entities/reviews/ui/ReviewStats').then((mod) => ({ default: mod.ReviewStats })),
-);
-const ReviewForm = lazy(() =>
-  import('@/entities/reviews/ui/ReviewForm').then((mod) => ({ default: mod.ReviewForm })),
-);
-const ReviewList = lazy(() =>
-  import('@/entities/reviews/ui/ReviewList').then((mod) => ({ default: mod.ReviewList })),
-);
-const ProductQASection = lazy(() =>
-  import('@/entities/qa/ui/ProductQASection').then((mod) => ({ default: mod.ProductQASection })),
-);
 
 function ReviewSkeleton() {
   return (
@@ -222,7 +211,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           }
         >
-          <LazyFrequentlyBoughtTogether productId={slug} />
+          <FrequentlyBoughtTogether productId={slug} />
         </Suspense>
         <Suspense
           fallback={
@@ -242,7 +231,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           }
         >
-          <LazyCustomersAlsoViewed productId={slug} />
+          <CustomersAlsoViewed productId={slug} />
         </Suspense>
         <section id="reviews" className="space-y-6">
           <Suspense fallback={<ReviewSkeleton />}>

@@ -46,6 +46,12 @@ export function AdvancedSearchResults() {
   const [currentPage, setCurrentPage] = useState(initialFilters.page || 1);
   const [sortBy, setSortBy] = useState<SortOption>(initialFilters.sortBy || 'relevance');
 
+  useEffect(() => {
+    setFilters(initialFilters);
+    setCurrentPage(initialFilters.page || 1);
+    setSortBy(initialFilters.sortBy || 'relevance');
+  }, [initialFilters]);
+
   // Generate URL for current filters
   const searchUrl = useSearchUrl({ ...filters, page: currentPage, sortBy });
   const activeCount = useActiveFilterCount(filters);
