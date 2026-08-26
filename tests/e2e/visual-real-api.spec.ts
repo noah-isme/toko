@@ -56,6 +56,12 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       window.localStorage.setItem('accessToken', value);
     }, token);
 
+    await page
+      .evaluate((value) => {
+        window.localStorage.setItem('accessToken', value);
+      }, token)
+      .catch(() => {});
+
     return token;
   }
 
@@ -180,7 +186,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
 
       await page.fill('input[name="email"]', 'invalid@example.com');
       await page.fill('input[name="password"]', 'wrongpassword');
-      await page.getByRole('button', { name: /sign in|login/i }).click();
+      await page.locator('[data-testid="login-submit"]').click();
 
       // Wait for error message
       await page.waitForSelector('[role="alert"], .error-message', { timeout: 10000 });
@@ -190,6 +196,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
 
   test.describe('Cart Flow', () => {
     test('should display empty cart @visual', async ({ page }) => {
+      await signInViaApi(page);
       await page.goto('/cart');
       await waitForPageLoad(page);
       await takeScreenshot(page, '07-empty-cart');
@@ -198,6 +205,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     });
 
     test('should add product to cart and display cart @visual', async ({ page }) => {
+      await signInViaApi(page);
       // Go to products
       await page.goto('/products');
       await waitForPageLoad(page);
@@ -224,14 +232,9 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
 
   test.describe('Checkout Flow', () => {
     test('should display checkout address step @visual', async ({ page }) => {
-      // Setup: Add item to cart first
-      await page.goto('/products');
-      await waitForPageLoad(page);
-
-      await openFirstProduct(page);
-      await waitForPageLoad(page);
-      await page.locator('[data-testid="add-to-cart"]').click();
-      await page.waitForSelector('[role="status"], .toast', { timeout: 10000 });
+      const token = await signInViaApi(page);
+      await createAddressViaApi(page, token);
+      await addFirstProductToCart(page);
 
       // Go to checkout
       await page.goto('/checkout');
@@ -265,6 +268,8 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     });
 
     test('should display checkout payment methods @visual', async ({ page }) => {
+      const token = await signInViaApi(page);
+      await createAddressViaApi(page, token);
       await addFirstProductToCart(page);
 
       await page.goto('/checkout');
@@ -277,6 +282,8 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     });
 
     test('should offer the review/payment action on checkout @visual', async ({ page }) => {
+      const token = await signInViaApi(page);
+      await createAddressViaApi(page, token);
       await addFirstProductToCart(page);
 
       await page.goto('/checkout');
@@ -295,6 +302,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
 
   test.describe('Account & Orders', () => {
     test('should display order history page @visual', async ({ page }) => {
+      await signInViaApi(page);
       await page.goto('/account/orders');
       await waitForPageLoad(page);
       await takeScreenshot(page, '13-order-history');
@@ -306,6 +314,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     });
 
     test('should display account profile page @visual', async ({ page }) => {
+      await signInViaApi(page);
       await page.goto('/account/profile');
       await waitForPageLoad(page);
       await takeScreenshot(page, '14-account-profile');
@@ -316,6 +325,8 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     });
 
     test('should display address management page @visual', async ({ page }) => {
+      const token = await signInViaApi(page);
+      await createAddressViaApi(page, token);
       await page.goto('/account/addresses');
       await waitForPageLoad(page);
       await takeScreenshot(page, '15-address-management');
@@ -370,6 +381,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     });
 
     test('should display mobile cart @visual', async ({ page }) => {
+      await signInViaApi(page);
       await page.setViewportSize({ width: 375, height: 667 });
       await page.goto('/cart');
       await waitForPageLoad(page);
