@@ -16,12 +16,22 @@ export default function CustomersPage() {
         <CardContent className="p-0">
           <div className="divide-y">
             {customers.map((customer) => (
-              <div key={customer.id} className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div><p className="font-medium">{customer.name}</p><p className="text-sm text-muted-foreground">{customer.email}</p></div>
-                <p className="text-xs text-muted-foreground">Joined {new Date(customer.createdAt).toLocaleDateString()}</p>
+              <div
+                key={customer.id}
+                className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium">{customer.name}</p>
+                  <p className="text-sm text-muted-foreground">{customer.email}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Joined {new Date(customer.createdAt).toLocaleDateString()}
+                </p>
               </div>
             ))}
-            {customers.length === 0 && <p className="p-6 text-sm text-muted-foreground">No customers found.</p>}
+            {customers.length === 0 && (
+              <p className="p-6 text-sm text-muted-foreground">No customers found.</p>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -18,7 +18,7 @@ import { useToast } from '@/shared/ui/toast';
 export default function PrivacyPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
-  
+
   const [marketingEmails, setMarketingEmails] = useState(true);
   const [orderUpdates, setOrderUpdates] = useState(true);
   const [securityAlerts, setSecurityAlerts] = useState(true);
@@ -32,14 +32,17 @@ export default function PrivacyPage() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    void privacyApi.getPreferences().then((preferences) => {
-      setMarketingEmails(preferences.marketingEmails);
-      setOrderUpdates(preferences.orderUpdates);
-      setSecurityAlerts(preferences.securityAlerts);
-      setProfileVisibility(preferences.profileVisibility);
-      setDataProcessing(preferences.dataProcessing);
-      setAnalyticsTracking(preferences.analyticsTracking);
-    }).catch(() => undefined);
+    void privacyApi
+      .getPreferences()
+      .then((preferences) => {
+        setMarketingEmails(preferences.marketingEmails);
+        setOrderUpdates(preferences.orderUpdates);
+        setSecurityAlerts(preferences.securityAlerts);
+        setProfileVisibility(preferences.profileVisibility);
+        setDataProcessing(preferences.dataProcessing);
+        setAnalyticsTracking(preferences.analyticsTracking);
+      })
+      .catch(() => undefined);
   }, [isAuthenticated]);
 
   if (isLoading) {
@@ -70,7 +73,9 @@ export default function PrivacyPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Pengaturan Privasi</h1>
-          <p className="text-sm text-muted-foreground">Silakan login untuk mengatur privasi Anda.</p>
+          <p className="text-sm text-muted-foreground">
+            Silakan login untuk mengatur privasi Anda.
+          </p>
         </div>
         <Button asChild>
           <Link href="/login">Login</Link>
@@ -138,7 +143,9 @@ export default function PrivacyPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Pengaturan Privasi</h1>
-          <p className="text-sm text-muted-foreground">Kelola data dan preferensi privasi akun Anda.</p>
+          <p className="text-sm text-muted-foreground">
+            Kelola data dan preferensi privasi akun Anda.
+          </p>
         </div>
         <Button asChild variant="outline" size="sm">
           <Link href="/account">Kembali ke akun</Link>
@@ -154,7 +161,9 @@ export default function PrivacyPage() {
             </div>
             <div>
               <CardTitle>Preferensi Komunikasi</CardTitle>
-              <CardDescription>Kelola jenis email yang ingin Anda terima dari kami.</CardDescription>
+              <CardDescription>
+                Kelola jenis email yang ingin Anda terima dari kami.
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -162,7 +171,9 @@ export default function PrivacyPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <Label>Email Pemasaran & Promo</Label>
-              <p className="text-sm text-muted-foreground">Dapatkan info diskon, produk baru, dan penawaran eksklusif.</p>
+              <p className="text-sm text-muted-foreground">
+                Dapatkan info diskon, produk baru, dan penawaran eksklusif.
+              </p>
             </div>
             <Switch
               checked={marketingEmails}
@@ -174,7 +185,9 @@ export default function PrivacyPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <Label>Update Pesanan & Pengiriman</Label>
-              <p className="text-sm text-muted-foreground">Notifikasi status pesanan, pengiriman, dan pengembalian.</p>
+              <p className="text-sm text-muted-foreground">
+                Notifikasi status pesanan, pengiriman, dan pengembalian.
+              </p>
             </div>
             <Switch
               checked={orderUpdates}
@@ -186,7 +199,9 @@ export default function PrivacyPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <Label>Peringatan Keamanan</Label>
-              <p className="text-sm text-muted-foreground">Notifikasi login mencurigakan, perubahan password, dll.</p>
+              <p className="text-sm text-muted-foreground">
+                Notifikasi login mencurigakan, perubahan password, dll.
+              </p>
             </div>
             <Switch
               checked={securityAlerts}
@@ -225,7 +240,9 @@ export default function PrivacyPage() {
                 />
                 <div className="space-y-1">
                   <p className="font-medium">Publik</p>
-                  <p className="text-sm text-muted-foreground">Semua orang bisa melihat nama, avatar, dan riwayat review Anda.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Semua orang bisa melihat nama, avatar, dan riwayat review Anda.
+                  </p>
                 </div>
               </label>
               <label className="flex cursor-pointer items-center gap-3">
@@ -239,7 +256,9 @@ export default function PrivacyPage() {
                 />
                 <div className="space-y-1">
                   <p className="font-medium">Hanya Teman</p>
-                  <p className="text-sm text-muted-foreground">Hanya pengguna yang Anda ikuti yang bisa melihat profil lengkap.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Hanya pengguna yang Anda ikuti yang bisa melihat profil lengkap.
+                  </p>
                 </div>
               </label>
               <label className="flex cursor-pointer items-center gap-3">
@@ -253,7 +272,9 @@ export default function PrivacyPage() {
                 />
                 <div className="space-y-1">
                   <p className="font-medium">Pribadi</p>
-                  <p className="text-sm text-muted-foreground">Hanya Anda yang bisa melihat profil Anda. Nama tetap terlihat di review.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Hanya Anda yang bisa melihat profil Anda. Nama tetap terlihat di review.
+                  </p>
                 </div>
               </label>
             </div>
@@ -278,7 +299,10 @@ export default function PrivacyPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <Label>Pemrosesan Data Esensial</Label>
-              <p className="text-sm text-muted-foreground">Diperlukan untuk menyediakan layanan inti (pesanan, pembayaran, pengiriman). Tidak dapat dinonaktifkan.</p>
+              <p className="text-sm text-muted-foreground">
+                Diperlukan untuk menyediakan layanan inti (pesanan, pembayaran, pengiriman). Tidak
+                dapat dinonaktifkan.
+              </p>
             </div>
             <Switch checked={true} disabled aria-label="Data esensial" />
           </div>
@@ -286,7 +310,9 @@ export default function PrivacyPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <Label>Analitik & Peningkatan Layanan</Label>
-              <p className="text-sm text-muted-foreground">Bantu kami meningkatkan produk dengan data penggunaan anonim.</p>
+              <p className="text-sm text-muted-foreground">
+                Bantu kami meningkatkan produk dengan data penggunaan anonim.
+              </p>
             </div>
             <Switch
               checked={analyticsTracking}
@@ -298,7 +324,9 @@ export default function PrivacyPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <Label>Personalisasi & Rekomendasi</Label>
-              <p className="text-sm text-muted-foreground">Gunakan riwayat belanja untuk menampilkan produk yang relevan.</p>
+              <p className="text-sm text-muted-foreground">
+                Gunakan riwayat belanja untuk menampilkan produk yang relevan.
+              </p>
             </div>
             <Switch
               checked={dataProcessing}
@@ -318,7 +346,9 @@ export default function PrivacyPage() {
             </div>
             <div>
               <CardTitle>Hak Data Anda</CardTitle>
-              <CardDescription>Kelola data pribadi Anda sesuai regulasi perlindungan data.</CardDescription>
+              <CardDescription>
+                Kelola data pribadi Anda sesuai regulasi perlindungan data.
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -333,11 +363,13 @@ export default function PrivacyPage() {
               <Download className="h-5 w-5" />
               <div className="text-left">
                 <p className="font-medium">Unduh Data Saya</p>
-                <p className="text-sm text-muted-foreground">Dapatkan salinan semua data akun Anda (JSON/CSV)</p>
+                <p className="text-sm text-muted-foreground">
+                  Dapatkan salinan semua data akun Anda (JSON/CSV)
+                </p>
               </div>
               {isExporting && <Loader2 className="h-4 w-4 animate-spin" />}
             </Button>
-            
+
             <Button
               variant="outline"
               className="flex h-auto flex-col items-start gap-2 border-destructive/50 py-4 text-destructive hover:bg-destructive/10"
@@ -347,7 +379,9 @@ export default function PrivacyPage() {
               <Trash2 className="h-5 w-5" />
               <div className="text-left">
                 <p className="font-medium">Hapus Akun</p>
-                <p className="text-sm text-muted-foreground">Hapus permanen akun dan semua data terkait</p>
+                <p className="text-sm text-muted-foreground">
+                  Hapus permanen akun dan semua data terkait
+                </p>
               </div>
               {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
             </Button>
@@ -386,7 +420,9 @@ export default function PrivacyPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label className="cursor-pointer">Cookie Esensial</Label>
-                  <p className="text-sm text-muted-foreground">Diperlukan untuk fungsi situs (login, keranjang, keamanan). Selalu aktif.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Diperlukan untuk fungsi situs (login, keranjang, keamanan). Selalu aktif.
+                  </p>
                 </div>
                 <Switch checked={true} disabled />
               </div>
@@ -395,7 +431,9 @@ export default function PrivacyPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label className="cursor-pointer">Cookie Fungsional</Label>
-                  <p className="text-sm text-muted-foreground">Mengingat preferensi (bahasa, mata uang, tampilan).</p>
+                  <p className="text-sm text-muted-foreground">
+                    Mengingat preferensi (bahasa, mata uang, tampilan).
+                  </p>
                 </div>
                 <Switch checked={dataProcessing} onCheckedChange={setDataProcessing} />
               </div>
@@ -404,7 +442,9 @@ export default function PrivacyPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label className="cursor-pointer">Cookie Analitik</Label>
-                  <p className="text-sm text-muted-foreground">Mengukur performa situs dan perilaku pengguna anonim.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Mengukur performa situs dan perilaku pengguna anonim.
+                  </p>
                 </div>
                 <Switch checked={analyticsTracking} onCheckedChange={setAnalyticsTracking} />
               </div>
@@ -413,13 +453,15 @@ export default function PrivacyPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label className="cursor-pointer">Cookie Pemasaran</Label>
-                  <p className="text-sm text-muted-foreground">Menampilkan iklan relevan dan mengukur efektivitas kampanye.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Menampilkan iklan relevan dan mengukur efektivitas kampanye.
+                  </p>
                 </div>
                 <Switch checked={marketingEmails} onCheckedChange={setMarketingEmails} />
               </div>
             </div>
           </div>
-          
+
           <Button variant="outline" size="sm" onClick={() => window.open('/cookies', '_blank')}>
             Kelola Detail Cookie
           </Button>
@@ -451,7 +493,7 @@ export default function PrivacyPage() {
               <h3 className="text-lg font-semibold">Hapus Akun Permanen</h3>
             </div>
             <p className="mb-6 text-sm text-muted-foreground">
-              Tindakan ini tidak dapat dibatalkan. Semua data Anda termasuk riwayat pesanan, alamat, 
+              Tindakan ini tidak dapat dibatalkan. Semua data Anda termasuk riwayat pesanan, alamat,
               favorit, dan preferensi akan dihapus permanen dalam 30 hari.
             </p>
             <div className="flex justify-end gap-3">

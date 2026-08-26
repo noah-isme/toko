@@ -6,9 +6,10 @@ import { SEED_BRANDS, SEED_CATEGORIES, SEED_PRODUCTS } from '@/mocks/data';
 // default for existing local and E2E workflows, but require an explicit opt-in
 // in production deployments before it can return any mock data.
 const MOCK_API_ENABLED =
-  process.env.NODE_ENV === 'production'
+  process.env.NEXT_PUBLIC_API_URL === 'mock' ||
+  (process.env.NODE_ENV === 'production'
     ? process.env.NEXT_PUBLIC_API_MOCKING === 'true'
-    : process.env.NEXT_PUBLIC_API_MOCKING !== 'false';
+    : process.env.NEXT_PUBLIC_API_MOCKING !== 'false');
 
 // Stable UUID generator from slug seed
 function stableUuid(str: string) {
@@ -143,6 +144,7 @@ function handleRoute(
   body: any,
   sessionId: string,
   searchParams?: URLSearchParams,
+  req?: NextRequest,
 ) {
   if (path.startsWith('payments/') && path.endsWith('/status') && method === 'GET') {
     const orderId = decodeURIComponent(path.slice('payments/'.length, -'/status'.length));
@@ -397,6 +399,31 @@ function handleRoute(
   }
 
   if ((path === 'carts' || path === 'cart' || path.startsWith('carts/')) && method === 'GET') {
+    const queryParams = new URLSearchParams(searchParams?.toString() || '');
+    const authHeader = req?.headers?.get('authorization') || '';
+    const isMockEmpty =
+      authHeader.includes('empty') || path.includes('empty') || queryParams.get('empty') === 'true';
+
+    if (isMockEmpty) {
+      return {
+        data: {
+          id: 'empty-cart',
+          anonId: null,
+          voucher: null,
+          currency: 'IDR',
+          pricing: {
+            subtotal: 0,
+            discount: 0,
+            tax: 0,
+            shipping: 0,
+            total: 0,
+          },
+          items: [],
+          itemCount: 0,
+        },
+      };
+    }
+
     const totalAmount = defaultCart.items.reduce((sum, item) => sum + item.unitPrice * item.qty, 0);
     const totalQty = defaultCart.items.reduce((sum, item) => sum + item.qty, 0);
     return {
@@ -531,15 +558,34 @@ function handleRoute(
     const page = parseInt(queryParams.get('page') || '1', 10);
     const limit = parseInt(queryParams.get('limit') || '20', 10);
 
+    if (queryParams.get('error') === '500') {
+      return {
+        status: 500,
+        error: { message: 'Internal server error' },
+      };
+    }
+
+    if (queryParams.get('empty') === 'true' || status === 'empty') {
+      return {
+        data: [],
+        meta: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+        },
+      };
+    }
+
     const ordersList = [
       {
         id: 'order-1',
         orderNumber: 'ORD-001',
         status: 'pending_payment',
-        total: 100000,
+        total: 1250000,
         currency: 'IDR',
-        itemCount: 1,
-        createdAt: new Date().toISOString(),
+        itemCount: 5,
+        createdAt: '2025-12-25T14:30:00.000Z',
       },
       {
         id: 'order-2',
@@ -590,7 +636,7 @@ function handleRoute(
 
     // Apply status filter if provided
     let filteredOrders = ordersList;
-    if (status) {
+    if (status && status !== 'all') {
       filteredOrders = ordersList.filter((o) => o.status === status);
     }
 
@@ -613,6 +659,13 @@ function handleRoute(
   if (path.startsWith('orders/') && method === 'GET') {
     const orderId = path.split('/')[1];
 
+    if (orderId === 'non-existent-order') {
+      return {
+        status: 404,
+        error: { message: 'Order not found' },
+      };
+    }
+
     // Extract status from orderId if it's formatted as order-status-X
     let status = 'paid';
     if (orderId.startsWith('order-status-')) {
@@ -620,6 +673,8 @@ function handleRoute(
     } else if (orderId === 'order-expired-payment') {
       status = 'pending_payment';
     } else if (orderId === 'order-shop-test') {
+      status = 'paid';
+    } else if (orderId === 'order-detail-test') {
       status = 'paid';
     } else if (orderId.includes('pending')) {
       status = 'pending_payment';
@@ -839,9 +894,12 @@ function jsonResponse(result: any, sessionId: string, isNewSession: boolean) {
   return response;
 }
 
-function buildResponse(result: any) {
+function buildResponse(result: any): NextResponse {
   if (!result) {
     return NextResponse.json({ message: 'Not Found' }, { status: 404 });
+  }
+  if (result instanceof NextResponse) {
+    return result;
   }
   if (typeof result === 'object' && 'status' in result && typeof result.status === 'number') {
     const { status, ...rest } = result;
@@ -887,7 +945,7 @@ async function handle(
   const path = paramsData.path?.join('/') || '';
   const { sessionId, isNewSession } = resolveSession(req);
   const body = method === 'POST' || method === 'PATCH' ? await readJsonBody(req) : null;
-  const result = handleRoute(path, method, body, sessionId, req.nextUrl.searchParams);
+  const result = handleRoute(path, method, body, sessionId, req.nextUrl.searchParams, req);
   return jsonResponse(result, sessionId, isNewSession);
 }
 

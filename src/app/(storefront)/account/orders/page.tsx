@@ -3,6 +3,7 @@
 import { ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -28,6 +29,18 @@ const STATUS_OPTIONS = [
 ] as const;
 
 export default function OrderHistoryPage() {
+  return (
+    <React.Suspense fallback={<BaseSkeleton className="h-64 w-full" />}>
+      <OrderHistoryContent />
+    </React.Suspense>
+  );
+}
+
+function OrderHistoryContent() {
+  const searchParams = useSearchParams();
+  const emptyParam = searchParams.get('empty') || undefined;
+  const errorParam = searchParams.get('error') || undefined;
+
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [allOrders, setAllOrders] = useState<OrderListItem[]>([]);
@@ -40,8 +53,10 @@ export default function OrderHistoryPage() {
       status: statusFilter === 'all' ? undefined : statusFilter,
       page,
       limit: 20,
+      empty: emptyParam,
+      error: errorParam,
     }),
-    [statusFilter, page],
+    [statusFilter, page, emptyParam, errorParam],
   );
 
   const { data, isLoading, error, refetch } = useOrdersQuery(queryParams);
@@ -55,13 +70,13 @@ export default function OrderHistoryPage() {
       setAllOrders((prev) => [...prev, ...orders]);
     }
     setHasMore(orders.length >= 20);
+    setIsLoadingMore(false);
   }, [orders, page]);
 
   const handleLoadMore = () => {
     if (hasMore && !isLoadingMore && orders.length > 0) {
       setIsLoadingMore(true);
       setPage((p) => p + 1);
-      setIsLoadingMore(false);
     }
   };
 

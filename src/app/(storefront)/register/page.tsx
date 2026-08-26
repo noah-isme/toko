@@ -198,13 +198,22 @@ export default function RegisterPage() {
       </form>
       <SocialLoginDivider label="or continue with" />
       <SocialLoginGroup>
-        <SocialLoginButton provider="google" onClick={() => window.location.href = '/api/auth/google'}>
+        <SocialLoginButton
+          provider="google"
+          onClick={() => (window.location.href = '/api/auth/google')}
+        >
           Continue with Google
         </SocialLoginButton>
-        <SocialLoginButton provider="github" onClick={() => window.location.href = '/api/auth/github'}>
+        <SocialLoginButton
+          provider="github"
+          onClick={() => (window.location.href = '/api/auth/github')}
+        >
           Continue with GitHub
         </SocialLoginButton>
-        <SocialLoginButton provider="apple" onClick={() => window.location.href = '/api/auth/apple'}>
+        <SocialLoginButton
+          provider="apple"
+          onClick={() => (window.location.href = '/api/auth/apple')}
+        >
           Continue with Apple
         </SocialLoginButton>
       </SocialLoginGroup>

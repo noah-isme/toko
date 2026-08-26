@@ -30,18 +30,28 @@ export default function InventoryPage() {
       toast({ title: 'Inventory updated', variant: 'success' });
       setDrafts((current) => ({ ...current, [id]: '' }));
     } catch (error) {
-      toast({ title: 'Could not update inventory', description: String(error), variant: 'destructive' });
+      toast({
+        title: 'Could not update inventory',
+        description: String(error),
+        variant: 'destructive',
+      });
     }
   };
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Inventory" description="Manage variant stock with tenant-scoped updates." />
+      <AdminPageHeader
+        title="Inventory"
+        description="Manage variant stock with tenant-scoped updates."
+      />
       <Card>
         <CardContent className="p-0">
           <div className="divide-y">
             {items.map((item) => (
-              <div key={item.variantId} className="grid gap-3 p-4 md:grid-cols-[1fr_auto_auto] md:items-center">
+              <div
+                key={item.variantId}
+                className="grid gap-3 p-4 md:grid-cols-[1fr_auto_auto] md:items-center"
+              >
                 <div>
                   <p className="font-medium">{item.productTitle}</p>
                   <p className="text-xs text-muted-foreground">{item.sku || item.variantId}</p>
@@ -56,15 +66,23 @@ export default function InventoryPage() {
                     inputMode="numeric"
                     placeholder={String(item.stock)}
                     value={drafts[item.variantId] ?? ''}
-                    onChange={(event) => setDrafts((current) => ({ ...current, [item.variantId]: event.target.value }))}
+                    onChange={(event) =>
+                      setDrafts((current) => ({ ...current, [item.variantId]: event.target.value }))
+                    }
                   />
-                  <Button size="sm" onClick={() => void save(item.variantId)} disabled={update.isPending}>
+                  <Button
+                    size="sm"
+                    onClick={() => void save(item.variantId)}
+                    disabled={update.isPending}
+                  >
                     Save
                   </Button>
                 </div>
               </div>
             ))}
-            {items.length === 0 && <p className="p-6 text-sm text-muted-foreground">No variants found.</p>}
+            {items.length === 0 && (
+              <p className="p-6 text-sm text-muted-foreground">No variants found.</p>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -55,8 +55,17 @@ export default function ProductsPage() {
           <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
             Jelajahi produk pilihan untuk ruang, rutinitas, dan momen keseharian Anda.
           </p>
-       </header>
-        <Suspense fallback={<div className="space-y-4"><ProductCardSkeleton /><ProductCardSkeleton /><ProductCardSkeleton /><ProductCardSkeleton /></div>}>
+        </header>
+        <Suspense
+          fallback={
+            <div className="space-y-4">
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+            </div>
+          }
+        >
           <AdvancedSearchResults />
         </Suspense>
       </div>
