@@ -35,7 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     const storedTheme = localStorage.getItem('theme') as Theme | null;
     const storedContrast = localStorage.getItem('contrastMode') as ContrastMode | null;
-    
+
     if (storedTheme) setTheme(storedTheme);
     if (storedContrast) setContrastMode(storedContrast);
   }, []);
@@ -43,21 +43,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Compute resolved theme
   useEffect(() => {
     if (!mounted) return;
-    
+
     let resolved: 'light' | 'dark' = 'light';
-    
+
     if (theme === 'system') {
       resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     } else {
       resolved = theme;
     }
-    
+
     setResolvedTheme(resolved);
-    
+
     // Apply to document
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(resolved);
-    
+
     // Apply contrast mode
     if (contrastMode === 'high') {
       document.documentElement.classList.add('high-contrast');
@@ -69,7 +69,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Listen for system theme changes
   useEffect(() => {
     if (!mounted || theme !== 'system') return;
-    
+
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
       const resolved = e.matches ? 'dark' : 'light';
@@ -77,7 +77,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(resolved);
     };
-    
+
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme, mounted]);
@@ -85,7 +85,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Listen for system contrast preference changes
   useEffect(() => {
     if (!mounted) return;
-    
+
     const mediaQuery = window.matchMedia('(prefers-contrast: more)');
     const handleChange = (e: MediaQueryListEvent) => {
       if (e.matches && contrastMode === 'normal') {
@@ -93,7 +93,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         // setContrastMode('high');
       }
     };
-    
+
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [contrastMode, mounted]);
@@ -198,11 +198,20 @@ export function ThemeSelector() {
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-2">
             {resolvedTheme === 'dark' ? (
-              <> <Moon className="h-4 w-4" /> Dark </ >
+              <>
+                {' '}
+                <Moon className="h-4 w-4" /> Dark{' '}
+              </>
             ) : theme === 'system' ? (
-              <> <Monitor className="h-4 w-4" /> System </ >
+              <>
+                {' '}
+                <Monitor className="h-4 w-4" /> System{' '}
+              </>
             ) : (
-              <> <Sun className="h-4 w-4" /> Light </ >
+              <>
+                {' '}
+                <Sun className="h-4 w-4" /> Light{' '}
+              </>
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -224,12 +233,12 @@ export function ThemeSelector() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant={contrastMode === 'high' ? 'default' : 'outline'} 
-            size="sm" 
+          <Button
+            variant={contrastMode === 'high' ? 'default' : 'outline'}
+            size="sm"
             className="gap-2"
             aria-pressed={contrastMode === 'high'}
           >

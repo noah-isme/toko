@@ -25,17 +25,20 @@ const SOCIAL_PLATFORMS = {
   twitter: {
     name: 'Twitter',
     icon: Twitter,
-    href: (url: string, title: string) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+    href: (url: string, title: string) =>
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
   },
   facebook: {
     name: 'Facebook',
     icon: Facebook,
-    href: (url: string) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    href: (url: string) =>
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
   },
   message: {
     name: 'Message',
     icon: MessageCircle,
-    href: (url: string, title: string) => `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`,
+    href: (url: string, title: string) =>
+      `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`,
   },
   copy: {
     name: 'Copy Link',
@@ -142,12 +145,7 @@ export function SocialShareInline({ url, title, description, className = '' }: S
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleCopy}
-        aria-label="Copy link"
-      >
+      <Button variant="ghost" size="icon" onClick={handleCopy} aria-label="Copy link">
         {copied ? <Check className="h-4 w-4 text-green-500" /> : <Link2 className="h-4 w-4" />}
       </Button>
       <Button

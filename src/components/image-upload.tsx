@@ -162,7 +162,9 @@ export function ImageUpload({
             handleClick();
           }
         }}
-        aria-label={disabled ? 'Upload dinonaktifkan' : 'Klik atau tarik gambar ke sini untuk mengunggah'}
+        aria-label={
+          disabled ? 'Upload dinonaktifkan' : 'Klik atau tarik gambar ke sini untuk mengunggah'
+        }
       >
         <input
           ref={fileInputRef}
@@ -175,10 +177,20 @@ export function ImageUpload({
           aria-label="Pilih gambar untuk diunggah"
         />
         <div className="flex flex-col items-center justify-center p-8 text-center">
-          <Image className={cn('h-8 w-8 mb-2', disabled ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
+          <Image
+            className={cn(
+              'h-8 w-8 mb-2',
+              disabled ? 'text-muted-foreground/30' : 'text-muted-foreground',
+            )}
+          />
           {!isAtMax ? (
             <>
-              <p className={cn('text-sm font-medium', disabled ? 'text-muted-foreground/50' : 'text-foreground')}>
+              <p
+                className={cn(
+                  'text-sm font-medium',
+                  disabled ? 'text-muted-foreground/50' : 'text-foreground',
+                )}
+              >
                 {disabled ? 'Upload dinonaktifkan' : 'Klik atau tarik gambar ke sini'}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">

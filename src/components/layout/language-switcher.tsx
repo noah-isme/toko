@@ -42,7 +42,9 @@ export function LanguageSwitcher() {
     window.location.href = localizedPath;
   };
 
-  useEffect(() => { document.documentElement.lang = currentLang.code; }, [currentLang.code]);
+  useEffect(() => {
+    document.documentElement.lang = currentLang.code;
+  }, [currentLang.code]);
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -67,7 +69,7 @@ export function LanguageSwitcher() {
             onSelect={() => handleLanguageChange(lang)}
             className={cn(
               'flex items-center gap-2',
-              currentLang.code === lang.code && 'bg-primary/10'
+              currentLang.code === lang.code && 'bg-primary/10',
             )}
             role="menuitemradio"
             aria-checked={currentLang.code === lang.code}
@@ -106,32 +108,35 @@ export function LanguageSwitcherSimple() {
           <ChevronDown className="h-4 w-4 opacity-70" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 min-w-[14rem]">
-          {LANGUAGES.map((lang) => (
-            <DropdownMenuItem
-              key={lang.code}
-              onSelect={() => handleLanguageChange(lang)}
-              className={cn(
-                'flex items-center gap-2',
-                currentLang.code === lang.code && 'bg-primary/10'
-              )}
-              role="menuitemradio"
-              aria-checked={currentLang.code === lang.code}
-            >
-              <span aria-hidden="true">{lang.flag}</span>
-              <span className="flex-1">{lang.nativeName}</span>
-              {currentLang.code === lang.code && (
-                <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-              )}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
+      <DropdownMenuContent align="end" className="w-56 min-w-[14rem]">
+        {LANGUAGES.map((lang) => (
+          <DropdownMenuItem
+            key={lang.code}
+            onSelect={() => handleLanguageChange(lang)}
+            className={cn(
+              'flex items-center gap-2',
+              currentLang.code === lang.code && 'bg-primary/10',
+            )}
+            role="menuitemradio"
+            aria-checked={currentLang.code === lang.code}
+          >
+            <span aria-hidden="true">{lang.flag}</span>
+            <span className="flex-1">{lang.nativeName}</span>
+            {currentLang.code === lang.code && (
+              <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+            )}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
 function getCurrentLanguage(): Language {
   if (typeof window === 'undefined') return LANGUAGES[0];
-  const code = window.location.pathname.match(/^\/(id|en|zh|ja|ko)(?=\/|$)/)?.[1] ?? document.cookie.match(/(?:^|; )toko-locale=([^;]+)/)?.[1] ?? 'id';
+  const code =
+    window.location.pathname.match(/^\/(id|en|zh|ja|ko)(?=\/|$)/)?.[1] ??
+    document.cookie.match(/(?:^|; )toko-locale=([^;]+)/)?.[1] ??
+    'id';
   return LANGUAGES.find((language) => language.code === code) ?? LANGUAGES[0];
 }

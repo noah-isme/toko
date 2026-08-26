@@ -19,16 +19,21 @@ interface RecommendationSectionProps {
   emptyMessage?: string;
 }
 
-function RecommendationSection({ title, icon, children, emptyMessage = 'No recommendations available' }: RecommendationSectionProps) {
+function RecommendationSection({
+  title,
+  icon,
+  children,
+  emptyMessage = 'No recommendations available',
+}: RecommendationSectionProps) {
   return (
     <section className="space-y-4" aria-labelledby={title.toLowerCase().replace(/\s+/g, '-')}>
       <div className="flex items-center gap-2">
         <span className="text-primary">{icon}</span>
-        <h2 id={title.toLowerCase().replace(/\s+/g, '-')} className="text-xl font-semibold">{title}</h2>
+        <h2 id={title.toLowerCase().replace(/\s+/g, '-')} className="text-xl font-semibold">
+          {title}
+        </h2>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {children}
-      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">{children}</div>
       <p className="hidden text-sm text-muted-foreground" aria-live="polite">
         {emptyMessage}
       </p>
@@ -57,7 +62,10 @@ function FrequentlyBoughtTogether({ productId }: { productId: string }) {
 
   if (isLoading) {
     return (
-      <RecommendationSection title="Frequently Bought Together" icon={<Users className="h-5 w-5" />}>
+      <RecommendationSection
+        title="Frequently Bought Together"
+        icon={<Users className="h-5 w-5" />}
+      >
         <RecommendationSkeleton />
       </RecommendationSection>
     );
@@ -68,7 +76,11 @@ function FrequentlyBoughtTogether({ productId }: { productId: string }) {
   }
 
   return (
-    <RecommendationSection title="Frequently Bought Together" icon={<Users className="h-5 w-5" />} emptyMessage="No frequently bought together items">
+    <RecommendationSection
+      title="Frequently Bought Together"
+      icon={<Users className="h-5 w-5" />}
+      emptyMessage="No frequently bought together items"
+    >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
@@ -92,7 +104,11 @@ function CustomersAlsoViewed({ productId }: { productId: string }) {
   }
 
   return (
-    <RecommendationSection title="Customers Also Viewed" icon={<Sparkles className="h-5 w-5" />} emptyMessage="No recently viewed items">
+    <RecommendationSection
+      title="Customers Also Viewed"
+      icon={<Sparkles className="h-5 w-5" />}
+      emptyMessage="No recently viewed items"
+    >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
@@ -116,7 +132,11 @@ function PersonalizedRecommendations() {
   }
 
   return (
-    <RecommendationSection title="Recommended for You" icon={<RefreshCw className="h-5 w-5" />} emptyMessage="No personalized recommendations yet">
+    <RecommendationSection
+      title="Recommended for You"
+      icon={<RefreshCw className="h-5 w-5" />}
+      emptyMessage="No personalized recommendations yet"
+    >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
@@ -140,7 +160,11 @@ function TrendingProducts() {
   }
 
   return (
-    <RecommendationSection title="Trending Now" icon={<TrendingUp className="h-5 w-5" />} emptyMessage="No trending products">
+    <RecommendationSection
+      title="Trending Now"
+      icon={<TrendingUp className="h-5 w-5" />}
+      emptyMessage="No trending products"
+    >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

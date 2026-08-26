@@ -89,7 +89,9 @@ export function SocialLoginDivider({ label = 'or', className }: SocialLoginDivid
   return (
     <div className={cn('relative flex items-center gap-4 my-6', className)}>
       <div className="flex-1 border-t border-border" />
-      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
       <div className="flex-1 border-t border-border" />
     </div>
   );

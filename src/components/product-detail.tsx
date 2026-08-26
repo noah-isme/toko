@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-import { LazyWrapper, LazyProductRecommendations, LazyProductQASection } from '@/components/lazy-components';
+import {
+  LazyWrapper,
+  LazyProductRecommendations,
+  LazyProductQASection,
+} from '@/components/lazy-components';
 import { Price } from '@/components/price';
 import { ProductImageGallery } from '@/components/product-image-gallery';
 import { Rating } from '@/components/rating';
@@ -56,7 +60,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const activeVariantId =
     selectedVariantId && variants.some((variant) => variant.id === selectedVariantId)
       ? selectedVariantId
-      : variants.find((variant) => variant.stock > 0)?.id ?? variants[0]?.id ?? null;
+      : (variants.find((variant) => variant.stock > 0)?.id ?? variants[0]?.id ?? null);
   const selectedVariant = variants.find((variant) => variant.id === activeVariantId);
   const availableStock = selectedVariant?.stock ?? data.stock;
   const displayPrice = selectedVariant?.price ?? data.price;
@@ -95,7 +99,9 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
           />
           <div className="flex gap-2 text-sm text-muted-foreground">
             {data.categoryName && (
-              <span className="rounded-full bg-muted px-3 py-1 capitalize">{data.categoryName}</span>
+              <span className="rounded-full bg-muted px-3 py-1 capitalize">
+                {data.categoryName}
+              </span>
             )}
           </div>
         </div>
@@ -140,7 +146,8 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
               <p className="text-sm font-semibold">Pilih varian</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {variants.map((variant) => {
-                  const label = Object.values(variant.attributes).join(' / ') || variant.sku || variant.id;
+                  const label =
+                    Object.values(variant.attributes).join(' / ') || variant.sku || variant.id;
                   return (
                     <button
                       key={variant.id}

@@ -24,6 +24,7 @@ export function DisabledHint({
     <p
       id={id}
       role="note"
+      data-disabled-hint
       className={cn(
         'mt-2 text-xs leading-relaxed',
         tone === 'warning' ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground',

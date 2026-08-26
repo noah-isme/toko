@@ -8,7 +8,12 @@ import { Suspense } from 'react';
 
 import { Container } from '@/components/layout/container';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
-import { LazyWrapper, LazyCartDrawer, LazySearchAutocomplete, LazyNotificationBell } from '@/components/lazy-components';
+import {
+  LazyWrapper,
+  LazyCartDrawer,
+  LazySearchAutocomplete,
+  LazyNotificationBell,
+} from '@/components/lazy-components';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { ThemeSelector } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/button';
