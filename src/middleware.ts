@@ -11,7 +11,11 @@ export function middleware(request: NextRequest) {
   const response = match
     ? NextResponse.rewrite(new URL(pathname.slice(match[0].length) || '/', request.url))
     : NextResponse.next();
-  response.cookies.set('toko-locale', locale, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' });
+  response.cookies.set('toko-locale', locale, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: 'lax',
+  });
   return response;
 }
 

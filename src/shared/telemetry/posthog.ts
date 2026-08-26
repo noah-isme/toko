@@ -11,9 +11,7 @@ const canUseTelemetry = () => {
     return false;
   }
 
-  return Boolean(
-    typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY,
-  );
+  return Boolean(typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY);
 };
 
 export const initPosthog = (): PostHogClient | null => {
@@ -46,10 +44,7 @@ export const getPosthog = (): PostHogClient | null => {
   return canUseTelemetry() ? posthog : null;
 };
 
-export const capturePosthogEvent = (
-  event: string,
-  properties?: Record<string, unknown>,
-) => {
+export const capturePosthogEvent = (event: string, properties?: Record<string, unknown>) => {
   recordTelemetryEvent(event, properties);
   const client = getPosthog();
 

@@ -76,7 +76,7 @@ function deploymentEnvironment(): DeploymentEnvironment {
   if (vercelEnvironment === 'production') return 'production';
   if (vercelEnvironment === 'preview') return 'preview';
   if (vercelEnvironment === 'development') return 'development';
-  return process.env.NODE_ENV === 'production' ? 'production' : 'development';
+  return 'development';
 }
 
 function normaliseUrl(raw: string | undefined, fallback: string): string {
@@ -174,7 +174,7 @@ export function getPublicEnv(): PublicEnv {
 
   // Do not validate this at module load in tests/development: those workflows
   // intentionally use the mock API and localhost defaults.
-  if (process.env.NODE_ENV === 'production') {
+  if (env.deployment === 'production') {
     validateProduction(env);
   }
 

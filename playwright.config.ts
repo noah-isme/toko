@@ -2,8 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.PORT ?? 3000);
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`;
-// For real API testing, use the actual API URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
+// Default to internal mock router for E2E tests
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'mock';
 // Deliberately 'false' regardless of the caller. With NEXT_PUBLIC_API_URL='mock'
 // the app routes through the internal Next handler at src/app/api/v1/[[...path]],
 // which is what these specs are written against. Turning MSW on as well swaps in
@@ -12,10 +12,10 @@ const API_MOCKING = 'false';
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  // visual-real-api.spec.ts requires a live toko-api on :8080 and has its own
-  // config (playwright.real-api.config.ts). Running it here — against mocks,
+  // Real API specs require a live toko-api on :8080 and have their own
+  // config (playwright.real-api.config.ts). Running them here — against mocks,
   // once per project — would fail by construction.
-  testIgnore: '**/visual-real-api.spec.ts',
+  testIgnore: '**/*real-api.spec.ts',
   timeout: 120_000,
   expect: {
     timeout: 15_000,
