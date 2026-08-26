@@ -176,7 +176,7 @@ export async function verifyCheckoutSuccess(page: Page) {
  * Navigate to order history page
  */
 export async function goToOrderHistory(page: Page, options?: { expectEmpty?: boolean }) {
-  await page.goto('/account/orders');
+  await page.goto(options?.expectEmpty ? '/account/orders?empty=true' : '/account/orders');
   // Dismiss cookie dialog if present
   try {
     await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
@@ -328,7 +328,7 @@ export async function mockOrderResponse(
     payment,
   };
 
-  await page.route(`**/api/v1/orders/${orderId}`, async (route) => {
+  await page.route(`**/api/v1/orders/${orderId}**`, async (route) => {
     await route.fulfill({
       status: 200,
       body: JSON.stringify({ data: order }),
@@ -393,7 +393,11 @@ export async function mockOrdersListResponse(page: Page, orders: Partial<MockOrd
     ...order,
   }));
 
-  await page.route('**/api/v1/orders*', async (route) => {
+  await page.route('**/api/v1/orders**', async (route) => {
+    if (route.request().url().includes('/orders/') && !route.request().url().includes('/orders?')) {
+      await route.continue();
+      return;
+    }
     if (route.request().method() === 'GET') {
       await route.fulfill({
         status: 200,

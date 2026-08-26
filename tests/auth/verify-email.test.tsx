@@ -86,11 +86,11 @@ describe('VerifyEmailPage', () => {
 
     server.use(
       http.post(apiPath('/auth/email/verify'), async ({ request }) => {
-        const body = await request.json() as any;
+        const body = (await request.json()) as any;
         expect(body.token).toBe('valid-verification-token');
         verifyCalled = true;
         return HttpResponse.json({ data: { message: 'Email verified successfully' } });
-      })
+      }),
     );
 
     renderWithClient(<VerifyEmailPage />);
@@ -115,7 +115,7 @@ describe('VerifyEmailPage', () => {
     server.use(
       http.post(apiPath('/auth/email/verify'), () => {
         return HttpResponse.json({ data: { message: 'Email verified successfully' } });
-      })
+      }),
     );
 
     renderWithClient(<VerifyEmailPage />);
@@ -141,9 +141,9 @@ describe('VerifyEmailPage', () => {
               message: 'Token kedaluwarsa atau tidak valid.',
             },
           },
-          { status: 400 }
+          { status: 400 },
         );
-      })
+      }),
     );
 
     renderWithClient(<VerifyEmailPage />);
@@ -162,11 +162,11 @@ describe('VerifyEmailPage', () => {
 
     server.use(
       http.post(apiPath('/auth/email/resend'), async ({ request }) => {
-        const body = await request.json() as any;
+        const body = (await request.json()) as any;
         expect(body.email).toBe('test@example.com');
         resendCalled = true;
         return HttpResponse.json({ data: { message: 'Verification email sent successfully' } });
-      })
+      }),
     );
 
     renderWithClient(<VerifyEmailPage />);

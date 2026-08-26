@@ -162,7 +162,7 @@ describe('guest favorites storage', () => {
   });
 
   it('handles storage quota exceeded gracefully', () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
       throw new DOMException('Quota exceeded', 'QuotaExceededError');

@@ -20,7 +20,9 @@ async function seedCartFromHome(page: Page) {
   } catch {
     // Cookie dialog not present or already dismissed
   }
-  await expect(page.getByRole('heading', { name: 'Keranjang Belanja' })).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole('heading', { name: 'Keranjang Belanja' })).toBeVisible({
+    timeout: 15000,
+  });
 }
 
 async function goToCheckout(page: Page) {

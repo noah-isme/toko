@@ -7,7 +7,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useOrderQuery, useOrdersQuery } from '@/entities/orders/api/hooks';
 import { server } from '@/mocks/server';
 
-
 type WrapperProps = { children: React.ReactNode };
 
 function createQueryClient() {

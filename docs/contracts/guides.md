@@ -13,7 +13,6 @@
    - Generate `anonId` di localStorage saat pertama kali
    - Create cart dengan `anonId`
    - Simpan `cartId` di localStorage
-   
 2. **Setelah Login:**
    - Call `/api/v1/carts/merge` dengan `cartId` dari localStorage
    - Replace `cartId` dengan user cart
@@ -43,6 +42,7 @@ try {
 ## Optimistic Updates
 
 Untuk update quantity cart:
+
 ```typescript
 // 1. Update UI immediately
 updateCartItemQtyInState(itemId, newQty);
@@ -62,13 +62,13 @@ try {
 ```typescript
 const fetchProducts = async (page = 1, limit = 20) => {
   const response = await api.get('/api/v1/products', {
-    params: { page, limit, category: 'electronics' }
+    params: { page, limit, category: 'electronics' },
   });
-  
+
   return {
     products: response.data.data,
     totalPages: Math.ceil(response.data.pagination.totalItems / limit),
-    currentPage: response.data.pagination.page
+    currentPage: response.data.pagination.page,
   };
 };
 ```

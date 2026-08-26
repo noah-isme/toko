@@ -16,7 +16,6 @@ describe('product JSON-LD', () => {
       images: ['https://example.com/assets/headphones.png'],
       stock: 12,
       inStock: true,
-
     });
 
     const { container } = render(<JsonLd data={data} />);

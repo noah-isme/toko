@@ -13,7 +13,7 @@ import {
 const DRAFT_ROUTE = '**/api/v1/checkout';
 const PAYMENT_INTENT_ROUTE = '**/api/v1/payments/intent';
 const SHIPPING_ROUTE = '**/shipping*';
-const CART_ROUTE = '**/api/v1/carts*';
+const CART_ROUTE = '**/api/v1/carts**';
 
 test.describe('Checkout error handling', () => {
   test.describe('Network errors during checkout', () => {
@@ -159,7 +159,9 @@ test.describe('Checkout error handling', () => {
         if (route.request().method() === 'GET') {
           await route.fulfill({
             status: 200,
-            body: JSON.stringify({ data: { items: [], totals: { subtotal: 0, total: 0 } } }),
+            body: JSON.stringify({
+              data: { id: 'cart-123', items: [], totals: { subtotal: 0, total: 0 } },
+            }),
             headers: { 'content-type': 'application/json' },
           });
         } else {
@@ -169,7 +171,12 @@ test.describe('Checkout error handling', () => {
 
       await page.goto('/');
       await page.evaluate(() => {
-        localStorage.setItem('accessToken', 'mock-token');
+        localStorage.setItem('accessToken', 'mock-empty-token');
+        localStorage.setItem('cartId', 'empty');
+        localStorage.setItem(
+          'cart-storage',
+          JSON.stringify({ state: { cartId: 'empty' }, version: 0 }),
+        );
       });
       await page.goto('/checkout');
 

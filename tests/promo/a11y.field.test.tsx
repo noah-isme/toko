@@ -8,7 +8,6 @@ import { createQueryClient, createTestCart, seedCart } from './utils';
 
 import { PromoField } from '@/entities/promo/ui/PromoField';
 
-
 describe('promo field accessibility', () => {
   it('links label, helper, and error states correctly', async () => {
     const queryClient = createQueryClient();

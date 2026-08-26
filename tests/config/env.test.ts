@@ -34,7 +34,7 @@ afterEach(() => {
 
 describe('public deployment environment', () => {
   it('rejects localhost, mock, and incomplete configuration in production', () => {
-    vi.stubEnv('NODE_ENV', 'production');
+    process.env.VERCEL_ENV = 'production';
     delete process.env.NEXT_PUBLIC_API_URL;
     delete process.env.NEXT_PUBLIC_API_MOCKING;
     delete process.env.NEXT_PUBLIC_TENANT_ID;

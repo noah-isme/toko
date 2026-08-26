@@ -53,7 +53,7 @@ describe('MobileBottomNav Component', () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <MobileBottomNav />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
   };
 
