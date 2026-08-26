@@ -18,6 +18,8 @@ const ordersQueryParamsSchema = z.object({
   status: z.string().optional(),
   page: z.number().int().positive().optional(),
   limit: z.number().int().positive().optional(),
+  empty: z.string().optional(),
+  error: z.string().optional(),
 });
 
 const ordersListResponseSchema = z

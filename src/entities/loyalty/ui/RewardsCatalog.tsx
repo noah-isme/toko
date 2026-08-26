@@ -31,7 +31,10 @@ const REWARD_TYPE_ICONS: Record<RewardItem['type'], React.ReactNode> = {
   special: <Gift className="h-4 w-4" />,
 };
 
-export const RewardsCatalog = memo(function RewardsCatalog({ userPoints, className }: RewardsCatalogProps) {
+export const RewardsCatalog = memo(function RewardsCatalog({
+  userPoints,
+  className,
+}: RewardsCatalogProps) {
   const { isAuthenticated } = useAuth();
   const { redeem, isPending: isRedeeming } = useRedeemRewardMutation();
   const { toast } = useToast();
@@ -64,7 +67,10 @@ export const RewardsCatalog = memo(function RewardsCatalog({ userPoints, classNa
         </h3>
         {!isAuthenticated && (
           <span className="text-xs text-muted-foreground">
-            <a href="/login" className="text-primary underline hover:no-underline">Masuk</a> untuk menukarkan hadiah
+            <a href="/login" className="text-primary underline hover:no-underline">
+              Masuk
+            </a>{' '}
+            untuk menukarkan hadiah
           </span>
         )}
       </div>
@@ -80,7 +86,7 @@ export const RewardsCatalog = memo(function RewardsCatalog({ userPoints, classNa
               className={cn(
                 'relative overflow-hidden transition-all',
                 !canAfford && 'opacity-60',
-                isAuthenticated && canAfford && 'hover:shadow-lg hover:border-primary/50'
+                isAuthenticated && canAfford && 'hover:shadow-lg hover:border-primary/50',
               )}
             >
               <div className="absolute right-3 top-3">
@@ -99,7 +105,9 @@ export const RewardsCatalog = memo(function RewardsCatalog({ userPoints, classNa
                   </div>
                   <div className="min-w-0 flex-1">
                     <h4 className="truncate font-semibold text-foreground">{reward.name}</h4>
-                    <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{reward.description}</p>
+                    <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
+                      {reward.description}
+                    </p>
                   </div>
                 </div>
 

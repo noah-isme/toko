@@ -9,10 +9,23 @@ import { ProductCard } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useSearchStateFromUrl, useSearchUrl, useActiveFilterCount, SORT_OPTIONS, parseSearchStateFromUrl, buildSearchUrl } from '@/entities/search/hooks';
+import {
+  useSearchStateFromUrl,
+  useSearchUrl,
+  useActiveFilterCount,
+  SORT_OPTIONS,
+  parseSearchStateFromUrl,
+  buildSearchUrl,
+} from '@/entities/search/hooks';
 import type { SearchFilters, SortOption } from '@/entities/search/types';
 import { AdvancedFilterSidebar as AdvancedFilterSidebarComponent } from '@/entities/search/ui/AdvancedFilterSidebar';
 import { useProducts } from '@/lib/api';
@@ -26,34 +39,45 @@ const ITEMS_PER_PAGE = 12;
 export function AdvancedSearchResults() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // Parse initial filters from URL - compute directly from searchParams to avoid useEffect setState
   const initialFilters = useMemo(() => parseSearchStateFromUrl(searchParams), [searchParams]);
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
   const [currentPage, setCurrentPage] = useState(initialFilters.page || 1);
   const [sortBy, setSortBy] = useState<SortOption>(initialFilters.sortBy || 'relevance');
-  
+
   // Generate URL for current filters
   const searchUrl = useSearchUrl({ ...filters, page: currentPage, sortBy });
   const activeCount = useActiveFilterCount(filters);
 
   // Update URL when filters change
-  const handleFiltersChange = useCallback((newFilters: Partial<SearchFilters>) => {
-    const updated = { ...filters, ...newFilters, page: 1 };
-    setFilters(updated);
-    router.push(buildSearchUrl({ ...updated, page: 1, sortBy }) as Route, { scroll: false });
-  }, [filters, sortBy, router]);
+  const handleFiltersChange = useCallback(
+    (newFilters: Partial<SearchFilters>) => {
+      const updated = { ...filters, ...newFilters, page: 1 };
+      setFilters(updated);
+      router.push(buildSearchUrl({ ...updated, page: 1, sortBy }) as Route, { scroll: false });
+    },
+    [filters, sortBy, router],
+  );
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-    router.push(buildSearchUrl({ ...filters, page, sortBy }) as Route, { scroll: false });
-  }, [filters, sortBy, router]);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+      router.push(buildSearchUrl({ ...filters, page, sortBy }) as Route, { scroll: false });
+    },
+    [filters, sortBy, router],
+  );
 
-  const handleSortChange = useCallback((newSortBy: string) => {
-    const validSortBy = newSortBy as SortOption;
-    setSortBy(validSortBy);
-    router.push(buildSearchUrl({ ...filters, page: 1, sortBy: validSortBy }) as Route, { scroll: false });
-  }, [filters, router]);
+  const handleSortChange = useCallback(
+    (newSortBy: string) => {
+      const validSortBy = newSortBy as SortOption;
+      setSortBy(validSortBy);
+      router.push(buildSearchUrl({ ...filters, page: 1, sortBy: validSortBy }) as Route, {
+        scroll: false,
+      });
+    },
+    [filters, router],
+  );
 
   const handleClearFilters = useCallback(() => {
     const cleared: SearchFilters = {
@@ -74,7 +98,10 @@ export function AdvancedSearchResults() {
 
   // Build API params from filters
   const apiParams = useMemo(() => {
-    const sortMap: Record<string, 'price:asc' | 'price:desc' | 'name:asc' | 'name:desc' | undefined> = {
+    const sortMap: Record<
+      string,
+      'price:asc' | 'price:desc' | 'name:asc' | 'name:desc' | undefined
+    > = {
       'price-asc': 'price:asc',
       'price-desc': 'price:desc',
       'name-asc': 'name:asc',
@@ -96,12 +123,15 @@ export function AdvancedSearchResults() {
   }, [filters, sortBy, currentPage]);
 
   // Fetch products
-  const { data: productsData, isLoading, isFetching, error, refetch } = useProducts(
-    apiParams,
-    {
-      enabled: true,
-    }
-  );
+  const {
+    data: productsData,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useProducts(apiParams, {
+    enabled: true,
+  });
 
   const products = productsData?.data ?? [];
   const totalItems = productsData?.pagination?.totalItems ?? 0;
@@ -111,39 +141,62 @@ export function AdvancedSearchResults() {
   // Active filters display
   const activeFilters = useMemo(() => {
     const items: Array<{ label: string; onRemove: () => void }> = [];
-    
+
     if (filters.query) {
-      items.push({ label: `Pencarian: "${filters.query}"`, onRemove: () => handleFiltersChange({ query: undefined }) });
+      items.push({
+        label: `Pencarian: "${filters.query}"`,
+        onRemove: () => handleFiltersChange({ query: undefined }),
+      });
     }
     filters.categories?.forEach((cat) => {
-      items.push({ label: `Kategori: ${cat}`, onRemove: () => handleFiltersChange({ categories: filters.categories!.filter(c => c !== cat) }) });
+      items.push({
+        label: `Kategori: ${cat}`,
+        onRemove: () =>
+          handleFiltersChange({ categories: filters.categories!.filter((c) => c !== cat) }),
+      });
     });
     filters.brands?.forEach((brand) => {
-      items.push({ label: `Merek: ${brand}`, onRemove: () => handleFiltersChange({ brands: filters.brands!.filter(b => b !== brand) }) });
+      items.push({
+        label: `Merek: ${brand}`,
+        onRemove: () => handleFiltersChange({ brands: filters.brands!.filter((b) => b !== brand) }),
+      });
     });
     if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000)) {
-      items.push({ 
-        label: `Harga: ${formatCurrency(filters.priceRange[0])} - ${formatCurrency(filters.priceRange[1])}`, 
-        onRemove: () => handleFiltersChange({ priceRange: [0, 10000000] }) 
+      items.push({
+        label: `Harga: ${formatCurrency(filters.priceRange[0])} - ${formatCurrency(filters.priceRange[1])}`,
+        onRemove: () => handleFiltersChange({ priceRange: [0, 10000000] }),
       });
     }
     if (filters.rating) {
-      items.push({ label: `Rating: ${filters.rating}+`, onRemove: () => handleFiltersChange({ rating: null }) });
+      items.push({
+        label: `Rating: ${filters.rating}+`,
+        onRemove: () => handleFiltersChange({ rating: null }),
+      });
     }
     if (filters.inStockOnly) {
-      items.push({ label: 'Stok Tersedia', onRemove: () => handleFiltersChange({ inStockOnly: false }) });
+      items.push({
+        label: 'Stok Tersedia',
+        onRemove: () => handleFiltersChange({ inStockOnly: false }),
+      });
     }
     if (filters.discountOnly) {
-      items.push({ label: 'Promo/Diskon', onRemove: () => handleFiltersChange({ discountOnly: false }) });
+      items.push({
+        label: 'Promo/Diskon',
+        onRemove: () => handleFiltersChange({ discountOnly: false }),
+      });
     }
     if (filters.attributes) {
       Object.entries(filters.attributes).forEach(([attr, values]) => {
         values.forEach((val) => {
-          items.push({ 
-            label: `${attr}: ${val}`, 
-            onRemove: () => handleFiltersChange({ 
-              attributes: { ...filters.attributes!, [attr]: filters.attributes![attr].filter(v => v !== val) } 
-            }) 
+          items.push({
+            label: `${attr}: ${val}`,
+            onRemove: () =>
+              handleFiltersChange({
+                attributes: {
+                  ...filters.attributes!,
+                  [attr]: filters.attributes![attr].filter((v) => v !== val),
+                },
+              }),
           });
         });
       });
@@ -173,14 +226,21 @@ export function AdvancedSearchResults() {
             {totalItems} produk ditemukan{filters.query ? ` untuk "${filters.query}"` : ''}
           </p>
         </div>
-        
+
         {/* Active filters chips */}
         {activeCount > 0 && (
           <div className="flex flex-wrap gap-2">
             {activeFilters.map((filter, i) => (
-              <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
+              <span
+                key={i}
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary"
+              >
                 {filter.label}
-                <button onClick={filter.onRemove} className="ml-1 hover:text-primary/70" aria-label="Hapus filter">
+                <button
+                  onClick={filter.onRemove}
+                  className="ml-1 hover:text-primary/70"
+                  aria-label="Hapus filter"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -220,7 +280,8 @@ export function AdvancedSearchResults() {
         </div>
 
         <div className="text-sm text-muted-foreground">
-          Menampilkan {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} dari {totalItems}
+          Menampilkan {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{' '}
+          {Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} dari {totalItems}
         </div>
       </div>
 
@@ -262,7 +323,7 @@ export function AdvancedSearchResults() {
               >
                 Sebelumnya
               </Button>
-              
+
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum: number;
@@ -288,7 +349,7 @@ export function AdvancedSearchResults() {
                   );
                 })}
               </div>
-              
+
               <Button
                 variant="outline"
                 size="sm"

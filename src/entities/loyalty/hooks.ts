@@ -36,7 +36,12 @@ export function useRedeemRewardMutation() {
   const { toast } = useToast();
 
   const mutation = useMutation<
-    { success: boolean; message: string; remainingPoints: number; transaction?: LoyaltyTransaction },
+    {
+      success: boolean;
+      message: string;
+      remainingPoints: number;
+      transaction?: LoyaltyTransaction;
+    },
     Error,
     RedeemRewardInput,
     unknown
@@ -66,7 +71,7 @@ export function useRedeemRewardMutation() {
     },
     onSuccess: (data, variables) => {
       const reward = REWARD_CATALOG.find((r) => r.id === variables.rewardId);
-      
+
       capturePosthogEvent('loyalty_redeem', {
         rewardId: variables.rewardId,
         rewardName: reward?.name,
@@ -81,7 +86,12 @@ export function useRedeemRewardMutation() {
       });
     },
     onError: (error, _variables, context) => {
-      const ctx = context as { previousProfile?: LoyaltyProfile; previousTransactions?: Array<[unknown[], LoyaltyTransactionListResponse | undefined]> } | undefined;
+      const ctx = context as
+        | {
+            previousProfile?: LoyaltyProfile;
+            previousTransactions?: Array<[unknown[], LoyaltyTransactionListResponse | undefined]>;
+          }
+        | undefined;
       if (ctx?.previousProfile) {
         queryClient.setQueryData(getLoyaltyProfileKey(), ctx.previousProfile);
       }

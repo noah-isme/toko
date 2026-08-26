@@ -11,7 +11,14 @@ import { TransactionHistory } from './TransactionHistory';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
@@ -19,8 +26,15 @@ interface LoyaltyDashboardProps {
   className?: string;
 }
 
-export const LoyaltyDashboard = memo(function LoyaltyDashboard({ className }: LoyaltyDashboardProps) {
-  const { data: profile, isLoading: profileLoading, error: profileError, refetch: refetchProfile } = useLoyaltyProfileQuery();
+export const LoyaltyDashboard = memo(function LoyaltyDashboard({
+  className,
+}: LoyaltyDashboardProps) {
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    error: profileError,
+    refetch: refetchProfile,
+  } = useLoyaltyProfileQuery();
 
   if (profileLoading) {
     return (
@@ -60,11 +74,21 @@ export const LoyaltyDashboard = memo(function LoyaltyDashboard({ className }: Lo
               <TableBody>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-full" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-[60px]" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-[60px]" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[120px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-[80px]" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Skeleton className="h-4 w-[60px]" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Skeleton className="h-4 w-[60px]" />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -77,7 +101,12 @@ export const LoyaltyDashboard = memo(function LoyaltyDashboard({ className }: Lo
 
   if (profileError) {
     return (
-      <div className={cn('rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive', className)}>
+      <div
+        className={cn(
+          'rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive',
+          className,
+        )}
+      >
         Gagal memuat profil loyalitas.{' '}
         <button
           onClick={() => refetchProfile()}

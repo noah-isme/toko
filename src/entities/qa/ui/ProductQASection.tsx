@@ -30,7 +30,12 @@ export function ProductQASection({ productId, className }: ProductQASectionProps
                   className="inline-flex w-full items-center gap-2 rounded-lg border border-primary/50 bg-primary/5 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10 sm:w-auto"
                 >
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
                   </svg>
                   Ajukan Pertanyaan
                 </button>
@@ -45,8 +50,18 @@ export function ProductQASection({ productId, className }: ProductQASectionProps
                       className="text-muted-foreground hover:text-foreground"
                       aria-label="Tutup formulir"
                     >
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -61,7 +76,10 @@ export function ProductQASection({ productId, className }: ProductQASectionProps
                   Masuk
                 </a>{' '}
                 atau
-                <a href="/register" className="font-medium text-primary underline hover:no-underline">
+                <a
+                  href="/register"
+                  className="font-medium text-primary underline hover:no-underline"
+                >
                   daftar
                 </a>{' '}
                 untuk mengajukan pertanyaan.

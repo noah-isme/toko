@@ -69,7 +69,11 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
     color: 'gray',
     minPoints: 1000,
     multiplier: 1.25,
-    benefits: ['1.25 poin per Rp1.000 belanja', 'Gratis ongkir minimal belanja', 'Akses flash sale eksklusif'],
+    benefits: [
+      '1.25 poin per Rp1.000 belanja',
+      'Gratis ongkir minimal belanja',
+      'Akses flash sale eksklusif',
+    ],
     icon: '🥈',
   },
   gold: {
@@ -78,7 +82,12 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
     color: 'yellow',
     minPoints: 5000,
     multiplier: 1.5,
-    benefits: ['1.5 poin per Rp1.000 belanja', 'Gratis ongkir tanpa minimum', 'Akses produk baru lebih awal', 'Support prioritas'],
+    benefits: [
+      '1.5 poin per Rp1.000 belanja',
+      'Gratis ongkir tanpa minimum',
+      'Akses produk baru lebih awal',
+      'Support prioritas',
+    ],
     icon: '🥇',
   },
   platinum: {
@@ -87,7 +96,13 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
     color: 'purple',
     minPoints: 20000,
     multiplier: 2,
-    benefits: ['2 poin per Rp1.000 belanja', 'Gratis ongkir + pengiriman ekspres', 'Personal shopper', 'Hadiah ulang tahun', 'Undangan event eksklusif'],
+    benefits: [
+      '2 poin per Rp1.000 belanja',
+      'Gratis ongkir + pengiriman ekspres',
+      'Personal shopper',
+      'Hadiah ulang tahun',
+      'Undangan event eksklusif',
+    ],
     icon: '💎',
   },
 };
@@ -167,13 +182,13 @@ export function getNextTier(currentTier: LoyaltyTier): LoyaltyTier | null {
 export function calculateTierProgress(currentPoints: number, currentTier: LoyaltyTier): number {
   const currentTierInfo = TIER_BENEFITS[currentTier];
   const nextTier = getNextTier(currentTier);
-  
+
   if (!nextTier) return 100;
-  
+
   const nextTierInfo = TIER_BENEFITS[nextTier];
   const pointsNeeded = nextTierInfo.minPoints - currentTierInfo.minPoints;
   const pointsProgress = currentPoints - currentTierInfo.minPoints;
-  
+
   return Math.min(100, Math.max(0, Math.round((pointsProgress / pointsNeeded) * 100)));
 }
 

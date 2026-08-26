@@ -8,7 +8,11 @@ import { PriceRangeFilter } from '@/components/price-range-filter';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { useSearchFacetsQuery, useSaveSearchMutation, useActiveFilterCount } from '@/entities/search/hooks';
+import {
+  useSearchFacetsQuery,
+  useSaveSearchMutation,
+  useActiveFilterCount,
+} from '@/entities/search/hooks';
 import type { SearchFilters, SearchFacet } from '@/entities/search/types';
 import { cn } from '@/lib/utils';
 
@@ -50,16 +54,17 @@ function FilterSection({
   );
 }
 
-function renderFacetValues(facet: SearchFacet, filters: SearchFilters, onToggle: (value: string) => void) {
+function renderFacetValues(
+  facet: SearchFacet,
+  filters: SearchFilters,
+  onToggle: (value: string) => void,
+) {
   const isMultiSelect = facet.multiSelect ?? true;
-  
+
   return (
     <div className="space-y-2">
       {facet.values.map(({ value, label, count, selected }) => (
-        <label
-          key={value}
-          className="flex cursor-pointer items-center gap-2"
-        >
+        <label key={value} className="flex cursor-pointer items-center gap-2">
           <input
             type={isMultiSelect ? 'checkbox' : 'radio'}
             checked={selected ?? false}
@@ -82,21 +87,21 @@ export function AdvancedFilterSidebar({
 }: FilterSidebarProps) {
   const [open, setOpen] = useState(false);
   const activeCount = useActiveFilterCount(filters);
-  
+
   // Use the facets query to get dynamic facet values from the API
   const { data: facets, isLoading: facetsLoading } = useSearchFacetsQuery(filters, {
     enabled: !!filters.query || !!filters.categories?.length || !!filters.brands?.length,
   });
-  
+
   const saveSearch = useSaveSearchMutation();
 
-  const hasActiveFilters =
-    activeCount > 0;
+  const hasActiveFilters = activeCount > 0;
 
   const filterContent = (
     <div className="space-y-1">
       {/* Categories from facets */}
-      {facets && facets.length > 0 && (
+      {facets &&
+        facets.length > 0 &&
         facets
           .filter((f) => f.type === 'category' || f.name === 'categories')
           .map((facet) => (
@@ -119,11 +124,11 @@ export function AdvancedFilterSidebar({
                 })
               )}
             </FilterSection>
-          ))
-      )}
+          ))}
 
       {/* Brands from facets */}
-      {facets && facets.length > 0 && (
+      {facets &&
+        facets.length > 0 &&
         facets
           .filter((f) => f.type === 'brand' || f.name === 'brands')
           .map((facet) => (
@@ -139,15 +144,12 @@ export function AdvancedFilterSidebar({
                   const current = filters.brands || [];
                   const isSelected = current.includes(value);
                   onFiltersChange({
-                    brands: isSelected
-                      ? current.filter((b) => b !== value)
-                      : [...current, value],
+                    brands: isSelected ? current.filter((b) => b !== value) : [...current, value],
                   });
                 })
               )}
             </FilterSection>
-          ))
-      )}
+          ))}
 
       {/* Price Range */}
       {filters.priceRange && (
@@ -162,7 +164,8 @@ export function AdvancedFilterSidebar({
       )}
 
       {/* Rating from facets */}
-      {facets && facets.length > 0 && (
+      {facets &&
+        facets.length > 0 &&
         facets
           .filter((f) => f.type === 'rating' || f.name === 'rating')
           .map((facet) => (
@@ -183,7 +186,9 @@ export function AdvancedFilterSidebar({
                           key={i}
                           className={cn(
                             'h-4 w-4',
-                            i < Number(value) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'
+                            i < Number(value)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-muted-foreground',
                           )}
                         />
                       ))}
@@ -204,11 +209,11 @@ export function AdvancedFilterSidebar({
                 </label>
               </div>
             </FilterSection>
-          ))
-      )}
+          ))}
 
       {/* Boolean filters */}
-      {facets && facets.length > 0 && (
+      {facets &&
+        facets.length > 0 &&
         facets
           .filter((f) => f.type === 'boolean')
           .map((facet) => (
@@ -221,7 +226,11 @@ export function AdvancedFilterSidebar({
                       <input
                         type="checkbox"
                         checked={selected ?? false}
-                        onChange={(e) => onFiltersChange({ [filterKey]: e.target.checked } as Partial<SearchFilters>)}
+                        onChange={(e) =>
+                          onFiltersChange({
+                            [filterKey]: e.target.checked,
+                          } as Partial<SearchFilters>)
+                        }
                         className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
                       />
                       <span className="text-sm">{label}</span>
@@ -231,11 +240,11 @@ export function AdvancedFilterSidebar({
                 })}
               </div>
             </FilterSection>
-          ))
-      )}
+          ))}
 
       {/* Custom attributes from facets */}
-      {facets && facets.length > 0 && (
+      {facets &&
+        facets.length > 0 &&
         facets
           .filter((f) => f.type === 'attribute')
           .map((facet) => (
@@ -264,8 +273,7 @@ export function AdvancedFilterSidebar({
                 ))}
               </div>
             </FilterSection>
-          ))
-      )}
+          ))}
     </div>
   );
 
@@ -300,9 +308,7 @@ export function AdvancedFilterSidebar({
               )}
             </div>
           </SheetHeader>
-          <div className="max-h-[calc(100vh-160px)] overflow-y-auto p-4">
-            {filterContent}
-          </div>
+          <div className="max-h-[calc(100vh-160px)] overflow-y-auto p-4">{filterContent}</div>
           <div className="sticky bottom-0 border-t bg-background p-4">
             <div className="flex w-full gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
@@ -317,7 +323,10 @@ export function AdvancedFilterSidebar({
       </Sheet>
 
       {/* Desktop sidebar */}
-      <div className="hidden w-64 shrink-0 rounded-xl border bg-card p-4 lg:block" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+      <div
+        className="hidden w-64 shrink-0 rounded-xl border bg-card p-4 lg:block"
+        style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-semibold">Filter</h3>
           {hasActiveFilters && onClearFilters && (
@@ -330,18 +339,30 @@ export function AdvancedFilterSidebar({
         {filterContent}
         <Separator className="my-4" />
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1" onClick={() => saveSearch.mutate({ 
-            name: `Pencarian ${new Date().toLocaleDateString('id-ID')}`, 
-            filters 
-          })}>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() =>
+              saveSearch.mutate({
+                name: `Pencarian ${new Date().toLocaleDateString('id-ID')}`,
+                filters,
+              })
+            }
+          >
             <Save className="mr-1 h-4 w-4" />
             Simpan
           </Button>
-          <Button variant="ghost" className="flex-1" onClick={() => saveSearch.mutate({ 
-            name: `Pencarian ${new Date().toLocaleDateString('id-ID')}`, 
-            filters,
-            alertEnabled: true
-          })}>
+          <Button
+            variant="ghost"
+            className="flex-1"
+            onClick={() =>
+              saveSearch.mutate({
+                name: `Pencarian ${new Date().toLocaleDateString('id-ID')}`,
+                filters,
+                alertEnabled: true,
+              })
+            }
+          >
             <Bell className="mr-1 h-4 w-4" />
             Notif
           </Button>

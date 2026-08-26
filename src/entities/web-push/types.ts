@@ -84,7 +84,8 @@ export const PUSH_NOTIFICATION_TYPES = {
   GENERAL: 'general',
 } as const;
 
-export type PushNotificationType = (typeof PUSH_NOTIFICATION_TYPES)[keyof typeof PUSH_NOTIFICATION_TYPES];
+export type PushNotificationType =
+  (typeof PUSH_NOTIFICATION_TYPES)[keyof typeof PUSH_NOTIFICATION_TYPES];
 
 export interface PushPreferences {
   enabled: boolean;

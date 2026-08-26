@@ -8,17 +8,53 @@ import type { LoyaltyTransaction } from '../types';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
-const TRANSACTION_TYPE_STYLES: Record<LoyaltyTransaction['type'], { color: string; icon: React.ReactNode; label: string }> = {
-  earned: { color: 'text-green-600 bg-green-50 border-green-100', icon: <ArrowUp className="h-3 w-3" />, label: 'Diperoleh' },
-  redeemed: { color: 'text-purple-600 bg-purple-50 border-purple-100', icon: <ArrowDown className="h-3 w-3" />, label: 'Ditukar' },
-  expired: { color: 'text-red-600 bg-red-50 border-red-100', icon: <Minus className="h-3 w-3" />, label: 'Kedaluwarsa' },
-  adjusted: { color: 'text-blue-600 bg-blue-50 border-blue-100', icon: <Plus className="h-3 w-3" />, label: 'Disesuaikan' },
-  bonus: { color: 'text-amber-600 bg-amber-50 border-amber-100', icon: <Plus className="h-3 w-3" />, label: 'Bonus' },
+const TRANSACTION_TYPE_STYLES: Record<
+  LoyaltyTransaction['type'],
+  { color: string; icon: React.ReactNode; label: string }
+> = {
+  earned: {
+    color: 'text-green-600 bg-green-50 border-green-100',
+    icon: <ArrowUp className="h-3 w-3" />,
+    label: 'Diperoleh',
+  },
+  redeemed: {
+    color: 'text-purple-600 bg-purple-50 border-purple-100',
+    icon: <ArrowDown className="h-3 w-3" />,
+    label: 'Ditukar',
+  },
+  expired: {
+    color: 'text-red-600 bg-red-50 border-red-100',
+    icon: <Minus className="h-3 w-3" />,
+    label: 'Kedaluwarsa',
+  },
+  adjusted: {
+    color: 'text-blue-600 bg-blue-50 border-blue-100',
+    icon: <Plus className="h-3 w-3" />,
+    label: 'Disesuaikan',
+  },
+  bonus: {
+    color: 'text-amber-600 bg-amber-50 border-amber-100',
+    icon: <Plus className="h-3 w-3" />,
+    label: 'Bonus',
+  },
 };
 
 const TYPE_OPTIONS = [
@@ -48,11 +84,18 @@ interface TransactionHistoryProps {
   className?: string;
 }
 
-export const TransactionHistory = memo(function TransactionHistory({ className }: TransactionHistoryProps) {
-  const [params, setParams] = useState({ page: 1, pageSize: 10, type: '' as LoyaltyTransaction['type'] | '' });
-  const queryParams = params.type === '' 
-    ? { page: params.page, pageSize: params.pageSize } 
-    : { page: params.page, pageSize: params.pageSize, type: params.type };
+export const TransactionHistory = memo(function TransactionHistory({
+  className,
+}: TransactionHistoryProps) {
+  const [params, setParams] = useState({
+    page: 1,
+    pageSize: 10,
+    type: '' as LoyaltyTransaction['type'] | '',
+  });
+  const queryParams =
+    params.type === ''
+      ? { page: params.page, pageSize: params.pageSize }
+      : { page: params.page, pageSize: params.pageSize, type: params.type };
   const { data, isLoading, isFetching, error, refetch } = useLoyaltyTransactionsQuery(queryParams);
   const transactions = data?.data ?? [];
   const meta = data?.meta;
@@ -85,11 +128,21 @@ export const TransactionHistory = memo(function TransactionHistory({ className }
           <TableBody>
             {Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
-                <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-full" /></TableCell>
-                <TableCell className="text-right"><Skeleton className="h-4 w-[60px]" /></TableCell>
-                <TableCell className="text-right"><Skeleton className="h-4 w-[60px]" /></TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-[120px]" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-[80px]" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-full" />
+                </TableCell>
+                <TableCell className="text-right">
+                  <Skeleton className="h-4 w-[60px]" />
+                </TableCell>
+                <TableCell className="text-right">
+                  <Skeleton className="h-4 w-[60px]" />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -100,7 +153,12 @@ export const TransactionHistory = memo(function TransactionHistory({ className }
 
   if (error) {
     return (
-      <div className={cn('rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive', className)}>
+      <div
+        className={cn(
+          'rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive',
+          className,
+        )}
+      >
         Gagal memuat riwayat.{' '}
         <Button variant="link" size="sm" onClick={handleRefresh} className="h-auto p-0">
           Coba lagi
@@ -112,9 +170,7 @@ export const TransactionHistory = memo(function TransactionHistory({ className }
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-lg font-semibold">
-          Riwayat Poin
-        </h3>
+        <h3 className="flex items-center gap-2 text-lg font-semibold">Riwayat Poin</h3>
         <Select value={params.type} onValueChange={handleTypeChange}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Filter" />
@@ -164,12 +220,19 @@ export const TransactionHistory = memo(function TransactionHistory({ className }
                       <p className="font-medium">{transaction.description}</p>
                       {transaction.referenceId && (
                         <p className="text-xs text-muted-foreground">
-                          Ref: {transaction.referenceType?.toUpperCase()} #{transaction.referenceId.slice(0, 8)}
+                          Ref: {transaction.referenceType?.toUpperCase()} #
+                          {transaction.referenceId.slice(0, 8)}
                         </p>
                       )}
                     </TableCell>
-                    <TableCell className={cn('text-right text-sm font-medium tabular-nums', isPositive ? 'text-green-600' : 'text-red-600')}>
-                      {isPositive ? '+' : ''}{transaction.points.toLocaleString('id-ID')}
+                    <TableCell
+                      className={cn(
+                        'text-right text-sm font-medium tabular-nums',
+                        isPositive ? 'text-green-600' : 'text-red-600',
+                      )}
+                    >
+                      {isPositive ? '+' : ''}
+                      {transaction.points.toLocaleString('id-ID')}
                     </TableCell>
                     <TableCell className="text-right text-sm tabular-nums text-muted-foreground">
                       {transaction.balance.toLocaleString('id-ID')}
@@ -183,7 +246,8 @@ export const TransactionHistory = memo(function TransactionHistory({ className }
           {meta && meta.totalPages && meta.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border/50 p-4">
               <span className="text-sm text-muted-foreground">
-                Menampilkan {((params.page - 1) * params.pageSize) + 1} - {Math.min(params.page * params.pageSize, meta.total ?? 0)} dari {meta.total ?? 0}
+                Menampilkan {(params.page - 1) * params.pageSize + 1} -{' '}
+                {Math.min(params.page * params.pageSize, meta.total ?? 0)} dari {meta.total ?? 0}
               </span>
               <div className="flex items-center gap-2">
                 <Button

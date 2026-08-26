@@ -3,7 +3,12 @@
 import { Bell, BellOff, Check, Loader2, Send, Shield, Zap } from 'lucide-react';
 import { memo, useEffect, useState } from 'react';
 
-import { usePushPreferencesQuery, usePushSubscription, useUpdatePushPreferencesMutation, useSendTestPushMutation } from '../hooks';
+import {
+  usePushPreferencesQuery,
+  usePushSubscription,
+  useUpdatePushPreferencesMutation,
+  useSendTestPushMutation,
+} from '../hooks';
 import type { PushNotificationType } from '../types';
 
 import { Button } from '@/components/ui/button';
@@ -18,7 +23,9 @@ interface PushPreferencesCardProps {
   className?: string;
 }
 
-export const PushPreferencesCard = memo(function PushPreferencesCard({ className }: PushPreferencesCardProps) {
+export const PushPreferencesCard = memo(function PushPreferencesCard({
+  className,
+}: PushPreferencesCardProps) {
   const { data: preferences, isLoading, refetch } = usePushPreferencesQuery();
   const updatePreferences = useUpdatePushPreferencesMutation();
   const { subscribe, unsubscribe, isSubscribing, isUnsubscribing } = usePushSubscription();
@@ -39,7 +46,7 @@ export const PushPreferencesCard = memo(function PushPreferencesCard({ className
 
   const handleEnableChange = async (enabled: boolean) => {
     setLocalEnabled(enabled);
-    
+
     if (enabled) {
       try {
         await subscribe();
@@ -61,7 +68,7 @@ export const PushPreferencesCard = memo(function PushPreferencesCard({ className
 
   const handleTypeChange = async (type: string, enabled: boolean) => {
     if (!preferences) return;
-    
+
     const newTypes = { ...preferences.types, [type]: enabled };
     await updatePreferences.mutateAsync({ types: newTypes });
   };
@@ -125,12 +132,42 @@ export const PushPreferencesCard = memo(function PushPreferencesCard({ className
   }
 
   const notificationTypes = [
-    { key: 'order_update', label: 'Pembaruan Pesanan', description: 'Status pengiriman, pengiriman, dll.', icon: Shield },
-    { key: 'price_drop', label: 'Penurunan Harga', description: 'Produk favorit Anda murah.', icon: Zap },
-    { key: 'flash_sale', label: 'Flash Sale', description: 'Promo terbatas dan event spesial.', icon: Zap },
-    { key: 'new_review', label: 'Ulasan Baru', description: 'Ulasan pada produk yang Anda beli.', icon: Send },
-    { key: 'qa_answered', label: 'Pertanyaan Dijawab', description: 'Jawaban pertanyaan produk Anda.', icon: Shield },
-    { key: 'loyalty_reward', label: 'Hadiah Loyalitas', description: 'Poin dan hadiah tersedia.', icon: Shield },
+    {
+      key: 'order_update',
+      label: 'Pembaruan Pesanan',
+      description: 'Status pengiriman, pengiriman, dll.',
+      icon: Shield,
+    },
+    {
+      key: 'price_drop',
+      label: 'Penurunan Harga',
+      description: 'Produk favorit Anda murah.',
+      icon: Zap,
+    },
+    {
+      key: 'flash_sale',
+      label: 'Flash Sale',
+      description: 'Promo terbatas dan event spesial.',
+      icon: Zap,
+    },
+    {
+      key: 'new_review',
+      label: 'Ulasan Baru',
+      description: 'Ulasan pada produk yang Anda beli.',
+      icon: Send,
+    },
+    {
+      key: 'qa_answered',
+      label: 'Pertanyaan Dijawab',
+      description: 'Jawaban pertanyaan produk Anda.',
+      icon: Shield,
+    },
+    {
+      key: 'loyalty_reward',
+      label: 'Hadiah Loyalitas',
+      description: 'Poin dan hadiah tersedia.',
+      icon: Shield,
+    },
     { key: 'general', label: 'Umum', description: 'Pengumuman dan berita penting.', icon: Bell },
   ];
 

@@ -129,9 +129,7 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
         </div>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">
-          Foto (opsional)
-        </label>
+        <label className="text-sm font-medium">Foto (opsional)</label>
         <ImageUpload
           value={photoFiles}
           onChange={(files) => form.setValue('photos', files, { shouldValidate: true })}
@@ -140,7 +138,8 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
           disabled={isSubmitting}
         />
         <p className="text-xs text-muted-foreground">
-          Tambahkan hingga 5 foto untuk menunjukkan produk secara nyata. Format: JPEG, PNG, WebP, GIF (max 5MB per file).
+          Tambahkan hingga 5 foto untuk menunjukkan produk secara nyata. Format: JPEG, PNG, WebP,
+          GIF (max 5MB per file).
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">

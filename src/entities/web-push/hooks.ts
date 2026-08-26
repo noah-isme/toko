@@ -108,11 +108,14 @@ export function useUpdatePushPreferencesMutation() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (preferences: Partial<PushPreferences>) => webPushApi.updatePreferences(preferences),
+    mutationFn: (preferences: Partial<PushPreferences>) =>
+      webPushApi.updatePreferences(preferences),
     onMutate: async (newPreferences) => {
       await queryClient.cancelQueries({ queryKey: webPushKeys.preferences() });
 
-      const previousPreferences = queryClient.getQueryData<PushPreferences>(webPushKeys.preferences());
+      const previousPreferences = queryClient.getQueryData<PushPreferences>(
+        webPushKeys.preferences(),
+      );
 
       if (previousPreferences) {
         queryClient.setQueryData(webPushKeys.preferences(), {
@@ -226,9 +229,9 @@ export function usePushSubscription() {
     }
 
     const registration = await navigator.serviceWorker.ready;
-    
+
     let subscription = await registration.pushManager.getSubscription();
-    
+
     if (!subscription) {
       const vapidKey = vapidKeyQuery.data;
       if (!vapidKey) {
@@ -236,7 +239,7 @@ export function usePushSubscription() {
       }
 
       const applicationServerKey = urlBase64ToUint8Array(vapidKey);
-      
+
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey,
@@ -265,7 +268,7 @@ export function usePushSubscription() {
 
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.getSubscription();
-    
+
     if (subscription) {
       await subscription.unsubscribe();
       await unsubscribeMutation.mutateAsync(subscription.endpoint);

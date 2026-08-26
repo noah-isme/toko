@@ -49,13 +49,22 @@ function renderStatus(status: Question['status']) {
       : 'border-destructive/40 bg-destructive/10 text-destructive';
 
   return (
-    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', styles)}>
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium',
+        styles,
+      )}
+    >
       {label}
     </span>
   );
 }
 
-export const QuestionItem = memo(function QuestionItem({ question, onAnswer, canAnswer = false }: QuestionItemProps) {
+export const QuestionItem = memo(function QuestionItem({
+  question,
+  onAnswer,
+  canAnswer = false,
+}: QuestionItemProps) {
   const { mutate, isPending, isInFlight } = useVoteQuestionHelpfulMutation(question.id);
   const { mutate: answerMutate, isPending: answerPending } = useAnswerQuestionMutation(question.id);
   const helpfulActive = question.myVote === 'up';
@@ -71,21 +80,31 @@ export const QuestionItem = memo(function QuestionItem({ question, onAnswer, can
 
   const handleAnswer = async () => {
     if (!answerText.trim()) return;
-    
-    answerMutate({ answer: answerText }, {
-      onSuccess: () => {
-        setShowAnswerForm(false);
-        setAnswerText('');
-        toast({ title: 'Jawaban dikirim', variant: 'success' });
+
+    answerMutate(
+      { answer: answerText },
+      {
+        onSuccess: () => {
+          setShowAnswerForm(false);
+          setAnswerText('');
+          toast({ title: 'Jawaban dikirim', variant: 'success' });
+        },
+        onError: (error) => {
+          toast({
+            title: 'Gagal mengirim jawaban',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
       },
-      onError: (error) => {
-        toast({ title: 'Gagal mengirim jawaban', description: error.message, variant: 'destructive' });
-      }
-    });
+    );
   };
 
   return (
-    <article className="space-y-4 rounded-lg border border-border/60 bg-background/30 p-4 shadow-sm" data-testid="question-item">
+    <article
+      className="space-y-4 rounded-lg border border-border/60 bg-background/30 p-4 shadow-sm"
+      data-testid="question-item"
+    >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-foreground">{question.author ?? 'Anonim'}</p>
@@ -93,9 +112,12 @@ export const QuestionItem = memo(function QuestionItem({ question, onAnswer, can
         </div>
         {renderStatus(question.status)}
       </header>
-      
+
       <div className="flex items-start gap-3">
-        <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <MessageSquare
+          className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
         <p className="flex-1 text-sm leading-relaxed text-foreground">{question.question}</p>
       </div>
 
@@ -115,7 +137,7 @@ export const QuestionItem = memo(function QuestionItem({ question, onAnswer, can
         </div>
       )}
 
-      {(canAnswer && question.status !== 'answered') && (
+      {canAnswer && question.status !== 'answered' && (
         <div className="space-y-2 border-t border-border/60 pt-4">
           {!showAnswerForm ? (
             <Button
@@ -145,7 +167,14 @@ export const QuestionItem = memo(function QuestionItem({ question, onAnswer, can
                 >
                   Kirim Jawaban
                 </GuardedButton>
-                <Button variant="ghost" size="sm" onClick={() => { setShowAnswerForm(false); setAnswerText(''); }}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowAnswerForm(false);
+                    setAnswerText('');
+                  }}
+                >
                   Batal
                 </Button>
               </div>
@@ -160,7 +189,7 @@ export const QuestionItem = memo(function QuestionItem({ question, onAnswer, can
           size="sm"
           className={cn(
             'gap-1.5',
-            helpfulActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+            helpfulActive ? 'text-primary' : 'text-muted-foreground hover:text-primary',
           )}
           onClick={handleHelpfulToggle}
           disabled={voteInFlight}
@@ -170,9 +199,14 @@ export const QuestionItem = memo(function QuestionItem({ question, onAnswer, can
           Bermanfaat
           <span className="text-xs text-muted-foreground">({question.helpfulCount})</span>
         </Button>
-        
+
         {onAnswer && question.status !== 'answered' && (
-          <Button variant="ghost" size="sm" onClick={() => onAnswer(question.id)} className="gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onAnswer(question.id)}
+            className="gap-1.5"
+          >
             <MessageSquareMore className="h-4 w-4" />
             Jawab
           </Button>

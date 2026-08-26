@@ -39,7 +39,10 @@ const TIER_GRADIENTS: Record<LoyaltyTier, string> = {
   platinum: 'from-purple-500 to-purple-600',
 };
 
-export const TierProgressCard = memo(function TierProgressCard({ profile, className }: TierProgressCardProps) {
+export const TierProgressCard = memo(function TierProgressCard({
+  profile,
+  className,
+}: TierProgressCardProps) {
   if (!profile) {
     return (
       <Card className={cn('overflow-hidden', className)}>
@@ -67,16 +70,18 @@ export const TierProgressCard = memo(function TierProgressCard({ profile, classN
     <Card className={cn('overflow-hidden relative', className)}>
       <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-10`} />
       <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-5`} />
-      
+
       <CardContent className="relative space-y-5 p-6">
         {/* Tier Badge & Name */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              'flex items-center justify-center rounded-full text-white font-bold text-2xl',
-              'w-14 h-14',
-              `bg-gradient-to-br ${gradient}`,
-            )}>
+            <div
+              className={cn(
+                'flex items-center justify-center rounded-full text-white font-bold text-2xl',
+                'w-14 h-14',
+                `bg-gradient-to-br ${gradient}`,
+              )}
+            >
               {currentTierInfo.icon}
             </div>
             <div>
@@ -94,9 +99,13 @@ export const TierProgressCard = memo(function TierProgressCard({ profile, classN
 
         {/* Points Balance */}
         <div className="flex items-baseline gap-2">
-          <span className="text-4xl font-bold tabular-nums text-foreground">{points.toLocaleString('id-ID')}</span>
+          <span className="text-4xl font-bold tabular-nums text-foreground">
+            {points.toLocaleString('id-ID')}
+          </span>
           <span className="text-sm text-muted-foreground">Poin</span>
-          <span className="ml-auto text-xs text-muted-foreground">Total seumur hidup: {lifetimePoints.toLocaleString('id-ID')}</span>
+          <span className="ml-auto text-xs text-muted-foreground">
+            Total seumur hidup: {lifetimePoints.toLocaleString('id-ID')}
+          </span>
         </div>
 
         {/* Progress to Next Tier */}
@@ -130,7 +139,9 @@ export const TierProgressCard = memo(function TierProgressCard({ profile, classN
               </li>
             ))}
             {currentTierInfo.benefits.length > 3 && (
-              <li className="text-xs text-muted-foreground">+{currentTierInfo.benefits.length - 3} keuntungan lainnya</li>
+              <li className="text-xs text-muted-foreground">
+                +{currentTierInfo.benefits.length - 3} keuntungan lainnya
+              </li>
             )}
           </ul>
         </div>

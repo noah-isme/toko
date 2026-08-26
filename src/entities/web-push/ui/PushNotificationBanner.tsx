@@ -17,7 +17,9 @@ interface PushBannerProps {
   className?: string;
 }
 
-export const PushNotificationBanner = memo(function PushNotificationBanner({ className }: PushBannerProps) {
+export const PushNotificationBanner = memo(function PushNotificationBanner({
+  className,
+}: PushBannerProps) {
   const { data: preferences, isLoading, refetch } = usePushPreferencesQuery();
   const { subscribe, unsubscribe, isSubscribing, isUnsubscribing } = usePushSubscription();
   const { toast } = useToast();
@@ -41,7 +43,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({ cla
 
   const handleEnableChange = async (enabled: boolean) => {
     setLocalEnabled(enabled);
-    
+
     if (enabled) {
       try {
         await subscribe();
@@ -71,12 +73,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({ cla
   const isPending = isSubscribing || isUnsubscribing;
 
   return (
-    <Card
-      className={cn(
-        'border-primary/20 bg-primary/5 relative overflow-hidden',
-        className
-      )}
-    >
+    <Card className={cn('border-primary/20 bg-primary/5 relative overflow-hidden', className)}>
       <button
         onClick={handleDismiss}
         className="absolute right-2 top-2 rounded p-1 transition-colors hover:bg-muted"

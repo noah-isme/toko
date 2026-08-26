@@ -78,18 +78,20 @@ export const searchFiltersSchema = z.object({
   rating: z.number().nullable().optional(),
   inStockOnly: z.boolean().optional(),
   discountOnly: z.boolean().optional(),
-  sortBy: z.enum([
-    'relevance',
-    'name-asc',
-    'name-desc',
-    'price-asc',
-    'price-desc',
-    'newest',
-    'oldest',
-    'rating',
-    'popularity',
-    'discount',
-  ]).optional(),
+  sortBy: z
+    .enum([
+      'relevance',
+      'name-asc',
+      'name-desc',
+      'price-asc',
+      'price-desc',
+      'newest',
+      'oldest',
+      'rating',
+      'popularity',
+      'discount',
+    ])
+    .optional(),
   page: z.number().int().positive().optional(),
   pageSize: z.number().int().positive().max(100).optional(),
   attributes: z.record(z.string(), z.array(z.string())).optional(),
@@ -125,12 +127,13 @@ export const DEFAULT_SEARCH_FILTERS: SearchFilters = {
 
 export function buildSearchUrl(filters: SearchFilters, basePath = '/products'): string {
   const params = new URLSearchParams();
-  
+
   if (filters.query) params.set('q', filters.query);
   if (filters.categories?.length) params.set('categories', filters.categories.join(','));
   if (filters.brands?.length) params.set('brands', filters.brands.join(','));
   if (filters.priceRange) params.set('price', `${filters.priceRange[0]},${filters.priceRange[1]}`);
-  if (filters.rating !== null && filters.rating !== undefined) params.set('rating', filters.rating.toString());
+  if (filters.rating !== null && filters.rating !== undefined)
+    params.set('rating', filters.rating.toString());
   if (filters.inStockOnly) params.set('inStock', 'true');
   if (filters.discountOnly) params.set('discount', 'true');
   if (filters.sortBy && filters.sortBy !== 'relevance') params.set('sort', filters.sortBy);
@@ -141,7 +144,7 @@ export function buildSearchUrl(filters: SearchFilters, basePath = '/products'): 
       if (values.length) params.set(`attr_${key}`, values.join(','));
     });
   }
-  
+
   return `${basePath}?${params.toString()}`;
 }
 
@@ -160,7 +163,7 @@ export function parseSearchUrl(searchParams: URLSearchParams): SearchFilters {
     attributes: Object.fromEntries(
       Array.from(searchParams.entries())
         .filter(([key]) => key.startsWith('attr_'))
-        .map(([key, value]) => [key.replace('attr_', ''), value.split(',').filter(Boolean)])
+        .map(([key, value]) => [key.replace('attr_', ''), value.split(',').filter(Boolean)]),
     ),
   };
 }
@@ -173,7 +176,8 @@ export function getActiveFilterCount(filters: SearchFilters): number {
   if (filters.rating) count++;
   if (filters.inStockOnly) count++;
   if (filters.discountOnly) count++;
-  if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000)) count++;
+  if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000))
+    count++;
   if (filters.attributes) {
     Object.values(filters.attributes).forEach((values) => {
       count += values.length;

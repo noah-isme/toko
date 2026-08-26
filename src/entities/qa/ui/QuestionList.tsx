@@ -1,6 +1,13 @@
 'use client';
 
-import { Loader2, ChevronLeft, ChevronRight, ArrowUpDown, TrendingUp, HelpCircle } from 'lucide-react';
+import {
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  TrendingUp,
+  HelpCircle,
+} from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 import { useQuestionListQuery } from '../hooks';
@@ -9,7 +16,13 @@ import type { Question, QuestionListParams, QuestionSort } from '../types';
 import { QuestionItem } from './QuestionItem';
 
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +39,12 @@ const SORT_OPTIONS: { value: QuestionSort; label: string; icon: React.ReactNode 
   { value: 'unanswered', label: 'Belum Terjawab', icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
-export function QuestionList({ productId, initialParams, canAnswer = false, className }: QuestionListProps) {
+export function QuestionList({
+  productId,
+  initialParams,
+  canAnswer = false,
+  className,
+}: QuestionListProps) {
   const [params, setParams] = useState<QuestionListParams>({
     page: 1,
     pageSize: 10,
@@ -54,7 +72,10 @@ export function QuestionList({ productId, initialParams, canAnswer = false, clas
     return (
       <div className={cn('space-y-4', className)}>
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="space-y-3 rounded-lg border border-border/60 bg-background/30 p-4">
+          <div
+            key={i}
+            className="space-y-3 rounded-lg border border-border/60 bg-background/30 p-4"
+          >
             <Skeleton className="h-4 w-1/4" />
             <Skeleton className="mt-2 h-4 w-3/4" />
             <Skeleton className="mt-2 h-4 w-full" />
@@ -67,7 +88,12 @@ export function QuestionList({ productId, initialParams, canAnswer = false, clas
 
   if (error) {
     return (
-      <div className={cn('rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive', className)}>
+      <div
+        className={cn(
+          'rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive',
+          className,
+        )}
+      >
         Gagal memuat pertanyaan.{' '}
         <Button variant="link" size="sm" onClick={handleRefresh} className="h-auto p-0">
           Coba lagi
@@ -106,7 +132,10 @@ export function QuestionList({ productId, initialParams, canAnswer = false, clas
       </div>
 
       {questions.length === 0 ? (
-        <div className="rounded-lg border border-border/60 bg-background/30 py-12 text-center" data-testid="qa-empty-state">
+        <div
+          className="rounded-lg border border-border/60 bg-background/30 py-12 text-center"
+          data-testid="qa-empty-state"
+        >
           <HelpCircle className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
           <p className="text-muted-foreground">Belum ada pertanyaan untuk produk ini.</p>
           <p className="mt-1 text-sm text-muted-foreground">Jadilah yang pertama bertanya!</p>
@@ -114,17 +143,17 @@ export function QuestionList({ productId, initialParams, canAnswer = false, clas
       ) : (
         <div className="space-y-4" role="list" aria-label="Daftar pertanyaan">
           {questions.map((question) => (
-            <QuestionItem
-              key={question.id}
-              question={question}
-              canAnswer={canAnswer}
-            />
+            <QuestionItem key={question.id} question={question} canAnswer={canAnswer} />
           ))}
         </div>
       )}
 
       {meta && meta.totalPages && meta.totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-2" aria-label="Pagination" data-testid="qa-pagination">
+        <nav
+          className="flex items-center justify-center gap-2"
+          aria-label="Pagination"
+          data-testid="qa-pagination"
+        >
           <Button
             variant="outline"
             size="sm"

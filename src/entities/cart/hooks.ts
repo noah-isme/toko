@@ -195,7 +195,8 @@ export function useAddToCartMutation() {
   const { toast } = useToast();
 
   const mutation = useGuardedMutation<CartView, Error, AddCartItemVariables, MutationContext>(
-    (variables) => `add:${variables.productId}:${variables.variantId ?? 'base'}:${variables.campaignId ?? 'regular'}`,
+    (variables) =>
+      `add:${variables.productId}:${variables.variantId ?? 'base'}:${variables.campaignId ?? 'regular'}`,
     {
       mutationFn: async ({ productId, variantId, campaignId, quantity, cartId }) => {
         if (!cartId) {
@@ -206,7 +207,9 @@ export function useAddToCartMutation() {
         }
         const response = await apiClient<ApiResponse<ApiCart>>(`/carts/${cartId}/items`, {
           method: 'POST',
-          body: JSON.stringify(addToCartInputSchema.parse({ productId, variantId, campaignId, qty: quantity })),
+          body: JSON.stringify(
+            addToCartInputSchema.parse({ productId, variantId, campaignId, qty: quantity }),
+          ),
           // Schema removed because we handle wrapped response manually
           requiresAuth: true,
         });
@@ -216,7 +219,8 @@ export function useAddToCartMutation() {
         return cartViewSchema.parse(mappedCart);
       },
       onMutate: async (variables) => {
-        const { productId, variantId, quantity, name, price, image, maxQuantity, cartId } = variables;
+        const { productId, variantId, quantity, name, price, image, maxQuantity, cartId } =
+          variables;
         await cancelCartQueries(queryClient, cartId);
 
         const previousCart = readCartCache(queryClient, cartId);
@@ -224,7 +228,8 @@ export function useAddToCartMutation() {
         const optimisticCart = patchCartItems(baseCart, (items) => {
           const nextItems = [...items];
           const existingIndex = nextItems.findIndex(
-            (item) => item.productId === productId && (item.variantId ?? null) === (variantId ?? null),
+            (item) =>
+              item.productId === productId && (item.variantId ?? null) === (variantId ?? null),
           );
           const increment = clampQuantity(quantity, maxQuantity);
 

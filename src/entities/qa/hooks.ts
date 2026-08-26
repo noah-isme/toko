@@ -261,7 +261,14 @@ export function useAnswerQuestionMutation(questionId: string) {
           const nextData: QuestionListResponse = {
             ...data,
             data: data.data.map((q) =>
-              q.id === questionId ? { ...q, answer: input.answer, status: 'answered', answeredAt: new Date().toISOString() } : q
+              q.id === questionId
+                ? {
+                    ...q,
+                    answer: input.answer,
+                    status: 'answered',
+                    answeredAt: new Date().toISOString(),
+                  }
+                : q,
             ),
           };
           queryClient.setQueryData(key, nextData);

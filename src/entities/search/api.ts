@@ -1,6 +1,12 @@
 import { z, type ZodType } from 'zod';
 
-import type { SearchFilters, SearchResult, SearchFacet, SavedSearch, SearchSuggestion } from './types';
+import type {
+  SearchFilters,
+  SearchResult,
+  SearchFacet,
+  SavedSearch,
+  SearchSuggestion,
+} from './types';
 
 import { apiClient } from '@/lib/api/apiClient';
 
@@ -55,13 +61,14 @@ export const searchApi = {
    */
   async search<T>(filters: SearchFilters, dataSchema: ZodType<T>): Promise<SearchResult<T>> {
     const params = new URLSearchParams();
-    
+
     if (filters.query) params.set('q', filters.query);
     if (filters.categories?.length) params.set('categories', filters.categories.join(','));
     if (filters.brands?.length) params.set('brands', filters.brands.join(','));
     if (filters.priceRange) params.set('price_min', filters.priceRange[0].toString());
     if (filters.priceRange) params.set('price_max', filters.priceRange[1].toString());
-    if (filters.rating !== null && filters.rating !== undefined) params.set('rating_min', filters.rating.toString());
+    if (filters.rating !== null && filters.rating !== undefined)
+      params.set('rating_min', filters.rating.toString());
     if (filters.inStockOnly) params.set('in_stock', 'true');
     if (filters.discountOnly) params.set('on_sale', 'true');
     if (filters.sortBy) params.set('sort', filters.sortBy);
@@ -86,11 +93,14 @@ export const searchApi = {
    */
   async getSuggestions(query: string, limit = 10): Promise<SearchSuggestion[]> {
     if (!query || query.length < 2) return [];
-    
-    const response = await apiClient(`/search/suggestions?q=${encodeURIComponent(query)}&limit=${limit}`, {
-      method: 'GET',
-      schema: z.array(searchSuggestionSchema),
-    });
+
+    const response = await apiClient(
+      `/search/suggestions?q=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        method: 'GET',
+        schema: z.array(searchSuggestionSchema),
+      },
+    );
 
     return response;
   },
@@ -100,7 +110,7 @@ export const searchApi = {
    */
   async getFacets(filters: SearchFilters): Promise<SearchFacet[]> {
     const params = new URLSearchParams();
-    
+
     if (filters.query) params.set('q', filters.query);
     if (filters.categories?.length) params.set('categories', filters.categories.join(','));
     if (filters.brands?.length) params.set('brands', filters.brands.join(','));
@@ -118,7 +128,11 @@ export const searchApi = {
   /**
    * Save a search for later use
    */
-  async saveSearch(name: string, filters: SearchFilters, alertEnabled = false): Promise<SavedSearch> {
+  async saveSearch(
+    name: string,
+    filters: SearchFilters,
+    alertEnabled = false,
+  ): Promise<SavedSearch> {
     const response = await apiClient('/search/saved', {
       method: 'POST',
       requiresAuth: true,

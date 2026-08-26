@@ -1,4 +1,7 @@
-export function getQuestionListKey(productId: string, params?: { page?: number; pageSize?: number; sort?: string }) {
+export function getQuestionListKey(
+  productId: string,
+  params?: { page?: number; pageSize?: number; sort?: string },
+) {
   return ['questions', 'list', productId, params ?? {}] as const;
 }
 
