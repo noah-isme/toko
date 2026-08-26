@@ -65,12 +65,9 @@ export const addressApi = {
    * Delete address
    */
   async deleteAddress(addressId: string): Promise<void> {
-    await apiClient(
-      `/users/me/addresses/${addressId}`,
-      {
-        method: 'DELETE',
-        requiresAuth: true,
-      },
-    );
+    await apiClient(`/users/me/addresses/${addressId}`, {
+      method: 'DELETE',
+      requiresAuth: true,
+    });
   },
 };

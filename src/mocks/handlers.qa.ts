@@ -136,7 +136,10 @@ export const qaHandlers = [
 
     const questionText = payload.question.trim();
     if (questionText.length < 10 || questionText.length > 500) {
-      return HttpResponse.json({ message: 'Question must be between 10 and 500 characters' }, { status: 400 });
+      return HttpResponse.json(
+        { message: 'Question must be between 10 and 500 characters' },
+        { status: 400 },
+      );
     }
 
     const questions = ensureQuestions(productId);
@@ -168,7 +171,10 @@ export const qaHandlers = [
 
     const answerText = payload.answer.trim();
     if (answerText.length < 10 || answerText.length > 1000) {
-      return HttpResponse.json({ message: 'Answer must be between 10 and 1000 characters' }, { status: 400 });
+      return HttpResponse.json(
+        { message: 'Answer must be between 10 and 1000 characters' },
+        { status: 400 },
+      );
     }
 
     const question = findQuestionById(questionId);

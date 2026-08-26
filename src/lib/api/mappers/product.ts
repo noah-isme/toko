@@ -17,7 +17,7 @@ export function mapApiProductToProduct(apiProduct: ApiProduct | Product): Produc
   }
 
   return {
-    id: apiProduct.id,  // This should ALWAYS exist
+    id: apiProduct.id, // This should ALWAYS exist
     title: apiProduct.title,
     slug: apiProduct.slug,
     description: apiProduct.description || '',

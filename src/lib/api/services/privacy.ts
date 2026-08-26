@@ -17,15 +17,23 @@ export interface DataExport {
 
 export const privacyApi = {
   async getPreferences() {
-    const response = await apiClient<{ data: PrivacyPreferences }>('/users/me/privacy', { requiresAuth: true });
+    const response = await apiClient<{ data: PrivacyPreferences }>('/users/me/privacy', {
+      requiresAuth: true,
+    });
     return response.data;
   },
   async updatePreferences(preferences: PrivacyPreferences) {
-    const response = await apiClient<{ data: PrivacyPreferences }>('/users/me/privacy', { method: 'PUT', requiresAuth: true, body: JSON.stringify(preferences) });
+    const response = await apiClient<{ data: PrivacyPreferences }>('/users/me/privacy', {
+      method: 'PUT',
+      requiresAuth: true,
+      body: JSON.stringify(preferences),
+    });
     return response.data;
   },
   async exportData() {
-    const response = await apiClient<{ data: DataExport }>('/users/me/data-export', { requiresAuth: true });
+    const response = await apiClient<{ data: DataExport }>('/users/me/data-export', {
+      requiresAuth: true,
+    });
     return response.data;
   },
   async deleteAccount() {

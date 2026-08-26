@@ -7,11 +7,8 @@ const CACHE_NAME = 'toko-push-v1';
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([
-        '/',
-        '/manifest.json',
-      ]);
-    })
+      return cache.addAll(['/', '/manifest.json']);
+    }),
   );
   self.skipWaiting();
 });
@@ -21,11 +18,9 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+        cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name)),
       );
-    })
+    }),
   );
   self.clients.claim();
 });
@@ -36,7 +31,7 @@ self.addEventListener('push', (event) => {
 
   try {
     const data = event.data.json();
-    
+
     const options = {
       body: data.body,
       icon: data.icon || '/icons/icon-192x192.png',
@@ -52,9 +47,7 @@ self.addEventListener('push', (event) => {
       timestamp: Date.now(),
     };
 
-    event.waitUntil(
-      self.registration.showNotification(data.title, options)
-    );
+    event.waitUntil(self.registration.showNotification(data.title, options));
   } catch (error) {
     console.error('Push notification error:', error);
   }
@@ -87,7 +80,7 @@ self.addEventListener('notificationclick', (event) => {
         }
         // Open new window
         return clients.openWindow(url);
-      })
+      }),
     );
   }
 });
@@ -129,7 +122,7 @@ self.addEventListener('fetch', (event) => {
         .catch(() => {
           // Fallback to cache
           return caches.match(request);
-        })
+        }),
     );
     return;
   }
@@ -149,7 +142,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       });
-    })
+    }),
   );
 });
-

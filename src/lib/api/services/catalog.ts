@@ -90,9 +90,12 @@ export const catalogApi = {
    * Get frequently bought together products
    */
   async getFrequentlyBoughtTogether(productId: string): Promise<Product[]> {
-    const response = await apiClient<ApiResponse<any[]>>(`/products/${productId}/frequently-bought-together`, {
-      method: 'GET',
-    });
+    const response = await apiClient<ApiResponse<any[]>>(
+      `/products/${productId}/frequently-bought-together`,
+      {
+        method: 'GET',
+      },
+    );
     return response.data.map(mapApiProductToProduct) as any;
   },
 
