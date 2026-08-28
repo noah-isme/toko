@@ -1,8 +1,6 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
-
 const brand = 'toko';
 
 function formatPrice(value: string | null) {
@@ -82,7 +80,7 @@ export async function GET(request: NextRequest) {
           {price ? (
             <span
               style={{
-                display: 'inline-flex',
+                display: 'flex',
                 alignItems: 'center',
                 padding: '16px 28px',
                 borderRadius: 999,
