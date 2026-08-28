@@ -15,6 +15,11 @@ const shouldEnableMocking = isMock();
 
 if (shouldEnableMocking) {
   beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+  beforeEach(() => {
+    if (typeof document !== 'undefined') {
+      document.cookie = 'X-CSRF-Token=mock-csrf-token; Path=/; SameSite=Lax';
+    }
+  });
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
 } else {

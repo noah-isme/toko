@@ -53,6 +53,31 @@ class AuthError extends ApiClientError {
 
 let accessToken: string | null = null;
 
+export const CSRF_COOKIE_NAME = 'X-CSRF-Token';
+export const CSRF_HEADER_NAME = 'X-CSRF-Token';
+
+export function getCsrfTokenFromCookie(): string | null {
+  if (typeof document === 'undefined' || !document.cookie) return null;
+  const match = document.cookie.match(
+    new RegExp(`(?:^|;\\s*)${encodeURIComponent(CSRF_COOKIE_NAME)}=([^;]*)`),
+  );
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+export function getCsrfToken(): string | null {
+  return getCsrfTokenFromCookie();
+}
+
+export function setCsrfToken(token: string | null) {
+  if (typeof document !== 'undefined') {
+    if (token) {
+      document.cookie = `${CSRF_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; SameSite=Lax`;
+    } else {
+      document.cookie = `${CSRF_COOKIE_NAME}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    }
+  }
+}
+
 export function setAccessToken(token: string | null) {
   accessToken = token;
   if (typeof window !== 'undefined') {
@@ -71,11 +96,76 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
+let csrfBootstrapPromise: Promise<string | null> | null = null;
+
+/**
+ * Ensures a valid CSRF token is available in document.cookie.
+ * If missing (or forceRefresh is true), performs ONE explicit safe GET
+ * using credentials: "include" to an existing confirmed endpoint (/categories)
+ * to allow the backend CSRF middleware to set the X-CSRF-Token cookie.
+ * Concurrent callers share the same in-flight bootstrap promise.
+ */
+export async function ensureCsrfToken(forceRefresh = false): Promise<string | null> {
+  if (!forceRefresh) {
+    const existing = getCsrfTokenFromCookie();
+    if (existing) {
+      return existing;
+    }
+  }
+
+  if (csrfBootstrapPromise) {
+    return csrfBootstrapPromise;
+  }
+
+  csrfBootstrapPromise = (async () => {
+    try {
+      const baseUrl = API_URL.replace(/\/$/, '');
+      const headers = new Headers();
+      if (TENANT_ID) {
+        headers.set('X-Tenant-ID', TENANT_ID);
+      }
+      await executeFetch(`${baseUrl}/categories`, {
+        method: 'GET',
+        credentials: 'include',
+        headers,
+      });
+      return getCsrfTokenFromCookie();
+    } catch (err) {
+      console.warn('[ApiClient] Failed to bootstrap CSRF cookie:', err);
+      return getCsrfTokenFromCookie();
+    } finally {
+      csrfBootstrapPromise = null;
+    }
+  })();
+
+  return csrfBootstrapPromise;
+}
+
+async function isCsrfError(response: Response): Promise<boolean> {
+  if (response.status !== 403) return false;
+  try {
+    const text = await response.clone().text();
+    return /missing csrf token|invalid csrf token|csrf/i.test(text);
+  } catch {
+    return false;
+  }
+}
+
 async function refreshAccessToken(): Promise<string | null> {
   const baseUrl = API_URL.replace(/\/$/, '');
+  const headers = new Headers();
+  const csrf = getCsrfTokenFromCookie();
+  if (csrf) {
+    headers.set(CSRF_HEADER_NAME, csrf);
+  }
+  if (TENANT_ID) {
+    headers.set('X-Tenant-ID', TENANT_ID);
+  }
+
   const response = await executeFetch(`${baseUrl}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',
+    headers,
   });
 
   if (response.status === 401 || response.status === 403) {
@@ -102,6 +192,7 @@ export async function apiClient<T = unknown>(
   options: ApiClientSchemaOptions<T> | ApiClientBaseOptions = {},
 ): Promise<T> {
   const { headers, requiresAuth = false, ...init } = options;
+  const isCsrfRetry = Boolean((options as Record<string, unknown>)._isCsrfRetry);
   const requestHeaders = new Headers(headers);
   if (TENANT_ID && !requestHeaders.has('X-Tenant-ID')) {
     requestHeaders.set('X-Tenant-ID', TENANT_ID);
@@ -111,13 +202,35 @@ export async function apiClient<T = unknown>(
     requestHeaders.set('Content-Type', 'application/json');
   }
 
+  const token = getAccessToken();
   if (requiresAuth) {
-    const token = getAccessToken();
-
     if (token) {
       requestHeaders.set('Authorization', `Bearer ${token}`);
     } else {
       console.warn('[ApiClient] Warning: requiresAuth is true but no token found for path:', path);
+    }
+  }
+
+  const method = (init.method || 'GET').toUpperCase();
+  const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+  const isBearerAuth = Boolean(token || requestHeaders.has('Authorization'));
+
+  // Double-submit CSRF cookie contract handling
+  if (isMutating && !requestHeaders.has(CSRF_HEADER_NAME)) {
+    let csrf = getCsrfTokenFromCookie();
+    // For unauthenticated mutating requests, if cookie is missing, perform ONE bootstrap GET
+    if (!csrf && !isBearerAuth) {
+      csrf = await ensureCsrfToken();
+      if (!csrf) {
+        throw new ApiClientError(
+          'CSRF token cookie (X-CSRF-Token) is missing after bootstrap',
+          'CSRF_TOKEN_MISSING',
+          403,
+        );
+      }
+    }
+    if (csrf) {
+      requestHeaders.set(CSRF_HEADER_NAME, csrf);
     }
   }
 
@@ -133,11 +246,28 @@ export async function apiClient<T = unknown>(
     const newToken = await refreshAccessToken();
     if (newToken) {
       requestHeaders.set('Authorization', `Bearer ${newToken}`);
+      const latestCsrf = getCsrfTokenFromCookie();
+      if (latestCsrf && !requestHeaders.has(CSRF_HEADER_NAME)) {
+        requestHeaders.set(CSRF_HEADER_NAME, latestCsrf);
+      }
       response = await executeFetch(`${baseUrl}${path}`, {
         ...init,
         headers: requestHeaders,
         credentials: 'include',
       });
+    }
+  }
+
+  // Handle CSRF token refresh and retry on 403 with CSRF error (at most once)
+  if (response.status === 403 && !isCsrfRetry && (await isCsrfError(response))) {
+    const refreshedCsrf = await ensureCsrfToken(true);
+    if (refreshedCsrf) {
+      requestHeaders.set(CSRF_HEADER_NAME, refreshedCsrf);
+      return apiClient(path, {
+        ...options,
+        _isCsrfRetry: true,
+        headers: requestHeaders,
+      } as any);
     }
   }
 

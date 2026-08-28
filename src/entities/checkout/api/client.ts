@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { CSRF_HEADER_NAME, ensureCsrfToken, getCsrfTokenFromCookie } from '@/lib/api/apiClient';
 import { getApiBaseUrl } from '@/shared/config/env';
 
 export const baseURLFromEnv = () => {
@@ -49,6 +50,19 @@ export async function fetchWithCreds<T = unknown>(
 
   if (requestBody && !requestHeaders.has('Content-Type') && !isFormData(body)) {
     requestHeaders.set('Content-Type', 'application/json');
+  }
+
+  const method = (rest.method || 'GET').toUpperCase();
+  const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+  if (isMutating && !requestHeaders.has(CSRF_HEADER_NAME)) {
+    let csrf = getCsrfTokenFromCookie();
+    if (!csrf) {
+      csrf = await ensureCsrfToken();
+    }
+    if (csrf) {
+      requestHeaders.set(CSRF_HEADER_NAME, csrf);
+    }
   }
 
   const response = await fetch(`${baseUrl}${path}`, {

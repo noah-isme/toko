@@ -150,9 +150,13 @@ function mapCartToApiCart(id: string = cart.id): ApiCart {
     })),
   };
 }
-
 export const handlers = [
-  http.get(apiPath('/categories'), () => HttpResponse.json({ data: SEED_CATEGORIES })),
+  http.get(apiPath('/categories'), () => {
+    if (typeof document !== 'undefined') {
+      document.cookie = 'X-CSRF-Token=mock-csrf-token; Path=/; SameSite=Lax';
+    }
+    return HttpResponse.json({ data: SEED_CATEGORIES });
+  }),
   http.get(apiPath('/brands'), () => HttpResponse.json({ data: SEED_BRANDS })),
   http.get(apiPath('/products'), ({ request }) => {
     const url = new URL(request.url);

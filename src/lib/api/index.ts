@@ -19,7 +19,18 @@
  */
 
 // API Client
-export { apiClient, setAccessToken, getAccessToken, ApiClientError } from './apiClient';
+export {
+  apiClient,
+  setAccessToken,
+  getAccessToken,
+  setCsrfToken,
+  getCsrfToken,
+  getCsrfTokenFromCookie,
+  ensureCsrfToken,
+  CSRF_COOKIE_NAME,
+  CSRF_HEADER_NAME,
+  ApiClientError,
+} from './apiClient';
 
 // Services
 export {
