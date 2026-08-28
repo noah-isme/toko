@@ -1,16 +1,17 @@
 # Vercel deployment
 
-This repository is a zero-config Next.js App Router project. The Vercel project
-root is the repository root (.) and the framework preset is **Next.js**. Use
-pnpm build as the build command; the script selects webpack so next-pwa can
-emit its generated worker and custom push-worker bundle deterministically. Keep the committed pnpm-lock.yaml as the
-source of truth; Vercel should install with the package manager declared in
-package.json.
+This repository is a Next.js App Router project. The Vercel project root is the
+repository root (.) and the framework preset is **Next.js**. The checked-in
+vercel.json pins the build command to `pnpm build`; the script selects webpack
+so @ducanh2912/next-pwa can emit its generated worker and custom push-worker
+bundle deterministically. Keep the committed pnpm-lock.yaml as the source of
+truth; Vercel should install with the package manager declared in package.json.
 
 ## Runtime and build contract
 
-- Node.js is pinned to v20.19.5 in .nvmrc. Keep the Vercel runtime on the Node
-  20.19 line.
+- Local development and CI use Node.js v22.13.x via .nvmrc and the workflow.
+  Keep the Vercel runtime on Node.js 22.x; Vercel manages the latest security
+  patch on that major line.
 - pnpm is pinned to 10.5.2 by packageManager and engines in package.json.
 - NEXT*PUBLIC*\* values are embedded at build time. Changing a Vercel value
   requires a new deployment; changing it after deployment does not update the

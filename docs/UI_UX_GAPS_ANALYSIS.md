@@ -614,7 +614,7 @@ Semua 17 file gambar menggunakan `next/image`. Satu-satunya raw `<img>` di `imag
 **Status**: IMPLEMENTED (re-audited 2026-08-07)
 **Priority**: 🟢 P2
 
-PWA sudah lengkap: `sw.js`, `workbox-*.js`, `manifest.json` di `public/`; `next-pwa` dikonfigurasi di `next.config.mjs` dengan runtime caching untuk fonts, images, dan API. Per-query `staleTime` tuning, optimistic updates dengan rollback, session storage caching, dan route prefetching. Audit sebelumnya usang.
+PWA sudah lengkap: `sw.js`, `workbox-*.js`, `manifest.json` di `public/`; `@ducanh2912/next-pwa` dikonfigurasi di `next.config.mjs` with runtime caching untuk fonts, images, dan API. Per-query `staleTime` tuning, optimistic updates dengan rollback, session storage caching, dan route prefetching. Audit sebelumnya usang.
 
 ---
 
@@ -680,7 +680,7 @@ PWA sudah lengkap: `sw.js`, `workbox-*.js`, `manifest.json` di `public/`; `next-
 25. #35 High Contrast Mode — ThemeProvider + CSS variables + prefers-contrast
 26. #39 Image Optimization — all images use next/image, WebP/AVIF configured
 27. #40 Code Splitting — 41 lazy() imports + next/dynamic
-28. #41 Caching Strategy — PWA complete with service worker + next-pwa
+28. #41 Caching Strategy — PWA complete with service worker + @ducanh2912/next-pwa
 
 ---
 

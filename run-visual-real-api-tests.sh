@@ -15,13 +15,37 @@ TOKO_API_DIR="$TOKO_APP_DIR/../toko-api"
 API_PID=""
 FRONTEND_PID=""
 
+# Keep the runner aligned with the API's local configuration. The backend
+# .env is intentionally not sourced wholesale because it contains secrets and
+# its PORT must not leak into the Next.js process.
+API_PORT="${TOKO_API_PORT:-}"
+if [ -z "$API_PORT" ] && [ -f "$TOKO_API_DIR/.env" ]; then
+    api_port_line="$(grep -m1 '^PORT=' "$TOKO_API_DIR/.env" || true)"
+    if [ -n "$api_port_line" ]; then
+        API_PORT="${api_port_line#PORT=}"
+        API_PORT="${API_PORT%\"}"
+        API_PORT="${API_PORT#\"}"
+        API_PORT="${API_PORT%\'}"
+        API_PORT="${API_PORT#\'}"
+    fi
+fi
+API_PORT="${API_PORT:-8080}"
+API_PORT="${API_PORT#:}"
+API_HOST="${TOKO_API_HOST:-localhost}"
+API_BASE_URL="${TOKO_API_URL:-http://${API_HOST}:${API_PORT}/api/v1}"
+API_HEALTH_URL="${TOKO_API_HEALTH_URL:-http://${API_HOST}:${API_PORT}/health/live}"
+
 cleanup() {
     echo "Cleaning up..."
     if [ -n "$FRONTEND_PID" ]; then
         kill "$FRONTEND_PID" 2>/dev/null || true
     fi
     if [ -n "$API_PID" ]; then
+        # air launches the compiled API as a child process; stop it before
+        # stopping air so the test runner does not leave the API on its port.
+        pkill -TERM -P "$API_PID" 2>/dev/null || true
         kill "$API_PID" 2>/dev/null || true
+        wait "$API_PID" 2>/dev/null || true
     fi
 }
 trap cleanup EXIT
@@ -50,13 +74,32 @@ export RATE_LIMIT_GLOBAL_MAX="${RATE_LIMIT_GLOBAL_MAX:-100000}"
 export RATE_LIMIT_USER_MAX="${RATE_LIMIT_USER_MAX:-100000}"
 export RATE_LIMIT_IP_MAX="${RATE_LIMIT_IP_MAX:-100000}"
 
+# The repository ships a deterministic provider for local development and E2E.
+# Override this with SHIPPING_PROVIDER=rajaongkir when real provider credentials
+# are available and the external integration itself is under test.
+export SHIPPING_PROVIDER="${SHIPPING_PROVIDER:-rajaongkir-mock}"
+
+export NEXT_PUBLIC_API_MOCKING=false
+export NEXT_PUBLIC_API_URL="$API_BASE_URL"
+export PLAYWRIGHT_REAL_API_URL="$API_BASE_URL"
+export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}"
+
+# Air invokes the Go compiler while rebuilding the API. Use the caller's
+# GOTMPDIR when it is available and writable; otherwise fall back to /tmp so
+# the runner also works in restricted CI/sandbox environments.
+if [ -z "${GOTMPDIR:-}" ] || [ ! -d "$GOTMPDIR" ] || [ ! -w "$GOTMPDIR" ]; then
+    API_GO_TMP_DIR="${TMPDIR:-/tmp}/toko-api-go-tmp"
+    mkdir -p "$API_GO_TMP_DIR"
+    export GOTMPDIR="$API_GO_TMP_DIR"
+fi
+
 echo "========================================"
 echo "Visual E2E Tests with Real Toko API"
 echo "========================================"
 
 # Check if toko-api is running
-if curl --fail --silent http://localhost:8080/health/live >/dev/null 2>&1; then
-    echo "✓ toko-api is already running at http://localhost:8080"
+if curl --fail --silent "$API_HEALTH_URL" >/dev/null 2>&1; then
+    echo "✓ toko-api is already running at $API_BASE_URL"
     echo "  NOTE: ensure it was started with raised RATE_LIMIT_* values,"
     echo "        otherwise later tests will fail on 429s."
 else
@@ -65,15 +108,15 @@ else
     docker-compose up -d
     sleep 5
     make migrate-up
-    air &
+    PORT="$API_PORT" air &
     API_PID=$!
     echo "toko-api started with PID $API_PID"
     for attempt in $(seq 1 30); do
-        if curl --fail --silent http://localhost:8080/health/live >/dev/null; then
+        if curl --fail --silent "$API_HEALTH_URL" >/dev/null; then
             break
         fi
         if [ "$attempt" -eq 30 ]; then
-            echo "✗ toko-api did not become ready at http://localhost:8080" >&2
+            echo "✗ toko-api did not become ready at $API_HEALTH_URL" >&2
             exit 1
         fi
         sleep 1
@@ -83,7 +126,7 @@ fi
 # Start frontend with real API
 echo "Starting frontend with real API..."
 cd "$TOKO_APP_DIR"
-NEXT_PUBLIC_API_MOCKING=false NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1 pnpm dev &
+pnpm dev &
 FRONTEND_PID=$!
 echo "Frontend started with PID $FRONTEND_PID"
 

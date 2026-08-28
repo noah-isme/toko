@@ -1,7 +1,7 @@
 /*
- * Push-notification extensions for the next-pwa generated worker.
+ * Push-notification extensions for the @ducanh2912/next-pwa generated worker.
  *
- * next-pwa imports this file into /pwa-sw.js during production builds. Keep
+ * @ducanh2912/next-pwa imports this file into /pwa-sw.js during production builds. Keep
  * this worker focused on push events; Workbox owns precaching and offline
  * navigation, and no API response is cached here.
  */

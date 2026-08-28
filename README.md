@@ -47,20 +47,20 @@ The development server runs at [http://localhost:3000](http://localhost:3000). M
 
 ## Available Scripts
 
-| Command                    | Description                                         |
-| -------------------------- | --------------------------------------------------- |
-| `pnpm dev`                 | Start the Next.js development server with MSW mocks |
-| `pnpm build`               | Create an optimized production build                |
-| `pnpm start`               | Run the production server                           |
-| `pnpm lint`                | Lint the project with ESLint                        |
-| `pnpm typecheck`           | Run TypeScript type checking (no emit)              |
-| `pnpm test`                | Execute Vitest test suites once                     |
-| `pnpm test:ci`             | Execute Vitest in CI-friendly forked-worker mode    |
-| `pnpm test:watch`          | Run Vitest in watch mode                            |
-| `pnpm e2e`                 | Run Playwright end-to-end tests                     |
-| `pnpm format`              | Format the repository with Prettier                 |
-| `pnpm deployment:validate` | Validate deployment environment variables           |
-| `pnpm analyze`             | Build with bundle analyzer enabled                  |
+| Command                    | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+| `pnpm dev`                 | Start the Next.js development server with MSW mocks  |
+| `pnpm build`               | Create an optimized production build                 |
+| `pnpm start`               | Run the production server                            |
+| `pnpm lint`                | Lint the project with ESLint                         |
+| `pnpm typecheck`           | Run TypeScript type checking (no emit)               |
+| `pnpm test`                | Execute Vitest test suites once                      |
+| `pnpm test:ci`             | Execute Vitest in CI-friendly two-worker forked mode |
+| `pnpm test:watch`          | Run Vitest in watch mode                             |
+| `pnpm e2e`                 | Run Playwright end-to-end tests                      |
+| `pnpm format`              | Format the repository with Prettier                  |
+| `pnpm deployment:validate` | Validate deployment environment variables            |
+| `pnpm analyze`             | Build with bundle analyzer enabled                   |
 
 ## Project Structure
 
@@ -130,7 +130,7 @@ GitHub Actions workflows run on every push and pull request to `main`:
 
 The storefront is a Progressive Web App:
 
-- **Service Worker** (via `next-pwa` + Workbox): auto-registers `/pwa-sw.js` in production with `skipWaiting`
+- **Service Worker** (via `@ducanh2912/next-pwa` + Workbox): auto-registers `/pwa-sw.js` in production with `skipWaiting`
 - **Runtime caching**: Google Fonts (1 year) and images (30 days); API responses are excluded
 - **Offline fallback**: `/offline` page with auto-reload on connectivity restoration
 - **Web App Manifest**: installable with `display: standalone`, SVG maskable icons

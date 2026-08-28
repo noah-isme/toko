@@ -9,6 +9,39 @@ import type {
 } from './types';
 
 import { apiClient } from '@/lib/api/apiClient';
+import { catalogApi } from '@/lib/api/services/catalog';
+import type { Brand, Category } from '@/lib/api/types';
+
+type CatalogFacetItem = Pick<Category | Brand, 'name' | 'slug'>;
+
+/**
+ * The catalog endpoints expose taxonomy, not product counts. Keep the
+ * SearchFacet shape for the existing filter UI and use zero as the
+ * unavailable-count sentinel; the UI omits that count instead of displaying
+ * misleading values.
+ */
+function createCatalogFacet(
+  name: 'categories' | 'brands',
+  label: string,
+  type: 'category' | 'brand',
+  items: readonly CatalogFacetItem[],
+  selectedValues: readonly string[],
+): SearchFacet {
+  const selected = new Set(selectedValues.map((value) => value.toLowerCase()));
+
+  return {
+    name,
+    label,
+    type,
+    multiSelect: true,
+    values: items.map((item) => ({
+      value: item.slug,
+      label: item.name,
+      count: 0,
+      selected: selected.has(item.slug.toLowerCase()),
+    })),
+  };
+}
 
 const searchFacetValueSchema: ZodType<SearchFacet['values'][0]> = z.object({
   value: z.string(),
@@ -106,23 +139,28 @@ export const searchApi = {
   },
 
   /**
-   * Get available facets for a search query (without full results)
+   * Get filter values from the supported catalog taxonomy endpoints.
+   *
+   * The real catalog API does not expose /search/facets. Categories and
+   * brands are intentionally fetched independently of the current search
+   * query because those endpoints return the complete tenant-scoped taxonomy.
    */
   async getFacets(filters: SearchFilters): Promise<SearchFacet[]> {
-    const params = new URLSearchParams();
+    const [categories, brands] = await Promise.all([
+      catalogApi.getCategories(),
+      catalogApi.getBrands(),
+    ]);
 
-    if (filters.query) params.set('q', filters.query);
-    if (filters.categories?.length) params.set('categories', filters.categories.join(','));
-    if (filters.brands?.length) params.set('brands', filters.brands.join(','));
-    if (filters.priceRange) params.set('price_min', filters.priceRange[0].toString());
-    if (filters.priceRange) params.set('price_max', filters.priceRange[1].toString());
-
-    const response = await apiClient(`/search/facets?${params.toString()}`, {
-      method: 'GET',
-      schema: z.array(searchFacetSchema),
-    });
-
-    return response;
+    return [
+      createCatalogFacet(
+        'categories',
+        'Kategori',
+        'category',
+        categories,
+        filters.categories ?? [],
+      ),
+      createCatalogFacet('brands', 'Merek', 'brand', brands, filters.brands ?? []),
+    ].filter((facet) => facet.values.length > 0);
   },
 
   /**

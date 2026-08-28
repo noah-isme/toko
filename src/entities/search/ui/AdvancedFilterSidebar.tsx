@@ -1,9 +1,8 @@
 'use client';
 
-import { ChevronDown, Filter, Star, X, SlidersHorizontal, Save, Bell } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { AlertCircle, Bell, ChevronDown, Save, SlidersHorizontal, Star, X } from 'lucide-react';
+import { useState } from 'react';
 
-import { BrandFilter } from '@/components/brand-filter';
 import { PriceRangeFilter } from '@/components/price-range-filter';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -54,12 +53,40 @@ function FilterSection({
   );
 }
 
+function toggleFacetValue(currentValues: string[], value: string, label: string): string[] {
+  const normalizedFacetValues = new Set([value, label].map((item) => item.trim().toLowerCase()));
+  const isSelected = currentValues.some((currentValue) =>
+    normalizedFacetValues.has(currentValue.trim().toLowerCase()),
+  );
+
+  return isSelected
+    ? currentValues.filter(
+        (currentValue) => !normalizedFacetValues.has(currentValue.trim().toLowerCase()),
+      )
+    : [...currentValues, value];
+}
+
 function renderFacetValues(
   facet: SearchFacet,
   filters: SearchFilters,
-  onToggle: (value: string) => void,
+  onToggle: (value: string, label: string) => void,
 ) {
   const isMultiSelect = facet.multiSelect ?? true;
+  const selectedValues =
+    facet.type === 'category' || facet.name === 'categories'
+      ? (filters.categories ?? [])
+      : facet.type === 'brand' || facet.name === 'brands'
+        ? (filters.brands ?? [])
+        : null;
+
+  const isSelected = (value: string, label: string, fallback?: boolean) => {
+    if (!selectedValues) return fallback ?? false;
+
+    const normalizedValues = new Set([value.toLowerCase(), label.toLowerCase()]);
+    return selectedValues.some((selectedValue) =>
+      normalizedValues.has(selectedValue.toLowerCase()),
+    );
+  };
 
   return (
     <div className="space-y-2">
@@ -67,12 +94,12 @@ function renderFacetValues(
         <label key={value} className="flex cursor-pointer items-center gap-2">
           <input
             type={isMultiSelect ? 'checkbox' : 'radio'}
-            checked={selected ?? false}
-            onChange={() => onToggle(value)}
+            checked={isSelected(value, label, selected)}
+            onChange={() => onToggle(value, label)}
             className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
           />
           <span className="flex-1 truncate text-sm">{label}</span>
-          <span className="text-xs text-muted-foreground">({count})</span>
+          {count > 0 && <span className="text-xs text-muted-foreground">({count})</span>}
         </label>
       ))}
     </div>
@@ -88,10 +115,12 @@ export function AdvancedFilterSidebar({
   const [open, setOpen] = useState(false);
   const activeCount = useActiveFilterCount(filters);
 
-  // Use the facets query to get dynamic facet values from the API
-  const { data: facets, isLoading: facetsLoading } = useSearchFacetsQuery(filters, {
-    enabled: !!filters.query || !!filters.categories?.length || !!filters.brands?.length,
-  });
+  const {
+    data: facets = [],
+    isLoading: facetsLoading,
+    isError: facetsError,
+    refetch: refetchFacets,
+  } = useSearchFacetsQuery(filters);
 
   const saveSearch = useSaveSearchMutation();
 
@@ -99,57 +128,56 @@ export function AdvancedFilterSidebar({
 
   const filterContent = (
     <div className="space-y-1">
-      {/* Categories from facets */}
-      {facets &&
-        facets.length > 0 &&
-        facets
-          .filter((f) => f.type === 'category' || f.name === 'categories')
-          .map((facet) => (
-            <FilterSection key={facet.name} title={facet.label}>
-              {facetsLoading ? (
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-6 animate-pulse rounded bg-muted" />
-                  ))}
-                </div>
-              ) : (
-                renderFacetValues(facet, filters, (value) => {
-                  const current = filters.categories || [];
-                  const isSelected = current.includes(value);
-                  onFiltersChange({
-                    categories: isSelected
-                      ? current.filter((c) => c !== value)
-                      : [...current, value],
-                  });
-                })
-              )}
-            </FilterSection>
+      {facetsLoading && (
+        <div className="space-y-2 py-2" role="status" aria-label="Memuat pilihan filter">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-6 animate-pulse rounded bg-muted" />
           ))}
+        </div>
+      )}
+
+      {facetsError && (
+        <div
+          className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm"
+          role="alert"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
+          <div className="space-y-2">
+            <p>Filter kategori dan merek belum tersedia. Filter harga tetap dapat digunakan.</p>
+            <Button variant="outline" size="sm" onClick={() => refetchFacets()}>
+              Coba Lagi
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Categories from facets */}
+      {facets
+        .filter((f) => f.type === 'category' || f.name === 'categories')
+        .map((facet) => (
+          <FilterSection key={facet.name} title={facet.label}>
+            {renderFacetValues(facet, filters, (value, label) => {
+              const current = filters.categories || [];
+              onFiltersChange({
+                categories: toggleFacetValue(current, value, label),
+              });
+            })}
+          </FilterSection>
+        ))}
 
       {/* Brands from facets */}
-      {facets &&
-        facets.length > 0 &&
-        facets
-          .filter((f) => f.type === 'brand' || f.name === 'brands')
-          .map((facet) => (
-            <FilterSection key={facet.name} title={facet.label}>
-              {facetsLoading ? (
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-6 animate-pulse rounded bg-muted" />
-                  ))}
-                </div>
-              ) : (
-                renderFacetValues(facet, filters, (value) => {
-                  const current = filters.brands || [];
-                  const isSelected = current.includes(value);
-                  onFiltersChange({
-                    brands: isSelected ? current.filter((b) => b !== value) : [...current, value],
-                  });
-                })
-              )}
-            </FilterSection>
-          ))}
+      {facets
+        .filter((f) => f.type === 'brand' || f.name === 'brands')
+        .map((facet) => (
+          <FilterSection key={facet.name} title={facet.label}>
+            {renderFacetValues(facet, filters, (value, label) => {
+              const current = filters.brands || [];
+              onFiltersChange({
+                brands: toggleFacetValue(current, value, label),
+              });
+            })}
+          </FilterSection>
+        ))}
 
       {/* Price Range */}
       {filters.priceRange && (
@@ -324,7 +352,7 @@ export function AdvancedFilterSidebar({
 
       {/* Desktop sidebar */}
       <div
-        className="hidden w-64 shrink-0 rounded-xl border bg-card p-4 lg:block"
+        className={cn('hidden w-64 shrink-0 rounded-xl border bg-card p-4 lg:block', className)}
         style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
       >
         <div className="mb-4 flex items-center justify-between">

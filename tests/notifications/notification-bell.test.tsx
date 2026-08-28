@@ -4,7 +4,7 @@ import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NotificationBell } from '@/components/notification-bell';
-import { mockNotifications } from '@/mocks/handlers.notifications';
+import { mockNotifications, resetMockNotifications } from '@/mocks/handlers.notifications';
 
 // next/navigation router is not available in jsdom — stub it.
 vi.mock('next/navigation', () => ({
@@ -26,13 +26,12 @@ function renderWithClient(ui: React.ReactElement) {
   return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 }
 
-const pristine = mockNotifications.map((n) => ({ ...n }));
 beforeEach(() => {
   authState = { isAuthenticated: true, user: { id: 'u1', name: 'Test' } };
-  mockNotifications.splice(0, mockNotifications.length, ...pristine.map((n) => ({ ...n })));
+  resetMockNotifications();
 });
 afterEach(() => {
-  mockNotifications.splice(0, mockNotifications.length, ...pristine.map((n) => ({ ...n })));
+  resetMockNotifications();
 });
 
 describe('NotificationBell', () => {

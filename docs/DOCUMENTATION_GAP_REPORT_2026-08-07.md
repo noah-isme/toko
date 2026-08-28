@@ -38,7 +38,7 @@ Backend API memiliki 70+ endpoint terdokumentasi dengan kontrak modular yang rap
 1. **Product Recommendations (#31)** — ✅ **DONE**. Sekarang mencakup related products, frequently-bought-together, customers-also-viewed, dan personalized recommendations.
 2. **Image Optimization (#39)** — ✅ **DONE**. Audit usang. Semua 17 file gambar pakai `next/image`. Satu-satunya raw `<img>` di `image-upload.tsx` adalah preview upload (correct use case). WebP/AVIF sudah dikonfigurasi di `next.config.mjs` line 71.
 3. **Code Splitting (#40)** — ✅ **DONE**. Audit usang. 41 `lazy()` imports di `lazy-components.tsx` + 2 `next/dynamic` imports. Mencakup admin pages, landing sections, maps, product components.
-4. **Caching Strategy (#41)** — ✅ **DONE**. Audit usang. PWA sudah lengkap: `sw.js`, `workbox-ee5ddb69.js`, `manifest.json` di `public/`; `next-pwa` dikonfigurasi di `next.config.mjs` dengan runtime caching untuk fonts, images, dan API.
+4. **Caching Strategy (#41)** — ✅ **DONE**. Audit usang. PWA sudah lengkap: `sw.js`, `workbox-ee5ddb69.js`, `manifest.json` di `public/`; `@ducanh2912/next-pwa` dikonfigurasi di `next.config.mjs` dengan runtime caching untuk fonts, images, dan API.
 
 ---
 

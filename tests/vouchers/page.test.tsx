@@ -64,54 +64,46 @@ describe('VouchersPage', () => {
     );
   });
 
-  it(
-    'renders voucher cards with discount labels',
-    async () => {
-      render(<VouchersPage />, { wrapper: Wrapper });
+  it('renders voucher cards with discount labels', { timeout: 15000 }, async () => {
+    render(<VouchersPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          // Check for percent vouchers
-          const welcome10 = screen.getAllByText(/WELCOME10/i);
-          expect(welcome10.length).toBeGreaterThan(0);
+    await waitFor(
+      () => {
+        // Check for percent vouchers
+        const welcome10 = screen.getAllByText(/WELCOME10/i);
+        expect(welcome10.length).toBeGreaterThan(0);
 
-          const percentOff = screen.getAllByText(/10% OFF/i);
-          expect(percentOff.length).toBeGreaterThan(0);
+        const percentOff = screen.getAllByText(/10% OFF/i);
+        expect(percentOff.length).toBeGreaterThan(0);
 
-          // Check for fixed amount vouchers
-          const save50k = screen.getAllByText(/SAVE50K/i);
-          expect(save50k.length).toBeGreaterThan(0);
+        // Check for fixed amount vouchers
+        const save50k = screen.getAllByText(/SAVE50K/i);
+        expect(save50k.length).toBeGreaterThan(0);
 
-          const rp50000 = screen.getAllByText(/Rp 50.000/i);
-          expect(rp50000.length).toBeGreaterThan(0);
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 15000 },
-  );
+        const rp50000 = screen.getAllByText(/Rp 50.000/i);
+        expect(rp50000.length).toBeGreaterThan(0);
+      },
+      { timeout: 10000 },
+    );
+  });
 
-  it(
-    'shows voucher descriptions with conditions',
-    async () => {
-      render(<VouchersPage />, { wrapper: Wrapper });
+  it('shows voucher descriptions with conditions', { timeout: 15000 }, async () => {
+    render(<VouchersPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          const minBelanja = screen.getAllByText(/Min. belanja/i);
-          expect(minBelanja.length).toBeGreaterThan(0);
+    await waitFor(
+      () => {
+        const minBelanja = screen.getAllByText(/Min. belanja/i);
+        expect(minBelanja.length).toBeGreaterThan(0);
 
-          const kaliTersisa = screen.getAllByText(/kali tersisa/i);
-          expect(kaliTersisa.length).toBeGreaterThan(0);
+        const kaliTersisa = screen.getAllByText(/kali tersisa/i);
+        expect(kaliTersisa.length).toBeGreaterThan(0);
 
-          const maksPerPelanggan = screen.getAllByText(/Maks.*per pelanggan/i);
-          expect(maksPerPelanggan.length).toBeGreaterThan(0);
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 15000 },
-  );
+        const maksPerPelanggan = screen.getAllByText(/Maks.*per pelanggan/i);
+        expect(maksPerPelanggan.length).toBeGreaterThan(0);
+      },
+      { timeout: 10000 },
+    );
+  });
 
   it('shows active/inactive badge', async () => {
     render(<VouchersPage />, { wrapper: Wrapper });
@@ -148,22 +140,18 @@ describe('VouchersPage', () => {
     );
   });
 
-  it(
-    'shows combinable badge for combinable vouchers',
-    async () => {
-      render(<VouchersPage />, { wrapper: Wrapper });
+  it('shows combinable badge for combinable vouchers', { timeout: 15000 }, async () => {
+    render(<VouchersPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          // The badge is a span with specific class, the text in info banner is different
-          const badges = screen.getAllByText('Dapat digabung');
-          expect(badges.length).toBeGreaterThanOrEqual(1);
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 15000 },
-  );
+    await waitFor(
+      () => {
+        // The badge is a span with specific class, the text in info banner is different
+        const badges = screen.getAllByText('Dapat digabung');
+        expect(badges.length).toBeGreaterThanOrEqual(1);
+      },
+      { timeout: 10000 },
+    );
+  });
 
   it('shows expired badge for expired vouchers', async () => {
     // This would need specific test data with expired dates

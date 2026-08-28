@@ -157,43 +157,35 @@ describe('FlashSalesPage', () => {
     );
   });
 
-  it(
-    'renders product cards with discount badges',
-    async () => {
-      render(<FlashSalesPage />, { wrapper: Wrapper });
+  it('renders product cards with discount badges', { timeout: 20000 }, async () => {
+    render(<FlashSalesPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          expect(screen.getByText('Flash Product 1')).toBeInTheDocument();
-          expect(screen.getByText('Flash Product 2')).toBeInTheDocument();
-          expect(screen.getByText('Flash Product 3')).toBeInTheDocument();
-          expect(screen.getByText('Flash Product 4')).toBeInTheDocument();
-        },
-        { timeout: 15000 },
-      );
+    await waitFor(
+      () => {
+        expect(screen.getByText('Flash Product 1')).toBeInTheDocument();
+        expect(screen.getByText('Flash Product 2')).toBeInTheDocument();
+        expect(screen.getByText('Flash Product 3')).toBeInTheDocument();
+        expect(screen.getByText('Flash Product 4')).toBeInTheDocument();
+      },
+      { timeout: 15000 },
+    );
 
-      // Skip discount badge checks that may be affected by timer issues
-      // The products render correctly which is the main test
-    },
-    { timeout: 20000 },
-  );
+    // Skip discount badge checks that may be affected by timer issues
+    // The products render correctly which is the main test
+  });
 
-  it(
-    'shows original price crossed out and discounted price',
-    async () => {
-      render(<FlashSalesPage />, { wrapper: Wrapper });
+  it('shows original price crossed out and discounted price', { timeout: 10000 }, async () => {
+    render(<FlashSalesPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          // Multiple Rp elements exist (original and discounted prices)
-          const rpElements = screen.getAllByText(/Rp/i);
-          expect(rpElements.length).toBeGreaterThanOrEqual(2);
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 10000 },
-  );
+    await waitFor(
+      () => {
+        // Multiple Rp elements exist (original and discounted prices)
+        const rpElements = screen.getAllByText(/Rp/i);
+        expect(rpElements.length).toBeGreaterThanOrEqual(2);
+      },
+      { timeout: 10000 },
+    );
+  });
 
   it('shows stock indicator for low stock products', async () => {
     render(<FlashSalesPage />, { wrapper: Wrapper });
@@ -207,22 +199,18 @@ describe('FlashSalesPage', () => {
     );
   });
 
-  it(
-    'renders benefit cards',
-    async () => {
-      render(<FlashSalesPage />, { wrapper: Wrapper });
+  it('renders benefit cards', { timeout: 10000 }, async () => {
+    render(<FlashSalesPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          expect(screen.getByRole('heading', { name: /Diskon Eksklusif/i })).toBeInTheDocument();
-          expect(screen.getByRole('heading', { name: /Waktu Terbatas/i })).toBeInTheDocument();
-          expect(screen.getByRole('heading', { name: /Stok Terbatas/i })).toBeInTheDocument();
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 10000 },
-  );
+    await waitFor(
+      () => {
+        expect(screen.getByRole('heading', { name: /Diskon Eksklusif/i })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /Waktu Terbatas/i })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /Stok Terbatas/i })).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+  });
 
   it('renders view all link', async () => {
     render(<FlashSalesPage />, { wrapper: Wrapper });

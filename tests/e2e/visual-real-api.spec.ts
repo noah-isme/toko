@@ -12,6 +12,10 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     await page.screenshot({
       path: `${SCREENSHOT_DIR}/${name}.png`,
       fullPage: true,
+      // Playwright's default caret hiding temporarily adds inline styles to
+      // inputs. During early App Router hydration that can look like a
+      // server/client markup mismatch, so preserve the page's native caret behavior.
+      caret: 'initial',
     });
   }
 
@@ -30,6 +34,37 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
     await expect(firstCard).toBeVisible({ timeout: 15000 });
     await firstCard.getByRole('link').first().click();
     await waitForPageLoad(page);
+  }
+
+  // Client-side navigation does not reliably emit a new DOMContentLoaded event.
+  // For the detail-page test, wait for both the App Router URL and the exact
+  // browser-side product request so a failed API response is not mistaken for
+  // a hydration race.
+  async function openFirstProductAndWaitForApi(page: Page) {
+    const firstCard = page.locator('[data-testid="product-card"]').first();
+    await expect(firstCard).toBeVisible({ timeout: 15000 });
+
+    const productLink = firstCard.getByRole('link').first();
+    const productHref = await productLink.getAttribute('href');
+    expect(productHref).toBeTruthy();
+
+    const productPath = new URL(productHref!, page.url()).pathname.replace(/\/$/, '');
+    const [productResponse] = await Promise.all([
+      page.waitForResponse(
+        (response) => {
+          const responsePath = new URL(response.url()).pathname.replace(/\/$/, '');
+          return response.request().method() === 'GET' && responsePath.endsWith(productPath);
+        },
+        { timeout: 30000 },
+      ),
+      page.waitForURL((url) => url.pathname === productPath, { timeout: 30000 }),
+      productLink.click(),
+    ]);
+
+    expect(
+      productResponse.ok(),
+      `Product detail request for ${productPath} should return a successful response`,
+    ).toBeTruthy();
   }
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1';
@@ -147,15 +182,22 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await page.goto('/products');
       await waitForPageLoad(page);
 
-      // Click on first product
-      await openFirstProduct(page);
-      await waitForPageLoad(page);
-      await takeScreenshot(page, '03-product-detail');
+      // Wait for the client-side route and its real API response before checking
+      // the hydrated detail content.
+      await openFirstProductAndWaitForApi(page);
 
       // Verify product details are visible
-      await expect(page.locator('[data-testid="product-title"]')).toBeVisible();
-      await expect(page.locator('[data-testid="product-price"]')).toBeVisible();
-      await expect(page.locator('[data-testid="add-to-cart"]')).toBeVisible();
+      const productTitle = page.locator('[data-testid="product-title"]');
+      await expect(productTitle).toHaveText(/\S+/, { timeout: 30000 });
+      await expect(productTitle).toBeVisible({ timeout: 30000 });
+      await takeScreenshot(page, '03-product-detail');
+
+      await expect(page.locator('[data-testid="product-price"]')).toBeVisible({
+        timeout: 30000,
+      });
+      await expect(page.locator('[data-testid="add-to-cart"]')).toBeVisible({
+        timeout: 30000,
+      });
     });
   });
 

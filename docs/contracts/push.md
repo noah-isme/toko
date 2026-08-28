@@ -119,10 +119,10 @@ Debug-only endpoint. Returns `{ success: true, message: string }`.
 
 ## Service Worker
 
-The frontend registers the generated `/pwa-sw.js` in production. `next-pwa`
+The frontend registers the generated `/pwa-sw.js` in production. `@ducanh2912/next-pwa`
 imports `worker/index.js`, which listens for `push` events and displays
 notifications via `self.registration.showNotification()`. Development keeps
-the legacy `public/sw.js` fallback because next-pwa is disabled there. The
+the legacy `public/sw.js` fallback because `@ducanh2912/next-pwa` is disabled there. The
 worker is registered during app initialization before a user subscribes.
 
 ## Error Handling

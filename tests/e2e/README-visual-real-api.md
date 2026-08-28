@@ -12,19 +12,34 @@ This directory contains visual end-to-end tests that capture screenshots of the 
 
 ### Prerequisites
 
-1. **Start the toko-api:**
+The recommended path is to let the runner start both services. It reads the
+API port from `toko-api/.env`, uses deterministic local shipping rates, and
+passes the same API URL to the frontend and Playwright:
+
+```bash
+./run-visual-real-api-tests.sh
+```
+
+For manual startup:
+
+1. **Start the toko-api** (in a separate terminal):
 
    ```bash
    cd ../toko-api
    docker-compose up -d
-   make migrate-up
-   air  # or make dev
+   set -a; source .env; set +a; make migrate-up
+   make dev-e2e
    ```
 
-2. **Start the frontend with real API:**
+   `make dev-e2e` uses the deterministic `rajaongkir-mock` provider so the
+   checkout flow does not require external shipping credentials. The API port
+   comes from `toko-api/.env` and defaults to `8080`.
+
+2. **Start the frontend with real API** (in another terminal, using the API's
+   configured port):
+
    ```bash
-   cd ../toko
-   NEXT_PUBLIC_API_MOCKING=false NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1 pnpm dev
+   NEXT_PUBLIC_API_MOCKING=false NEXT_PUBLIC_API_URL=http://localhost:58081/api/v1 pnpm dev
    ```
 
 ### Run Visual Tests
@@ -118,6 +133,9 @@ Each test captures a full-page screenshot with a descriptive name (e.g., `01-hom
 | `PLAYWRIGHT_BASE_URL`     | `http://localhost:3000`        | Frontend URL           |
 | `NEXT_PUBLIC_API_URL`     | `http://localhost:8080/api/v1` | Backend API URL        |
 | `PLAYWRIGHT_REAL_API_URL` | `http://localhost:8080/api/v1` | Real API URL for tests |
+
+The manual values above use `58081` to match the repository's current local
+API configuration; replace it with the `PORT` value in `toko-api/.env`.
 
 ### Playwright Projects
 

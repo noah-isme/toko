@@ -14,10 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20.19.x
+      - name: Use Node.js 22.13.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.x'
+          node-version: '22.13.x'
           cache: 'pnpm'
 
       - name: Setup pnpm
@@ -60,10 +60,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20.19.x
+      - name: Use Node.js 22.13.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.x'
+          node-version: '22.13.x'
           cache: 'pnpm'
 
       - name: Setup pnpm

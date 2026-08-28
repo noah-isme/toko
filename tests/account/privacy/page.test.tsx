@@ -88,65 +88,53 @@ describe('PrivacyPage', () => {
     expect(screen.getByText(/Notifikasi login mencurigakan/i)).toBeInTheDocument();
   });
 
-  it(
-    'toggles marketing emails switch',
-    async () => {
-      render(<PrivacyPage />, { wrapper: Wrapper });
+  it('toggles marketing emails switch', { timeout: 10000 }, async () => {
+    render(<PrivacyPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          const marketingSwitch = screen.getByRole('switch', { name: /email pemasaran/i });
-          expect(marketingSwitch).toBeChecked();
+    await waitFor(
+      () => {
+        const marketingSwitch = screen.getByRole('switch', { name: /email pemasaran/i });
+        expect(marketingSwitch).toBeChecked();
 
-          fireEvent.click(marketingSwitch);
-          expect(marketingSwitch).not.toBeChecked();
+        fireEvent.click(marketingSwitch);
+        expect(marketingSwitch).not.toBeChecked();
 
-          fireEvent.click(marketingSwitch);
-          expect(marketingSwitch).toBeChecked();
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 10000 },
-  );
+        fireEvent.click(marketingSwitch);
+        expect(marketingSwitch).toBeChecked();
+      },
+      { timeout: 10000 },
+    );
+  });
 
-  it(
-    'toggles order updates switch',
-    async () => {
-      render(<PrivacyPage />, { wrapper: Wrapper });
+  it('toggles order updates switch', { timeout: 10000 }, async () => {
+    render(<PrivacyPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          const orderSwitch = screen.getByRole('switch', { name: /update pesanan/i });
-          expect(orderSwitch).toBeChecked();
+    await waitFor(
+      () => {
+        const orderSwitch = screen.getByRole('switch', { name: /update pesanan/i });
+        expect(orderSwitch).toBeChecked();
 
-          fireEvent.click(orderSwitch);
-          expect(orderSwitch).not.toBeChecked();
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 10000 },
-  );
+        fireEvent.click(orderSwitch);
+        expect(orderSwitch).not.toBeChecked();
+      },
+      { timeout: 10000 },
+    );
+  });
 
-  it(
-    'toggles security alerts switch',
-    async () => {
-      render(<PrivacyPage />, { wrapper: Wrapper });
+  it('toggles security alerts switch', { timeout: 10000 }, async () => {
+    render(<PrivacyPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          const securitySwitch = screen.getByRole('switch', { name: /peringatan keamanan/i });
-          expect(securitySwitch).toBeChecked();
+    await waitFor(
+      () => {
+        const securitySwitch = screen.getByRole('switch', { name: /peringatan keamanan/i });
+        expect(securitySwitch).toBeChecked();
 
-          fireEvent.click(securitySwitch);
-          expect(securitySwitch).not.toBeChecked();
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 10000 },
-  );
+        fireEvent.click(securitySwitch);
+        expect(securitySwitch).not.toBeChecked();
+      },
+      { timeout: 10000 },
+    );
+  });
 
   it('renders profile visibility section with radio buttons', async () => {
     render(<PrivacyPage />, { wrapper: Wrapper });
@@ -163,29 +151,25 @@ describe('PrivacyPage', () => {
     );
   });
 
-  it(
-    'selects profile visibility option',
-    async () => {
-      render(<PrivacyPage />, { wrapper: Wrapper });
+  it('selects profile visibility option', { timeout: 10000 }, async () => {
+    render(<PrivacyPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          const privateRadio = screen.getByRole('radio', { name: /pribadi/i });
-          expect(privateRadio).toBeChecked();
+    await waitFor(
+      () => {
+        const privateRadio = screen.getByRole('radio', { name: /pribadi/i });
+        expect(privateRadio).toBeChecked();
 
-          const publicRadio = screen.getByRole('radio', { name: /publik/i });
-          fireEvent.click(publicRadio);
-          expect(publicRadio).toBeChecked();
+        const publicRadio = screen.getByRole('radio', { name: /publik/i });
+        fireEvent.click(publicRadio);
+        expect(publicRadio).toBeChecked();
 
-          const friendsRadio = screen.getByRole('radio', { name: /hanya teman/i });
-          fireEvent.click(friendsRadio);
-          expect(friendsRadio).toBeChecked();
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 10000 },
-  );
+        const friendsRadio = screen.getByRole('radio', { name: /hanya teman/i });
+        fireEvent.click(friendsRadio);
+        expect(friendsRadio).toBeChecked();
+      },
+      { timeout: 10000 },
+    );
+  });
 
   it('renders data processing section', async () => {
     render(<PrivacyPage />, { wrapper: Wrapper });
@@ -202,24 +186,20 @@ describe('PrivacyPage', () => {
     );
   });
 
-  it(
-    'toggles analytics tracking switch',
-    async () => {
-      render(<PrivacyPage />, { wrapper: Wrapper });
+  it('toggles analytics tracking switch', { timeout: 10000 }, async () => {
+    render(<PrivacyPage />, { wrapper: Wrapper });
 
-      await waitFor(
-        () => {
-          const analyticsSwitch = screen.getByRole('switch', { name: /analitik/i });
-          expect(analyticsSwitch).toBeChecked();
+    await waitFor(
+      () => {
+        const analyticsSwitch = screen.getByRole('switch', { name: /analitik/i });
+        expect(analyticsSwitch).toBeChecked();
 
-          fireEvent.click(analyticsSwitch);
-          expect(analyticsSwitch).not.toBeChecked();
-        },
-        { timeout: 10000 },
-      );
-    },
-    { timeout: 10000 },
-  );
+        fireEvent.click(analyticsSwitch);
+        expect(analyticsSwitch).not.toBeChecked();
+      },
+      { timeout: 10000 },
+    );
+  });
 
   it('renders data rights section', async () => {
     render(<PrivacyPage />, { wrapper: Wrapper });

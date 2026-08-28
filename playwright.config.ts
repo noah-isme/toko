@@ -28,6 +28,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
+    // The development push worker handles API fetches before Playwright can
+    // apply per-test route mocks. Block it so mock E2E tests exercise the
+    // responses declared by each spec instead of a service-worker cache.
+    serviceWorkers: 'block',
     navigationTimeout: 60_000,
     actionTimeout: 20_000,
   },

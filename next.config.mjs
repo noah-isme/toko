@@ -1,5 +1,5 @@
+import withPWA from '@ducanh2912/next-pwa';
 import bundleAnalyzer from '@next/bundle-analyzer';
-import withPWA from 'next-pwa';
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -7,7 +7,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const withPWAConfig = withPWA({
   dest: 'public',
-  // Keep the hand-written push-notification worker at /sw.js. next-pwa owns
+  // Keep the hand-written push-notification worker at /sw.js. @ducanh2912/next-pwa owns
   // its generated worker under a separate name so production builds cannot
   // overwrite push handling or its registration contract.
   sw: 'pwa-sw.js',

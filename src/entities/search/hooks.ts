@@ -33,7 +33,9 @@ type SearchKeys = {
 export const searchKeys: SearchKeys = {
   all: SEARCH_KEYS_BASE,
   results: (filters: SearchFilters) => [...SEARCH_KEYS_BASE, 'results', filters] as const,
-  facets: (filters: SearchFilters) => [...SEARCH_KEYS_BASE, 'facets', filters] as const,
+  // Catalog taxonomy does not change with the active search filters. Keep a
+  // stable key so selecting a category or brand does not refetch both lists.
+  facets: (_filters: SearchFilters) => [...SEARCH_KEYS_BASE, 'facets'] as const,
   suggestions: (query: string) => [...SEARCH_KEYS_BASE, 'suggestions', query] as const,
   trending: [...SEARCH_KEYS_BASE, 'trending'] as const,
   recent: [...SEARCH_KEYS_BASE, 'recent'] as const,
@@ -59,9 +61,8 @@ export function useSearchFacetsQuery(filters: SearchFilters, options?: { enabled
   return useQuery<SearchFacet[]>({
     queryKey: searchKeys.facets(filters),
     queryFn: () => searchApi.getFacets(filters),
-    enabled:
-      options?.enabled !== false &&
-      (!!filters.query || !!filters.categories?.length || !!filters.brands?.length),
+    // Catalog taxonomy is available even before a query or filter is active.
+    enabled: options?.enabled !== false,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

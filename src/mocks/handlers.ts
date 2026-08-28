@@ -26,8 +26,8 @@ function createProduct(): Product {
     description: faker.commerce.productDescription(),
     price: Number(faker.commerce.price({ min: 100000, max: 50000000, dec: 0 })),
     currency: 'IDR',
-    imageUrl: faker.image.urlLoremFlickr({ category: 'product' }),
-    images: Array.from({ length: 3 }, () => faker.image.urlLoremFlickr({ category: 'product' })),
+    imageUrl: faker.image.url(),
+    images: Array.from({ length: 3 }, () => faker.image.url()),
     rating: Number(faker.number.float({ min: 3.5, max: 5, fractionDigits: 1 })),
     reviewCount: faker.number.int({ min: 10, max: 1200 }),
     stock: stock,
@@ -63,11 +63,7 @@ const products: Product[] = SEED_PRODUCTS.map((p) => {
     brandId: brand?.id || p.brand,
     brandName: brand?.name || p.brand,
     imageUrl: p.thumbnail, // Primary image
-    images: [
-      p.thumbnail,
-      faker.image.urlLoremFlickr({ category: 'product' }),
-      faker.image.urlLoremFlickr({ category: 'product' }),
-    ],
+    images: [p.thumbnail, faker.image.url(), faker.image.url()],
     stock: stock,
     inStock: stock > 0,
     rating: Number(faker.number.float({ min: 3.5, max: 5, fractionDigits: 1 })),

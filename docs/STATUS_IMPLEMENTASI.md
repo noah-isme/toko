@@ -71,11 +71,11 @@ Sistem telemetri aktif untuk memantau UX gap dan stubs dari sisi produksi:
 
 ## 🌐 PWA / Offline Capability
 
-### 1. Service Worker (Workbox via next-pwa)
+### 1. Service Worker (Workbox via @ducanh2912/next-pwa)
 
 - **Status**: ✅ **SELESAI** (2026-08-02)
 - **Lokasi**: [next.config.mjs](file:///home/noah/project/toko-app/toko/next.config.mjs), generated `public/pwa-sw.js`, and `worker/index.js`
-- **Detail**: Menggunakan `next-pwa` wrapper dengan konfigurasi Workbox:
+- **Detail**: Menggunakan `@ducanh2912/next-pwa` wrapper dengan konfigurasi Workbox:
   - `register: true` + `skipWaiting: true` — SW auto-registers dan update instan di production
   - `disable: process.env.NODE_ENV === 'development'` — tidak mengganggu dev server
   - Runtime caching strategies:

@@ -9,7 +9,7 @@ import {
   useNotifications,
   useUnreadNotificationCount,
 } from '@/lib/api';
-import { mockNotifications } from '@/mocks/handlers.notifications';
+import { resetMockNotifications } from '@/mocks/handlers.notifications';
 
 type WrapperProps = { children: React.ReactNode };
 
@@ -24,12 +24,11 @@ function createWrapper() {
 
 // Reset the shared in-memory mock store between tests so mark-read mutations
 // in one test don't leak into another.
-const pristine = mockNotifications.map((n) => ({ ...n }));
 beforeEach(() => {
-  mockNotifications.splice(0, mockNotifications.length, ...pristine.map((n) => ({ ...n })));
+  resetMockNotifications();
 });
 afterEach(() => {
-  mockNotifications.splice(0, mockNotifications.length, ...pristine.map((n) => ({ ...n })));
+  resetMockNotifications();
 });
 
 describe('notification hooks', () => {

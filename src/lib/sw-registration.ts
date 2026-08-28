@@ -1,5 +1,5 @@
 // Service Worker Registration Script
-// This script registers the next-pwa worker, which imports the push handlers
+// This script registers the @ducanh2912/next-pwa worker, which imports the push handlers
 // from worker/index.js during production builds.
 
 export interface ServiceWorkerRegistrationResult {

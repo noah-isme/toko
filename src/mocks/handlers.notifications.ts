@@ -9,7 +9,7 @@ import type { Notification } from '@/lib/api/types';
  * read/unread items so the bell badge and list have something to show in
  * mock mode and tests.
  */
-export const mockNotifications: Notification[] = [
+const initialMockNotifications: Notification[] = [
   {
     id: '11111111-1111-1111-1111-111111111111',
     type: 'shipment_delivered',
@@ -41,6 +41,18 @@ export const mockNotifications: Notification[] = [
     createdAt: '2026-07-20T11:45:00Z',
   },
 ];
+
+export const mockNotifications: Notification[] = initialMockNotifications.map((notification) => ({
+  ...notification,
+}));
+
+export function resetMockNotifications() {
+  mockNotifications.splice(
+    0,
+    mockNotifications.length,
+    ...initialMockNotifications.map((notification) => ({ ...notification })),
+  );
+}
 
 export const notificationsHandlers = [
   // GET /notifications?page=&limit= — paginated list, most recent first

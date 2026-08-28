@@ -28,6 +28,8 @@ const STATUS_OPTIONS = [
   { value: 'failed', label: 'Gagal' },
 ] as const;
 
+const EMPTY_ORDERS: OrderListItem[] = [];
+
 export default function OrderHistoryPage() {
   return (
     <React.Suspense fallback={<BaseSkeleton className="h-64 w-full" />}>
@@ -61,7 +63,7 @@ function OrderHistoryContent() {
 
   const { data, isLoading, error, refetch } = useOrdersQuery(queryParams);
 
-  const orders = data?.data ?? [];
+  const orders = data?.data ?? EMPTY_ORDERS;
 
   React.useEffect(() => {
     if (page === 1) {

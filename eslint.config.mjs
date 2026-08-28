@@ -1,6 +1,8 @@
+import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import prettierConfig from 'eslint-config-prettier';
 import tailwindcss from 'eslint-plugin-tailwindcss';
+import typescript from 'typescript-eslint';
 
 const eslintConfig = [
   {
@@ -15,13 +17,26 @@ const eslintConfig = [
       'src/app/(admin)/settings/**',
     ],
   },
-  ...nextCoreWebVitals.map((config) => {
+  ...fixupConfigRules(nextCoreWebVitals).map((config) => {
     // Add ignores to all next configs
     return {
       ...config,
       ignores: [...(config.ignores || []), 'src/app/(admin)/settings/**'],
     };
   }),
+  {
+    name: 'toko/parser',
+    files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
+    ignores: ['src/app/(admin)/settings/**'],
+    languageOptions: {
+      parser: typescript.parser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+        project: false,
+        sourceType: 'module',
+      },
+    },
+  },
   {
     name: 'toko/typescript',
     files: ['**/*.ts', '**/*.tsx'],
@@ -37,7 +52,7 @@ const eslintConfig = [
     files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
     ignores: ['src/app/(admin)/settings/**'],
     plugins: {
-      tailwindcss,
+      tailwindcss: fixupPluginRules(tailwindcss),
     },
     rules: {
       'import/order': [

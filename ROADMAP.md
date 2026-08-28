@@ -47,7 +47,7 @@
 
 ### 🔲 M5 — Performance & Reliability
 
-- [ ] Migrate from Webpack to Turbopack (blocked by next-pwa compatibility)
+- [ ] Migrate from Webpack to Turbopack (blocked by `@ducanh2912/next-pwa` compatibility)
 - [ ] Server Components adoption for data-heavy pages (catalog, product detail)
 - [ ] Streaming SSR for above-the-fold content
 - [ ] Image optimization audit (WebP/AVIF adoption, lazy loading tuning)
@@ -91,7 +91,7 @@
 ## Technical Debt
 
 - [ ] Dual hook locations: `src/entities/` vs `src/lib/api/hooks.*.ts` — consolidate
-- [ ] next-pwa Webpack lock-in — evaluate alternatives (`serwist`, `@vite-pwa/next`)
+- [ ] `@ducanh2912/next-pwa` Webpack lock-in — evaluate alternatives (`serwist`, `@vite-pwa/next`)
 - [ ] MSW handler maintenance — automate handler generation from OpenAPI spec
 - [ ] Legacy `/sw.js` push worker vs `pwa-sw.js` caching worker — unify service worker architecture
 - [ ] Some admin pages lack loading/error skeletons
