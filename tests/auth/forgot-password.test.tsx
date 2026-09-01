@@ -109,6 +109,32 @@ describe('ForgotPasswordPage', () => {
     });
   });
 
+  it('submits form successfully when backend returns 204 No Content', async () => {
+    const user = userEvent.setup();
+    let forgotPasswordCalled = false;
+
+    server.use(
+      http.post(apiPath('/auth/password/forgot'), () => {
+        forgotPasswordCalled = true;
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+
+    renderWithClient(<ForgotPasswordPage />);
+
+    const emailInput = screen.getByLabelText(/Email/i);
+    const submitButton = screen.getByRole('button', { name: /Kirim tautan reset/i });
+
+    await user.type(emailInput, 'user@example.com');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(forgotPasswordCalled).toBe(true);
+      expect(screen.getByText(/Email terkirim/i)).toBeInTheDocument();
+      expect(screen.getByText(/user@example.com/i)).toBeInTheDocument();
+    });
+  });
+
   it('handles backend api validation or network errors gracefully', async () => {
     const user = userEvent.setup();
 

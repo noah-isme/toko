@@ -105,7 +105,7 @@ export default function ProfilePage() {
     setSecurityError(null);
     try {
       const response = await authApi.logoutAllSessions();
-      setSecurityMessage(response.message ?? 'Semua sesi telah keluar.');
+      setSecurityMessage(response?.message ?? 'Semua sesi telah keluar.');
       await queryClient.invalidateQueries({ queryKey: ['auth', 'sessions'] });
     } catch (error) {
       setSecurityError(getErrorMessage(error));

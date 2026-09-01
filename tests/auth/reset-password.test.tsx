@@ -131,6 +131,39 @@ describe('ResetPasswordPage', () => {
     );
   });
 
+  it('submits form successfully when backend returns 204 No Content', async () => {
+    const user = userEvent.setup();
+    mockToken = 'valid-token-204';
+    let resetPasswordCalled = false;
+
+    server.use(
+      http.post(apiPath('/auth/password/reset'), async ({ request }) => {
+        const body = (await request.json()) as any;
+        expect(body.token).toBe('valid-token-204');
+        expect(body.newPassword).toBe('ValidPassword123!');
+        resetPasswordCalled = true;
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+
+    renderWithClient(<ResetPasswordPage />);
+
+    const newPasswordInput = screen.getByLabelText(/Password baru/i);
+    const confirmPasswordInput = screen.getByLabelText(/Konfirmasi password/i);
+    const submitButton = screen.getByRole('button', { name: /Simpan password baru/i });
+
+    await user.type(newPasswordInput, 'ValidPassword123!');
+    await user.type(confirmPasswordInput, 'ValidPassword123!');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(resetPasswordCalled).toBe(true);
+      expect(
+        screen.getByRole('heading', { name: /Password berhasil diubah/i }),
+      ).toBeInTheDocument();
+    });
+  });
+
   it('handles backend api validation errors gracefully', async () => {
     const user = userEvent.setup();
     mockToken = 'invalid-or-expired-token';

@@ -79,23 +79,23 @@ export const authApi = {
   /**
    * Request password reset email
    */
-  async forgotPassword(data: ForgotPasswordRequest): Promise<MessageResponse> {
-    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/password/forgot', {
+  async forgotPassword(data: ForgotPasswordRequest): Promise<MessageResponse | void> {
+    const response = await apiClient<ApiResponse<MessageResponse> | void>('/auth/password/forgot', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    return response.data;
+    return response?.data;
   },
 
   /**
    * Reset password with token
    */
-  async resetPassword(data: ResetPasswordRequest): Promise<MessageResponse> {
-    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/password/reset', {
+  async resetPassword(data: ResetPasswordRequest): Promise<MessageResponse | void> {
+    const response = await apiClient<ApiResponse<MessageResponse> | void>('/auth/password/reset', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    return response.data;
+    return response?.data;
   },
 
   /**
@@ -146,11 +146,11 @@ export const authApi = {
   /**
    * Logout all sessions
    */
-  async logoutAllSessions(): Promise<MessageResponse> {
-    const response = await apiClient<ApiResponse<MessageResponse>>('/auth/logout/all', {
+  async logoutAllSessions(): Promise<MessageResponse | void> {
+    const response = await apiClient<ApiResponse<MessageResponse> | void>('/auth/logout/all', {
       method: 'POST',
       requiresAuth: true,
     });
-    return response.data;
+    return response?.data;
   },
 };
