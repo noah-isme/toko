@@ -79,7 +79,7 @@ export const authApi = {
   /**
    * Request password reset email
    */
-  async forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {
+  async forgotPassword(data: ForgotPasswordRequest): Promise<MessageResponse> {
     const response = await apiClient<ApiResponse<MessageResponse>>('/auth/password/forgot', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -90,7 +90,7 @@ export const authApi = {
   /**
    * Reset password with token
    */
-  async resetPassword(data: ResetPasswordRequest): Promise<{ message: string }> {
+  async resetPassword(data: ResetPasswordRequest): Promise<MessageResponse> {
     const response = await apiClient<ApiResponse<MessageResponse>>('/auth/password/reset', {
       method: 'POST',
       body: JSON.stringify(data),

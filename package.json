@@ -27,6 +27,7 @@
     "e2e:tablet": "playwright test --project=tablet-visual --reporter=line",
     "analyze": "ANALYZE=true next build --webpack",
     "format": "prettier --write .",
+    "lint-staged": "lint-staged",
     "prepare": "husky install"
   },
   "keywords": [
@@ -38,7 +39,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.5.2",
   "engines": {
-    "node": "22.x",
+    "node": ">=22.0.0",
     "pnpm": "10.5.2"
   },
   "dependencies": {
