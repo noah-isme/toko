@@ -312,7 +312,10 @@ export function AdvancedFilterSidebar({
         <SheetTrigger asChild>
           <Button
             variant="outline"
-            className={cn('gap-2', hasActiveFilters && 'border-primary text-primary')}
+            className={cn(
+              'w-full gap-2 sm:w-auto lg:hidden',
+              hasActiveFilters && 'border-primary text-primary',
+            )}
             size="sm"
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
@@ -352,8 +355,11 @@ export function AdvancedFilterSidebar({
 
       {/* Desktop sidebar */}
       <div
-        className={cn('hidden w-64 shrink-0 rounded-xl border bg-card p-4 lg:block', className)}
-        style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
+        className={cn(
+          'sticky top-24 hidden w-64 shrink-0 self-start rounded-xl border bg-card p-4 lg:block',
+          className,
+        )}
+        style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}
       >
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-semibold">Filter</h3>

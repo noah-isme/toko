@@ -163,7 +163,7 @@ export default function ProductsPage() {
                       <TableRow key={product.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
                               {product.thumbnail ? (
                                 <Image
                                   src={product.thumbnail}
