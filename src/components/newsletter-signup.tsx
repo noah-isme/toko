@@ -5,67 +5,51 @@ import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { newsletterApi } from '@/lib/api/services';
 import { cn } from '@/lib/utils';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 
-const ENABLE_NEWSLETTER = false; // Set to true when backend supports newsletter signup
+const ENABLE_NEWSLETTER = true; // Enabled with full-stack backend & Resend
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    if (!ENABLE_NEWSLETTER) {
-      capturePosthogEvent('newsletter_stub_displayed', { status: 'fallback_active' });
-    }
-  }, []);
-
-  const handleInteractionAttempt = () => {
-    if (!ENABLE_NEWSLETTER) {
-      capturePosthogEvent('newsletter_disabled_interaction_attempt');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!ENABLE_NEWSLETTER) {
-      return;
-    }
-
-    if (!email || !email.includes('@')) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       setStatus('error');
-      setMessage('Please enter a valid email address');
+      setMessage('Silakan masukkan alamat email yang valid.');
       return;
     }
 
     setStatus('loading');
+    setMessage('');
 
     try {
-      // TODO: Replace with actual API call when backend supports newsletter
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await newsletterApi.subscribe(cleanEmail);
+      capturePosthogEvent('newsletter_subscribed', { email: cleanEmail });
 
       setStatus('success');
-      setMessage('Thank you for subscribing!');
+      setMessage(res?.message || 'Terima kasih telah berlangganan buletin kami!');
       setEmail('');
 
       setTimeout(() => {
         setStatus('idle');
         setMessage('');
-      }, 5000);
-    } catch (error) {
+      }, 6000);
+    } catch (err: unknown) {
       setStatus('error');
-      setMessage('Something went wrong. Please try again.');
+      const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan. Silakan coba lagi.';
+      setMessage(errorMsg);
     }
   };
 
   return (
-    <div
-      className="w-full max-w-md"
-      onClick={handleInteractionAttempt}
-      onFocus={handleInteractionAttempt}
-    >
+    <div className="w-full max-w-md">
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Subscribe to our newsletter</h3>
         <p className="text-sm text-muted-foreground">
