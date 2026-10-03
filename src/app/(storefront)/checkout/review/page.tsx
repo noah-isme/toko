@@ -3,37 +3,36 @@
 
 import { useQueryClient } from '@tanstack/react-query';
 import type { Route } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useId, useMemo, useState } from 'react';
 
+import { MobileTotalBar } from '../_components/MobileTotalBar';
 import { OrderSummary } from '../_components/OrderSummary';
 
-import { CheckoutStepper } from '@/components/checkout-stepper';
+import { PaymentInstructionsPanel } from './_components/PaymentInstructionsPanel';
+import { PaymentStatusWatcher } from './_components/PaymentStatusWatcher';
+import { ReviewPageSkeleton } from './_components/ReviewPageSkeleton';
+import {
+  PaymentMethodPanel,
+  PaymentStatusErrorAlert,
+  ReviewAddressSection,
+  ReviewHeader,
+} from './_components/ReviewSections';
+import { formatCountdown } from './_lib/countdown';
+import { formatDraftAddressLines, getFallbackTotals } from './_lib/summary';
+
 import { EmptyState } from '@/components/empty-state';
-import { Button } from '@/components/ui/button';
 import type { ApiError } from '@/entities/checkout/api/client';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
 import { loadOrderDraft } from '@/entities/checkout/utils/draftStorage';
-import {
-  useCreatePaymentIntentMutation,
-  usePaymentStatusQuery,
-} from '@/entities/payment/api/hooks';
+import { useCreatePaymentIntentMutation } from '@/entities/payment/api/hooks';
 import type { PaymentCreateBody, PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
 import { useCartQuery } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
 import { paymentApi } from '@/lib/api/services/payment';
 import type { PaymentInstructions } from '@/lib/api/services/payment';
-import { formatCurrency } from '@/lib/api/utils';
-import { cn } from '@/lib/utils';
 import { getPayNowRule, normalizeDisabledMessage } from '@/shared/lib/disabledRules';
-import { DelayedLoader } from '@/shared/ui/DelayedLoader';
-import { DisabledHint } from '@/shared/ui/DisabledHint';
-import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useToast } from '@/shared/ui/toast';
-
-const failureStatuses: Array<PaymentStatus['status']> = ['FAILED', 'EXPIRED', 'REFUNDED'];
 
 export default function CheckoutReviewPage() {
   return (
@@ -107,19 +106,10 @@ function CheckoutReviewContent() {
     }
   }, [orderDraft, orderId]);
 
-  const totals = useMemo(() => {
-    if (orderDraft?.totals) {
-      return orderDraft.totals;
-    }
-
-    const subtotal = cart?.subtotal?.amount ?? 0;
-    const discount = 0;
-    const shipping = 0;
-    const tax = Math.round((subtotal - discount) * 0.11);
-    const total = subtotal - discount + tax + shipping;
-
-    return { subtotal, discount, shipping, tax, total };
-  }, [cart?.subtotal?.amount, orderDraft?.totals]);
+  const totals = useMemo(
+    () => orderDraft?.totals ?? getFallbackTotals(cart?.subtotal?.amount),
+    [cart?.subtotal?.amount, orderDraft?.totals],
+  );
 
   const paymentExpiryTime = paymentIntent?.expiresAt
     ? new Date(paymentIntent.expiresAt).getTime()
@@ -128,20 +118,10 @@ function CheckoutReviewContent() {
   const paymentExpired = paymentExpiryTime !== null && paymentExpiryTime - now <= 0;
   const pendingTooLong = paymentExpiryTime !== null && paymentExpiryTime - now < 15 * 60 * 1000;
 
-  const addressLines = useMemo(() => {
-    if (!orderDraft?.address) {
-      return null;
-    }
-
-    const { receiverName, phone, addressLine1, addressLine2, city, province, postalCode, country } =
-      orderDraft.address;
-    return [
-      `${receiverName} • ${phone}`,
-      addressLine1 + (addressLine2 ? `, ${addressLine2}` : ''),
-      `${city}, ${province} ${postalCode}`,
-      country,
-    ].filter(Boolean);
-  }, [orderDraft?.address]);
+  const addressLines = useMemo(
+    () => (orderDraft?.address ? formatDraftAddressLines(orderDraft.address) : null),
+    [orderDraft?.address],
+  );
 
   const handlePayNow = useCallback(
     async (override?: PaymentCreateBody) => {
@@ -283,166 +263,48 @@ function CheckoutReviewContent() {
     );
   }
 
+  const prefetchSuccess = () => {
+    if (typeof router.prefetch === 'function') {
+      void router.prefetch(successRoute);
+    }
+  };
+
   return (
     <div className="space-y-8 pb-[calc(env(safe-area-inset-bottom)+5rem)]">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Review Pesanan</h1>
-        <CheckoutStepper current="review" className="mb-4 mt-4" />
-        <p className="text-sm text-muted-foreground">
-          Pastikan detail pesanan Anda sudah benar sebelum melanjutkan ke pembayaran.
-        </p>
-        <p className="text-xs text-muted-foreground">Order ID: {orderId}</p>
-      </div>
+      <ReviewHeader orderId={orderId} />
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-6">
-          {addressLines ? (
-            <section className="space-y-2 rounded-lg border p-6">
-              <h2 className="text-lg font-semibold">Alamat Pengiriman</h2>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                {addressLines.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
-            </section>
-          ) : null}
+          {addressLines ? <ReviewAddressSection lines={addressLines} /> : null}
 
-          <section className="space-y-4 rounded-lg border p-6">
-            <div className="space-y-1">
-              <h2 className="text-lg font-semibold">Metode Pembayaran</h2>
-              <p className="text-sm text-muted-foreground">
-                Kami menggunakan Midtrans Snap untuk memproses pembayaran secara aman.
-              </p>
-            </div>
-            <div className="space-y-3">
-              <GuardedButton
-                type="button"
-                size="lg"
-                onClick={handlePayNow}
-                disabled={payNowRule.disabled}
-                isLoading={createPaymentIntentMutation.isPending}
-                loadingLabel="Memproses pembayaran…"
-                aria-describedby={payNowHintId}
-                className="min-h-[44px] px-6"
-                onFocus={() => {
-                  if (typeof router.prefetch === 'function') {
-                    void router.prefetch(successRoute);
-                  }
-                }}
-                onMouseEnter={() => {
-                  if (typeof router.prefetch === 'function') {
-                    void router.prefetch(successRoute);
-                  }
-                }}
-              >
-                Bayar Sekarang
-              </GuardedButton>
-              <div className="flex justify-start">
-                <DelayedLoader
-                  active={createPaymentIntentMutation.isPending}
-                  label="Menghubungi penyedia pembayaran…"
-                  className="text-xs text-muted-foreground"
-                />
-              </div>
-              {payNowRule.disabled && payNowRule.message ? (
-                <DisabledHint id={payNowHintId} message={payNowRule.message} />
-              ) : null}
-              {paymentIntent?.redirectUrl || paymentIntent?.token ? (
-                <div className="flex flex-wrap gap-2">
-                  {paymentIntent?.redirectUrl ? (
-                    <Button asChild variant="secondary" size="sm">
-                      <a href={paymentIntent.redirectUrl} target="_blank" rel="noopener noreferrer">
-                        Lanjut ke Pembayaran
-                      </a>
-                    </Button>
-                  ) : null}
-                  {paymentIntent?.token ? (
-                    <Button type="button" size="sm" onClick={handleOpenPaymentGateway}>
-                      Buka Pembayaran
-                    </Button>
-                  ) : null}
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleStartWatcher}
-                    disabled={watcherActive}
-                  >
-                    Saya Sudah Membayar
-                  </Button>
-                </div>
-              ) : null}
-              {paymentIntent?.expiresAt ? (
-                <p className="text-xs text-muted-foreground">
-                  Selesaikan pembayaran sebelum{' '}
-                  {new Date(paymentIntent.expiresAt).toLocaleString('id-ID')}.
-                </p>
-              ) : null}
-              {countdownLabel ? (
-                <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-                  {paymentExpired ? (
-                    <p>Waktu pembayaran telah berakhir. Silakan buat ulang pembayaran.</p>
-                  ) : (
-                    <p>
-                      Sisa waktu pembayaran: <span className="font-semibold">{countdownLabel}</span>
-                    </p>
-                  )}
-                  <p className="mt-1 text-[11px] text-amber-800">
-                    Pastikan Anda menyelesaikan pembayaran sebelum batas waktu.
-                  </p>
-                  {pendingTooLong ? (
-                    <p className="mt-2">
-                      <a href={supportLink} className="font-medium underline">
-                        Hubungi CS
-                      </a>
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-              {paymentIntent?.token ? (
-                <p className="text-xs text-muted-foreground">
-                  Token pembayaran: <span className="font-mono">{paymentIntent.token}</span>
-                </p>
-              ) : null}
-            </div>
-            {paymentError ? (
-              <div
-                className="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
-                role="alert"
-              >
-                {paymentError}
-              </div>
-            ) : null}
-          </section>
+          <PaymentMethodPanel
+            isPending={createPaymentIntentMutation.isPending}
+            payDisabled={payNowRule.disabled}
+            payHintId={payNowHintId}
+            payHintMessage={payNowRule.message}
+            onPayNow={handlePayNow}
+            onPrefetch={prefetchSuccess}
+            paymentIntent={paymentIntent}
+            onOpenGateway={handleOpenPaymentGateway}
+            onStartWatcher={handleStartWatcher}
+            watcherActive={watcherActive}
+            countdownLabel={countdownLabel}
+            paymentExpired={paymentExpired}
+            pendingTooLong={pendingTooLong}
+            supportLink={supportLink}
+            paymentError={paymentError}
+          />
 
           {statusError ? (
-            <div
-              className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
-              role="alert"
-            >
-              <p>{statusError}</p>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setStatusError(null);
-                    setFailedStatus(null);
-                    setWatcherActive(false);
-                  }}
-                >
-                  Coba Lagi
-                </Button>
-                <Button asChild size="sm" variant="ghost">
-                  <Link
-                    href={`/checkout/failed?orderId=${encodeURIComponent(orderId)}${
-                      failedStatus ? `&status=${failedStatus}` : ''
-                    }`}
-                  >
-                    Lihat Detail
-                  </Link>
-                </Button>
-              </div>
-            </div>
+            <PaymentStatusErrorAlert
+              message={statusError}
+              orderId={orderId}
+              failedStatus={failedStatus}
+              onRetry={() => {
+                setStatusError(null);
+                setFailedStatus(null);
+                setWatcherActive(false);
+              }}
+            />
           ) : null}
 
           {paymentInstructions ? (
@@ -462,225 +324,13 @@ function CheckoutReviewContent() {
           <OrderSummary totals={totals} />
         </aside>
       </div>
-      <div className="lg:hidden">
-        <div className="sticky bottom-0 z-40 -mx-4 flex items-center justify-between gap-4 border-t border-border/70 bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-[0_-12px_32px_rgba(15,23,42,0.12)] backdrop-blur">
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Total pembayaran</p>
-            <p className="text-lg font-semibold">{formatCurrency(totals.total)}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              const target = document.getElementById('checkout-review-summary');
-              target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-            className="prm:no-anim inline-flex min-h-[44px] items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground shadow-sm transition-colors duration-150 ease-out hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Lihat rincian
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PaymentInstructionsPanel({
-  orderId,
-  instructions,
-}: {
-  orderId: string;
-  instructions: PaymentInstructions;
-}) {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploaded, setUploaded] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const bankNumber = instructions.bank?.accountNumber;
-  const copyBank = async () => {
-    if (bankNumber) await navigator.clipboard.writeText(bankNumber);
-  };
-  const upload = async () => {
-    if (!file) return;
-    setUploading(true);
-    setError(null);
-    try {
-      await paymentApi.uploadProof(orderId, file);
-      setUploaded(true);
-    } catch {
-      setError('Bukti pembayaran gagal diunggah.');
-    } finally {
-      setUploading(false);
-    }
-  };
-  return (
-    <section className="space-y-4 rounded-lg border bg-card p-6">
-      <div>
-        <h2 className="text-lg font-semibold">Instruksi pembayaran</h2>
-        <p className="text-sm text-muted-foreground">
-          {instructions.provider || 'Penyedia pembayaran'}
-          {instructions.channel ? ` • ${instructions.channel}` : ''}
-        </p>
-      </div>
-      <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
-        {instructions.steps.map((step) => (
-          <li key={step}>{step}</li>
-        ))}
-      </ol>
-      {bankNumber ? (
-        <div className="rounded-md border bg-muted/30 p-4 text-sm">
-          <p className="font-medium">Transfer bank</p>
-          <p>
-            {instructions.bank?.name || 'Bank'} • {instructions.bank?.accountName || 'Toko'}
-          </p>
-          <div className="mt-1 flex items-center gap-2">
-            <span className="font-mono font-semibold">{bankNumber}</span>
-            <Button type="button" size="sm" variant="outline" onClick={() => void copyBank()}>
-              Salin
-            </Button>
-          </div>
-        </div>
-      ) : null}
-      {instructions.qrUrl ? (
-        <div className="space-y-2">
-          <p className="text-sm font-medium">QR pembayaran</p>
-          <Image
-            src={instructions.qrUrl}
-            alt="QR pembayaran"
-            width={160}
-            height={160}
-            className="rounded border object-contain"
-          />
-        </div>
-      ) : null}
-      <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="payment-proof">
-          Bukti pembayaran (opsional)
-        </label>
-        <input
-          id="payment-proof"
-          type="file"
-          accept="image/*,.pdf"
-          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          className="block w-full text-sm"
-        />
-        <Button
-          type="button"
-          variant="outline"
-          disabled={!file || uploading || uploaded}
-          onClick={() => void upload()}
-        >
-          {uploaded ? 'Bukti terkirim' : uploading ? 'Mengunggah...' : 'Unggah bukti'}
-        </Button>
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      </div>
-    </section>
-  );
-}
-
-function ReviewPageSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <div className={cn('h-6 w-40 rounded bg-muted animate-pulse', 'prm:no-anim')} />
-        <div className={cn('h-4 w-64 rounded bg-muted animate-pulse', 'prm:no-anim')} />
-      </div>
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <div className="space-y-4">
-          <div className={cn('h-40 rounded-lg border bg-muted animate-pulse', 'prm:no-anim')} />
-          <div className={cn('h-40 rounded-lg border bg-muted animate-pulse', 'prm:no-anim')} />
-        </div>
-        <div className={cn('h-40 rounded-lg border bg-muted animate-pulse', 'prm:no-anim')} />
-      </div>
-    </div>
-  );
-}
-
-function formatCountdown(ms: number) {
-  const safeMs = Math.max(0, ms);
-  const totalSeconds = Math.floor(safeMs / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
-}
-
-interface PaymentStatusWatcherProps {
-  orderId: string;
-  active: boolean;
-  manualCheckToken: number;
-  onPaid: () => void;
-  onFailed: (status: PaymentStatus['status']) => void;
-  onError: (message: string) => void;
-}
-
-function PaymentStatusWatcher({
-  orderId,
-  active,
-  manualCheckToken,
-  onPaid,
-  onFailed,
-  onError,
-}: PaymentStatusWatcherProps) {
-  const statusQuery = usePaymentStatusQuery(orderId, { enabled: active && Boolean(orderId) });
-  const initialCheckTokenRef = useRef(manualCheckToken);
-
-  useEffect(() => {
-    if (active) {
-      initialCheckTokenRef.current = manualCheckToken;
-    }
-  }, [active, manualCheckToken]);
-
-  useEffect(() => {
-    if (!active) {
-      return;
-    }
-
-    if (statusQuery.data?.status === 'PAID') {
-      onPaid();
-      return;
-    }
-
-    if (statusQuery.data && failureStatuses.includes(statusQuery.data.status)) {
-      onFailed(statusQuery.data.status);
-    }
-  }, [active, onFailed, onPaid, statusQuery.data]);
-
-  useEffect(() => {
-    if (!active) {
-      return;
-    }
-
-    if (statusQuery.isError) {
-      onError('Tidak dapat memeriksa status pembayaran. Silakan coba lagi.');
-    }
-  }, [active, onError, statusQuery.isError]);
-
-  useEffect(() => {
-    if (!active) {
-      return;
-    }
-    if (manualCheckToken > initialCheckTokenRef.current) {
-      void statusQuery.refetch();
-    }
-  }, [manualCheckToken, active, statusQuery]);
-
-  if (!active) {
-    return null;
-  }
-
-  return (
-    <div className="space-y-2 rounded-lg border border-dashed p-4" role="status" aria-live="polite">
-      <p className="font-medium">Memeriksa status pembayaran...</p>
-      {statusQuery.isFetching ? (
-        <p className="text-sm text-muted-foreground">Menghubungi penyedia pembayaran.</p>
-      ) : null}
-      {statusQuery.data ? (
-        <p className="text-sm text-muted-foreground">
-          Status saat ini:{' '}
-          <span className="font-semibold text-foreground">{statusQuery.data.status}</span>
-        </p>
-      ) : null}
+      <MobileTotalBar
+        total={totals.total}
+        onShowDetails={() => {
+          const target = document.getElementById('checkout-review-summary');
+          target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }}
+      />
     </div>
   );
 }
