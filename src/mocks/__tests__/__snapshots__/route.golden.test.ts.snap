@@ -1,0 +1,6010 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`mock API route golden responses > addresses > address CRUD 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "addressLine1": "Jl. Sudirman No. 12",
+        "addressLine2": "Lt. 4",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "createdAt": "2026-01-01T00:00:00Z",
+        "id": "address-1",
+        "isDefault": true,
+        "phone": "08123456789",
+        "postalCode": "10110",
+        "province": "DKI Jakarta",
+        "receiverName": "John Jakarta",
+        "updatedAt": "2026-01-01T00:00:00Z",
+      },
+      {
+        "addressLine1": "Jl. Dago No. 45",
+        "addressLine2": "",
+        "city": "Bandung",
+        "country": "Indonesia",
+        "createdAt": "2026-01-01T00:00:00Z",
+        "id": "address-2",
+        "isDefault": false,
+        "phone": "08765432109",
+        "postalCode": "40115",
+        "province": "Jawa Barat",
+        "receiverName": "Jane Bandung",
+        "updatedAt": "2026-01-01T00:00:00Z",
+      },
+    ],
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > addresses > address CRUD 2`] = `
+{
+  "body": {
+    "data": [
+      {
+        "addressLine1": "Jl. Sudirman No. 12",
+        "addressLine2": "Lt. 4",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "createdAt": "2026-01-01T00:00:00Z",
+        "id": "address-1",
+        "isDefault": true,
+        "phone": "08123456789",
+        "postalCode": "10110",
+        "province": "DKI Jakarta",
+        "receiverName": "John Jakarta",
+        "updatedAt": "2026-01-01T00:00:00Z",
+      },
+      {
+        "addressLine1": "Jl. Dago No. 45",
+        "addressLine2": "",
+        "city": "Bandung",
+        "country": "Indonesia",
+        "createdAt": "2026-01-01T00:00:00Z",
+        "id": "address-2",
+        "isDefault": false,
+        "phone": "08765432109",
+        "postalCode": "40115",
+        "province": "Jawa Barat",
+        "receiverName": "Jane Bandung",
+        "updatedAt": "2026-01-01T00:00:00Z",
+      },
+    ],
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > addresses > address CRUD 3`] = `
+{
+  "body": {
+    "data": {
+      "addressLine1": "Jl. New Address",
+      "addressLine2": "",
+      "city": "Jakarta",
+      "country": "Indonesia",
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "id": "address-1773567000000",
+      "isDefault": false,
+      "phone": "08123456789",
+      "postalCode": "12345",
+      "province": "DKI Jakarta",
+      "receiverName": "New Receiver",
+      "updatedAt": "2026-03-15T09:30:00.000Z",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > addresses > address CRUD 4`] = `
+{
+  "body": {
+    "data": {
+      "addressLine1": "Jl. Merdeka 1",
+      "addressLine2": "",
+      "city": "Surabaya",
+      "country": "Indonesia",
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "id": "address-1773567000000",
+      "isDefault": true,
+      "phone": "0811111111",
+      "postalCode": "60111",
+      "province": "Jawa Timur",
+      "receiverName": "Rina",
+      "updatedAt": "2026-03-15T09:30:00.000Z",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > addresses > address CRUD 5`] = `
+{
+  "body": {
+    "data": {
+      "addressLine1": "Jl. Updated",
+      "addressLine2": "",
+      "city": "Bogor",
+      "country": "Indonesia",
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "id": "address-2",
+      "isDefault": false,
+      "phone": "08123456789",
+      "postalCode": "12345",
+      "province": "DKI Jakarta",
+      "receiverName": "Updated Receiver",
+      "updatedAt": "2026-03-15T09:30:00.000Z",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 1`] = `
+{
+  "body": {
+    "data": {
+      "accessToken": "mock-access-token-12345",
+      "user": {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "email": "rina@example.com",
+        "emailVerified": false,
+        "id": "user-123",
+        "name": "Rina",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 2`] = `
+{
+  "body": {
+    "data": {
+      "accessToken": "mock-access-token-12345",
+      "user": {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "email": "john.doe@example.com",
+        "emailVerified": false,
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 3`] = `
+{
+  "body": {
+    "data": {
+      "accessToken": "mock-access-token-12345",
+      "user": {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "email": "budi@example.com",
+        "emailVerified": true,
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 4`] = `
+{
+  "body": {
+    "error": {
+      "code": "INVALID_CREDENTIALS",
+      "message": "Email atau password salah",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 5`] = `
+{
+  "body": {
+    "error": {
+      "code": "INVALID_CREDENTIALS",
+      "message": "Email atau password salah",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 6`] = `
+{
+  "body": {
+    "data": {
+      "message": "Logged out successfully",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 7`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "email": "john.doe@example.com",
+      "emailVerified": true,
+      "id": "user-123",
+      "name": "John Doe",
+      "roles": [],
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 8`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "email": "john.doe@example.com",
+      "emailVerified": true,
+      "id": "user-123",
+      "name": "John Doe",
+      "roles": [],
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 9`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "email": "john.doe@example.com",
+      "emailVerified": true,
+      "id": "user-123",
+      "name": "Johnny",
+      "phone": "0812",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 10`] = `
+{
+  "body": {
+    "data": {
+      "message": "Password reset email sent",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 11`] = `
+{
+  "body": {
+    "data": {
+      "message": "Password reset successfully",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 12`] = `
+{
+  "body": {
+    "data": {
+      "message": "Email verified successfully",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 13`] = `
+{
+  "body": {
+    "data": {
+      "message": "Verification email sent",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 14`] = `
+{
+  "body": {
+    "data": [
+      {
+        "current": true,
+        "device": "Chrome",
+        "id": "session-1",
+        "ipAddress": "127.0.0.1",
+        "lastActive": "2026-03-15T09:30:00.000Z",
+        "location": "Jakarta, ID",
+      },
+    ],
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 15`] = `
+{
+  "body": {
+    "data": {
+      "message": "Semua sesi telah keluar.",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 16`] = `
+{
+  "body": {
+    "data": {
+      "accessToken": "mock-access-token",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > auth > auth routes 17`] = `
+{
+  "body": {
+    "data": {
+      "user": {
+        "email": "john.doe@example.com",
+        "id": "user-123",
+        "name": "John Doe",
+        "roles": [],
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > GET cart variants 1`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > GET cart variants 2`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > GET cart variants 3`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > GET cart variants 4`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "empty-cart",
+      "itemCount": 0,
+      "items": [],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 0,
+        "tax": 0,
+        "total": 0,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > GET cart variants 5`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "empty-cart",
+      "itemCount": 0,
+      "items": [],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 0,
+        "tax": 0,
+        "total": 0,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > GET cart variants 6`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "empty-cart",
+      "itemCount": 0,
+      "items": [],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 0,
+        "tax": 0,
+        "total": 0,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > apply and remove voucher 1`] = `
+{
+  "body": {
+    "message": "Diskon 10% berhasil diterapkan",
+    "promo": {
+      "code": "SAVE10",
+      "discountType": "percent",
+      "label": "Diskon 10% untuk pesananmu",
+      "value": 10,
+    },
+    "valid": true,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > apply and remove voucher 2`] = `
+{
+  "body": {
+    "message": "Gratis ongkir aktif",
+    "promo": {
+      "code": "SHIPFREE",
+      "discountType": "amount",
+      "label": "Gratis ongkir hingga Rp15.000",
+      "value": 15000,
+    },
+    "valid": true,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > apply and remove voucher 3`] = `
+{
+  "body": {
+    "message": "Kode promo tidak ditemukan",
+    "valid": false,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > apply and remove voucher 4`] = `
+{
+  "body": {
+    "promo": null,
+    "valid": false,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > cart add, update and remove 1`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > cart add, update and remove 2`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > cart add, update and remove 3`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 4,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 3,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 95000000,
+        "tax": 0,
+        "total": 95000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > cart add, update and remove 4`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 5,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 4,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 105000000,
+        "tax": 0,
+        "total": 105000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > cart add, update and remove 5`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > cart add, update and remove 6`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > voucher validate and apply 1`] = `
+{
+  "body": {
+    "data": {
+      "code": "SAVE10",
+      "discountType": "percent",
+      "label": "Diskon 10% untuk pesananmu",
+      "message": "Diskon 10% berhasil diterapkan",
+      "valid": true,
+      "value": 10,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > voucher validate and apply 2`] = `
+{
+  "body": {
+    "data": {
+      "code": "SHIPFREE",
+      "discountType": "amount",
+      "label": "Gratis ongkir hingga Rp15.000",
+      "message": "Gratis ongkir aktif",
+      "valid": true,
+      "value": 15000,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > voucher validate and apply 3`] = `
+{
+  "body": {
+    "message": "Kode promo tidak ditemukan",
+    "valid": false,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > cart > voucher validate and apply 4`] = `
+{
+  "body": {
+    "data": {
+      "code": "SAVE10",
+      "discountType": "percent",
+      "label": "Diskon 10% untuk pesananmu",
+      "message": "Diskon 10% berhasil diterapkan",
+      "valid": true,
+      "value": 10,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > voucher validate and apply 5`] = `
+{
+  "body": {
+    "data": {
+      "code": "SHIPFREE",
+      "discountType": "amount",
+      "label": "Gratis ongkir hingga Rp15.000",
+      "message": "Gratis ongkir aktif",
+      "valid": true,
+      "value": 15000,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart > voucher validate and apply 6`] = `
+{
+  "body": {
+    "message": "Kode promo tidak ditemukan",
+    "valid": false,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (brand by id) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 2,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (brand by name) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 1,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (category by id) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 7,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (category by name) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 2,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (combined) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 3,
+      "totalItems": 2,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (default) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (inStock) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (maxPrice) 1`] = `
+{
+  "body": {
+    "data": [],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 0,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (minPrice) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 10,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (page 1 limit 5) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 5,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (page 2 limit 5) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+    ],
+    "pagination": {
+      "page": 2,
+      "perPage": 5,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (page beyond range) 1`] = `
+{
+  "body": {
+    "data": [],
+    "pagination": {
+      "page": 9,
+      "perPage": 5,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (price range) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 3,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (q category name) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 2,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (q no match) 1`] = `
+{
+  "body": {
+    "data": [],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 0,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (q title) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 1,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (sort name:asc) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (sort name:desc) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (sort price:asc) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (sort price:desc) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (sort unknown) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+      {
+        "brandId": "brand-canon",
+        "brandName": "Canon",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Canon EOS R5",
+        "discountPercent": 20,
+        "id": "4779c325-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 54000000,
+        "price": 45000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "canon-eos-r5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Canon EOS R5",
+      },
+      {
+        "brandId": "brand-nike",
+        "brandName": "Nike",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Nike Air Force 1",
+        "discountPercent": 20,
+        "id": "19f45392-caaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 1800000,
+        "price": 1500000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "nike-air-force-1",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Nike Air Force 1",
+      },
+      {
+        "brandId": "brand-adidas",
+        "brandName": "Adidas",
+        "categoryId": "cat-fashion",
+        "categoryName": "Fashion",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Adidas Ultraboost",
+        "discountPercent": 20,
+        "id": "141bcc43-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 2400000,
+        "price": 2000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "adidas-ultraboost",
+        "stock": 20,
+        "tags": [
+          "new",
+          "fashion",
+        ],
+        "title": "Adidas Ultraboost",
+      },
+      {
+        "brandId": "brand-ikea",
+        "brandName": "Ikea",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for IKEAS LANDSKRONA Sofa",
+        "discountPercent": 20,
+        "id": "3928a75e-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 9600000,
+        "price": 8000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "ikea-landskrona",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "IKEAS LANDSKRONA Sofa",
+      },
+      {
+        "brandId": "brand-dyson",
+        "brandName": "Dyson",
+        "categoryId": "cat-home-living",
+        "categoryName": "Home & Living",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dyson V15 Detect",
+        "discountPercent": 20,
+        "id": "8b246c2a-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 14400000,
+        "price": 12000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dyson-v15",
+        "stock": 20,
+        "tags": [
+          "new",
+          "home-living",
+        ],
+        "title": "Dyson V15 Detect",
+      },
+      {
+        "brandId": "brand-lego",
+        "brandName": "Lego",
+        "categoryId": "cat-toys",
+        "categoryName": "Toys",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for LEGO Star Wars Millenium Falcon",
+        "discountPercent": 20,
+        "id": "215114f2-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 15600000,
+        "price": 13000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "lego-millenium-falcon",
+        "stock": 20,
+        "tags": [
+          "new",
+          "toys",
+        ],
+        "title": "LEGO Star Wars Millenium Falcon",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony PlayStation 5",
+        "discountPercent": 20,
+        "id": "a390cf14-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 10800000,
+        "price": 9000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-ps5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony PlayStation 5",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products/:slug found and 404 1`] = `
+{
+  "body": {
+    "data": {
+      "brandId": "brand-apple",
+      "brandName": "Apple",
+      "categoryId": "cat-electronics",
+      "categoryName": "Electronics",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "currency": "IDR",
+      "description": "Description for MacBook Pro 14 M3",
+      "discountPercent": 20,
+      "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+      "images": [
+        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+      ],
+      "inStock": true,
+      "originalPrice": 30000000,
+      "price": 25000000,
+      "rating": 4.5,
+      "reviewCount": 150,
+      "slug": "macbook-pro-14-m3",
+      "stock": 20,
+      "tags": [
+        "new",
+        "electronics",
+      ],
+      "title": "MacBook Pro 14 M3",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products/:slug found and 404 2`] = `
+{
+  "body": {
+    "message": "Product not found",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 404,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products/:slug reviews and stats 1`] = `
+{
+  "body": [],
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products/:slug reviews and stats 2`] = `
+{
+  "body": {
+    "average_rating": 0,
+    "count_1_star": 0,
+    "count_2_star": 0,
+    "count_3_star": 0,
+    "count_4_star": 0,
+    "count_5_star": 0,
+    "total_reviews": 0,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products/:slug/related 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+      {
+        "brandId": "brand-samsung",
+        "brandName": "Samsung",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Samsung Galaxy S24 Ultra",
+        "discountPercent": 20,
+        "id": "6b23916b-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 22800000,
+        "price": 19000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "samsung-galaxy-s24",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Samsung Galaxy S24 Ultra",
+      },
+      {
+        "brandId": "brand-sony",
+        "brandName": "Sony",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Sony WH-1000XM5",
+        "discountPercent": 20,
+        "id": "e691e775-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 6000000,
+        "price": 5000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "sony-wh-1000xm5",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Sony WH-1000XM5",
+      },
+      {
+        "brandId": "brand-dell",
+        "brandName": "Dell",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for Dell XPS 13",
+        "discountPercent": 20,
+        "id": "109ca6a4-0aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 21600000,
+        "price": 18000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "dell-xps-13",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "Dell XPS 13",
+      },
+    ],
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > product Q&A endpoints 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "answer": "Jawaban untuk pertanyaan 1",
+        "answered_at": "2026-03-15T09:30:00.000Z",
+        "answered_by": "Admin",
+        "created_at": "2026-03-15T09:30:00.000Z",
+        "id": "question-prod-1-0",
+        "product_id": "prod-1",
+        "question": "Pertanyaan 1 untuk produk prod-1",
+        "tenant_id": "tenant-mock",
+        "updated_at": "2026-03-15T09:30:00.000Z",
+        "user_id": "user-0",
+      },
+      {
+        "answer": "Jawaban untuk pertanyaan 2",
+        "answered_at": "2026-03-14T09:30:00.000Z",
+        "answered_by": "Admin",
+        "created_at": "2026-03-14T09:30:00.000Z",
+        "id": "question-prod-1-1",
+        "product_id": "prod-1",
+        "question": "Pertanyaan 2 untuk produk prod-1",
+        "tenant_id": "tenant-mock",
+        "updated_at": "2026-03-14T09:30:00.000Z",
+        "user_id": "user-1",
+      },
+      {
+        "answer": "Jawaban untuk pertanyaan 3",
+        "answered_at": "2026-03-13T09:30:00.000Z",
+        "answered_by": "Admin",
+        "created_at": "2026-03-13T09:30:00.000Z",
+        "id": "question-prod-1-2",
+        "product_id": "prod-1",
+        "question": "Pertanyaan 3 untuk produk prod-1",
+        "tenant_id": "tenant-mock",
+        "updated_at": "2026-03-13T09:30:00.000Z",
+        "user_id": "user-2",
+      },
+      {
+        "answer": null,
+        "answered_at": null,
+        "answered_by": null,
+        "created_at": "2026-03-12T09:30:00.000Z",
+        "id": "question-prod-1-3",
+        "product_id": "prod-1",
+        "question": "Pertanyaan 4 untuk produk prod-1",
+        "tenant_id": "tenant-mock",
+        "updated_at": "2026-03-12T09:30:00.000Z",
+        "user_id": "user-3",
+      },
+      {
+        "answer": null,
+        "answered_at": null,
+        "answered_by": null,
+        "created_at": "2026-03-11T09:30:00.000Z",
+        "id": "question-prod-1-4",
+        "product_id": "prod-1",
+        "question": "Pertanyaan 5 untuk produk prod-1",
+        "tenant_id": "tenant-mock",
+        "updated_at": "2026-03-11T09:30:00.000Z",
+        "user_id": "user-4",
+      },
+    ],
+    "meta": {
+      "limit": 10,
+      "page": 1,
+      "total": 5,
+      "total_pages": 1,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > product Q&A endpoints 2`] = `
+{
+  "body": {
+    "data": [
+      {
+        "answer": "Jawaban untuk pertanyaan 3",
+        "answered_at": "2026-03-13T09:30:00.000Z",
+        "answered_by": "Admin",
+        "created_at": "2026-03-13T09:30:00.000Z",
+        "id": "question-prod-1-2",
+        "product_id": "prod-1",
+        "question": "Pertanyaan 3 untuk produk prod-1",
+        "tenant_id": "tenant-mock",
+        "updated_at": "2026-03-13T09:30:00.000Z",
+        "user_id": "user-2",
+      },
+      {
+        "answer": null,
+        "answered_at": null,
+        "answered_by": null,
+        "created_at": "2026-03-12T09:30:00.000Z",
+        "id": "question-prod-1-3",
+        "product_id": "prod-1",
+        "question": "Pertanyaan 4 untuk produk prod-1",
+        "tenant_id": "tenant-mock",
+        "updated_at": "2026-03-12T09:30:00.000Z",
+        "user_id": "user-3",
+      },
+    ],
+    "meta": {
+      "limit": 2,
+      "page": 2,
+      "total": 5,
+      "total_pages": 3,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > product Q&A endpoints 3`] = `
+{
+  "body": {
+    "answer": null,
+    "answered_at": null,
+    "answered_by": null,
+    "created_at": "2026-03-15T09:30:00.000Z",
+    "id": "question-new-1773567000000",
+    "product_id": "prod-1",
+    "question": "Garansi?",
+    "tenant_id": "tenant-mock",
+    "updated_at": "2026-03-15T09:30:00.000Z",
+    "user_id": "current-user",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > product Q&A endpoints 4`] = `
+{
+  "body": {
+    "answer": "Jawaban contoh",
+    "answered_at": "2026-03-15T09:30:00.000Z",
+    "answered_by": "Admin",
+    "created_at": "2026-03-15T09:30:00.000Z",
+    "id": "question-1",
+    "product_id": "mock-product",
+    "question": "Pertanyaan contoh",
+    "tenant_id": "tenant-mock",
+    "updated_at": "2026-03-15T09:30:00.000Z",
+    "user_id": "user-1",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > product Q&A endpoints 5`] = `
+{
+  "body": {
+    "answer": "Ya, 1 tahun",
+    "answered_at": "2026-03-15T09:30:00.000Z",
+    "answered_by": "Admin",
+    "created_at": "2026-03-15T09:30:00.000Z",
+    "id": "question-1",
+    "product_id": "mock-product",
+    "question": "Pertanyaan contoh",
+    "tenant_id": "tenant-mock",
+    "updated_at": "2026-03-15T09:30:00.000Z",
+    "user_id": "user-1",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > product Q&A endpoints 6`] = `
+{
+  "body": {
+    "helpfulCount": 1,
+    "myVote": "up",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > product Q&A endpoints 7`] = `
+{
+  "body": {
+    "helpfulCount": 0,
+    "myVote": null,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 1`] = `
+{
+  "body": {
+    "data": {
+      "currency": "IDR",
+      "orderId": "order-success-id",
+      "orderNumber": "ORD-SUCCESS-NUM",
+      "paymentMethod": "ewallet",
+      "status": "pending_payment",
+      "total": 45000000,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 2`] = `
+{
+  "body": {
+    "data": {
+      "id": "draft-123",
+      "status": "draft",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 3`] = `
+{
+  "body": {
+    "data": {
+      "status": "PENDING",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 4`] = `
+{
+  "body": {
+    "data": {
+      "expiresAt": "2026-03-15T10:30:00.000Z",
+      "provider": "midtrans",
+      "redirectUrl": "https://payment.example.com/pay",
+      "token": "mock-token-12345",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 5`] = `
+{
+  "body": {
+    "data": {
+      "status": "PAID",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 6`] = `
+{
+  "body": {
+    "data": {
+      "status": "PENDING",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 7`] = `
+{
+  "body": {
+    "data": {
+      "currency": "IDR",
+      "orderId": "order-success-id",
+      "orderNumber": "ORD-SUCCESS-NUM",
+      "paymentMethod": "bank_transfer",
+      "status": "pending_payment",
+      "total": 45000000,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 8`] = `
+{
+  "body": {
+    "data": {
+      "status": "PENDING",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > checkout, draft, payment intent and status sequence 9`] = `
+{
+  "body": {
+    "data": {
+      "expiresAt": "2026-03-15T10:30:00.000Z",
+      "provider": "xendit",
+      "redirectUrl": "https://payment.example.com/pay",
+      "token": "mock-token-12345",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > shipping quote 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "cost": 15000,
+        "description": "Regular Service",
+        "etd": "2-3 days",
+        "note": "",
+        "service": "REG",
+      },
+      {
+        "cost": 35000,
+        "description": "Yakin Esok Sampai",
+        "etd": "1 day",
+        "note": "",
+        "service": "YES",
+      },
+    ],
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > checkout and payments > shipping quote 2`] = `
+{
+  "body": {
+    "data": [
+      {
+        "cost": 15000,
+        "description": "Regular Service",
+        "etd": "2-3 days",
+        "note": "",
+        "service": "REG",
+      },
+      {
+        "cost": 35000,
+        "description": "Yakin Esok Sampai",
+        "etd": "1 day",
+        "note": "",
+        "service": "YES",
+      },
+    ],
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders (default) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "createdAt": "2025-12-25T14:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-1",
+        "itemCount": 5,
+        "orderNumber": "ORD-001",
+        "status": "pending_payment",
+        "total": 1250000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-2",
+        "itemCount": 1,
+        "orderNumber": "ORD-002",
+        "status": "paid",
+        "total": 200000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-3",
+        "itemCount": 1,
+        "orderNumber": "ORD-003",
+        "status": "packed",
+        "total": 300000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-4",
+        "itemCount": 1,
+        "orderNumber": "ORD-004",
+        "status": "shipped",
+        "total": 400000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-5",
+        "itemCount": 1,
+        "orderNumber": "ORD-005",
+        "status": "delivered",
+        "total": 500000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-6",
+        "itemCount": 1,
+        "orderNumber": "ORD-006",
+        "status": "cancelled",
+        "total": 150000,
+      },
+    ],
+    "meta": {
+      "limit": 20,
+      "page": 1,
+      "total": 6,
+      "totalPages": 1,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders (empty flag) 1`] = `
+{
+  "body": {
+    "data": [],
+    "meta": {
+      "limit": 20,
+      "page": 1,
+      "total": 0,
+      "totalPages": 0,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders (error 500) 1`] = `
+{
+  "body": {
+    "error": {
+      "message": "Internal server error",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 500,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders (paged) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-3",
+        "itemCount": 1,
+        "orderNumber": "ORD-003",
+        "status": "packed",
+        "total": 300000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-4",
+        "itemCount": 1,
+        "orderNumber": "ORD-004",
+        "status": "shipped",
+        "total": 400000,
+      },
+    ],
+    "meta": {
+      "limit": 2,
+      "page": 2,
+      "total": 6,
+      "totalPages": 3,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders (status all) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "createdAt": "2025-12-25T14:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-1",
+        "itemCount": 5,
+        "orderNumber": "ORD-001",
+        "status": "pending_payment",
+        "total": 1250000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-2",
+        "itemCount": 1,
+        "orderNumber": "ORD-002",
+        "status": "paid",
+        "total": 200000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-3",
+        "itemCount": 1,
+        "orderNumber": "ORD-003",
+        "status": "packed",
+        "total": 300000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-4",
+        "itemCount": 1,
+        "orderNumber": "ORD-004",
+        "status": "shipped",
+        "total": 400000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-5",
+        "itemCount": 1,
+        "orderNumber": "ORD-005",
+        "status": "delivered",
+        "total": 500000,
+      },
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-6",
+        "itemCount": 1,
+        "orderNumber": "ORD-006",
+        "status": "cancelled",
+        "total": 150000,
+      },
+    ],
+    "meta": {
+      "limit": 20,
+      "page": 1,
+      "total": 6,
+      "totalPages": 1,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders (status empty) 1`] = `
+{
+  "body": {
+    "data": [],
+    "meta": {
+      "limit": 20,
+      "page": 1,
+      "total": 0,
+      "totalPages": 0,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders (status paid) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "createdAt": "2026-03-15T09:30:00.000Z",
+        "currency": "IDR",
+        "id": "order-2",
+        "itemCount": 1,
+        "orderNumber": "ORD-002",
+        "status": "paid",
+        "total": 200000,
+      },
+    ],
+    "meta": {
+      "limit": 20,
+      "page": 1,
+      "total": 1,
+      "totalPages": 1,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders/non-existent-order 1`] = `
+{
+  "body": {
+    "error": {
+      "message": "Order not found",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 404,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders/order-1 1`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "currency": "IDR",
+      "id": "order-1",
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "item-1",
+          "productId": "product-1",
+          "productSlug": "mock-product",
+          "productTitle": "Mock Product",
+          "qty": 1,
+          "subtotal": 100000,
+          "unitPrice": 100000,
+        },
+      ],
+      "orderNumber": "ORD-ORDER-1",
+      "payment": null,
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 100000,
+        "tax": 0,
+        "total": 100000,
+      },
+      "shippingAddress": {
+        "addressLine1": "Jl. Mock No. 123",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "phone": "08123456789",
+        "postalCode": "12345",
+        "province": "DKI Jakarta",
+        "receiverName": "John Doe",
+      },
+      "status": "paid",
+      "total": 100000,
+      "user": {
+        "email": "john.doe@example.com",
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders/order-detail-test 1`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "currency": "IDR",
+      "id": "order-detail-test",
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "item-1",
+          "productId": "product-1",
+          "productSlug": "mock-product",
+          "productTitle": "Mock Product",
+          "qty": 1,
+          "subtotal": 100000,
+          "unitPrice": 100000,
+        },
+      ],
+      "orderNumber": "ORD-ORDER-DE",
+      "payment": null,
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 100000,
+        "tax": 0,
+        "total": 100000,
+      },
+      "shippingAddress": {
+        "addressLine1": "Jl. Mock No. 123",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "phone": "08123456789",
+        "postalCode": "12345",
+        "province": "DKI Jakarta",
+        "receiverName": "John Doe",
+      },
+      "status": "paid",
+      "total": 100000,
+      "user": {
+        "email": "john.doe@example.com",
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders/order-expired-payment 1`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "currency": "IDR",
+      "id": "order-expired-payment",
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "item-1",
+          "productId": "product-1",
+          "productSlug": "mock-product",
+          "productTitle": "Mock Product",
+          "qty": 1,
+          "subtotal": 100000,
+          "unitPrice": 100000,
+        },
+      ],
+      "orderNumber": "ORD-ORDER-EX",
+      "payment": {
+        "method": "bank_transfer",
+        "paymentExpiry": "2026-03-15T08:30:00.000Z",
+        "paymentUrl": "https://payment.example.com/pay",
+        "status": "pending",
+      },
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 100000,
+        "tax": 0,
+        "total": 100000,
+      },
+      "shippingAddress": {
+        "addressLine1": "Jl. Mock No. 123",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "phone": "08123456789",
+        "postalCode": "12345",
+        "province": "DKI Jakarta",
+        "receiverName": "John Doe",
+      },
+      "status": "pending_payment",
+      "total": 100000,
+      "user": {
+        "email": "john.doe@example.com",
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders/order-pending-123 1`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "currency": "IDR",
+      "id": "order-pending-123",
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "item-1",
+          "productId": "product-1",
+          "productSlug": "mock-product",
+          "productTitle": "Mock Product",
+          "qty": 1,
+          "subtotal": 100000,
+          "unitPrice": 100000,
+        },
+      ],
+      "orderNumber": "ORD-ORDER-PE",
+      "payment": {
+        "method": "bank_transfer",
+        "paymentExpiry": "2026-03-15T10:30:00.000Z",
+        "paymentUrl": "https://payment.example.com/pay",
+        "status": "pending",
+      },
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 100000,
+        "tax": 0,
+        "total": 100000,
+      },
+      "shippingAddress": {
+        "addressLine1": "Jl. Mock No. 123",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "phone": "08123456789",
+        "postalCode": "12345",
+        "province": "DKI Jakarta",
+        "receiverName": "John Doe",
+      },
+      "status": "pending_payment",
+      "total": 100000,
+      "user": {
+        "email": "john.doe@example.com",
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders/order-shop-test 1`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "currency": "IDR",
+      "id": "order-shop-test",
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "item-1",
+          "productId": "product-1",
+          "productSlug": "mock-product",
+          "productTitle": "Mock Product",
+          "qty": 1,
+          "subtotal": 100000,
+          "unitPrice": 100000,
+        },
+      ],
+      "orderNumber": "ORD-ORDER-SH",
+      "payment": null,
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 100000,
+        "tax": 0,
+        "total": 100000,
+      },
+      "shippingAddress": {
+        "addressLine1": "Jl. Mock No. 123",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "phone": "08123456789",
+        "postalCode": "12345",
+        "province": "DKI Jakarta",
+        "receiverName": "John Doe",
+      },
+      "status": "paid",
+      "total": 100000,
+      "user": {
+        "email": "john.doe@example.com",
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > orders > GET orders/order-status-shipped 1`] = `
+{
+  "body": {
+    "data": {
+      "createdAt": "2026-03-15T09:30:00.000Z",
+      "currency": "IDR",
+      "id": "order-status-shipped",
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "item-1",
+          "productId": "product-1",
+          "productSlug": "mock-product",
+          "productTitle": "Mock Product",
+          "qty": 1,
+          "subtotal": 100000,
+          "unitPrice": 100000,
+        },
+      ],
+      "orderNumber": "ORD-ORDER-ST",
+      "payment": null,
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 100000,
+        "tax": 0,
+        "total": 100000,
+      },
+      "shippingAddress": {
+        "addressLine1": "Jl. Mock No. 123",
+        "city": "Jakarta",
+        "country": "Indonesia",
+        "phone": "08123456789",
+        "postalCode": "12345",
+        "province": "DKI Jakarta",
+        "receiverName": "John Doe",
+      },
+      "status": "shipped",
+      "total": 100000,
+      "user": {
+        "email": "john.doe@example.com",
+        "id": "user-123",
+        "name": "John Doe",
+      },
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > session and fallbacks > returns 404 for unknown routes and methods 1`] = `
+{
+  "body": {
+    "message": "Not Found",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 404,
+}
+`;
+
+exports[`mock API route golden responses > session and fallbacks > returns 404 for unknown routes and methods 2`] = `
+{
+  "body": {
+    "message": "Not Found",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 404,
+}
+`;
+
+exports[`mock API route golden responses > session and fallbacks > returns 404 for unknown routes and methods 3`] = `
+{
+  "body": {
+    "message": "Not Found",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 404,
+}
+`;
+
+exports[`mock API route golden responses > session and fallbacks > returns 404 for unknown routes and methods 4`] = `
+{
+  "body": {
+    "message": "Not Found",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 404,
+}
+`;
+
+exports[`mock API route golden responses > session and fallbacks > sets session and CSRF cookies for a new visitor 1`] = `
+{
+  "body": {
+    "data": {
+      "brandId": "brand-apple",
+      "brandName": "Apple",
+      "categoryId": "cat-electronics",
+      "categoryName": "Electronics",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "currency": "IDR",
+      "description": "Description for MacBook Pro 14 M3",
+      "discountPercent": 20,
+      "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+      "images": [
+        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+      ],
+      "inStock": true,
+      "originalPrice": 30000000,
+      "price": 25000000,
+      "rating": 4.5,
+      "reviewCount": 150,
+      "slug": "macbook-pro-14-m3",
+      "stock": 20,
+      "tags": [
+        "new",
+        "electronics",
+      ],
+      "title": "MacBook Pro 14 M3",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [
+    "mockSessionId=<uuid>; Path=/",
+    "X-CSRF-Token=<uuid>; Path=/; SameSite=lax",
+  ],
+  "status": 200,
+}
+`;

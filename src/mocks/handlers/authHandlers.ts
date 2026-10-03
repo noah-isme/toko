@@ -1,6 +1,6 @@
-import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
+import { mockFaker as faker } from '../factories/faker';
 import { apiPath } from '../utils';
 
 import type {
@@ -67,7 +67,7 @@ export const authHandlers = [
       password?: string;
     } | null;
 
-    // Mirror the dev proxy in src/app/api/v1/[[...path]]/route.ts: these
+    // Mirror the route handler (src/mocks/resolvers/auth.ts): these
     // sentinel credentials must fail so the error path stays testable.
     if (body?.email === 'wrong@example.com' || body?.password === 'wrongpassword') {
       return HttpResponse.json(

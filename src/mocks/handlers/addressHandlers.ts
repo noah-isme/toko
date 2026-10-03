@@ -1,6 +1,7 @@
-import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
+import { buildRandomAddress } from '../factories/address';
+import { mockFaker as faker } from '../factories/faker';
 import { apiPath } from '../utils';
 
 import {
@@ -12,22 +13,7 @@ import {
 import type { Address } from '@/entities/address/types';
 
 function createMockAddress(overrides: Partial<Address> = {}): Address {
-  const timestamp = new Date().toISOString();
-  return {
-    id: faker.string.uuid(),
-    receiverName: faker.person.fullName(),
-    phone: faker.phone.number({ style: 'international' }),
-    addressLine1: faker.location.streetAddress(),
-    addressLine2: faker.location.secondaryAddress(),
-    city: faker.location.city(),
-    province: faker.location.state(),
-    postalCode: faker.location.zipCode(),
-    country: 'ID',
-    isDefault: false,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    ...overrides,
-  };
+  return buildRandomAddress(faker, overrides);
 }
 
 let addresses: Address[] = [

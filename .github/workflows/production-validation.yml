@@ -51,3 +51,17 @@ jobs:
 
       - name: Build with production-shaped public configuration
         run: pnpm build
+
+      # The mock API (src/mocks/**) is imported only behind literal env guards, so
+      # a real-API build must not contain its fixtures or faker. "Jl. Sudirman
+      # No. 12" is a fixture-only address used as the marker.
+      - name: Verify mock fixtures are not bundled
+        run: |
+          if grep -rlF "Jl. Sudirman No. 12" .next/server .next/static; then
+            echo "::error::Mock fixture data leaked into the production build"
+            exit 1
+          fi
+          if grep -rlF "@faker-js" .next/server .next/static; then
+            echo "::error::@faker-js leaked into the production build"
+            exit 1
+          fi
