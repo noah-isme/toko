@@ -13,4 +13,5 @@ This directory contains Architecture Decision Records (ADRs) for the Toko storef
 | [005](005-zustand-for-client-state.md)         | Zustand for Client-Side State             | Accepted                                  | 2025-12 |
 | [006](006-radix-tailwind-component-library.md) | Radix UI + Tailwind CSS Component Library | Accepted                                  | 2025-12 |
 | [007](007-entity-based-module-structure.md)    | Entity-Based Module Structure             | Accepted (migration completed 2026-10-04) | 2026-02 |
-| [008](008-pwa-offline-strategy.md)             | PWA and Offline Strategy                  | Accepted                                  | 2026-08 |
+| [008](008-pwa-offline-strategy.md)             | PWA and Offline Strategy                  | Superseded by ADR-009                     | 2026-08 |
+| [009](009-serwist-turbopack-service-worker.md) | Serwist Service Worker on Turbopack       | Accepted                                  | 2026-10 |

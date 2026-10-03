@@ -2,6 +2,7 @@ import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import prettierConfig from 'eslint-config-prettier';
 import tailwindcss from 'eslint-plugin-tailwindcss';
+import globals from 'globals';
 import typescript from 'typescript-eslint';
 
 const eslintConfig = [
@@ -75,6 +76,15 @@ const eslintConfig = [
           ],
         },
       ],
+    },
+  },
+  {
+    // Service worker sources (ADR-009) run in ServiceWorkerGlobalScope, not
+    // the DOM; they are type-checked separately via tsconfig.worker.json.
+    name: 'toko/service-worker',
+    files: ['src/app/sw.ts', 'src/app/sw-push.ts'],
+    languageOptions: {
+      globals: globals.serviceworker,
     },
   },
   prettierConfig,

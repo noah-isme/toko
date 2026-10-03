@@ -119,11 +119,14 @@ Debug-only endpoint. Returns `{ success: true, message: string }`.
 
 ## Service Worker
 
-The frontend registers the generated `/pwa-sw.js` in production. `@ducanh2912/next-pwa`
-imports `worker/index.js`, which listens for `push` events and displays
-notifications via `self.registration.showNotification()`. Development keeps
-the legacy `public/sw.js` fallback because `@ducanh2912/next-pwa` is disabled there. The
-worker is registered during app initialization before a user subscribes.
+Push is handled by the single Serwist worker served at `/serwist/sw.js`
+(ADR-009). `src/app/sw-push.ts` listens for `push` events and shows
+notifications via `self.registration.showNotification()`, and handles
+`notificationclick` (focus or open `data.url`) and `notificationclose`.
+`SerwistProvider` registers the worker in production, or in development when
+`NEXT_PUBLIC_SW_DEV=true`. Subscribing resolves the active registration via
+`getServiceWorkerRegistration()` (`src/entities/web-push/registration.ts`),
+which rejects with a clear error after a timeout when no worker is active.
 
 ## Error Handling
 

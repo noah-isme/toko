@@ -17,4 +17,4 @@ Use Next.js App Router with route groups `(storefront)` and `(admin)` to cleanly
 - **Positive:** Native streaming SSR, nested layouts, parallel routes, built-in image optimization, strong community ecosystem.
 - **Positive:** Edge middleware enables locale rewriting without a separate proxy.
 - **Negative:** App Router has a steeper learning curve than Pages Router. Some third-party libraries require "use client" boundaries.
-- **Negative:** The project currently uses Webpack builds (for `@ducanh2912/next-pwa` compatibility) rather than Turbopack.
+- **Note:** Production builds use Turbopack since ADR-009 replaced the webpack-only `@ducanh2912/next-pwa` with `@serwist/turbopack`.

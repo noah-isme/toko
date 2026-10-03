@@ -7,6 +7,7 @@ import { AppInitializer } from '@/components/providers/AppInitializer';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { MockServiceWorkerProvider } from '@/components/providers/service-worker-provider';
+import { SerwistProvider } from '@/components/providers/serwist-provider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { RouteFocusHandler } from '@/shared/lib/useRouteFocus';
 import DevVitalsOverlay from '@/shared/rum/DevVitalsOverlay';
@@ -16,6 +17,12 @@ import { SkipToContent } from '@/shared/ui/SkipToContent';
 import { Toaster } from '@/shared/ui/toast';
 
 const appName = 'toko';
+// The service worker (ADR-009) is production-only by default so it never
+// competes with MSW's mockServiceWorker.js in development. Set
+// NEXT_PUBLIC_SW_DEV=true to opt in locally.
+const SERVICE_WORKER_ENABLED =
+  process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_SW_DEV === 'true';
+
 const defaultDescription = 'Modern modular storefront for the toko e-commerce experience.';
 
 export const metadata: Metadata = {
@@ -84,6 +91,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <DevVitalsOverlay />
         </Suspense>
         <Toaster />
+        {SERVICE_WORKER_ENABLED ? (
+          // reloadOnOnline=false keeps in-progress form state (checkout) on
+          // reconnect; cacheOnNavigation=false keeps documents out of caches.
+          <SerwistProvider
+            swUrl="/serwist/sw.js"
+            reloadOnOnline={false}
+            cacheOnNavigation={false}
+          />
+        ) : null}
       </body>
     </html>
   );

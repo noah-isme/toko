@@ -15,7 +15,10 @@ export default defineConfig({
   // Real API specs require a live toko-api on :8080 and have their own
   // config (playwright.real-api.config.ts). Running them here — against mocks,
   // once per project — would fail by construction.
-  testIgnore: '**/*real-api.spec.ts',
+  // pwa.spec.ts needs a production build with the service worker enabled and
+  // runs from playwright.prod.config.ts (`pnpm e2e:prod`). This config runs
+  // `pnpm dev`, which never registers the production service worker.
+  testIgnore: ['**/*real-api.spec.ts', '**/pwa.spec.ts'],
   timeout: 120_000,
   expect: {
     timeout: 15_000,
@@ -28,9 +31,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
-    // The development push worker handles API fetches before Playwright can
-    // apply per-test route mocks. Block it so mock E2E tests exercise the
-    // responses declared by each spec instead of a service-worker cache.
+    // Keep any service worker (MSW's or an opted-in NEXT_PUBLIC_SW_DEV one)
+    // from handling fetches before Playwright applies per-test route mocks.
     serviceWorkers: 'block',
     navigationTimeout: 60_000,
     actionTimeout: 20_000,

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { webPushApi } from './api';
+import { getServiceWorkerRegistration } from './registration';
 import type { PushPreferences, PushSubscriptionInput } from './types';
 
 import { normalizeError } from '@/shared/lib/normalizeError';
@@ -228,7 +229,7 @@ export function usePushSubscription() {
       throw new Error('Notification permission denied');
     }
 
-    const registration = await navigator.serviceWorker.ready;
+    const registration = await getServiceWorkerRegistration();
 
     let subscription = await registration.pushManager.getSubscription();
 
@@ -266,7 +267,7 @@ export function usePushSubscription() {
       return;
     }
 
-    const registration = await navigator.serviceWorker.ready;
+    const registration = await getServiceWorkerRegistration();
     const subscription = await registration.pushManager.getSubscription();
 
     if (subscription) {
