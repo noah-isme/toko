@@ -29,6 +29,17 @@ const PROVIDER_LABELS = {
   email: 'Email',
 };
 
+export type OAuthProvider = 'google' | 'github' | 'apple';
+
+/**
+ * Starts the OAuth flow. `/api/auth/<provider>` is a route handler that redirects to the identity
+ * provider, so it needs a full document navigation rather than client-side routing.
+ */
+export function startOAuthLogin(provider: OAuthProvider) {
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- route handler redirecting off-site, not a Next page
+  window.location.assign(`/api/auth/${provider}`);
+}
+
 export function SocialLoginButton({
   provider,
   children,

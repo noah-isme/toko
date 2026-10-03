@@ -24,6 +24,7 @@ export default function AdminReturnsPage() {
     }
   };
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; replaced by React Query hooks in the admin entity migration
     void load();
   }, []);
   const update = async (id: string, status: ReturnStatus) => {

@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { AdvancedSearchResults } from '@/entities/search/ui/AdvancedSearchResults';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { breadcrumbJsonLd } from '@/shared/seo/jsonld';
-import { abs, getCanonical } from '@/shared/seo/seo';
+import { abs, getCanonical, localeAlternates } from '@/shared/seo/seo';
 import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 
 const pageTitle = 'Products';
@@ -17,10 +17,7 @@ export const metadata: Metadata = {
   description: pageDescription,
   alternates: {
     canonical,
-    languages: {
-      'en-US': canonical,
-      'id-ID': canonical,
-    },
+    languages: localeAlternates('/products'),
   },
   openGraph: {
     title: pageTitle,

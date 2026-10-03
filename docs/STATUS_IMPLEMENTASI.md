@@ -22,7 +22,7 @@ Fitur yang sebelumnya hanya visual atau simulasi kini menggunakan kontrak API:
 - **Akun: `/account/push-settings` mengelola preferensi notifikasi push real-time (enable/disable, per-tipe config, test notification).**
 - Operasi pelanggan: `/returns` dan `/account/support` terhubung ke workflow pengembalian dan tiket dukungan.
 - Dukungan: riwayat pesan customer dan admin dimuat dari endpoint transcript; MSW juga mencakup privacy, returns, support, admin operations, dan payment proof.
-- Lokalisasi: middleware mendukung prefix `id`, `en`, `zh`, `ja`, dan `ko`; cakupan terjemahan penuh masih merupakan pekerjaan konten terpisah.
+- Lokalisasi: proxy (`src/proxy.ts`) mendukung locale `id` (default, tanpa prefix) dan `en` (`/en/...`); prefix lama `zh`, `ja`, dan `ko` dialihkan (308) ke halaman tanpa prefix; cakupan terjemahan penuh masih merupakan pekerjaan konten terpisah.
 
 Detail endpoint ada di [indeks kontrak frontend](contracts/README.md) dan kontrak backend canonical di `toko-api/docs/contracts`.
 

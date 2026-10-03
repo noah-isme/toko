@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, localizedPath } from '@/i18n/config';
 import { getPublicEnv } from '@/shared/config/env';
 
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -34,6 +35,20 @@ export function getCanonical(pathname?: string | null): string {
 
   const normalized = pathname.startsWith('/') ? pathname : `/${pathname}`;
   return abs(normalized);
+}
+
+/**
+ * hreflang alternates for a path: `id` (default, unprefixed), `en` (`/en...`) and `x-default`.
+ * Suitable for both `Metadata.alternates.languages` and sitemap `alternates.languages`.
+ */
+export function localeAlternates(pathname: string): Record<'id' | 'en' | 'x-default', string> {
+  const normalized = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  const canonical = abs(localizedPath(DEFAULT_LOCALE, normalized));
+  return {
+    id: canonical,
+    en: abs(localizedPath('en', normalized)),
+    'x-default': canonical,
+  };
 }
 
 export function titleize(name?: string | null): string {

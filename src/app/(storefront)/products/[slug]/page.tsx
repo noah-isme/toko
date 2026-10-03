@@ -16,7 +16,7 @@ import type { ApiProduct, ApiResponse } from '@/lib/api/types';
 import { getPublicEnv } from '@/shared/config/env';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
-import { abs, getCanonical } from '@/shared/seo/seo';
+import { abs, getCanonical, localeAlternates } from '@/shared/seo/seo';
 
 function ReviewSkeleton() {
   return (
@@ -114,10 +114,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       description: 'Discover the latest products available on toko.',
       alternates: {
         canonical,
-        languages: {
-          'en-US': canonical,
-          'id-ID': canonical,
-        },
+        languages: localeAlternates(`/products/${slug}`),
       },
       openGraph: {
         title: fallbackTitle,
@@ -151,10 +148,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     description,
     alternates: {
       canonical,
-      languages: {
-        'en-US': canonical,
-        'id-ID': canonical,
-      },
+      languages: localeAlternates(`/products/${product.slug}`),
     },
     openGraph: {
       title,

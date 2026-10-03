@@ -13,21 +13,12 @@ const eslintConfig = [
       'test-results/**',
       // Generated from openapi.yaml by `pnpm api:generate`.
       'src/lib/api/generated/schema.d.ts',
-      // Route groups with parentheses cause issues with typescript-eslint
-      'src/app/(admin)/settings/**',
     ],
   },
-  ...fixupConfigRules(nextCoreWebVitals).map((config) => {
-    // Add ignores to all next configs
-    return {
-      ...config,
-      ignores: [...(config.ignores || []), 'src/app/(admin)/settings/**'],
-    };
-  }),
+  ...fixupConfigRules(nextCoreWebVitals),
   {
     name: 'toko/parser',
     files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
-    ignores: ['src/app/(admin)/settings/**'],
     languageOptions: {
       parser: typescript.parser,
       parserOptions: {
@@ -40,7 +31,6 @@ const eslintConfig = [
   {
     name: 'toko/typescript',
     files: ['**/*.ts', '**/*.tsx'],
-    ignores: ['src/app/(admin)/settings/**'],
     languageOptions: {
       parserOptions: {
         project: false,
@@ -50,7 +40,6 @@ const eslintConfig = [
   {
     name: 'toko/rules',
     files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
-    ignores: ['src/app/(admin)/settings/**'],
     plugins: {
       tailwindcss: fixupPluginRules(tailwindcss),
     },

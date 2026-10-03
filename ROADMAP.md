@@ -39,7 +39,7 @@
 
 - Full REST API integration (vouchers, flash sales, returns, support, privacy, payment instructions)
 - OpenAPI codegen type-safety pipeline with CI enforcement
-- Locale-prefixed routing (id, en, zh, ja, ko)
+- Locale-prefixed routing (id default, en)
 - PostHog analytics + Sentry error tracking + custom RUM
 - Vercel deployment with preview/production validation
 
@@ -57,7 +57,8 @@
 ### 🔲 M6 — Full Internationalization
 
 - [ ] Translation file infrastructure (JSON/ICU message catalogs)
-- [ ] Complete translation coverage for id, en, zh, ja, ko
+- [ ] Complete translation coverage for id, en
+  - Note: zh, ja and ko were dropped on 2026-10-04; their URL prefixes now 308-redirect to the unprefixed `id` page.
 - [ ] RTL layout support investigation
 - [ ] Currency and date format localization
 - [ ] Locale-aware SEO metadata

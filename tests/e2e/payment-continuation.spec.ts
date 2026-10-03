@@ -204,8 +204,8 @@ test.describe('Payment continuation flow', () => {
       await expect(payNow).toBeEnabled();
       await payNow.click();
 
-      // Verify payment intent was called
-      expect(paymentAttempts).toBeGreaterThan(0);
+      // Verify payment intent was called (the request is async after the click, so poll).
+      await expect.poll(() => paymentAttempts).toBeGreaterThan(0);
     });
   });
 

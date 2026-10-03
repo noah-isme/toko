@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/noah-isme/toko/actions/workflows/ci.yml/badge.svg)](https://github.com/noah-isme/toko/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-20.19.x-green.svg)](.nvmrc)
+[![Node.js](https://img.shields.io/badge/node-22.13.x-green.svg)](.nvmrc)
 [![pnpm](https://img.shields.io/badge/pnpm-10.5.2-orange.svg)](package.json)
 
 A modular Next.js storefront powered by TypeScript, Tailwind CSS, shadcn/ui, and TanStack Query. Ships with a complete mock API via MSW for frontend-only development and consumes the Toko REST API in production.
@@ -27,7 +27,7 @@ A modular Next.js storefront powered by TypeScript, Tailwind CSS, shadcn/ui, and
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 20.19.x (see [`.nvmrc`](.nvmrc))
+- [Node.js](https://nodejs.org/) 22.13.x (see [`.nvmrc`](.nvmrc)). Newer releases (Node 25+) also work for Vitest: `vitest.config.ts` disables Node's experimental Web Storage in test workers so it does not shadow jsdom's `localStorage`.
 - [pnpm](https://pnpm.io/) 10.5.2
 
 ## Getting Started

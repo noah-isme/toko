@@ -1,6 +1,6 @@
 'use client';
 
-import { Image, X, Loader2 } from 'lucide-react';
+import { ImageIcon, X, Loader2 } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -177,7 +177,8 @@ export function ImageUpload({
           aria-label="Pilih gambar untuk diunggah"
         />
         <div className="flex flex-col items-center justify-center p-8 text-center">
-          <Image
+          <ImageIcon
+            aria-hidden="true"
             className={cn(
               'h-8 w-8 mb-2',
               disabled ? 'text-muted-foreground/30' : 'text-muted-foreground',
@@ -210,6 +211,7 @@ export function ImageUpload({
               key={index}
               className="relative aspect-square overflow-hidden rounded-lg border border-border/60 bg-background"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element -- blob: object URLs of local files cannot go through next/image */}
               <img
                 src={preview}
                 alt={`Pratinjau gambar ${index + 1}`}
@@ -252,6 +254,7 @@ interface ReviewImageProps {
 
 export function ReviewImage({ src, alt, className }: ReviewImageProps) {
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- user-uploaded review images come from arbitrary hosts not in images.remotePatterns
     <img
       src={src}
       alt={alt || 'Gambar ulasan'}

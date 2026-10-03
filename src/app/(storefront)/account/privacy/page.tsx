@@ -129,7 +129,8 @@ export default function PrivacyPage() {
       await privacyApi.deleteAccount();
       setAccessToken(null);
       toast({ variant: 'success', description: 'Akun berhasil dihapus.' });
-      // Redirect to home
+      // Full reload to home so every in-memory client cache of the deleted account is dropped.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation
       window.location.href = '/';
     } catch (error) {
       toast({ variant: 'destructive', description: 'Gagal menghapus akun.' });

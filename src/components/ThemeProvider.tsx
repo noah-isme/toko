@@ -32,6 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize from localStorage on mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after hydration
     setMounted(true);
     const storedTheme = localStorage.getItem('theme') as Theme | null;
     const storedContrast = localStorage.getItem('contrastMode') as ContrastMode | null;
@@ -52,6 +53,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       resolved = theme;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resolved from matchMedia (external system), only available client-side
     setResolvedTheme(resolved);
 
     // Apply to document

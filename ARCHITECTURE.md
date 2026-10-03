@@ -142,9 +142,9 @@ Heavy components are lazily loaded via `React.lazy` + `Suspense`:
 
 This produces 100+ chunks, reducing initial JS payload.
 
-### Middleware
+### Proxy
 
-A single `middleware.ts` handles locale-prefixed routing. URL paths like `/en/products` are rewritten to `/products` while setting a `toko-locale` cookie. No auth middleware exists at the edge — authentication is handled client-side via token management.
+A single proxy (`src/proxy.ts`) handles locale routing for the supported locales `id` (default, unprefixed) and `en` (`/en/...`), configured in `src/i18n/config.ts`. URL paths like `/en/products` are rewritten to `/products` while setting a `toko-locale` cookie and forwarding the resolved locale to server code as the `x-toko-locale` request header. Unprefixed paths keep a valid cookie locale (an unsupported one is reset to `id`), and legacy `/zh`, `/ja` and `/ko` prefixes are permanently redirected (308) to the unprefixed page. No auth middleware exists at the edge — authentication is handled client-side via token management.
 
 ## Technology Stack
 

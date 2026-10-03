@@ -946,7 +946,16 @@ async function handle(
   const { sessionId, isNewSession } = resolveSession(req);
   const body = method === 'POST' || method === 'PATCH' ? await readJsonBody(req) : null;
   const result = handleRoute(path, method, body, sessionId, req.nextUrl.searchParams, req);
-  return jsonResponse(result, sessionId, isNewSession);
+  const response = jsonResponse(result, sessionId, isNewSession);
+  // Double-submit CSRF cookie: readable by JS (non-HttpOnly) so apiClient can echo it in a header.
+  if (!req.cookies.get('X-CSRF-Token')?.value) {
+    response.cookies.set('X-CSRF-Token', crypto.randomUUID(), {
+      path: '/',
+      httpOnly: false,
+      sameSite: 'lax',
+    });
+  }
+  return response;
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> }) {

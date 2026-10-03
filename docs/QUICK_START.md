@@ -37,7 +37,7 @@ The storefront has a complete auth flow in `src/entities/auth/`:
 | Token storage        | `src/lib/auth/tokenStore.ts` (memory + localStorage sync) |
 | Auto-refresh         | `src/lib/auth/tokenRefresh.ts` (14-min interval)          |
 | Logout               | `src/lib/auth/logout.ts`                                  |
-| Protected routes     | `src/middleware.ts`                                       |
+| Locale routing       | `src/proxy.ts`                                            |
 
 **Usage:**
 
@@ -193,7 +193,7 @@ Default config in `src/lib/query/client.ts`:
 | Auth Store   | `src/entities/auth/store.ts` |
 | Cart Store   | `src/entities/cart/store.ts` |
 | Query Client | `src/lib/query/client.ts`    |
-| Middleware   | `src/middleware.ts`          |
+| Proxy        | `src/proxy.ts`               |
 | MSW Handlers | `src/mocks/handlers/`        |
 | Types        | `src/entities/*/types.ts`    |
 

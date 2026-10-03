@@ -8,7 +8,12 @@ import { useForm } from 'react-hook-form';
 import { AuthShell } from '@/components/auth-shell';
 import { PasswordStrength } from '@/components/password-strength';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { SocialLoginButton, SocialLoginDivider, SocialLoginGroup } from '@/components/social-login';
+import {
+  SocialLoginButton,
+  SocialLoginDivider,
+  SocialLoginGroup,
+  startOAuthLogin,
+} from '@/components/social-login';
 import { Input } from '@/components/ui/input';
 import type { RegisterInput } from '@/entities/auth/schemas';
 import { registerInputSchema } from '@/entities/auth/schemas';
@@ -198,22 +203,13 @@ export default function RegisterPage() {
       </form>
       <SocialLoginDivider label="or continue with" />
       <SocialLoginGroup>
-        <SocialLoginButton
-          provider="google"
-          onClick={() => (window.location.href = '/api/auth/google')}
-        >
+        <SocialLoginButton provider="google" onClick={() => startOAuthLogin('google')}>
           Continue with Google
         </SocialLoginButton>
-        <SocialLoginButton
-          provider="github"
-          onClick={() => (window.location.href = '/api/auth/github')}
-        >
+        <SocialLoginButton provider="github" onClick={() => startOAuthLogin('github')}>
           Continue with GitHub
         </SocialLoginButton>
-        <SocialLoginButton
-          provider="apple"
-          onClick={() => (window.location.href = '/api/auth/apple')}
-        >
+        <SocialLoginButton provider="apple" onClick={() => startOAuthLogin('apple')}>
           Continue with Apple
         </SocialLoginButton>
       </SocialLoginGroup>

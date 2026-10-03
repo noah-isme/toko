@@ -3,7 +3,7 @@
 import { Search, Filter, X, Loader2, Star, Tag, Truck, Zap } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { ProductCard } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
@@ -46,11 +46,14 @@ export function AdvancedSearchResults() {
   const [currentPage, setCurrentPage] = useState(initialFilters.page || 1);
   const [sortBy, setSortBy] = useState<SortOption>(initialFilters.sortBy || 'relevance');
 
-  useEffect(() => {
+  // Re-sync local state when the URL changes (adjusting state during render instead of in an effect).
+  const [syncedFilters, setSyncedFilters] = useState(initialFilters);
+  if (syncedFilters !== initialFilters) {
+    setSyncedFilters(initialFilters);
     setFilters(initialFilters);
     setCurrentPage(initialFilters.page || 1);
     setSortBy(initialFilters.sortBy || 'relevance');
-  }, [initialFilters]);
+  }
 
   // Generate URL for current filters
   const searchUrl = useSearchUrl({ ...filters, page: currentPage, sortBy });

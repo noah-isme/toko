@@ -31,37 +31,35 @@ export const PushPreferencesCard = memo(function PushPreferencesCard({
   const { subscribe, unsubscribe, isSubscribing, isUnsubscribing } = usePushSubscription();
   const { mutate: sendTest, isPending: isSendingTest } = useSendTestPushMutation();
   const { toast } = useToast();
-  const [localEnabled, setLocalEnabled] = useState(false);
+  // Optimistic value while (un)subscribing; otherwise derived from the server preferences.
+  const [pendingEnabled, setPendingEnabled] = useState<boolean | null>(null);
+  const localEnabled = pendingEnabled ?? preferences?.enabled ?? false;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (preferences && mounted) {
-      setLocalEnabled(preferences.enabled);
-    }
-  }, [preferences, mounted]);
-
   const handleEnableChange = async (enabled: boolean) => {
-    setLocalEnabled(enabled);
+    setPendingEnabled(enabled);
 
     if (enabled) {
       try {
         await subscribe();
         await refetch();
       } catch (error) {
-        setLocalEnabled(false);
         console.error('Failed to subscribe:', error);
+      } finally {
+        setPendingEnabled(null);
       }
     } else {
       try {
         await unsubscribe();
         await refetch();
       } catch (error) {
-        setLocalEnabled(true);
         console.error('Failed to unsubscribe:', error);
+      } finally {
+        setPendingEnabled(null);
       }
     }
   };

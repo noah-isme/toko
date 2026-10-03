@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to run visual E2E tests with real toko-api
 #
-# Usage: ./run-visual-real-api-tests.sh
+# Usage: pnpm e2e:visual:real-api:run   (or: bash scripts/run-visual-real-api-tests.sh)
 #
 # This script:
 # 1. Starts the toko-api (if not already running)
@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-TOKO_APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOKO_APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TOKO_API_DIR="$TOKO_APP_DIR/../toko-api"
 API_PID=""
 FRONTEND_PID=""

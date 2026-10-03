@@ -23,7 +23,9 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
   const { data: preferences, isLoading, refetch } = usePushPreferencesQuery();
   const { subscribe, unsubscribe, isSubscribing, isUnsubscribing } = usePushSubscription();
   const { toast } = useToast();
-  const [localEnabled, setLocalEnabled] = useState(false);
+  // Optimistic value while (un)subscribing; otherwise derived from the server preferences.
+  const [pendingEnabled, setPendingEnabled] = useState<boolean | null>(null);
+  const localEnabled = pendingEnabled ?? preferences?.enabled ?? false;
   const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -35,28 +37,26 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
     }
   }, []);
 
-  useEffect(() => {
-    if (preferences && mounted) {
-      setLocalEnabled(preferences.enabled);
-    }
-  }, [preferences, mounted]);
-
   const handleEnableChange = async (enabled: boolean) => {
-    setLocalEnabled(enabled);
+    setPendingEnabled(enabled);
 
     if (enabled) {
       try {
         await subscribe();
         await refetch();
-      } catch (error) {
-        setLocalEnabled(false);
+      } catch {
+        // Failure is surfaced by the switch falling back to the server state.
+      } finally {
+        setPendingEnabled(null);
       }
     } else {
       try {
         await unsubscribe();
         await refetch();
-      } catch (error) {
-        setLocalEnabled(true);
+      } catch {
+        // Failure is surfaced by the switch falling back to the server state.
+      } finally {
+        setPendingEnabled(null);
       }
     }
   };

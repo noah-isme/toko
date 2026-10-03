@@ -46,6 +46,7 @@ export function CookieConsentBanner() {
 
     if (stored) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after hydration
         setPreferences(JSON.parse(stored));
       } catch {
         setPreferences(DEFAULT_PREFERENCES);

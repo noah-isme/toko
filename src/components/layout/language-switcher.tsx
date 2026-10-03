@@ -10,10 +10,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  DEFAULT_LOCALE,
+  isLocale,
+  LOCALE_COOKIE,
+  LOCALE_COOKIE_MAX_AGE,
+  LOCALE_PATH_RE,
+  localizedPath,
+  type Locale,
+} from '@/i18n/config';
 import { cn } from '@/lib/utils';
 
 interface Language {
-  code: string;
+  code: Locale;
   name: string;
   nativeName: string;
   flag: string;
@@ -22,10 +31,13 @@ interface Language {
 const LANGUAGES: Language[] = [
   { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia', flag: '🇮🇩' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
-  { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
 ];
+
+function switchLocale(locale: Locale) {
+  document.cookie = `${LOCALE_COOKIE}=${locale}; Path=/; Max-Age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
+  document.documentElement.lang = locale;
+  window.location.href = localizedPath(locale, window.location.pathname) + window.location.search;
+}
 
 export function LanguageSwitcher() {
   const [currentLang, setCurrentLang] = useState<Language>(() => getCurrentLanguage());
@@ -34,12 +46,7 @@ export function LanguageSwitcher() {
   const handleLanguageChange = (lang: Language) => {
     setCurrentLang(lang);
     setIsOpen(false);
-    document.cookie = `toko-locale=${lang.code}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    document.documentElement.lang = lang.code;
-    const path = window.location.pathname;
-    const newPath = path.replace(/^\/(id|en|zh|ja|ko)(?=\/|$)/, '') || '/';
-    const localizedPath = `/${lang.code}${newPath === '/' ? '' : newPath}`;
-    window.location.href = localizedPath;
+    switchLocale(lang.code);
   };
 
   useEffect(() => {
@@ -91,11 +98,7 @@ export function LanguageSwitcherSimple() {
 
   const handleLanguageChange = (lang: Language) => {
     setCurrentLang(lang);
-    document.cookie = `toko-locale=${lang.code}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    document.documentElement.lang = lang.code;
-    const path = window.location.pathname;
-    const newPath = path.replace(/^\/(id|en|zh|ja|ko)(?=\/|$)/, '') || '/';
-    window.location.href = `/${lang.code}${newPath === '/' ? '' : newPath}`;
+    switchLocale(lang.code);
   };
 
   return (
@@ -134,9 +137,8 @@ export function LanguageSwitcherSimple() {
 
 function getCurrentLanguage(): Language {
   if (typeof window === 'undefined') return LANGUAGES[0];
-  const code =
-    window.location.pathname.match(/^\/(id|en|zh|ja|ko)(?=\/|$)/)?.[1] ??
-    document.cookie.match(/(?:^|; )toko-locale=([^;]+)/)?.[1] ??
-    'id';
+  const fromPath = window.location.pathname.match(LOCALE_PATH_RE)?.[1];
+  const fromCookie = document.cookie.match(new RegExp(`(?:^|; )${LOCALE_COOKIE}=([^;]+)`))?.[1];
+  const code = isLocale(fromPath) ? fromPath : isLocale(fromCookie) ? fromCookie : DEFAULT_LOCALE;
   return LANGUAGES.find((language) => language.code === code) ?? LANGUAGES[0];
 }

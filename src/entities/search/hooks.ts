@@ -265,9 +265,8 @@ export function buildSearchUrl(filters: SearchFilters, basePath = '/products'): 
 
 export function useSearchStateFromUrl(searchParams: URLSearchParams): SearchFilters {
   const searchKey = searchParams.toString();
-  return useMemo(() => {
-    return parseSearchStateFromUrl(searchParams);
-  }, [searchKey]);
+  // Keyed on the serialized params so a new-but-equal URLSearchParams instance is a cache hit.
+  return useMemo(() => parseSearchStateFromUrl(new URLSearchParams(searchKey)), [searchKey]);
 }
 
 /**
