@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useStoreSettings, useUpdateStoreSettings } from '@/lib/api/hooks.admin';
+import { useStoreSettings, useUpdateStoreSettings } from '@/entities/admin/hooks';
 import { useToast } from '@/shared/ui/toast';
 
 type FormState = {

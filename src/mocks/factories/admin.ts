@@ -11,7 +11,7 @@ import type {
   AdminOrderStatus,
   AdminProductDetail,
   AdminTaxonomy,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/types';
 
 const FIXTURE_TIMESTAMP = '2026-01-01T00:00:00.000Z';
 

@@ -1,36 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { AdminPageHeader } from '@/components/admin/admin-ui';
+import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  adminOperationsApi,
-  type CustomerReturn,
-  type ReturnStatus,
-} from '@/lib/api/services/customerOperations';
+  useAdminReturns,
+  useRefundAdminReturn,
+  useUpdateAdminReturn,
+} from '@/entities/admin/hooks';
+import type { ReturnStatus } from '@/entities/admin/types';
 
 const statuses: ReturnStatus[] = ['APPROVED', 'REJECTED', 'RECEIVED', 'CANCELLED'];
 
 export default function AdminReturnsPage() {
-  const [items, setItems] = useState<CustomerReturn[]>([]);
+  const returnsQuery = useAdminReturns();
+  const updateReturn = useUpdateAdminReturn();
+  const refundReturn = useRefundAdminReturn();
   const [error, setError] = useState<string | null>(null);
-  const load = async () => {
-    try {
-      setItems(await adminOperationsApi.listReturns());
-    } catch {
-      setError('Gagal memuat returns.');
-    }
-  };
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; replaced by React Query hooks in the admin entity migration
-    void load();
-  }, []);
+  const items = returnsQuery.data ?? [];
   const update = async (id: string, status: ReturnStatus) => {
     try {
-      await adminOperationsApi.updateReturn(id, status);
-      await load();
+      await updateReturn.mutateAsync({ id, status });
     } catch {
       setError('Gagal memperbarui status.');
     }
@@ -42,10 +34,12 @@ export default function AdminReturnsPage() {
         description="Review customer return requests and refund eligibility"
       />
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {items.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">No return requests.</CardContent>
-        </Card>
+      {returnsQuery.isPending ? (
+        <AdminLoading />
+      ) : returnsQuery.isError ? (
+        <AdminError error={returnsQuery.error} onRetry={() => void returnsQuery.refetch()} />
+      ) : items.length === 0 ? (
+        <AdminEmpty message="No return requests." />
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
@@ -79,8 +73,7 @@ export default function AdminReturnsPage() {
                       variant="destructive"
                       onClick={async () => {
                         try {
-                          await adminOperationsApi.refundReturn(item.id);
-                          await load();
+                          await refundReturn.mutateAsync(item.id);
                         } catch {
                           setError('Refund gagal.');
                         }

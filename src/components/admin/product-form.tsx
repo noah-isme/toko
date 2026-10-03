@@ -23,12 +23,12 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { useAdminBrands, useAdminCategories } from '@/lib/api/hooks.admin';
+import { useAdminBrands, useAdminCategories } from '@/entities/admin/hooks';
 import type {
   AdminProductDetail,
   AdminProductInput,
   AdminProductVariantInput,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/types';
 
 /** Mirrors the backend `slugify` closely enough for a form default. */
 export function slugify(value: string): string {

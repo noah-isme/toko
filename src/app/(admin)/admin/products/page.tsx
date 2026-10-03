@@ -24,13 +24,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { formatCurrency } from '@/entities/admin/format';
 import {
   useAdminProducts,
   useDeleteAdminProduct,
   useUpdateAdminProductStock,
-} from '@/lib/api/hooks.admin';
-import { formatCurrency, type AdminProduct } from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminProduct } from '@/entities/admin/types';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 

@@ -1,12 +1,12 @@
 'use client';
 
 import { format } from 'date-fns';
-import { ChevronLeft, ChevronRight, Filter, X, Search, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, X, Search } from 'lucide-react';
 import { useState } from 'react';
 
-import { useAdminAuditLogs } from '@/lib/api/hooks.admin';
+import { AdminError, AdminLoading } from '@/components/admin/admin-ui';
+import { useAdminAuditLogs } from '@/entities/admin/hooks';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/shared/ui/toast';
 
 export default function AuditLogsPage() {
   const [page, setPage] = useState(1);
@@ -16,9 +16,8 @@ export default function AuditLogsPage() {
   const [userIdFilter, setUserIdFilter] = useState('');
   const [startDateFilter, setStartDateFilter] = useState('');
   const [endDateFilter, setEndDateFilter] = useState('');
-  const { toast } = useToast();
 
-  const { data, isLoading, error, refetch } = useAdminAuditLogs({
+  const { data, isLoading, isError, error, refetch } = useAdminAuditLogs({
     page,
     limit,
     action: actionFilter || undefined,
@@ -37,10 +36,6 @@ export default function AuditLogsPage() {
 
   const hasFilters =
     actionFilter || resourceTypeFilter || userIdFilter || startDateFilter || endDateFilter;
-
-  if (error) {
-    toast({ title: 'Failed to load audit logs', variant: 'destructive' });
-  }
 
   const totalPages = data ? Math.ceil(data.pagination.totalItems / limit) : 0;
   const logs = data?.data ?? [];
@@ -139,8 +134,14 @@ export default function AuditLogsPage() {
             <tbody className="divide-y">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
-                    <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                  <td colSpan={8}>
+                    <AdminLoading />
+                  </td>
+                </tr>
+              ) : isError ? (
+                <tr>
+                  <td colSpan={8} className="p-4">
+                    <AdminError error={error} onRetry={() => void refetch()} />
                   </td>
                 </tr>
               ) : logs.length === 0 ? (

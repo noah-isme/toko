@@ -20,13 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAdminAnalyticsOverview } from '@/lib/api/hooks.admin';
-import {
-  formatCurrency,
-  orderStatusLabel,
-  type AdminAnalyticsRange,
-  type AdminOrderStatus,
-} from '@/lib/api/services/admin';
+import { formatCurrency, orderStatusLabel } from '@/entities/admin/format';
+import { useAdminAnalyticsOverview } from '@/entities/admin/hooks';
+import type { AdminAnalyticsRange, AdminOrderStatus } from '@/entities/admin/types';
 
 const RANGE_OPTIONS: { value: AdminAnalyticsRange; label: string }[] = [
   { value: '7d', label: 'Last 7 days' },

@@ -10,7 +10,7 @@ import type {
   AdminOrderStatus,
   AdminProductDetail,
   AdminProductInput,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/types';
 
 const FORBIDDEN = { status: 403, error: { code: 'FORBIDDEN', message: 'Admin access required' } };
 const NOT_FOUND = { status: 404, error: { code: 'NOT_FOUND', message: 'Not Found' } };

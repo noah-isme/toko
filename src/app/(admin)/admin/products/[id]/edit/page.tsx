@@ -7,9 +7,9 @@ import { notFound, useParams, useRouter } from 'next/navigation';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { ProductForm, productToFormValues } from '@/components/admin/product-form';
 import { Button } from '@/components/ui/button';
+import { useAdminProduct, useUpdateAdminProduct } from '@/entities/admin/hooks';
+import type { AdminProductInput } from '@/entities/admin/types';
 import { ApiClientError } from '@/lib/api/apiClient';
-import { useAdminProduct, useUpdateAdminProduct } from '@/lib/api/hooks.admin';
-import type { AdminProductInput } from '@/lib/api/services/admin';
 import { useToast } from '@/shared/ui/toast';
 
 export default function EditProductPage() {

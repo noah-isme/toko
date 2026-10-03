@@ -1,4 +1,4 @@
-import type { AdminOrderDetail, AdminProductDetail } from '@/lib/api/services/admin';
+import type { AdminOrderDetail, AdminProductDetail } from '@/entities/admin/types';
 
 export type AdminStore = {
   products: AdminProductDetail[];

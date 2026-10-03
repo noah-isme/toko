@@ -8,7 +8,7 @@ import {
   useCreateAdminCategory,
   useDeleteAdminCategory,
   useUpdateAdminCategory,
-} from '@/lib/api/hooks.admin';
+} from '@/entities/admin/hooks';
 
 export default function CategoriesPage() {
   return (

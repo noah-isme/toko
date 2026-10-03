@@ -8,7 +8,7 @@ import {
   useCreateAdminBrand,
   useDeleteAdminBrand,
   useUpdateAdminBrand,
-} from '@/lib/api/hooks.admin';
+} from '@/entities/admin/hooks';
 
 export default function BrandsPage() {
   return (

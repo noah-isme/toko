@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { AdminTaxonomy, AdminTaxonomyInput } from '@/lib/api/services/admin';
+import type { AdminTaxonomy, AdminTaxonomyInput } from '@/entities/admin/types';
 import { useToast } from '@/shared/ui/toast';
 
 /** Mirrors the backend `slugify` closely enough for a form default. */

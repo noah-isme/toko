@@ -6,7 +6,7 @@ import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/ad
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useAdminInventory, useUpdateAdminInventory } from '@/lib/api/hooks.admin';
+import { useAdminInventory, useUpdateAdminInventory } from '@/entities/admin/hooks';
 import { useToast } from '@/shared/ui/toast';
 
 export default function InventoryPage() {

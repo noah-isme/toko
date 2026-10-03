@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAdminAnalyticsOverview, useAdminOrders } from '@/lib/api/hooks.admin';
-import { formatCurrency, formatDate, type AdminAnalyticsRange } from '@/lib/api/services/admin';
+import { formatCurrency, formatDate } from '@/entities/admin/format';
+import { useAdminAnalyticsOverview, useAdminOrders } from '@/entities/admin/hooks';
+import type { AdminAnalyticsRange } from '@/entities/admin/types';
 
 const RANGE_OPTIONS: { value: AdminAnalyticsRange; label: string }[] = [
   { value: '7d', label: 'Last 7 days' },

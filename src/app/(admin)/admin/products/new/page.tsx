@@ -4,17 +4,25 @@ import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { AdminPageHeader } from '@/components/admin/admin-ui';
+import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { ProductForm } from '@/components/admin/product-form';
 import { Button } from '@/components/ui/button';
-import { useCreateAdminProduct } from '@/lib/api/hooks.admin';
-import type { AdminProductInput } from '@/lib/api/services/admin';
+import { useAdminBrands, useAdminCategories, useCreateAdminProduct } from '@/entities/admin/hooks';
+import type { AdminProductInput } from '@/entities/admin/types';
 import { useToast } from '@/shared/ui/toast';
 
 export default function NewProductPage() {
   const router = useRouter();
   const { toast } = useToast();
   const createProduct = useCreateAdminProduct();
+  // The form's category/brand pickers share these queries; gate the form on them.
+  const categories = useAdminCategories();
+  const brands = useAdminBrands();
+  const taxonomyError = categories.error ?? brands.error;
+  const retryTaxonomy = () => {
+    if (categories.isError) void categories.refetch();
+    if (brands.isError) void brands.refetch();
+  };
 
   const handleSubmit = async (input: AdminProductInput) => {
     try {
@@ -41,13 +49,19 @@ export default function NewProductPage() {
         <AdminPageHeader title="New Product" description="Add a new product to your catalog" />
       </div>
 
-      <ProductForm
-        submitLabel="Create Product"
-        saving={createProduct.isPending}
-        onSubmit={handleSubmit}
-        onError={(message) => toast({ title: message, variant: 'destructive' })}
-        onCancel={() => router.push('/admin/products' as never)}
-      />
+      {categories.isPending || brands.isPending ? (
+        <AdminLoading />
+      ) : taxonomyError ? (
+        <AdminError error={taxonomyError} onRetry={retryTaxonomy} />
+      ) : (
+        <ProductForm
+          submitLabel="Create Product"
+          saving={createProduct.isPending}
+          onSubmit={handleSubmit}
+          onError={(message) => toast({ title: message, variant: 'destructive' })}
+          onCancel={() => router.push('/admin/products' as never)}
+        />
+      )}
     </div>
   );
 }

@@ -1,16 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { AdminPageHeader } from '@/components/admin/admin-ui';
+import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  adminOperationsApi,
-  type SupportMessage,
-  type SupportTicket,
-  type TicketStatus,
-} from '@/lib/api/services/customerOperations';
+  useAdminTicketMessages,
+  useAdminTickets,
+  useSendAdminTicketMessage,
+  useUpdateAdminTicket,
+} from '@/entities/admin/hooks';
+import type { TicketStatus } from '@/entities/admin/types';
 
 const statuses: TicketStatus[] = [
   'OPEN',
@@ -20,37 +21,34 @@ const statuses: TicketStatus[] = [
   'CLOSED',
 ];
 
+function TicketMessages({ ticketId }: { ticketId: string }) {
+  const { data: messages = [] } = useAdminTicketMessages(ticketId);
+  return (
+    <div className="space-y-2 rounded-md bg-muted/40 p-3">
+      {messages.map((entry) => (
+        <div key={entry.id} className="rounded-md border bg-background p-3 text-sm">
+          <p className="mb-1 text-xs text-muted-foreground">
+            {entry.authorType === 'customer' ? 'Customer' : 'Agent'} •{' '}
+            {new Date(entry.createdAt).toLocaleString()}
+          </p>
+          <p className="whitespace-pre-wrap">{entry.message}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminSupportPage() {
-  const [items, setItems] = useState<SupportTicket[]>([]);
-  const [messages, setMessages] = useState<Record<string, SupportMessage[]>>({});
+  const ticketsQuery = useAdminTickets();
+  const updateTicket = useUpdateAdminTicket();
+  const sendMessage = useSendAdminTicketMessage();
   const [reply, setReply] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
-
-  const load = async () => {
-    try {
-      const tickets = await adminOperationsApi.listTickets();
-      const entries = await Promise.all(
-        tickets.map(
-          async (ticket) =>
-            [ticket.id, await adminOperationsApi.listTicketMessages(ticket.id)] as const,
-        ),
-      );
-      setItems(tickets);
-      setMessages(Object.fromEntries(entries));
-    } catch {
-      setError('Gagal memuat tiket.');
-    }
-  };
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; replaced by React Query hooks in the admin entity migration
-    void load();
-  }, []);
+  const items = ticketsQuery.data ?? [];
 
   const update = async (id: string, status: TicketStatus) => {
     try {
-      await adminOperationsApi.updateTicket(id, status);
-      await load();
+      await updateTicket.mutateAsync({ id, status });
     } catch {
       setError('Gagal memperbarui tiket.');
     }
@@ -60,9 +58,8 @@ export default function AdminSupportPage() {
     const text = reply[id]?.trim();
     if (!text) return;
     try {
-      await adminOperationsApi.sendTicketMessage(id, text);
+      await sendMessage.mutateAsync({ id, message: text });
       setReply((value) => ({ ...value, [id]: '' }));
-      await load();
     } catch {
       setError('Gagal mengirim balasan.');
     }
@@ -72,10 +69,12 @@ export default function AdminSupportPage() {
     <div className="space-y-6">
       <AdminPageHeader title="Support" description="Respond to customer support tickets" />
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {items.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">No support tickets.</CardContent>
-        </Card>
+      {ticketsQuery.isPending ? (
+        <AdminLoading />
+      ) : ticketsQuery.isError ? (
+        <AdminError error={ticketsQuery.error} onRetry={() => void ticketsQuery.refetch()} />
+      ) : items.length === 0 ? (
+        <AdminEmpty message="No support tickets." />
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
@@ -99,17 +98,7 @@ export default function AdminSupportPage() {
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2 rounded-md bg-muted/40 p-3">
-                  {(messages[item.id] ?? []).map((entry) => (
-                    <div key={entry.id} className="rounded-md border bg-background p-3 text-sm">
-                      <p className="mb-1 text-xs text-muted-foreground">
-                        {entry.authorType === 'customer' ? 'Customer' : 'Agent'} •{' '}
-                        {new Date(entry.createdAt).toLocaleString()}
-                      </p>
-                      <p className="whitespace-pre-wrap">{entry.message}</p>
-                    </div>
-                  ))}
-                </div>
+                <TicketMessages ticketId={item.id} />
                 <div className="flex gap-2">
                   <input
                     value={reply[item.id] ?? ''}

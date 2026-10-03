@@ -9,7 +9,8 @@ import type { ReactNode } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { orderStatusLabel, type AdminOrderStatus } from '@/lib/api/services/admin';
+import { orderStatusLabel } from '@/entities/admin/format';
+import type { AdminOrderStatus } from '@/entities/admin/types';
 import { cn } from '@/lib/utils';
 
 export function AdminPageHeader({
@@ -37,6 +38,7 @@ export function AdminLoading({ label = 'Loading...' }: { label?: string }) {
     <div
       className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground"
       role="status"
+      data-testid="admin-loading"
     >
       <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
       <span>{label}</span>
@@ -50,6 +52,7 @@ export function AdminError({ error, onRetry }: { error: unknown; onRetry?: () =>
     <div
       className="flex flex-col items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-6 py-12 text-center"
       role="alert"
+      data-testid="admin-error"
     >
       <AlertCircle className="h-8 w-8 text-destructive" aria-hidden="true" />
       <div className="space-y-1">
@@ -57,7 +60,7 @@ export function AdminError({ error, onRetry }: { error: unknown; onRetry?: () =>
         <p className="max-w-md text-sm text-muted-foreground">{message}</p>
       </div>
       {onRetry ? (
-        <Button variant="outline" size="sm" onClick={onRetry}>
+        <Button variant="outline" size="sm" onClick={onRetry} data-testid="admin-error-retry">
           Try again
         </Button>
       ) : null}
@@ -67,7 +70,10 @@ export function AdminError({ error, onRetry }: { error: unknown; onRetry?: () =>
 
 export function AdminEmpty({ message, action }: { message: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-12 text-center">
+    <div
+      className="flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-12 text-center"
+      data-testid="admin-empty"
+    >
       <p className="text-sm text-muted-foreground">{message}</p>
       {action}
     </div>

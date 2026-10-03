@@ -17,19 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ApiClientError } from '@/lib/api/apiClient';
-import { useAdminProducts } from '@/lib/api/hooks.admin';
+import { formatCurrency, formatDate } from '@/entities/admin/format';
+import { useAdminProducts } from '@/entities/admin/hooks';
 import {
   useAdminFlashSale,
   useUpdateAdminFlashSaleStatus,
   useCreateAdminFlashSale,
-} from '@/lib/api/hooks.admin';
-import {
-  formatCurrency,
-  formatDate,
-  type AdminFlashSale,
-  type AdminFlashSaleStatus,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminFlashSale, AdminFlashSaleStatus } from '@/entities/admin/types';
+import { ApiClientError } from '@/lib/api/apiClient';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 

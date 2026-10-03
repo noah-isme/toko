@@ -37,22 +37,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import {
+  ADMIN_ORDER_STATUSES,
+  formatCurrency,
+  formatDate,
+  orderStatusLabel,
+} from '@/entities/admin/format';
 import {
   useAdminOrder,
   useAdminOrders,
   useAdminOrderStats,
   useCreateAdminShipment,
   useUpdateAdminOrderStatus,
-} from '@/lib/api/hooks.admin';
-import {
-  ADMIN_ORDER_STATUSES,
-  formatCurrency,
-  formatDate,
-  orderStatusLabel,
-  type AdminOrder,
-  type AdminOrderStatus,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminOrder, AdminOrderStatus } from '@/entities/admin/types';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 

@@ -39,6 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { formatRelativeTime } from '@/entities/admin/format';
 import {
   useAdminWebhookDeliveries,
   useAdminWebhooks,
@@ -46,12 +47,8 @@ import {
   useDeleteAdminWebhook,
   useReplayAdminWebhookDelivery,
   useUpdateAdminWebhook,
-} from '@/lib/api/hooks.admin';
-import {
-  formatRelativeTime,
-  type AdminWebhookEndpoint,
-  type AdminWebhookEndpointInput,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminWebhookEndpoint, AdminWebhookEndpointInput } from '@/entities/admin/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 

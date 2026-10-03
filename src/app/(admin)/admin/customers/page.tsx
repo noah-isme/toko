@@ -2,7 +2,7 @@
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Card, CardContent } from '@/components/ui/card';
-import { useAdminCustomers } from '@/lib/api/hooks.admin';
+import { useAdminCustomers } from '@/entities/admin/hooks';
 
 export default function CustomersPage() {
   const query = useAdminCustomers();

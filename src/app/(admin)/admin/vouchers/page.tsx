@@ -37,22 +37,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { formatCurrency, isVoucherActive, voucherValueLabel } from '@/entities/admin/format';
 import {
   useAdminVouchers,
   useAdminVoucherStats,
   useCreateAdminVoucher,
   useDeleteAdminVoucher,
   useUpdateAdminVoucher,
-} from '@/lib/api/hooks.admin';
-import {
-  formatCurrency,
-  isVoucherActive,
-  voucherValueLabel,
-  type AdminVoucher,
-  type AdminVoucherInput,
-  type AdminVoucherKind,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminVoucher, AdminVoucherInput, AdminVoucherKind } from '@/entities/admin/types';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 

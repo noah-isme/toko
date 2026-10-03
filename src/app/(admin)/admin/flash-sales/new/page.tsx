@@ -17,8 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAdminProducts } from '@/lib/api/hooks.admin';
-import { useCreateAdminFlashSale } from '@/lib/api/hooks.admin';
+import { useAdminProducts } from '@/entities/admin/hooks';
+import { useCreateAdminFlashSale } from '@/entities/admin/hooks';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
