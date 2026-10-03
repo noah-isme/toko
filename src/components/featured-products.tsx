@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { ProductCard } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
-import { useProducts } from '@/lib/api';
+import { useProducts } from '@/entities/catalog/hooks';
 import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 
 export function FeaturedProducts() {

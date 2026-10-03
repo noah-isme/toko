@@ -19,7 +19,7 @@ vi.mock('@/stores/cart-store', () => {
   };
 });
 
-vi.mock('@/lib/api/hooks', () => {
+vi.mock('@/entities/cart/hooks', () => {
   return {
     useCartQuery: () => ({
       data: { itemCount: 5 },

@@ -8,7 +8,7 @@ import {
   useMarkNotificationRead,
   useNotifications,
   useUnreadNotificationCount,
-} from '@/lib/api';
+} from '@/entities/notifications/hooks';
 import { resetMockNotifications } from '@/mocks/handlers.notifications';
 
 type WrapperProps = { children: React.ReactNode };

@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 
 import { Container } from '@/components/layout/container';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { useCartQuery } from '@/lib/api/hooks';
+import { useCartQuery } from '@/entities/cart/hooks';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/stores/cart-store';
 

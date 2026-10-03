@@ -11,10 +11,12 @@ import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAddToCartMutation } from '@/entities/cart/hooks';
+import { useProduct } from '@/entities/catalog/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { useToast } from '@/hooks/use-toast';
-import { useProduct, useAddToCart, formatCurrency } from '@/lib/api';
+import { formatCurrency } from '@/lib/api';
 import { useCartStore } from '@/stores/cart-store';
 
 interface ProductQuickViewProps {
@@ -27,7 +29,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
   const { data: product, isLoading } = useProduct(slug, { enabled: isOpen });
   const [quantity, setQuantity] = useState(1);
   const { cartId } = useCartStore();
-  const addToCart = useAddToCart(cartId || '');
+  const addToCart = useAddToCartMutation();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   const userId = getGuestId() ?? undefined;
@@ -47,21 +49,17 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
     try {
       await addToCart.mutateAsync({
         productId: product.id,
-        qty: quantity,
-      });
-
-      toast({
-        title: 'Added to cart',
-        description: `${product.title} has been added to your cart`,
+        quantity,
+        name: product.title,
+        price: { amount: product.price, currency: product.currency || 'IDR' },
+        image: product.imageUrl || product.images?.[0] || null,
+        maxQuantity: product.stock,
+        cartId,
       });
 
       setQuantity(1);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to add product to cart',
-        variant: 'destructive',
-      });
+    } catch {
+      // useAddToCartMutation already reports success and failure via toasts.
     }
   };
 

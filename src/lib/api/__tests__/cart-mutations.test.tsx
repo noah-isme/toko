@@ -3,7 +3,8 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import React, { type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { useAddToCartMutation, useCartQuery, useProductsQuery } from '../hooks';
+import { useAddToCartMutation, useCartQuery } from '@/entities/cart/hooks';
+import { useProducts } from '@/entities/catalog/hooks';
 
 function createQueryClient() {
   return new QueryClient({
@@ -34,7 +35,7 @@ describe('useAddToCartMutation', () => {
     const initialCart = cartResult.current.data!;
     const initialCount = initialCart.itemCount;
 
-    const { result: productsResult } = renderHook(() => useProductsQuery(), {
+    const { result: productsResult } = renderHook(() => useProducts(), {
       wrapper: Wrapper,
     });
 
@@ -42,7 +43,7 @@ describe('useAddToCartMutation', () => {
       expect(productsResult.current.isSuccess).toBe(true);
     });
 
-    const targetProduct = productsResult.current.data?.find(
+    const targetProduct = productsResult.current.data?.data.find(
       (product) => !initialCart.items.some((item) => item.productId === product.id),
     );
 
@@ -58,7 +59,7 @@ describe('useAddToCartMutation', () => {
         quantity: 1,
         name: targetProduct!.title,
         price: { amount: targetProduct!.price, currency: targetProduct!.currency },
-        image: targetProduct!.images[0] ?? null,
+        image: targetProduct!.images?.[0] ?? null,
         maxQuantity: targetProduct!.stock,
         cartId: initialCart.id,
       });

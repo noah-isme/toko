@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { z } from 'zod';
 
+import { ordersKeys } from '../keys';
 import {
   OrderDetailSchema,
   OrderListItemSchema,
@@ -103,5 +104,22 @@ export function useCancelOrderMutation(orderId: string) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.order(orderId) });
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
+  });
+}
+
+export function useOrders(page: number = 1, limit: number = 20) {
+  return useQuery({
+    queryKey: ordersKeys.list(page),
+    queryFn: () => ordersApi.getOrders(page, limit),
+    staleTime: 30 * 1000, // 30 seconds
+  });
+}
+
+export function useShipment(orderId: string) {
+  return useQuery({
+    queryKey: ordersKeys.shipment(orderId),
+    enabled: Boolean(orderId),
+    queryFn: () => ordersApi.getShipment(orderId),
+    staleTime: 60 * 1000, // 1 minute
   });
 }

@@ -3,7 +3,7 @@
 import { ProductCard } from '@/components/product-card';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Skeleton } from '@/components/ui/skeleton';
-import { usePersonalizedRecommendations } from '@/lib/api';
+import { usePersonalizedRecommendations } from '@/entities/catalog/hooks';
 
 export function PersonalizedRecommendations({ limit = 4 }: { limit?: number }) {
   const { isAuthenticated } = useAuth();

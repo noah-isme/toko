@@ -62,6 +62,19 @@ const eslintConfig = [
       'react-hooks/preserve-manual-memoization': 'off',
       'react-hooks/immutability': 'off',
       'react-hooks/incompatible-library': 'off',
+      // ADR-007: React Query hooks live in src/entities/<domain>/. The legacy
+      // src/lib/api/hooks* modules were removed; keep them from coming back.
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/lib/api/hooks*'],
+              message: 'Import hooks from @/entities/<domain> instead (ADR-007).',
+            },
+          ],
+        },
+      ],
     },
   },
   prettierConfig,

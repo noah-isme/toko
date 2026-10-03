@@ -15,12 +15,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  formatDateTime,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
   useUnreadNotificationCount,
-} from '@/lib/api';
+} from '@/entities/notifications/hooks';
+import { formatDateTime } from '@/lib/api';
 import type { Notification } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 

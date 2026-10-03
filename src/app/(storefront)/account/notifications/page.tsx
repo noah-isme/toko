@@ -8,11 +8,11 @@ import { useState } from 'react';
 import { LazyWrapper, LazyPushPreferencesCard } from '@/components/lazy-components';
 import { Button } from '@/components/ui/button';
 import {
-  formatDateTime,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
-} from '@/lib/api';
+} from '@/entities/notifications/hooks';
+import { formatDateTime } from '@/lib/api';
 import type { Notification } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/shared/ui/EmptyState';

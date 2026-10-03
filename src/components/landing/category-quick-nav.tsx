@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-import { useCategories } from '@/lib/api';
+import { useCategories } from '@/entities/catalog/hooks';
 import { cn } from '@/lib/utils';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 

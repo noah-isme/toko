@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useApplyPromoMutation, useRemovePromoMutation, useValidatePromoQuery } from '../hooks';
 import { promoApplyInputSchema, type PromoApplyInput } from '../schemas';
 
-import { useCartQuery } from '@/lib/api/hooks';
+import { useCartQuery } from '@/entities/cart/hooks';
 import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
 import { normalizeError } from '@/shared/lib/normalizeError';

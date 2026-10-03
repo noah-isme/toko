@@ -2,7 +2,7 @@
 
 import { ProductCard } from '@/components/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRelatedProducts } from '@/lib/api';
+import { useRelatedProducts } from '@/entities/catalog/hooks';
 
 export function RelatedProductList({ slug }: { slug: string }) {
   const { data, isLoading } = useRelatedProducts(slug);

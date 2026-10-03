@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { useProducts } from '@/lib/api';
+import { useProducts } from '@/entities/catalog/hooks';
 import type { Product } from '@/lib/api';
 import { useCompareStore } from '@/stores/compare-store';
 

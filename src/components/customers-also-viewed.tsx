@@ -2,7 +2,7 @@
 
 import { ProductCard } from '@/components/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useCustomersAlsoViewed } from '@/lib/api';
+import { useCustomersAlsoViewed } from '@/entities/catalog/hooks';
 
 export function CustomersAlsoViewed({ productId }: { productId: string }) {
   const { data, isLoading } = useCustomersAlsoViewed(productId);

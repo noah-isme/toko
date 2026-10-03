@@ -2,7 +2,7 @@
 
 import { ProductCard } from '@/components/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useFrequentlyBoughtTogether } from '@/lib/api';
+import { useFrequentlyBoughtTogether } from '@/entities/catalog/hooks';
 
 export function FrequentlyBoughtTogether({ productId }: { productId: string }) {
   const { data, isLoading } = useFrequentlyBoughtTogether(productId);

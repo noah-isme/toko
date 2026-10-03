@@ -3,7 +3,7 @@
 import type { Route } from 'next';
 import Link from 'next/link';
 
-import { useOrders } from '@/lib/api';
+import { useOrders } from '@/entities/orders/api/hooks';
 import { ORDER_STATUS_LABELS, formatCurrency, formatDate } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';

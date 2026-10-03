@@ -1,7 +1,7 @@
 'use client';
 
 import { Price } from '@/components/price';
-import { useAddToCartMutation } from '@/lib/api/hooks';
+import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useSavedForLaterStore } from '@/stores/saved-for-later-store';
 

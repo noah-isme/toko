@@ -11,7 +11,7 @@ import { ProductCard } from '@/components/product-card';
 import type { SortOption } from '@/components/product-sort';
 import { PullToRefresh } from '@/components/pull-to-refresh';
 import { Button } from '@/components/ui/button';
-import { useProducts } from '@/lib/api';
+import { useProducts } from '@/entities/catalog/hooks';
 import { formatCurrency } from '@/lib/api/utils';
 import {
   emptyCategoryProducts,

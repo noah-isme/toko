@@ -22,12 +22,12 @@ import { formatCountdown } from './_lib/countdown';
 import { formatDraftAddressLines, getFallbackTotals } from './_lib/summary';
 
 import { EmptyState } from '@/components/empty-state';
+import { useCartQuery } from '@/entities/cart/hooks';
 import type { ApiError } from '@/entities/checkout/api/client';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
 import { loadOrderDraft } from '@/entities/checkout/utils/draftStorage';
 import { useCreatePaymentIntentMutation } from '@/entities/payment/api/hooks';
 import type { PaymentCreateBody, PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
-import { useCartQuery } from '@/lib/api/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
 import { paymentApi } from '@/lib/api/services/payment';
 import type { PaymentInstructions } from '@/lib/api/services/payment';

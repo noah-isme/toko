@@ -7,12 +7,12 @@ import { useRouter } from 'next/navigation';
 import { Price } from '@/components/price';
 import { SavedForLater } from '@/components/saved-for-later';
 import { Button } from '@/components/ui/button';
-import { PromoField } from '@/entities/promo/ui/PromoField';
 import {
   useCartQuery,
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
-} from '@/lib/api/hooks';
+} from '@/entities/cart/hooks';
+import { PromoField } from '@/entities/promo/ui/PromoField';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';

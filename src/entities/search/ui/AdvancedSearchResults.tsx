@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useProducts } from '@/entities/catalog/hooks';
 import {
   useSearchStateFromUrl,
   useSearchUrl,
@@ -28,7 +29,6 @@ import {
 } from '@/entities/search/hooks';
 import type { SearchFilters, SortOption } from '@/entities/search/types';
 import { AdvancedFilterSidebar as AdvancedFilterSidebarComponent } from '@/entities/search/ui/AdvancedFilterSidebar';
-import { useProducts } from '@/lib/api';
 import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/shared/ui/EmptyState';

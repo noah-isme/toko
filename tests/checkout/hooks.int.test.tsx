@@ -3,9 +3,9 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import React, { type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 
+import { useCartQuery } from '@/entities/cart/hooks';
 import { useCheckoutMutation, useShippingQuoteMutation } from '@/entities/checkout/api/hooks';
 import type { ShippingOption } from '@/entities/checkout/api/hooks';
-import { useCartQuery } from '@/lib/api/hooks';
 
 function createQueryClient() {
   return new QueryClient({

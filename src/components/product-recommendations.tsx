@@ -10,7 +10,7 @@ import {
   useCustomersAlsoViewed,
   usePersonalizedRecommendations,
   useTrendingProducts,
-} from '@/lib/api/hooks.react-query';
+} from '@/entities/catalog/hooks';
 
 interface RecommendationSectionProps {
   title: string;

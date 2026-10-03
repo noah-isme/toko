@@ -36,7 +36,7 @@ vi.mock('@/entities/favorites/ui/FavToggle', () => ({
   ),
 }));
 
-vi.mock('@/lib/api', () => ({
+vi.mock('@/entities/catalog/hooks', () => ({
   useProducts: () => ({
     data: {
       data: [

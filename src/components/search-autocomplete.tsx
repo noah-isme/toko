@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 
 import { Input } from '@/components/ui/input';
-import { useProducts } from '@/lib/api';
+import { useProducts } from '@/entities/catalog/hooks';
 import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
 import { useSearchStore } from '@/stores/search-store';

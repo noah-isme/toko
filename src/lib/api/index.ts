@@ -3,15 +3,15 @@
  *
  * This module provides a complete API integration for the Toko e-commerce platform.
  *
+ * React Query hooks live in `src/entities/<domain>/` (see ADR-007); this barrel
+ * exports services, utilities, constants and types only.
+ *
  * @example
  * ```typescript
- * import { authApi, useProducts, formatCurrency } from '@/lib/api';
+ * import { authApi, formatCurrency } from '@/lib/api';
  *
  * // Use service directly
  * const user = await authApi.getCurrentUser();
- *
- * // Use React hooks
- * const { data: products, isLoading } = useProducts({ category: 'electronics' });
  *
  * // Use utilities
  * const formatted = formatCurrency(12000000); // "Rp 12.000.000"
@@ -44,45 +44,6 @@ export {
   privacyApi,
   paymentApi,
 } from './services';
-
-// React Query Hooks
-export {
-  queryKeys,
-  useRegister,
-  useLogin,
-  useLogout,
-  useCurrentUser,
-  useCategories,
-  useBrands,
-  useProducts,
-  useProduct,
-  useRelatedProducts,
-  useFrequentlyBoughtTogether,
-  useCustomersAlsoViewed,
-  usePersonalizedRecommendations,
-  useTrendingProducts,
-  useCart,
-  useAddToCart,
-  useUpdateCartItem,
-  useRemoveCartItem,
-  useApplyVoucher,
-  useRemoveVoucher,
-  useShippingQuote,
-  useMergeCart,
-  useCheckout,
-  useOrders,
-  useOrder,
-  useCancelOrder,
-  useShipment,
-  useAddresses,
-  useCreateAddress,
-  useUpdateAddress,
-  useDeleteAddress,
-  useNotifications,
-  useUnreadNotificationCount,
-  useMarkNotificationRead,
-  useMarkAllNotificationsRead,
-} from './hooks.react-query';
 
 // Utilities
 export {

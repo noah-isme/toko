@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 
 import { TrackingActions } from '@/components/tracking-actions';
 import { Button } from '@/components/ui/button';
-import { useShipment } from '@/lib/api';
+import { useShipment } from '@/entities/orders/api/hooks';
 import { SHIPMENT_STATUS_LABELS } from '@/lib/api/constants';
 import { formatDateTime } from '@/lib/api/utils';
 import { abs } from '@/shared/seo/seo';

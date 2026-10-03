@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { Container } from '@/components/layout/container';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useBrands } from '@/lib/api';
+import { useBrands } from '@/entities/catalog/hooks';
 import { cn } from '@/lib/utils';
 
 export function BrandsSection() {

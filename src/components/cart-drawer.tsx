@@ -17,7 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { useCartQuery } from '@/lib/api/hooks';
+import { useCartQuery } from '@/entities/cart/hooks';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
