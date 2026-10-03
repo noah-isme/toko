@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import { cache, Suspense } from 'react';
 
 import { CustomersAlsoViewed } from '@/components/customers-also-viewed';
 import { FrequentlyBoughtTogether } from '@/components/frequently-bought-together';
@@ -60,10 +61,16 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function fetchProduct(slug: string) {
+type FetchedProduct =
+  | { status: 'ok'; product: ReturnType<typeof mapApiProductToProduct> }
+  | { status: 'missing' }
+  | { status: 'unavailable' };
+
+// Cached per request so generateMetadata and the page share one fetch (and one 404 decision).
+const fetchProduct = cache(async (slug: string): Promise<FetchedProduct> => {
   const { apiUrl, apiMocking, tenantId } = getPublicEnv();
   if (!apiUrl || apiUrl === 'mock' || apiMocking) {
-    return null;
+    return { status: 'unavailable' };
   }
 
   try {
@@ -78,19 +85,31 @@ async function fetchProduct(slug: string) {
       cache: 'no-store',
     });
 
+    if (response.status === 404) {
+      return { status: 'missing' };
+    }
+
     if (!response.ok) {
-      return null;
+      return { status: 'unavailable' };
     }
 
     const json = (await response.json()) as ApiResponse<ApiProduct>;
-    return mapApiProductToProduct(json.data);
+    return { status: 'ok', product: mapApiProductToProduct(json.data) };
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn('Failed to fetch product metadata', error);
     }
 
-    return null;
+    return { status: 'unavailable' };
   }
+});
+
+async function loadProduct(slug: string) {
+  const result = await fetchProduct(slug);
+  if (result.status === 'missing') {
+    notFound();
+  }
+  return result.status === 'ok' ? result.product : null;
 }
 
 function humanizeSlug(slug: string) {
@@ -103,7 +122,7 @@ function humanizeSlug(slug: string) {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = await fetchProduct(slug);
+  const product = await loadProduct(slug);
   if (!product) {
     const fallbackTitle = humanizeSlug(slug) || 'Product';
     const canonical = getCanonical(`/products/${slug}`);
@@ -168,7 +187,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await fetchProduct(slug);
+  const product = await loadProduct(slug);
 
   const structuredData = productJsonLd(product ?? null);
   const resolvedProductId = product?.id ?? slug;

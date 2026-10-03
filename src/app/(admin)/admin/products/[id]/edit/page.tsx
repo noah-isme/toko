@@ -2,11 +2,12 @@
 
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { ProductForm, productToFormValues } from '@/components/admin/product-form';
 import { Button } from '@/components/ui/button';
+import { ApiClientError } from '@/lib/api/apiClient';
 import { useAdminProduct, useUpdateAdminProduct } from '@/lib/api/hooks.admin';
 import type { AdminProductInput } from '@/lib/api/services/admin';
 import { useToast } from '@/shared/ui/toast';
@@ -34,6 +35,10 @@ export default function EditProductPage() {
       });
     }
   };
+
+  if (query.error instanceof ApiClientError && query.error.status === 404) {
+    notFound();
+  }
 
   return (
     <div className="space-y-6">

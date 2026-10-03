@@ -2,7 +2,7 @@
 
 import { Loader2, Plus, Save, Trash2, Clock, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ApiClientError } from '@/lib/api/apiClient';
 import { useAdminProducts } from '@/lib/api/hooks.admin';
 import {
   useAdminFlashSale,
@@ -167,6 +168,10 @@ export default function FlashSaleEditPage() {
   const fs = flashSaleQuery.data;
   if (fs && !values) {
     setValues(flashSaleToFormValues(fs));
+  }
+
+  if (flashSaleQuery.error instanceof ApiClientError && flashSaleQuery.error.status === 404) {
+    notFound();
   }
 
   const handleStatusChange = async (newStatus: AdminFlashSaleStatus) => {
