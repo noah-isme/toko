@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
 import { OrderSummary } from '../_components/OrderSummary';
@@ -11,7 +12,7 @@ import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
 import { loadOrderDraft } from '@/entities/checkout/utils/draftStorage';
-import { PAYMENT_METHOD_LABELS } from '@/lib/api/constants';
+import { isPaymentMethod } from '@/lib/api/constants';
 import { cn } from '@/lib/utils';
 
 export default function CheckoutFailedPage() {
@@ -22,7 +23,10 @@ export default function CheckoutFailedPage() {
   );
 }
 
+const SUPPORT_EMAIL = 'support@toko.com';
+
 function CheckoutFailedContent() {
+  const t = useTranslations('checkout');
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get('orderId') ?? '';
@@ -48,9 +52,9 @@ function CheckoutFailedContent() {
   if (!orderId) {
     return (
       <EmptyState
-        title="Pembayaran belum diproses"
-        description="Kami tidak menemukan pesanan yang dimaksud. Silakan kembali ke keranjang."
-        action={{ label: 'Kembali ke keranjang', onClick: () => router.push('/cart') }}
+        title={t('failed.missing.title')}
+        description={t('failed.missing.description')}
+        action={{ label: t('failed.missing.action'), onClick: () => router.push('/cart') }}
       />
     );
   }
@@ -73,35 +77,37 @@ function CheckoutFailedContent() {
             <path d="M6 18L18 6M6 6l12 12" />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold">Pembayaran Belum Berhasil</h1>
+        <h1 className="text-3xl font-bold">{t('failed.title')}</h1>
         <p className="text-sm text-muted-foreground">
-          Status terbaru untuk pesanan{' '}
-          <span className="font-semibold text-foreground">{orderId}</span>{' '}
-          {status ? `adalah ${status}.` : 'belum kami terima.'}
+          {t.rich(status ? 'failed.status' : 'failed.statusUnknown', {
+            orderId,
+            status: status ?? '',
+            strong: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>,
+          })}
         </p>
       </div>
 
       <div className="mx-auto max-w-2xl space-y-6">
         {reason && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <h3 className="font-semibold text-red-900">Alasan Kegagalan:</h3>
+            <h3 className="font-semibold text-red-900">{t('failed.reasonTitle')}</h3>
             <p className="mt-1 text-sm text-red-800">{reason}</p>
           </div>
         )}
 
         <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-          <h3 className="font-semibold text-yellow-900">Apa yang harus dilakukan?</h3>
+          <h3 className="font-semibold text-yellow-900">{t('failed.whatToDo')}</h3>
           <ul className="mt-2 space-y-1 text-sm text-yellow-800">
-            <li>• Coba lakukan pembayaran lagi dengan memilih tombol di bawah</li>
-            <li>• Pastikan saldo atau limit kartu mencukupi</li>
-            <li>• Jika masalah berlanjut, hubungi customer service kami</li>
+            <li>{t('failed.tips.retry')}</li>
+            <li>{t('failed.tips.balance')}</li>
+            <li>{t('failed.tips.support')}</li>
           </ul>
         </div>
 
         {orderDraft && (
           <>
             <section className="space-y-3 rounded-lg border p-6">
-              <h2 className="text-lg font-semibold">Detail Pengiriman</h2>
+              <h2 className="text-lg font-semibold">{t('orderDetails.shippingTitle')}</h2>
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-foreground">
                   {orderDraft.address.receiverName} • {orderDraft.address.phone}
@@ -120,11 +126,11 @@ function CheckoutFailedContent() {
 
             {orderDraft.paymentMethod && (
               <section className="space-y-3 rounded-lg border p-6">
-                <h2 className="text-lg font-semibold">Metode Pembayaran</h2>
+                <h2 className="text-lg font-semibold">{t('orderDetails.paymentTitle')}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {PAYMENT_METHOD_LABELS[
-                    orderDraft.paymentMethod as keyof typeof PAYMENT_METHOD_LABELS
-                  ] || orderDraft.paymentMethod}
+                  {isPaymentMethod(orderDraft.paymentMethod)
+                    ? t(`payment.methods.${orderDraft.paymentMethod}.label`)
+                    : orderDraft.paymentMethod}
                 </p>
               </section>
             )}
@@ -136,23 +142,30 @@ function CheckoutFailedContent() {
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild size="lg">
             <Link href={`/checkout/review?orderId=${encodeURIComponent(orderId)}`}>
-              Coba Bayar Lagi
+              {t('failed.retry')}
             </Link>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <Link href="/cart">Kembali ke Keranjang</Link>
+            <Link href="/cart">{t('failed.backToCart')}</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <Link href="/products">Belanja Dulu</Link>
+            <Link href="/products">{t('failed.shopFirst')}</Link>
           </Button>
         </div>
 
         <div className="rounded-lg bg-muted/50 p-4 text-center text-sm text-muted-foreground">
           <p>
-            Butuh bantuan? Hubungi customer service kami di{' '}
-            <a href="mailto:support@toko.com" className="font-medium text-primary hover:underline">
-              support@toko.com
-            </a>
+            {t.rich('failed.help', {
+              email: SUPPORT_EMAIL,
+              link: (chunks) => (
+                <a
+                  href={`mailto:${SUPPORT_EMAIL}`}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
           </p>
         </div>
       </div>

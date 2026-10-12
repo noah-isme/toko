@@ -98,6 +98,13 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   ewallet_dana: 'DANA',
 };
 
+/** Whether `value` is a known payment method (a key of `PAYMENT_METHOD_LABELS`). */
+export function isPaymentMethod(value: unknown): value is PaymentMethod {
+  return (
+    typeof value === 'string' && Object.prototype.hasOwnProperty.call(PAYMENT_METHOD_LABELS, value)
+  );
+}
+
 /**
  * Courier names
  */

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 
 import { setDefaultAddress } from '../api';
@@ -29,6 +30,7 @@ export function useSetDefaultAddressMutation(
 ) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('checkout.address.toast');
   const ownerId = resolveOwnerId(userIdOrGuestId);
   const useGuestStorage = shouldUseGuestStorage(userIdOrGuestId);
   const usageContext = options.context ?? 'account';
@@ -48,7 +50,7 @@ export function useSetDefaultAddressMutation(
         const addresses = readGuestAddresses();
         const target = addresses.find((address) => address.id === id);
         if (!target) {
-          return Promise.reject(new Error('Alamat tidak ditemukan'));
+          return Promise.reject(new Error(t('notFound')));
         }
 
         const updatedList = addresses.map((address) => ({
@@ -116,7 +118,7 @@ export function useSetDefaultAddressMutation(
 
       toast({
         id: `address-default-${data.id}`,
-        title: 'Alamat utama diperbarui',
+        title: t('defaultUpdated'),
         variant: 'success',
       });
     },
@@ -142,7 +144,7 @@ export function useSetDefaultAddressMutation(
 
       toast({
         id: `address-default-error-${context?.targetId ?? 'unknown'}`,
-        title: 'Gagal mengatur alamat utama',
+        title: t('defaultFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

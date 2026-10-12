@@ -2,10 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Locate, MapPin } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
-import { addressInputSchema, type AddressInput } from '../schemas';
+import { addressInputSchema, isAddressValidationKey, type AddressInput } from '../schemas';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,9 +43,13 @@ export function AddressForm({
   onSubmit,
   onCancel,
   isSubmitting,
-  submitLabel = 'Simpan alamat',
-  cancelLabel = 'Batal',
+  submitLabel: submitLabelProp,
+  cancelLabel: cancelLabelProp,
 }: AddressFormProps) {
+  const t = useTranslations('checkout.address.form');
+  const tv = useTranslations('checkout.address.validation');
+  const submitLabel = submitLabelProp ?? t('submit');
+  const cancelLabel = cancelLabelProp ?? t('cancel');
   const formId = useId();
   const { toast: pushToast } = useToast();
   const form = useForm<AddressInput>({
@@ -194,7 +199,7 @@ export function AddressForm({
         setIsLocationOpen(true);
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {
-          setLocationError('Tidak dapat memuat saran lokasi. Coba lagi.');
+          setLocationError(t('searchError'));
         }
       } finally {
         setIsLocationSearching(false);
@@ -205,7 +210,7 @@ export function AddressForm({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [locationQuery]);
+  }, [locationQuery, t]);
 
   const handleLocationPick = (result: LocationResult) => {
     setLocationQuery(result.displayName);
@@ -281,7 +286,7 @@ export function AddressForm({
           if (!currentError || currentError.type === 'validate') {
             form.setError('postalCode', {
               type: 'validate',
-              message: 'Kode pos tidak cocok dengan kota/provinsi.',
+              message: t('postalMismatch'),
             });
           }
         } else if (currentError?.type === 'validate') {
@@ -299,7 +304,7 @@ export function AddressForm({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [availableWards, form, selectedWard, watchedCity, watchedPostalCode, watchedProvince]);
+  }, [availableWards, form, selectedWard, t, watchedCity, watchedPostalCode, watchedProvince]);
 
   const handleLocationSelect = async (lat: number, lng: number) => {
     setIsGeocoding(true);
@@ -325,8 +330,8 @@ export function AddressForm({
     } catch (error) {
       console.error('Geocoding error:', error);
       pushToast({
-        title: 'Gagal mengambil alamat',
-        description: 'Coba lagi atau isi alamat secara manual.',
+        title: t('toast.reverseFailed'),
+        description: t('toast.reverseFailedDescription'),
         variant: 'destructive',
       });
     } finally {
@@ -337,8 +342,8 @@ export function AddressForm({
   const handleUseCurrentLocation = async () => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
       pushToast({
-        title: 'Lokasi tidak tersedia',
-        description: 'Perangkat Anda belum mendukung deteksi lokasi otomatis.',
+        title: t('toast.unavailable'),
+        description: t('toast.unavailableDescription'),
         variant: 'destructive',
       });
       return;
@@ -363,14 +368,14 @@ export function AddressForm({
           : undefined;
       const message =
         errorCode === 1
-          ? 'Izin lokasi ditolak. Silakan izinkan akses lokasi di browser Anda.'
+          ? t('toast.permissionDenied')
           : errorCode === 2
-            ? 'Posisi tidak tersedia. Coba lagi nanti.'
+            ? t('toast.positionUnavailable')
             : errorCode === 3
-              ? 'Waktu permintaan lokasi habis.'
-              : 'Gagal mendeteksi lokasi otomatis.';
+              ? t('toast.timeout')
+              : t('toast.generic');
       pushToast({
-        title: 'Gagal mendeteksi lokasi',
+        title: t('toast.locateFailed'),
         description: message,
         variant: 'destructive',
       });
@@ -410,6 +415,9 @@ export function AddressForm({
   });
 
   const { errors } = form.formState;
+  // Schema errors carry `checkout.address.validation` keys; other messages are already text.
+  const errorText = (message?: string) =>
+    message && isAddressValidationKey(message) ? tv(message) : message;
 
   return (
     <form
@@ -423,17 +431,15 @@ export function AddressForm({
           role="alert"
           className="rounded-md border border-destructive/60 bg-destructive/10 p-3 text-sm text-destructive"
         >
-          {errors.root.message}
+          {errorText(errors.root.message)}
         </div>
       ) : null}
 
       <div className="space-y-4 rounded-lg border p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-0.5">
-            <h3 className="font-medium">Lokasi Peta</h3>
-            <p className="text-sm text-muted-foreground">
-              Pilih lokasi di peta untuk mengisi alamat otomatis
-            </p>
+            <h3 className="font-medium">{t('mapTitle')}</h3>
+            <p className="text-sm text-muted-foreground">{t('mapDescription')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -443,7 +449,7 @@ export function AddressForm({
               className="gap-2"
             >
               <MapPin className="h-4 w-4" />
-              {showMap ? 'Tutup Peta' : 'Buka Peta'}
+              {showMap ? t('closeMap') : t('openMap')}
             </Button>
             <Button
               type="button"
@@ -453,7 +459,7 @@ export function AddressForm({
               className="gap-2"
             >
               <Locate className={`h-4 w-4 ${isLocating ? 'animate-spin' : ''}`} />
-              {isLocating ? 'Mendeteksi lokasi...' : 'Gunakan lokasi saya'}
+              {isLocating ? t('locating') : t('useLocation')}
             </Button>
           </div>
         </div>
@@ -466,9 +472,7 @@ export function AddressForm({
               className="border-border shadow-sm"
             />
             {isGeocoding && (
-              <p className="mt-2 animate-pulse text-xs text-muted-foreground">
-                Mengambil detail alamat...
-              </p>
+              <p className="mt-2 animate-pulse text-xs text-muted-foreground">{t('geocoding')}</p>
             )}
           </div>
         )}
@@ -476,7 +480,7 @@ export function AddressForm({
 
       <div className="space-y-2">
         <label className="text-sm font-medium" htmlFor={`${formId}-location`}>
-          Cari lokasi
+          {t('searchLabel')}
         </label>
         <div ref={locationContainerRef} className="relative">
           <Input
@@ -484,14 +488,14 @@ export function AddressForm({
             value={locationQuery}
             onChange={(event) => setLocationQuery(event.target.value)}
             onFocus={() => setIsLocationOpen(true)}
-            placeholder="Ketik kota atau kode pos"
+            placeholder={t('searchPlaceholder')}
             autoComplete="off"
           />
           {isLocationOpen &&
           (locationResults.length > 0 || isLocationSearching || locationError) ? (
             <div className="absolute z-20 mt-2 w-full rounded-md border bg-popover p-2 text-sm shadow-lg">
               {isLocationSearching ? (
-                <p className="px-2 py-2 text-xs text-muted-foreground">Memuat saran...</p>
+                <p className="px-2 py-2 text-xs text-muted-foreground">{t('searchLoading')}</p>
               ) : null}
               {locationError ? (
                 <p className="px-2 py-2 text-xs text-destructive">{locationError}</p>
@@ -513,27 +517,25 @@ export function AddressForm({
                 </ul>
               ) : null}
               {!isLocationSearching && !locationError && locationResults.length === 0 ? (
-                <p className="px-2 py-2 text-xs text-muted-foreground">Tidak ada saran.</p>
+                <p className="px-2 py-2 text-xs text-muted-foreground">{t('searchEmpty')}</p>
               ) : null}
             </div>
           ) : null}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Gunakan dropdown untuk mengisi kota, provinsi, dan kode pos.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('searchHint')}</p>
       </div>
 
       {availableDistricts.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 text-sm font-medium">
-            <label htmlFor={`${formId}-district`}>Kecamatan</label>
+            <label htmlFor={`${formId}-district`}>{t('district')}</label>
             <select
               id={`${formId}-district`}
               value={selectedDistrict}
               onChange={handleDistrictChange}
               className="h-10 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <option value="">Pilih kecamatan</option>
+              <option value="">{t('districtPlaceholder')}</option>
               {availableDistricts.map((district) => (
                 <option key={district.name} value={district.name}>
                   {district.name}
@@ -542,7 +544,7 @@ export function AddressForm({
             </select>
           </div>
           <div className="space-y-2 text-sm font-medium">
-            <label htmlFor={`${formId}-ward`}>Kelurahan</label>
+            <label htmlFor={`${formId}-ward`}>{t('ward')}</label>
             <select
               id={`${formId}-ward`}
               value={selectedWard}
@@ -550,7 +552,7 @@ export function AddressForm({
               disabled={!selectedDistrict}
               className="h-10 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <option value="">Pilih kelurahan</option>
+              <option value="">{t('wardPlaceholder')}</option>
               {availableWards.map((ward) => (
                 <option key={ward.name} value={ward.name}>
                   {ward.name} - {ward.postalCode}
@@ -558,81 +560,71 @@ export function AddressForm({
               ))}
             </select>
           </div>
-          <p className="text-xs text-muted-foreground sm:col-span-2">
-            Pilih kecamatan/kelurahan agar kode pos terisi otomatis.
-          </p>
+          <p className="text-xs text-muted-foreground sm:col-span-2">{t('regionHint')}</p>
         </div>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
-          label="Nama penerima"
           name="receiverName"
-          error={errors.receiverName?.message}
+          error={errorText(errors.receiverName?.message)}
           autoComplete="name"
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
-          label="Nomor telepon"
           name="phone"
-          error={errors.phone?.message}
+          error={errorText(errors.phone?.message)}
           autoComplete="tel"
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
-          label="Alamat utama"
           name="addressLine1"
-          error={errors.addressLine1?.message}
+          error={errorText(errors.addressLine1?.message)}
           autoComplete="address-line1"
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
-          label="Detail alamat"
           name="addressLine2"
-          error={errors.addressLine2?.message}
+          error={errorText(errors.addressLine2?.message)}
           autoComplete="address-line2"
           register={form.register}
           disabled={isSubmitting}
           optional
         />
         <Field
-          label="Kota / Kabupaten"
           name="city"
-          error={errors.city?.message}
+          error={errorText(errors.city?.message)}
           autoComplete="address-level2"
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
-          label="Provinsi"
           name="province"
-          error={errors.province?.message}
+          error={errorText(errors.province?.message)}
           autoComplete="address-level1"
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
-          label="Kode pos"
           name="postalCode"
-          error={errors.postalCode?.message}
+          error={errorText(errors.postalCode?.message)}
           autoComplete="postal-code"
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
-          label="Negara"
           name="country"
-          error={errors.country?.message}
+          error={errorText(errors.country?.message)}
           autoComplete="country-name"
           register={form.register}
           disabled={isSubmitting}
         />
       </div>
       {isPostalChecking ? (
-        <p className="text-xs text-muted-foreground">Memeriksa kecocokan kode pos...</p>
+        <p className="text-xs text-muted-foreground">{t('postalChecking')}</p>
       ) : null}
       <div className="flex flex-wrap items-center justify-end gap-3">
         {onCancel ? (
@@ -651,7 +643,7 @@ export function AddressForm({
       </div>
       <DelayedLoader
         active={Boolean(isSubmitting)}
-        label="Menyimpan alamat..."
+        label={t('saving')}
         delayMs={350}
         className="text-xs text-muted-foreground"
       />
@@ -662,7 +654,7 @@ export function AddressForm({
 type RegisterFn = ReturnType<typeof useForm<AddressInput>>['register'];
 
 interface FieldProps {
-  label: string;
+  /** Also the label key under `checkout.address.form.fields`. */
   name: keyof AddressInput;
   error?: string;
   disabled?: boolean;
@@ -671,7 +663,9 @@ interface FieldProps {
   register: RegisterFn;
 }
 
-function Field({ label, name, error, disabled, autoComplete, optional, register }: FieldProps) {
+function Field({ name, error, disabled, autoComplete, optional, register }: FieldProps) {
+  const t = useTranslations('checkout.address.form');
+  const label = t(`fields.${name}`);
   const errorId = error ? `${name}-error` : undefined;
   const attributes = fieldA11y(String(name), errorId);
 
@@ -680,7 +674,7 @@ function Field({ label, name, error, disabled, autoComplete, optional, register 
       <label htmlFor={attributes.id} className="flex items-center gap-1">
         {label}
         {optional ? (
-          <span className="text-xs font-normal text-muted-foreground">(opsional)</span>
+          <span className="text-xs font-normal text-muted-foreground">{t('optional')}</span>
         ) : null}
       </label>
       <Input

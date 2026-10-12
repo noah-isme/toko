@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import React from 'react';
 
 import type { ShippingOption } from '@/entities/checkout/schemas';
@@ -14,15 +15,16 @@ export interface ShippingOptionsProps {
 }
 
 export function ShippingOptions({ options, selectedId, onChange, disabled }: ShippingOptionsProps) {
+  const t = useTranslations('checkout.shipping');
   if (!options.length) {
-    return <p className="text-sm text-muted-foreground">No shipping options available.</p>;
+    return <p className="text-sm text-muted-foreground">{t('empty')}</p>;
   }
 
   return (
     <div className="space-y-3">
       {options.map((option) => {
         const isSelected = option.id === selectedId;
-        const etaLabel = formatEtaLabel(option.etd);
+        const etaLabel = t('eta', { range: formatEtaRange(option.etd) });
         return (
           <label
             key={option.id}
@@ -59,10 +61,11 @@ export function ShippingOptions({ options, selectedId, onChange, disabled }: Shi
   );
 }
 
-function formatEtaLabel(etd: string) {
+/** The arrival window shown after "Estimasi tiba": a date range, or the raw `etd` text. */
+function formatEtaRange(etd: string) {
   const parsed = parseEtdDays(etd);
   if (!parsed) {
-    return `Estimasi tiba ${etd}`;
+    return etd;
   }
 
   const { minDays, maxDays } = parsed;
@@ -72,9 +75,7 @@ function formatEtaLabel(etd: string) {
   const formatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' });
   const startLabel = formatter.format(startDate);
   const endLabel = formatter.format(endDate);
-  const range = startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
-
-  return `Estimasi tiba ${range}`;
+  return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
 }
 
 function parseEtdDays(etd: string) {

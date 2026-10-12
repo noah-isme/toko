@@ -87,6 +87,12 @@
         "descriptionDefault": "This category has no products yet. Try another category to find similar products.",
         "cta": "Explore other categories"
       }
+    },
+    "retryToast": {
+      "label": "Try again",
+      "busy": "Retrying…",
+      "errorTitle": "Still failing",
+      "errorDescription": "The request could not be completed. Please try again later."
     }
   },
   "nav": {
@@ -662,7 +668,376 @@
       }
     }
   },
-  "checkout": {},
+  "checkout": {
+    "header": {
+      "breadcrumbHome": "Home",
+      "breadcrumbCart": "Cart",
+      "breadcrumbCheckout": "Checkout",
+      "title": "Checkout",
+      "subtitle": "Enter your shipping details to see available delivery options."
+    },
+    "stepper": {
+      "label": "Checkout progress",
+      "stepOf": "Step {step} of {total}:",
+      "steps": {
+        "address": "Address & Shipping",
+        "review": "Review & Payment",
+        "success": "Done"
+      }
+    },
+    "addressSelection": {
+      "title": "Shipping address",
+      "description": "Choose an address to calculate shipping and prepare your order.",
+      "manage": "Manage addresses",
+      "empty": "No address selected yet. Add a new address to continue checkout.",
+      "add": "Add address",
+      "viewAll": "View all addresses",
+      "inUse": "In use",
+      "primary": "Primary address",
+      "loadingShipping": "Loading shipping options…",
+      "announcement": "Address for {name} selected"
+    },
+    "addressManager": {
+      "title": "Manage addresses",
+      "description": "Choose or create a new address, then use it for checkout.",
+      "deleteDisabled": "This address is being used for checkout."
+    },
+    "shipping": {
+      "title": "Shipping Options",
+      "description": "Choose the delivery service that suits you best.",
+      "refreshing": "Refreshing...",
+      "refresh": "Refresh shipping cost",
+      "recalculating": "Recalculating shipping cost...",
+      "lastQuote": "Last shipping quote {time}",
+      "updatedQuote": "Shipping cost updated {time}",
+      "autoUpdate": "Shipping cost updates automatically when the address or cart changes.",
+      "empty": "No shipping options available.",
+      "eta": "Estimated arrival {range}"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "description": "Select how you want to pay for your order.",
+      "selected": "Selected",
+      "methods": {
+        "bank_transfer": {
+          "label": "Bank Transfer",
+          "description": "Manual transfer to a bank account"
+        },
+        "virtual_account": {
+          "label": "Virtual Account",
+          "description": "Pay via Virtual Account"
+        },
+        "credit_card": {
+          "label": "Credit Card",
+          "description": "Pay with a credit card"
+        },
+        "ewallet_gopay": {
+          "label": "GoPay",
+          "description": "Pay with GoPay"
+        },
+        "ewallet_ovo": {
+          "label": "OVO",
+          "description": "Pay with OVO"
+        },
+        "ewallet_dana": {
+          "label": "DANA",
+          "description": "Pay with DANA"
+        }
+      }
+    },
+    "notes": {
+      "title": "Order Notes (Optional)",
+      "description": "Add special instructions for your order (e.g. “Call before delivery”, “Leave at the front door”).",
+      "placeholder": "Write your notes here... (max 500 characters)",
+      "counter": "{count}/{max}"
+    },
+    "proceed": {
+      "outOfStock": "Some products in your cart are unavailable or out of stock.",
+      "processing": "Processing order…",
+      "payNow": "Pay Now",
+      "connecting": "Connecting to the payment gateway…"
+    },
+    "rules": {
+      "proceed": {
+        "processing": "Processing your selection…",
+        "missingAddress": "Complete the shipping address first.",
+        "missingShippingOption": "Choose a shipping option to continue.",
+        "missingPaymentMethod": "Choose a payment method first",
+        "fallback": "Complete the required details."
+      },
+      "payNow": {
+        "processing": "Payment is being processed…",
+        "missingOrderId": "Order ID not found. Check your link again.",
+        "missingOrderDraft": "The order draft is unavailable. Go back to the previous step.",
+        "fallback": "Complete the required details."
+      }
+    },
+    "summary": {
+      "title": "Order Summary",
+      "description": "Review the total cost before proceeding to payment.",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax",
+      "taxRate": "Tax ({rate}%)",
+      "shipping": "Shipping",
+      "total": "Total"
+    },
+    "mobileBar": {
+      "total": "Payment total",
+      "details": "View details"
+    },
+    "orderDetails": {
+      "shippingTitle": "Shipping Details",
+      "paymentTitle": "Payment Method"
+    },
+    "review": {
+      "title": "Review Order",
+      "description": "Make sure your order details are correct before continuing to payment.",
+      "orderId": "Order ID: {orderId}",
+      "addressTitle": "Shipping Address",
+      "supportSubject": "Payment help {orderId}",
+      "missingOrder": {
+        "title": "Order not found",
+        "description": "We could not find an orderId in this link.",
+        "action": "Back to cart"
+      },
+      "payment": {
+        "title": "Payment Method",
+        "description": "We use Midtrans Snap to process payments securely.",
+        "processing": "Processing payment…",
+        "payNow": "Pay Now",
+        "connecting": "Contacting the payment provider…",
+        "continueToPayment": "Continue to Payment",
+        "openPayment": "Open Payment",
+        "alreadyPaid": "I Have Paid",
+        "payBefore": "Complete payment before {deadline}.",
+        "expired": "The payment window has ended. Please create the payment again.",
+        "remaining": "Time left to pay: <strong>{countdown}</strong>",
+        "deadlineHint": "Make sure you complete the payment before the deadline.",
+        "contactSupport": "Contact support",
+        "token": "Payment token: <mono>{token}</mono>"
+      },
+      "statusError": {
+        "retry": "Try Again",
+        "viewDetails": "View Details"
+      },
+      "errors": {
+        "intentFailed": "Could not create a payment intent. Please try again.",
+        "gatewayUnavailable": "The payment URL is unavailable. Please try again.",
+        "statusFailed": "Payment has not succeeded (status: {status}). Please try again."
+      },
+      "toast": {
+        "paid": "Payment successful",
+        "failedTitle": "Payment not successful yet",
+        "failedDescription": "Payment status: {status}",
+        "checkErrorTitle": "Failed to check payment"
+      },
+      "watcher": {
+        "checking": "Checking payment status...",
+        "contacting": "Contacting the payment provider.",
+        "current": "Current status: <strong>{status}</strong>",
+        "checkError": "Could not check the payment status. Please try again."
+      },
+      "instructions": {
+        "title": "Payment instructions",
+        "providerFallback": "Payment provider",
+        "bankTransfer": "Bank transfer",
+        "bankFallback": "Bank",
+        "accountFallback": "Toko",
+        "copy": "Copy",
+        "qrTitle": "Payment QR",
+        "qrAlt": "Payment QR",
+        "proofLabel": "Proof of payment (optional)",
+        "proofUploaded": "Proof sent",
+        "uploading": "Uploading...",
+        "upload": "Upload proof",
+        "uploadFailed": "Failed to upload the proof of payment."
+      }
+    },
+    "success": {
+      "missing": {
+        "title": "Payment successful",
+        "description": "Your order has been recorded. Go back to the catalog to keep shopping.",
+        "action": "Continue shopping"
+      },
+      "title": "Payment Successful!",
+      "description": "Thank you! Your order number <strong>{orderId}</strong> has been created.",
+      "instructionsTitle": "Payment Instructions:",
+      "instructions": "Please complete the payment using the selected method. A confirmation email with the payment details has been sent to your email address.",
+      "viewOrder": "View order details",
+      "shopAgain": "Shop Again",
+      "emailNote": "A confirmation email has been sent. Check your inbox or spam folder."
+    },
+    "failed": {
+      "missing": {
+        "title": "Payment not processed yet",
+        "description": "We could not find that order. Please go back to the cart.",
+        "action": "Back to cart"
+      },
+      "title": "Payment Not Successful",
+      "status": "The latest status for order <strong>{orderId}</strong> is {status}.",
+      "statusUnknown": "We have not received the latest status for order <strong>{orderId}</strong> yet.",
+      "reasonTitle": "Failure Reason:",
+      "whatToDo": "What should you do?",
+      "tips": {
+        "retry": "• Try paying again using the button below",
+        "balance": "• Make sure your balance or card limit is sufficient",
+        "support": "• If the problem persists, contact our customer service"
+      },
+      "retry": "Try Paying Again",
+      "backToCart": "Back to Cart",
+      "shopFirst": "Keep Shopping",
+      "help": "Need help? Contact our customer service at <link>{email}</link>"
+    },
+    "toast": {
+      "draftProgress": "Creating order draft…",
+      "draftProgressDescription": "We are preparing your order details.",
+      "draftSuccess": "Order draft created",
+      "draftError": "Failed to create order draft",
+      "processing": "Processing order...",
+      "processingDescription": "Please wait a moment.",
+      "success": "Order created!",
+      "successDescription": "Order ID: {orderNumber}",
+      "error": "Failed to process order"
+    },
+    "paymentToast": {
+      "progress": "Processing payment…",
+      "progressDescription": "Connecting to the payment provider.",
+      "ready": "Payment ready to continue",
+      "readyDescription": "Open the payment page to complete the transaction.",
+      "error": "Failed to create payment"
+    },
+    "address": {
+      "book": {
+        "heading": "Address book",
+        "description": "Manage shipping addresses for a faster checkout.",
+        "deleteDisabled": "This address is in use. Choose another address before deleting it.",
+        "add": "Add address",
+        "retry": "Try again",
+        "emptyTitle": "No saved addresses yet",
+        "emptyDescription": "Add a new address for a faster checkout in the future.",
+        "addFirst": "Add your first address",
+        "busy": {
+          "creating": "Saving new address…",
+          "updating": "Updating address…",
+          "deleting": "Deleting address…",
+          "settingDefault": "Setting default…",
+          "syncing": "Syncing addresses…"
+        },
+        "create": {
+          "title": "Add address",
+          "description": "Fill in your shipping address details.",
+          "submit": "Save address"
+        },
+        "edit": {
+          "title": "Edit address",
+          "description": "Update your address details.",
+          "submit": "Update address"
+        },
+        "delete": {
+          "title": "Delete address",
+          "description": "This address will be removed from your account and can no longer be used at checkout.",
+          "cancel": "Cancel",
+          "deleting": "Deleting…",
+          "confirm": "Delete"
+        }
+      },
+      "card": {
+        "default": "Default",
+        "selected": "Selected",
+        "select": "Select",
+        "alreadySelected": "Address already selected",
+        "useThisLabel": "Use this address",
+        "use": "Use",
+        "isDefaultLabel": "Default address",
+        "makeDefaultLabel": "Make default address",
+        "makeDefault": "Make default",
+        "editLabel": "Edit address for {name}",
+        "edit": "Edit",
+        "deleteDisabledLabel": "Deleting this address is disabled",
+        "deleteLabel": "Delete address for {name}",
+        "delete": "Delete"
+      },
+      "form": {
+        "submit": "Save address",
+        "cancel": "Cancel",
+        "mapTitle": "Map Location",
+        "mapDescription": "Pick a location on the map to fill in the address automatically",
+        "closeMap": "Close Map",
+        "openMap": "Open Map",
+        "locating": "Detecting location...",
+        "useLocation": "Use my location",
+        "geocoding": "Fetching address details...",
+        "searchLabel": "Search location",
+        "searchPlaceholder": "Type a city or postal code",
+        "searchLoading": "Loading suggestions...",
+        "searchEmpty": "No suggestions.",
+        "searchError": "Could not load location suggestions. Try again.",
+        "searchHint": "Use the dropdown to fill in the city, province, and postal code.",
+        "district": "District",
+        "districtPlaceholder": "Choose a district",
+        "ward": "Ward",
+        "wardPlaceholder": "Choose a ward",
+        "regionHint": "Choose a district/ward to fill in the postal code automatically.",
+        "optional": "(optional)",
+        "postalChecking": "Checking the postal code...",
+        "postalMismatch": "The postal code does not match the city/province.",
+        "saving": "Saving address...",
+        "fields": {
+          "receiverName": "Recipient name",
+          "phone": "Phone number",
+          "addressLine1": "Street address",
+          "addressLine2": "Address details",
+          "city": "City / Regency",
+          "province": "Province",
+          "postalCode": "Postal code",
+          "country": "Country"
+        },
+        "toast": {
+          "reverseFailed": "Failed to fetch the address",
+          "reverseFailedDescription": "Try again or fill in the address manually.",
+          "unavailable": "Location unavailable",
+          "unavailableDescription": "Your device does not support automatic location detection.",
+          "locateFailed": "Failed to detect location",
+          "permissionDenied": "Location permission denied. Please allow location access in your browser.",
+          "positionUnavailable": "Position unavailable. Try again later.",
+          "timeout": "The location request timed out.",
+          "generic": "Failed to detect location automatically."
+        }
+      },
+      "validation": {
+        "receiverNameRequired": "Full name is required",
+        "receiverNameTooLong": "Full name is too long",
+        "addressLine1Required": "Address is required",
+        "addressLine1TooLong": "Address is too long",
+        "addressLine2TooLong": "Address details are too long",
+        "cityRequired": "City is required",
+        "cityTooLong": "City is too long",
+        "provinceRequired": "Province is required",
+        "provinceTooLong": "Province is too long",
+        "countryRequired": "Country is required",
+        "countryTooLong": "Country is too long",
+        "phoneRequired": "Phone number is required",
+        "phoneTooShort": "Phone number is too short",
+        "phoneTooLong": "Phone number is too long",
+        "phoneInvalid": "Invalid phone number",
+        "postalCodeRequired": "Postal code is required",
+        "postalCodeInvalid": "Invalid postal code",
+        "updateEmpty": "Change at least one field to update the address"
+      },
+      "toast": {
+        "created": "Address added",
+        "createFailed": "Failed to add address",
+        "updated": "Address updated",
+        "updateFailed": "Failed to update address",
+        "deleted": "Address deleted",
+        "deleteFailed": "Failed to delete address",
+        "defaultUpdated": "Primary address updated",
+        "defaultFailed": "Failed to set primary address",
+        "notFound": "Address not found"
+      }
+    }
+  },
   "auth": {},
   "account": {},
   "errors": {

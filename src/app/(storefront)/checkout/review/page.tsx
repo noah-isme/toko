@@ -4,10 +4,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Suspense, useCallback, useEffect, useId, useMemo, useState } from 'react';
 
 import { MobileTotalBar } from '../_components/MobileTotalBar';
 import { OrderSummary } from '../_components/OrderSummary';
+import { getPayNowRuleMessageKey } from '../_lib/checkout';
 
 import { PaymentInstructionsPanel } from './_components/PaymentInstructionsPanel';
 import { PaymentStatusWatcher } from './_components/PaymentStatusWatcher';
@@ -43,6 +45,7 @@ export default function CheckoutReviewPage() {
 }
 
 function CheckoutReviewContent() {
+  const t = useTranslations('checkout');
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get('orderId') ?? '';
@@ -63,8 +66,9 @@ function CheckoutReviewContent() {
   const { toast: pushToast } = useToast();
   const payNowHintDomId = useId();
   const supportLink = useMemo(
-    () => `mailto:support@toko.com?subject=${encodeURIComponent(`Bantuan pembayaran ${orderId}`)}`,
-    [orderId],
+    () =>
+      `mailto:support@toko.com?subject=${encodeURIComponent(t('review.supportSubject', { orderId }))}`,
+    [orderId, t],
   );
 
   useEffect(() => {
@@ -145,12 +149,10 @@ function CheckoutReviewContent() {
       } catch (error) {
         const apiError = error as ApiError;
         setPaymentIntent(null);
-        setPaymentError(
-          apiError?.error?.message ?? 'Tidak dapat membuat payment intent. Silakan coba lagi.',
-        );
+        setPaymentError(apiError?.error?.message ?? t('review.errors.intentFailed'));
       }
     },
-    [createPaymentIntentMutation, orderId],
+    [createPaymentIntentMutation, orderId, t],
   );
 
   useEffect(() => {
@@ -178,8 +180,8 @@ function CheckoutReviewContent() {
     if (process.env.NODE_ENV !== 'production') {
     }
 
-    setPaymentError('URL pembayaran tidak tersedia. Silakan coba lagi.');
-  }, [paymentIntent, setPaymentError]);
+    setPaymentError(t('review.errors.gatewayUnavailable'));
+  }, [paymentIntent, setPaymentError, t]);
 
   const handleStartWatcher = useCallback(() => {
     setStatusError(null);
@@ -218,25 +220,25 @@ function CheckoutReviewContent() {
     setWatcherActive(false);
     pushToast({
       id: `payment-success-${orderId}`,
-      title: 'Pembayaran berhasil',
+      title: t('review.toast.paid'),
       variant: 'success',
     });
     router.push(`/checkout/success?orderId=${encodedOrderId}`);
-  }, [cartId, orderId, pushToast, queryClient, router]);
+  }, [cartId, orderId, pushToast, queryClient, router, t]);
 
   const handleStatusFailed = useCallback(
     (status: PaymentStatus['status']) => {
       setWatcherActive(false);
       setFailedStatus(status);
-      setStatusError(`Pembayaran belum berhasil (status: ${status}). Silakan coba lagi.`);
+      setStatusError(t('review.errors.statusFailed', { status }));
       pushToast({
         id: `payment-failed-${orderId}`,
-        title: 'Pembayaran belum berhasil',
-        description: `Status pembayaran: ${status}`,
+        title: t('review.toast.failedTitle'),
+        description: t('review.toast.failedDescription', { status }),
         variant: 'destructive',
       });
     },
-    [orderId, pushToast],
+    [orderId, pushToast, t],
   );
 
   const handleStatusError = useCallback(
@@ -245,20 +247,20 @@ function CheckoutReviewContent() {
       setStatusError(message);
       pushToast({
         id: `payment-status-error-${orderId}`,
-        title: 'Gagal memeriksa pembayaran',
+        title: t('review.toast.checkErrorTitle'),
         description: message,
         variant: 'destructive',
       });
     },
-    [orderId, pushToast],
+    [orderId, pushToast, t],
   );
 
   if (!orderId) {
     return (
       <EmptyState
-        title="Tidak menemukan pesanan"
-        description="Kami tidak dapat menemukan orderId pada tautan ini."
-        action={{ label: 'Kembali ke keranjang', onClick: () => router.push('/cart') }}
+        title={t('review.missingOrder.title')}
+        description={t('review.missingOrder.description')}
+        action={{ label: t('review.missingOrder.action'), onClick: () => router.push('/cart') }}
       />
     );
   }
@@ -280,7 +282,11 @@ function CheckoutReviewContent() {
             isPending={createPaymentIntentMutation.isPending}
             payDisabled={payNowRule.disabled}
             payHintId={payNowHintId}
-            payHintMessage={payNowRule.message}
+            payHintMessage={
+              payNowRule.disabled
+                ? t(`rules.payNow.${getPayNowRuleMessageKey(payNowRule.reasonCode)}`)
+                : null
+            }
             onPayNow={handlePayNow}
             onPrefetch={prefetchSuccess}
             paymentIntent={paymentIntent}

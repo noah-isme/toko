@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 
 import { deleteAddress } from '../api';
@@ -31,6 +32,7 @@ export function useDeleteAddressMutation(
 ) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('checkout.address.toast');
   const ownerId = resolveOwnerId(userIdOrGuestId);
   const useGuestStorage = shouldUseGuestStorage(userIdOrGuestId);
   const usageContext = options.context ?? 'account';
@@ -90,7 +92,7 @@ export function useDeleteAddressMutation(
 
       toast({
         id: `address-delete-${id}`,
-        title: 'Alamat dihapus',
+        title: t('deleted'),
       });
     },
     onError: (error, _id, context) => {
@@ -115,7 +117,7 @@ export function useDeleteAddressMutation(
 
       toast({
         id: `address-delete-error-${context?.targetId ?? 'unknown'}`,
-        title: 'Gagal menghapus alamat',
+        title: t('deleteFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

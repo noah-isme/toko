@@ -2,6 +2,7 @@ import type { CartTotalsPreview } from '@/entities/cart/cache';
 import type { ShippingOption } from '@/entities/checkout/api/hooks';
 import type { PaymentMethod } from '@/lib/api/types';
 import {
+  type DisabledReasonCode,
   type DisabledRuleResult,
   getCheckoutProceedRule,
   normalizeDisabledMessage,
@@ -140,11 +141,52 @@ export function getProceedRule({
       : !hasPaymentMethod
         ? {
             disabled: true,
-            reasonCode: 'unknown',
+            reasonCode: 'missing-payment-method',
             message: 'Pilih metode pembayaran terlebih dahulu',
           }
         : baseProceedRule,
   );
+}
+
+/** Keys under `checkout.rules.proceed`, by disabled-rule reason. */
+export type ProceedRuleMessageKey =
+  | 'processing'
+  | 'missingAddress'
+  | 'missingShippingOption'
+  | 'missingPaymentMethod'
+  | 'fallback';
+
+/** Keys under `checkout.rules.payNow`, by disabled-rule reason. */
+export type PayNowRuleMessageKey =
+  | 'processing'
+  | 'missingOrderId'
+  | 'missingOrderDraft'
+  | 'fallback';
+
+const PROCEED_RULE_MESSAGE_KEYS: Partial<Record<DisabledReasonCode, ProceedRuleMessageKey>> = {
+  processing: 'processing',
+  'missing-address': 'missingAddress',
+  'missing-shipping-option': 'missingShippingOption',
+  'missing-payment-method': 'missingPaymentMethod',
+};
+
+const PAY_NOW_RULE_MESSAGE_KEYS: Partial<Record<DisabledReasonCode, PayNowRuleMessageKey>> = {
+  processing: 'processing',
+  'missing-order-id': 'missingOrderId',
+  'missing-order-draft': 'missingOrderDraft',
+};
+
+/**
+ * Catalog key that explains why "Bayar Sekarang" on the checkout page is disabled. The rule's own
+ * `message` stays the Indonesian default; the UI renders the translated key instead.
+ */
+export function getProceedRuleMessageKey(reasonCode: DisabledReasonCode): ProceedRuleMessageKey {
+  return PROCEED_RULE_MESSAGE_KEYS[reasonCode] ?? 'fallback';
+}
+
+/** Catalog key that explains why "Bayar Sekarang" on the review page is disabled. */
+export function getPayNowRuleMessageKey(reasonCode: DisabledReasonCode): PayNowRuleMessageKey {
+  return PAY_NOW_RULE_MESSAGE_KEYS[reasonCode] ?? 'fallback';
 }
 
 export function findShippingOption(

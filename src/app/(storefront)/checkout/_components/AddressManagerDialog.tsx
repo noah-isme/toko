@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import {
   Dialog,
   DialogContent,
@@ -23,14 +25,13 @@ export function AddressManagerDialog({
   selectedAddressId: string | null;
   onSelect: (address: SavedAddress) => Promise<void> | void;
 }) {
+  const t = useTranslations('checkout.addressManager');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Kelola alamat</DialogTitle>
-          <DialogDescription>
-            Pilih atau buat alamat baru, lalu gunakan untuk checkout.
-          </DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <AddressBook
           userIdOrGuestId={ownerId}
@@ -41,7 +42,7 @@ export function AddressManagerDialog({
             onOpenChange(false);
           }}
           disableDeleteIds={selectedAddressId ? [selectedAddressId] : undefined}
-          deleteDisabledMessage="Alamat ini sedang digunakan saat checkout."
+          deleteDisabledMessage={t('deleteDisabled')}
           context="checkout"
         />
       </DialogContent>

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 
 import { createAddress } from '../api';
@@ -30,6 +31,7 @@ export function useCreateAddressMutation(
 ) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('checkout.address.toast');
   const ownerId = resolveOwnerId(userIdOrGuestId);
   const useGuestStorage = shouldUseGuestStorage(userIdOrGuestId);
   const usageContext = options.context ?? 'account';
@@ -126,7 +128,7 @@ export function useCreateAddressMutation(
 
       toast({
         id: `address-create-${data.id}`,
-        title: 'Alamat ditambahkan',
+        title: t('created'),
         variant: 'success',
       });
     },
@@ -152,7 +154,7 @@ export function useCreateAddressMutation(
 
       toast({
         id: 'address-create-error',
-        title: 'Gagal menambah alamat',
+        title: t('createFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -5,10 +6,11 @@ import { srOnly } from '../a11y';
 import { BaseSkeleton } from './BaseSkeleton';
 
 export function CheckoutSkeleton() {
+  const t = useTranslations('common');
   return (
     <React.Fragment>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]" role="status">
-        {srOnly('Memuat...')}
+        {srOnly(t('loading'))}
         <div className="space-y-6 rounded-lg border border-border/60 bg-muted/20 p-6">
           <div className="space-y-4">
             <BaseSkeleton className="h-6 w-1/3" />

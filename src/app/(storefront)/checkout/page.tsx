@@ -29,6 +29,7 @@ import {
   getCartSignature,
   getFallbackShippingId,
   getProceedRule,
+  getProceedRuleMessageKey,
   hasOutOfStockItem as cartHasOutOfStockItem,
   resolveAddressSelection,
 } from './_lib/checkout';
@@ -73,6 +74,7 @@ const EMPTY_ADDRESSES: SavedAddress[] = [];
 
 export default function CheckoutPage() {
   const tEmpty = useTranslations('common.empty');
+  const t = useTranslations('checkout');
   const { user } = useAuth();
   const router = useRouter();
   const storedCartId = useCartStore((state) => state.cartId);
@@ -241,7 +243,7 @@ export default function CheckoutPage() {
       setShippingOptions([]);
       setIsUsingCachedQuote(false);
       if (options.announce !== false) {
-        setAddressAnnouncement(`Alamat ${address.receiverName} dipilih`);
+        setAddressAnnouncement(t('addressSelection.announcement', { name: address.receiverName }));
       }
       trackCheckoutAddressSelect(address);
       if (!activeCartId) {
@@ -249,7 +251,7 @@ export default function CheckoutPage() {
       }
       await requestShippingQuote(address, { selectDefault: true });
     },
-    [activeCartId, requestShippingQuote],
+    [activeCartId, requestShippingQuote, t],
   );
 
   useEffect(() => {
@@ -314,7 +316,7 @@ export default function CheckoutPage() {
   );
 
   const isProcessing = checkoutMutation.isPending;
-  const proceedLabel = isProcessing ? 'Memproses pesanan…' : 'Bayar Sekarang';
+  const proceedLabel = isProcessing ? t('proceed.processing') : t('proceed.payNow');
   const proceedRule = getProceedRule({
     hasAddress: Boolean(selectedAddress),
     hasShippingOption: Boolean(selectedShippingOption),
@@ -424,7 +426,11 @@ export default function CheckoutPage() {
             isProcessing={isProcessing}
             disabled={proceedRule.disabled}
             hintId={proceedHintId}
-            hintMessage={proceedRule.message}
+            hintMessage={
+              proceedRule.disabled
+                ? t(`rules.proceed.${getProceedRuleMessageKey(proceedRule.reasonCode)}`)
+                : null
+            }
             onCheckout={handleCheckout}
             onPrefetch={prefetchReview}
           />

@@ -87,6 +87,12 @@
         "descriptionDefault": "Kategori ini belum memiliki produk. Coba lihat kategori lain untuk menemukan produk serupa.",
         "cta": "Jelajahi kategori lain"
       }
+    },
+    "retryToast": {
+      "label": "Coba lagi",
+      "busy": "Mencoba lagi…",
+      "errorTitle": "Masih gagal",
+      "errorDescription": "Tidak dapat menyelesaikan permintaan. Silakan coba lagi nanti."
     }
   },
   "nav": {
@@ -662,7 +668,376 @@
       }
     }
   },
-  "checkout": {},
+  "checkout": {
+    "header": {
+      "breadcrumbHome": "Beranda",
+      "breadcrumbCart": "Keranjang",
+      "breadcrumbCheckout": "Checkout",
+      "title": "Checkout",
+      "subtitle": "Enter your shipping details to see available delivery options."
+    },
+    "stepper": {
+      "label": "Progres checkout",
+      "stepOf": "Langkah {step} dari {total}:",
+      "steps": {
+        "address": "Alamat & Pengiriman",
+        "review": "Tinjauan & Pembayaran",
+        "success": "Selesai"
+      }
+    },
+    "addressSelection": {
+      "title": "Alamat pengiriman",
+      "description": "Pilih alamat untuk menghitung ongkir dan menyiapkan pesanan Anda.",
+      "manage": "Kelola alamat",
+      "empty": "Belum ada alamat terpilih. Tambahkan alamat baru agar bisa melanjutkan checkout.",
+      "add": "Tambah alamat",
+      "viewAll": "Lihat semua alamat",
+      "inUse": "Dipakai",
+      "primary": "Alamat utama",
+      "loadingShipping": "Memuat opsi pengiriman…",
+      "announcement": "Alamat {name} dipilih"
+    },
+    "addressManager": {
+      "title": "Kelola alamat",
+      "description": "Pilih atau buat alamat baru, lalu gunakan untuk checkout.",
+      "deleteDisabled": "Alamat ini sedang digunakan saat checkout."
+    },
+    "shipping": {
+      "title": "Shipping Options",
+      "description": "Choose the delivery service that suits you best.",
+      "refreshing": "Memperbarui...",
+      "refresh": "Perbarui ongkir",
+      "recalculating": "Menghitung ulang ongkir...",
+      "lastQuote": "Ongkir terakhir {time}",
+      "updatedQuote": "Ongkir diperbarui {time}",
+      "autoUpdate": "Ongkir diperbarui otomatis saat alamat atau keranjang berubah.",
+      "empty": "No shipping options available.",
+      "eta": "Estimasi tiba {range}"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "description": "Select how you want to pay for your order.",
+      "selected": "Dipilih",
+      "methods": {
+        "bank_transfer": {
+          "label": "Transfer Bank",
+          "description": "Transfer manual ke rekening bank"
+        },
+        "virtual_account": {
+          "label": "Virtual Account",
+          "description": "Bayar melalui Virtual Account"
+        },
+        "credit_card": {
+          "label": "Kartu Kredit",
+          "description": "Pembayaran dengan kartu kredit"
+        },
+        "ewallet_gopay": {
+          "label": "GoPay",
+          "description": "Bayar dengan GoPay"
+        },
+        "ewallet_ovo": {
+          "label": "OVO",
+          "description": "Bayar dengan OVO"
+        },
+        "ewallet_dana": {
+          "label": "DANA",
+          "description": "Bayar dengan DANA"
+        }
+      }
+    },
+    "notes": {
+      "title": "Catatan Pesanan (Opsional)",
+      "description": "Tambahkan instruksi khusus untuk pesanan Anda (mis. “Telepon sebelum dikirim”, “Tinggalkan di depan pintu”).",
+      "placeholder": "Tulis catatan Anda di sini... (maks 500 karakter)",
+      "counter": "{count}/{max}"
+    },
+    "proceed": {
+      "outOfStock": "Beberapa produk di keranjang Anda tidak tersedia atau stok habis.",
+      "processing": "Memproses pesanan…",
+      "payNow": "Bayar Sekarang",
+      "connecting": "Menghubungkan ke gateway pembayaran…"
+    },
+    "rules": {
+      "proceed": {
+        "processing": "Sedang memproses pilihan Anda…",
+        "missingAddress": "Lengkapi alamat pengiriman terlebih dahulu.",
+        "missingShippingOption": "Pilih opsi pengiriman untuk melanjutkan.",
+        "missingPaymentMethod": "Pilih metode pembayaran terlebih dahulu",
+        "fallback": "Lengkapi data yang diperlukan."
+      },
+      "payNow": {
+        "processing": "Pembayaran sedang diproses…",
+        "missingOrderId": "Order ID tidak ditemukan. Periksa ulang tautan Anda.",
+        "missingOrderDraft": "Draft pesanan tidak tersedia. Kembali ke langkah sebelumnya.",
+        "fallback": "Lengkapi data yang diperlukan."
+      }
+    },
+    "summary": {
+      "title": "Order Summary",
+      "description": "Review the total cost before proceeding to payment.",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax",
+      "taxRate": "Tax ({rate}%)",
+      "shipping": "Shipping",
+      "total": "Total"
+    },
+    "mobileBar": {
+      "total": "Total pembayaran",
+      "details": "Lihat rincian"
+    },
+    "orderDetails": {
+      "shippingTitle": "Detail Pengiriman",
+      "paymentTitle": "Metode Pembayaran"
+    },
+    "review": {
+      "title": "Review Pesanan",
+      "description": "Pastikan detail pesanan Anda sudah benar sebelum melanjutkan ke pembayaran.",
+      "orderId": "Order ID: {orderId}",
+      "addressTitle": "Alamat Pengiriman",
+      "supportSubject": "Bantuan pembayaran {orderId}",
+      "missingOrder": {
+        "title": "Tidak menemukan pesanan",
+        "description": "Kami tidak dapat menemukan orderId pada tautan ini.",
+        "action": "Kembali ke keranjang"
+      },
+      "payment": {
+        "title": "Metode Pembayaran",
+        "description": "Kami menggunakan Midtrans Snap untuk memproses pembayaran secara aman.",
+        "processing": "Memproses pembayaran…",
+        "payNow": "Bayar Sekarang",
+        "connecting": "Menghubungi penyedia pembayaran…",
+        "continueToPayment": "Lanjut ke Pembayaran",
+        "openPayment": "Buka Pembayaran",
+        "alreadyPaid": "Saya Sudah Membayar",
+        "payBefore": "Selesaikan pembayaran sebelum {deadline}.",
+        "expired": "Waktu pembayaran telah berakhir. Silakan buat ulang pembayaran.",
+        "remaining": "Sisa waktu pembayaran: <strong>{countdown}</strong>",
+        "deadlineHint": "Pastikan Anda menyelesaikan pembayaran sebelum batas waktu.",
+        "contactSupport": "Hubungi CS",
+        "token": "Token pembayaran: <mono>{token}</mono>"
+      },
+      "statusError": {
+        "retry": "Coba Lagi",
+        "viewDetails": "Lihat Detail"
+      },
+      "errors": {
+        "intentFailed": "Tidak dapat membuat payment intent. Silakan coba lagi.",
+        "gatewayUnavailable": "URL pembayaran tidak tersedia. Silakan coba lagi.",
+        "statusFailed": "Pembayaran belum berhasil (status: {status}). Silakan coba lagi."
+      },
+      "toast": {
+        "paid": "Pembayaran berhasil",
+        "failedTitle": "Pembayaran belum berhasil",
+        "failedDescription": "Status pembayaran: {status}",
+        "checkErrorTitle": "Gagal memeriksa pembayaran"
+      },
+      "watcher": {
+        "checking": "Memeriksa status pembayaran...",
+        "contacting": "Menghubungi penyedia pembayaran.",
+        "current": "Status saat ini: <strong>{status}</strong>",
+        "checkError": "Tidak dapat memeriksa status pembayaran. Silakan coba lagi."
+      },
+      "instructions": {
+        "title": "Instruksi pembayaran",
+        "providerFallback": "Penyedia pembayaran",
+        "bankTransfer": "Transfer bank",
+        "bankFallback": "Bank",
+        "accountFallback": "Toko",
+        "copy": "Salin",
+        "qrTitle": "QR pembayaran",
+        "qrAlt": "QR pembayaran",
+        "proofLabel": "Bukti pembayaran (opsional)",
+        "proofUploaded": "Bukti terkirim",
+        "uploading": "Mengunggah...",
+        "upload": "Unggah bukti",
+        "uploadFailed": "Bukti pembayaran gagal diunggah."
+      }
+    },
+    "success": {
+      "missing": {
+        "title": "Pembayaran berhasil",
+        "description": "Pesanan Anda sudah tercatat. Kembali ke katalog untuk melanjutkan belanja.",
+        "action": "Kembali berbelanja"
+      },
+      "title": "Pembayaran Berhasil!",
+      "description": "Terima kasih! Pesanan Anda dengan nomor <strong>{orderId}</strong> telah berhasil dibuat.",
+      "instructionsTitle": "Instruksi Pembayaran:",
+      "instructions": "Silakan lakukan pembayaran sesuai metode yang dipilih. Email konfirmasi telah dikirim ke alamat email Anda dengan detail pembayaran.",
+      "viewOrder": "Lihat detail pesanan",
+      "shopAgain": "Belanja Lagi",
+      "emailNote": "Email konfirmasi telah dikirim. Periksa inbox atau folder spam Anda."
+    },
+    "failed": {
+      "missing": {
+        "title": "Pembayaran belum diproses",
+        "description": "Kami tidak menemukan pesanan yang dimaksud. Silakan kembali ke keranjang.",
+        "action": "Kembali ke keranjang"
+      },
+      "title": "Pembayaran Belum Berhasil",
+      "status": "Status terbaru untuk pesanan <strong>{orderId}</strong> adalah {status}.",
+      "statusUnknown": "Status terbaru untuk pesanan <strong>{orderId}</strong> belum kami terima.",
+      "reasonTitle": "Alasan Kegagalan:",
+      "whatToDo": "Apa yang harus dilakukan?",
+      "tips": {
+        "retry": "• Coba lakukan pembayaran lagi dengan memilih tombol di bawah",
+        "balance": "• Pastikan saldo atau limit kartu mencukupi",
+        "support": "• Jika masalah berlanjut, hubungi customer service kami"
+      },
+      "retry": "Coba Bayar Lagi",
+      "backToCart": "Kembali ke Keranjang",
+      "shopFirst": "Belanja Dulu",
+      "help": "Butuh bantuan? Hubungi customer service kami di <link>{email}</link>"
+    },
+    "toast": {
+      "draftProgress": "Membuat draft pesanan…",
+      "draftProgressDescription": "Kami sedang menyiapkan rincian pesanan Anda.",
+      "draftSuccess": "Draft pesanan berhasil dibuat",
+      "draftError": "Gagal membuat draft pesanan",
+      "processing": "Memproses pesanan...",
+      "processingDescription": "Mohon tunggu sebentar.",
+      "success": "Pesanan berhasil dibuat!",
+      "successDescription": "Order ID: {orderNumber}",
+      "error": "Gagal memproses pesanan"
+    },
+    "paymentToast": {
+      "progress": "Memproses pembayaran…",
+      "progressDescription": "Menghubungkan ke penyedia pembayaran.",
+      "ready": "Pembayaran siap dilanjutkan",
+      "readyDescription": "Buka halaman pembayaran untuk menyelesaikan transaksi.",
+      "error": "Gagal membuat pembayaran"
+    },
+    "address": {
+      "book": {
+        "heading": "Buku alamat",
+        "description": "Kelola alamat pengiriman agar checkout lebih cepat.",
+        "deleteDisabled": "Alamat sedang digunakan. Pilih alamat lain sebelum menghapus.",
+        "add": "Tambah alamat",
+        "retry": "Coba lagi",
+        "emptyTitle": "Belum ada alamat tersimpan",
+        "emptyDescription": "Tambahkan alamat baru agar checkout lebih cepat di masa depan.",
+        "addFirst": "Tambah alamat pertama",
+        "busy": {
+          "creating": "Menyimpan alamat baru…",
+          "updating": "Memperbarui alamat…",
+          "deleting": "Menghapus alamat…",
+          "settingDefault": "Mengatur default…",
+          "syncing": "Sinkronisasi alamat…"
+        },
+        "create": {
+          "title": "Tambah alamat",
+          "description": "Lengkapi detail alamat pengiriman Anda.",
+          "submit": "Simpan alamat"
+        },
+        "edit": {
+          "title": "Edit alamat",
+          "description": "Perbarui detail alamat Anda.",
+          "submit": "Perbarui alamat"
+        },
+        "delete": {
+          "title": "Hapus alamat",
+          "description": "Alamat ini akan dihapus dari akun Anda dan tidak bisa dipakai di checkout.",
+          "cancel": "Batal",
+          "deleting": "Menghapus…",
+          "confirm": "Hapus"
+        }
+      },
+      "card": {
+        "default": "Default",
+        "selected": "Dipilih",
+        "select": "Pilih",
+        "alreadySelected": "Alamat sudah dipilih",
+        "useThisLabel": "Gunakan alamat ini",
+        "use": "Gunakan",
+        "isDefaultLabel": "Alamat default",
+        "makeDefaultLabel": "Jadikan alamat default",
+        "makeDefault": "Jadikan default",
+        "editLabel": "Edit alamat {name}",
+        "edit": "Edit",
+        "deleteDisabledLabel": "Menghapus alamat dinonaktifkan",
+        "deleteLabel": "Hapus alamat {name}",
+        "delete": "Hapus"
+      },
+      "form": {
+        "submit": "Simpan alamat",
+        "cancel": "Batal",
+        "mapTitle": "Lokasi Peta",
+        "mapDescription": "Pilih lokasi di peta untuk mengisi alamat otomatis",
+        "closeMap": "Tutup Peta",
+        "openMap": "Buka Peta",
+        "locating": "Mendeteksi lokasi...",
+        "useLocation": "Gunakan lokasi saya",
+        "geocoding": "Mengambil detail alamat...",
+        "searchLabel": "Cari lokasi",
+        "searchPlaceholder": "Ketik kota atau kode pos",
+        "searchLoading": "Memuat saran...",
+        "searchEmpty": "Tidak ada saran.",
+        "searchError": "Tidak dapat memuat saran lokasi. Coba lagi.",
+        "searchHint": "Gunakan dropdown untuk mengisi kota, provinsi, dan kode pos.",
+        "district": "Kecamatan",
+        "districtPlaceholder": "Pilih kecamatan",
+        "ward": "Kelurahan",
+        "wardPlaceholder": "Pilih kelurahan",
+        "regionHint": "Pilih kecamatan/kelurahan agar kode pos terisi otomatis.",
+        "optional": "(opsional)",
+        "postalChecking": "Memeriksa kecocokan kode pos...",
+        "postalMismatch": "Kode pos tidak cocok dengan kota/provinsi.",
+        "saving": "Menyimpan alamat...",
+        "fields": {
+          "receiverName": "Nama penerima",
+          "phone": "Nomor telepon",
+          "addressLine1": "Alamat utama",
+          "addressLine2": "Detail alamat",
+          "city": "Kota / Kabupaten",
+          "province": "Provinsi",
+          "postalCode": "Kode pos",
+          "country": "Negara"
+        },
+        "toast": {
+          "reverseFailed": "Gagal mengambil alamat",
+          "reverseFailedDescription": "Coba lagi atau isi alamat secara manual.",
+          "unavailable": "Lokasi tidak tersedia",
+          "unavailableDescription": "Perangkat Anda belum mendukung deteksi lokasi otomatis.",
+          "locateFailed": "Gagal mendeteksi lokasi",
+          "permissionDenied": "Izin lokasi ditolak. Silakan izinkan akses lokasi di browser Anda.",
+          "positionUnavailable": "Posisi tidak tersedia. Coba lagi nanti.",
+          "timeout": "Waktu permintaan lokasi habis.",
+          "generic": "Gagal mendeteksi lokasi otomatis."
+        }
+      },
+      "validation": {
+        "receiverNameRequired": "Nama lengkap wajib diisi",
+        "receiverNameTooLong": "Nama lengkap terlalu panjang",
+        "addressLine1Required": "Alamat wajib diisi",
+        "addressLine1TooLong": "Alamat terlalu panjang",
+        "addressLine2TooLong": "Detail alamat terlalu panjang",
+        "cityRequired": "Kota wajib diisi",
+        "cityTooLong": "Kota terlalu panjang",
+        "provinceRequired": "Provinsi wajib diisi",
+        "provinceTooLong": "Provinsi terlalu panjang",
+        "countryRequired": "Negara wajib diisi",
+        "countryTooLong": "Negara terlalu panjang",
+        "phoneRequired": "Nomor telepon wajib diisi",
+        "phoneTooShort": "Nomor telepon terlalu pendek",
+        "phoneTooLong": "Nomor telepon terlalu panjang",
+        "phoneInvalid": "Nomor telepon tidak valid",
+        "postalCodeRequired": "Kode pos wajib diisi",
+        "postalCodeInvalid": "Kode pos tidak valid",
+        "updateEmpty": "Minimal satu field perlu diubah untuk memperbarui alamat"
+      },
+      "toast": {
+        "created": "Alamat ditambahkan",
+        "createFailed": "Gagal menambah alamat",
+        "updated": "Alamat diperbarui",
+        "updateFailed": "Gagal memperbarui alamat",
+        "deleted": "Alamat dihapus",
+        "deleteFailed": "Gagal menghapus alamat",
+        "defaultUpdated": "Alamat utama diperbarui",
+        "defaultFailed": "Gagal mengatur alamat utama",
+        "notFound": "Alamat tidak ditemukan"
+      }
+    }
+  },
   "auth": {},
   "account": {},
   "errors": {

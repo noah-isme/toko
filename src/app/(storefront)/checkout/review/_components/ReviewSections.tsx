@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { CheckoutStepper } from '@/components/checkout-stepper';
 import { Button } from '@/components/ui/button';
@@ -10,22 +11,22 @@ import { DisabledHint } from '@/shared/ui/DisabledHint';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 
 export function ReviewHeader({ orderId }: { orderId: string }) {
+  const t = useTranslations('checkout.review');
   return (
     <div className="space-y-2">
-      <h1 className="text-2xl font-bold">Review Pesanan</h1>
+      <h1 className="text-2xl font-bold">{t('title')}</h1>
       <CheckoutStepper current="review" className="mb-4 mt-4" />
-      <p className="text-sm text-muted-foreground">
-        Pastikan detail pesanan Anda sudah benar sebelum melanjutkan ke pembayaran.
-      </p>
-      <p className="text-xs text-muted-foreground">Order ID: {orderId}</p>
+      <p className="text-sm text-muted-foreground">{t('description')}</p>
+      <p className="text-xs text-muted-foreground">{t('orderId', { orderId })}</p>
     </div>
   );
 }
 
 export function ReviewAddressSection({ lines }: { lines: string[] }) {
+  const t = useTranslations('checkout.review');
   return (
     <section className="space-y-2 rounded-lg border p-6">
-      <h2 className="text-lg font-semibold">Alamat Pengiriman</h2>
+      <h2 className="text-lg font-semibold">{t('addressTitle')}</h2>
       <div className="space-y-1 text-sm text-muted-foreground">
         {lines.map((line) => (
           <p key={line}>{line}</p>
@@ -69,13 +70,12 @@ export function PaymentMethodPanel({
   supportLink: string;
   paymentError: string | null;
 }) {
+  const t = useTranslations('checkout.review.payment');
   return (
     <section className="space-y-4 rounded-lg border p-6">
       <div className="space-y-1">
-        <h2 className="text-lg font-semibold">Metode Pembayaran</h2>
-        <p className="text-sm text-muted-foreground">
-          Kami menggunakan Midtrans Snap untuk memproses pembayaran secara aman.
-        </p>
+        <h2 className="text-lg font-semibold">{t('title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
       </div>
       <div className="space-y-3">
         <GuardedButton
@@ -84,18 +84,18 @@ export function PaymentMethodPanel({
           onClick={onPayNow}
           disabled={payDisabled}
           isLoading={isPending}
-          loadingLabel="Memproses pembayaran…"
+          loadingLabel={t('processing')}
           aria-describedby={payHintId}
           className="min-h-[44px] px-6"
           onFocus={onPrefetch}
           onMouseEnter={onPrefetch}
         >
-          Bayar Sekarang
+          {t('payNow')}
         </GuardedButton>
         <div className="flex justify-start">
           <DelayedLoader
             active={isPending}
-            label="Menghubungi penyedia pembayaran…"
+            label={t('connecting')}
             className="text-xs text-muted-foreground"
           />
         </div>
@@ -107,42 +107,44 @@ export function PaymentMethodPanel({
             {paymentIntent?.redirectUrl ? (
               <Button asChild variant="secondary" size="sm">
                 <a href={paymentIntent.redirectUrl} target="_blank" rel="noopener noreferrer">
-                  Lanjut ke Pembayaran
+                  {t('continueToPayment')}
                 </a>
               </Button>
             ) : null}
             {paymentIntent?.token ? (
               <Button type="button" size="sm" onClick={onOpenGateway}>
-                Buka Pembayaran
+                {t('openPayment')}
               </Button>
             ) : null}
             <Button type="button" size="sm" onClick={onStartWatcher} disabled={watcherActive}>
-              Saya Sudah Membayar
+              {t('alreadyPaid')}
             </Button>
           </div>
         ) : null}
         {paymentIntent?.expiresAt ? (
           <p className="text-xs text-muted-foreground">
-            Selesaikan pembayaran sebelum{' '}
-            {new Date(paymentIntent.expiresAt).toLocaleString('id-ID')}.
+            {t('payBefore', {
+              deadline: new Date(paymentIntent.expiresAt).toLocaleString('id-ID'),
+            })}
           </p>
         ) : null}
         {countdownLabel ? (
           <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
             {paymentExpired ? (
-              <p>Waktu pembayaran telah berakhir. Silakan buat ulang pembayaran.</p>
+              <p>{t('expired')}</p>
             ) : (
               <p>
-                Sisa waktu pembayaran: <span className="font-semibold">{countdownLabel}</span>
+                {t.rich('remaining', {
+                  countdown: countdownLabel,
+                  strong: (chunks) => <span className="font-semibold">{chunks}</span>,
+                })}
               </p>
             )}
-            <p className="mt-1 text-[11px] text-amber-800">
-              Pastikan Anda menyelesaikan pembayaran sebelum batas waktu.
-            </p>
+            <p className="mt-1 text-[11px] text-amber-800">{t('deadlineHint')}</p>
             {pendingTooLong ? (
               <p className="mt-2">
                 <a href={supportLink} className="font-medium underline">
-                  Hubungi CS
+                  {t('contactSupport')}
                 </a>
               </p>
             ) : null}
@@ -150,7 +152,10 @@ export function PaymentMethodPanel({
         ) : null}
         {paymentIntent?.token ? (
           <p className="text-xs text-muted-foreground">
-            Token pembayaran: <span className="font-mono">{paymentIntent.token}</span>
+            {t.rich('token', {
+              token: paymentIntent.token,
+              mono: (chunks) => <span className="font-mono">{chunks}</span>,
+            })}
           </p>
         ) : null}
       </div>
@@ -177,6 +182,7 @@ export function PaymentStatusErrorAlert({
   failedStatus: PaymentStatus['status'] | null;
   onRetry: () => void;
 }) {
+  const t = useTranslations('checkout.review.statusError');
   return (
     <div
       className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
@@ -185,7 +191,7 @@ export function PaymentStatusErrorAlert({
       <p>{message}</p>
       <div className="flex flex-wrap gap-2">
         <Button type="button" size="sm" variant="outline" onClick={onRetry}>
-          Coba Lagi
+          {t('retry')}
         </Button>
         <Button asChild size="sm" variant="ghost">
           <Link
@@ -193,7 +199,7 @@ export function PaymentStatusErrorAlert({
               failedStatus ? `&status=${failedStatus}` : ''
             }`}
           >
-            Lihat Detail
+            {t('viewDetails')}
           </Link>
         </Button>
       </div>

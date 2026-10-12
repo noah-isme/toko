@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ export function PaymentInstructionsPanel({
   orderId: string;
   instructions: PaymentInstructions;
 }) {
+  const t = useTranslations('checkout.review.instructions');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
@@ -30,7 +32,7 @@ export function PaymentInstructionsPanel({
       await paymentApi.uploadProof(orderId, file);
       setUploaded(true);
     } catch {
-      setError('Bukti pembayaran gagal diunggah.');
+      setError(t('uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -38,9 +40,9 @@ export function PaymentInstructionsPanel({
   return (
     <section className="space-y-4 rounded-lg border bg-card p-6">
       <div>
-        <h2 className="text-lg font-semibold">Instruksi pembayaran</h2>
+        <h2 className="text-lg font-semibold">{t('title')}</h2>
         <p className="text-sm text-muted-foreground">
-          {instructions.provider || 'Penyedia pembayaran'}
+          {instructions.provider || t('providerFallback')}
           {instructions.channel ? ` • ${instructions.channel}` : ''}
         </p>
       </div>
@@ -51,24 +53,25 @@ export function PaymentInstructionsPanel({
       </ol>
       {bankNumber ? (
         <div className="rounded-md border bg-muted/30 p-4 text-sm">
-          <p className="font-medium">Transfer bank</p>
+          <p className="font-medium">{t('bankTransfer')}</p>
           <p>
-            {instructions.bank?.name || 'Bank'} • {instructions.bank?.accountName || 'Toko'}
+            {instructions.bank?.name || t('bankFallback')} •{' '}
+            {instructions.bank?.accountName || t('accountFallback')}
           </p>
           <div className="mt-1 flex items-center gap-2">
             <span className="font-mono font-semibold">{bankNumber}</span>
             <Button type="button" size="sm" variant="outline" onClick={() => void copyBank()}>
-              Salin
+              {t('copy')}
             </Button>
           </div>
         </div>
       ) : null}
       {instructions.qrUrl ? (
         <div className="space-y-2">
-          <p className="text-sm font-medium">QR pembayaran</p>
+          <p className="text-sm font-medium">{t('qrTitle')}</p>
           <Image
             src={instructions.qrUrl}
-            alt="QR pembayaran"
+            alt={t('qrAlt')}
             width={160}
             height={160}
             className="rounded border object-contain"
@@ -77,7 +80,7 @@ export function PaymentInstructionsPanel({
       ) : null}
       <div className="space-y-2">
         <label className="text-sm font-medium" htmlFor="payment-proof">
-          Bukti pembayaran (opsional)
+          {t('proofLabel')}
         </label>
         <input
           id="payment-proof"
@@ -92,7 +95,7 @@ export function PaymentInstructionsPanel({
           disabled={!file || uploading || uploaded}
           onClick={() => void upload()}
         >
-          {uploaded ? 'Bukti terkirim' : uploading ? 'Mengunggah...' : 'Unggah bukti'}
+          {uploaded ? t('proofUploaded') : uploading ? t('uploading') : t('upload')}
         </Button>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
       </div>

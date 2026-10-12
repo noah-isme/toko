@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from 'react';
 
 import { usePaymentStatusQuery } from '@/entities/payment/api/hooks';
@@ -24,6 +25,7 @@ export function PaymentStatusWatcher({
   onFailed,
   onError,
 }: PaymentStatusWatcherProps) {
+  const t = useTranslations('checkout.review.watcher');
   const statusQuery = usePaymentStatusQuery(orderId, { enabled: active && Boolean(orderId) });
   const initialCheckTokenRef = useRef(manualCheckToken);
 
@@ -54,9 +56,9 @@ export function PaymentStatusWatcher({
     }
 
     if (statusQuery.isError) {
-      onError('Tidak dapat memeriksa status pembayaran. Silakan coba lagi.');
+      onError(t('checkError'));
     }
-  }, [active, onError, statusQuery.isError]);
+  }, [active, onError, statusQuery.isError, t]);
 
   useEffect(() => {
     if (!active) {
@@ -73,14 +75,16 @@ export function PaymentStatusWatcher({
 
   return (
     <div className="space-y-2 rounded-lg border border-dashed p-4" role="status" aria-live="polite">
-      <p className="font-medium">Memeriksa status pembayaran...</p>
+      <p className="font-medium">{t('checking')}</p>
       {statusQuery.isFetching ? (
-        <p className="text-sm text-muted-foreground">Menghubungi penyedia pembayaran.</p>
+        <p className="text-sm text-muted-foreground">{t('contacting')}</p>
       ) : null}
       {statusQuery.data ? (
         <p className="text-sm text-muted-foreground">
-          Status saat ini:{' '}
-          <span className="font-semibold text-foreground">{statusQuery.data.status}</span>
+          {t.rich('current', {
+            status: statusQuery.data.status,
+            strong: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>,
+          })}
         </p>
       ) : null}
     </div>

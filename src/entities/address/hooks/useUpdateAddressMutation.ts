@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 
 import { updateAddress } from '../api';
@@ -31,6 +32,7 @@ export function useUpdateAddressMutation(
 ) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('checkout.address.toast');
   const ownerId = resolveOwnerId(userIdOrGuestId);
   const useGuestStorage = shouldUseGuestStorage(userIdOrGuestId);
   const usageContext = options.context ?? 'account';
@@ -50,7 +52,7 @@ export function useUpdateAddressMutation(
         const current = readGuestAddresses();
         const target = current.find((address) => address.id === id);
         if (!target) {
-          throw new Error('Alamat tidak ditemukan');
+          throw new Error(t('notFound'));
         }
 
         const updated = mergeAddressPatch(target, input);
@@ -148,7 +150,7 @@ export function useUpdateAddressMutation(
 
       toast({
         id: `address-update-${data.id}`,
-        title: 'Alamat diperbarui',
+        title: t('updated'),
         variant: 'success',
       });
     },
@@ -174,7 +176,7 @@ export function useUpdateAddressMutation(
 
       toast({
         id: `address-update-error-${context?.targetId ?? 'unknown'}`,
-        title: 'Gagal memperbarui alamat',
+        title: t('updateFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

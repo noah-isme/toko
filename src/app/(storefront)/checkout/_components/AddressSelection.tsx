@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { formatAddressText } from '../_lib/address';
 
 import { Button } from '@/components/ui/button';
@@ -29,18 +31,17 @@ export function ShippingAddressSection({
   onManage: () => void;
   onSelect: (address: SavedAddress) => void;
 }) {
+  const t = useTranslations('checkout.addressSelection');
   return (
     <section className="space-y-4 rounded-lg border p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold">Alamat pengiriman</h2>
-          <p className="text-sm text-muted-foreground">
-            Pilih alamat untuk menghitung ongkir dan menyiapkan pesanan Anda.
-          </p>
+          <h2 className="text-lg font-semibold">{t('title')}</h2>
+          <p className="text-sm text-muted-foreground">{t('description')}</p>
         </div>
         <div className="flex gap-2">
           <Button type="button" variant="outline" size="sm" onClick={onManage}>
-            Kelola alamat
+            {t('manage')}
           </Button>
         </div>
       </div>
@@ -50,10 +51,10 @@ export function ShippingAddressSection({
         <AddressSelectorSkeleton />
       ) : (
         <div className="rounded-lg border border-dashed border-muted-foreground/40 p-4 text-sm text-muted-foreground">
-          Belum ada alamat terpilih. Tambahkan alamat baru agar bisa melanjutkan checkout.
+          {t('empty')}
           <div className="mt-3">
             <Button size="sm" onClick={onManage}>
-              Tambah alamat
+              {t('add')}
             </Button>
           </div>
         </div>
@@ -68,7 +69,7 @@ export function ShippingAddressSection({
           />
           {addresses.length > 2 ? (
             <Button type="button" variant="ghost" size="sm" onClick={onManage}>
-              Lihat semua alamat
+              {t('viewAll')}
             </Button>
           ) : null}
         </>
@@ -92,6 +93,7 @@ export function AddressSelectionList({
   onSelect: (address: SavedAddress) => Promise<void> | void;
   isBusy: boolean;
 }) {
+  const t = useTranslations('checkout.addressSelection');
   if (!addresses.length) {
     return null;
   }
@@ -119,7 +121,9 @@ export function AddressSelectionList({
           >
             <div className="flex items-center justify-between gap-2">
               <p className="font-semibold text-foreground">{address.receiverName}</p>
-              {isActive ? <span className="text-xs font-medium text-primary">Dipakai</span> : null}
+              {isActive ? (
+                <span className="text-xs font-medium text-primary">{t('inUse')}</span>
+              ) : null}
             </div>
             <p className="text-xs text-muted-foreground">{address.phone}</p>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -145,6 +149,7 @@ export function SelectedAddressSummary({
   address: SavedAddress;
   isLoading: boolean;
 }) {
+  const t = useTranslations('checkout.addressSelection');
   return (
     <div className="rounded-lg border border-border/60 bg-muted/10 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -154,7 +159,7 @@ export function SelectedAddressSummary({
         </div>
         {address.isDefault ? (
           <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            Alamat utama
+            {t('primary')}
           </span>
         ) : null}
       </div>
@@ -169,7 +174,7 @@ export function SelectedAddressSummary({
       </p>
       <DelayedLoader
         active={isLoading}
-        label="Memuat opsi pengiriman…"
+        label={t('loadingShipping')}
         className="mt-2 text-xs text-muted-foreground"
       />
     </div>
