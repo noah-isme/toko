@@ -234,18 +234,13 @@ async function handleLogin(email: string, password: string) {
 
 ## Utilities
 
+Currency and date formatting is locale-aware and lives outside this module: components use
+`useFormat()` from `@/shared/i18n/use-format` (or next-intl's `useFormatter()`/`getFormatter()`),
+plain code uses `formatCurrency(amount, locale)`/`formatDate(date, locale)` from
+`@/shared/i18n/format` (`Rp 12.000.000` in `id`, `IDR 12,000,000` in `en`).
+
 ```typescript
-import {
-  formatCurrency,
-  formatDate,
-  getErrorMessage
-} from '@/lib/api';
-
-// Format currency
-formatCurrency(12000000); // "Rp 12.000.000"
-
-// Format date
-formatDate('2025-12-07T10:00:00Z'); // "7 Desember 2025"
+import { getErrorMessage } from '@/lib/api';
 
 // Get user-friendly error messages
 try {

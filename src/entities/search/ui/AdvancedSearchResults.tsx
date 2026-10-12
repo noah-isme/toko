@@ -34,8 +34,8 @@ import {
 } from '@/entities/search/lib/apiParams';
 import type { SearchFilters, SortOption } from '@/entities/search/types';
 import { AdvancedFilterSidebar as AdvancedFilterSidebarComponent } from '@/entities/search/ui/AdvancedFilterSidebar';
-import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 
@@ -45,6 +45,7 @@ export function AdvancedSearchResults() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('catalog');
+  const fmt = useFormat();
 
   // Parse initial filters from URL - compute directly from searchParams to avoid useEffect setState
   const initialFilters = useMemo(() => parseSearchStateFromUrl(searchParams), [searchParams]);
@@ -159,8 +160,8 @@ export function AdvancedSearchResults() {
     if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000)) {
       items.push({
         label: t('chips.price', {
-          min: formatCurrency(filters.priceRange[0]),
-          max: formatCurrency(filters.priceRange[1]),
+          min: fmt.currency(filters.priceRange[0]),
+          max: fmt.currency(filters.priceRange[1]),
         }),
         onRemove: () => handleFiltersChange({ priceRange: [0, 10000000] }),
       });
@@ -200,7 +201,7 @@ export function AdvancedSearchResults() {
       });
     }
     return items;
-  }, [filters, handleFiltersChange, t]);
+  }, [filters, fmt, handleFiltersChange, t]);
 
   if (error) {
     return (

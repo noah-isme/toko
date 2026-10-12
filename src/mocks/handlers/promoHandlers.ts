@@ -3,6 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { apiPath, type MockCart } from '../utils';
 
 import type { Promo } from '@/entities/promo/types';
+import { formatCurrency } from '@/shared/i18n/format';
 
 const promoCatalog: Record<string, Promo & { message: string; scenario?: 'expired' }> = {
   SAVE10: {
@@ -81,10 +82,6 @@ function persistCartDiscount(discountValue: number | undefined, promo?: Promo) {
     // Per the cart contract, `voucher` is the applied code string (or null).
     cart.voucher = promo ? promo.code : null;
   }
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
 }
 
 export const promoHandlers = [

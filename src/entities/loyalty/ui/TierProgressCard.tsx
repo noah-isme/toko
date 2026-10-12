@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 
 interface TierProgressCardProps {
   profile?: {
@@ -45,6 +46,7 @@ export const TierProgressCard = memo(function TierProgressCard({
   className,
 }: TierProgressCardProps) {
   const t = useTranslations('account.loyalty');
+  const fmt = useFormat();
   if (!profile) {
     return (
       <Card className={cn('overflow-hidden', className)}>
@@ -104,11 +106,11 @@ export const TierProgressCard = memo(function TierProgressCard({
         {/* Points Balance */}
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-bold tabular-nums text-foreground">
-            {points.toLocaleString('id-ID')}
+            {fmt.number(points)}
           </span>
           <span className="text-sm text-muted-foreground">{t('tier.points')}</span>
           <span className="ml-auto text-xs text-muted-foreground">
-            {t('tier.lifetime', { points: lifetimePoints.toLocaleString('id-ID') })}
+            {t('tier.lifetime', { points: fmt.number(lifetimePoints) })}
           </span>
         </div>
 
@@ -124,7 +126,7 @@ export const TierProgressCard = memo(function TierProgressCard({
             <Progress value={tierProgress} className="h-3" />
             <p className="text-xs text-muted-foreground">
               {t('tier.pointsToNext', {
-                points: pointsToNext.toLocaleString('id-ID'),
+                points: fmt.number(pointsToNext),
                 tier: nextTierInfo.name,
               })}
             </p>

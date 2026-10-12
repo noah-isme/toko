@@ -9,8 +9,8 @@ import { useEffect, useState, useRef } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { useProducts } from '@/entities/catalog/hooks';
-import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import { useSearchStore } from '@/stores/search-store';
 
 interface SearchAutocompleteProps {
@@ -20,6 +20,7 @@ interface SearchAutocompleteProps {
 
 export function SearchAutocomplete({ className, placeholder }: SearchAutocompleteProps) {
   const t = useTranslations('nav.search');
+  const fmt = useFormat();
   const router = useRouter();
   const params = useSearchParams();
   const paramsString = params.toString();
@@ -134,7 +135,7 @@ export function SearchAutocomplete({ className, placeholder }: SearchAutocomplet
                       <div className="flex-1 overflow-hidden">
                         <p className="truncate text-sm font-medium">{product.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatCurrency(product.price)}
+                          {fmt.currency(product.price)}
                         </p>
                       </div>
                     </button>

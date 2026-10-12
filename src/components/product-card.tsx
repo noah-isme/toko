@@ -136,7 +136,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
                   <Price
                     amount={product.originalPrice}
                     currency={product.currency || 'IDR'}
-                    locale="id-ID"
                     className="text-xs font-normal text-muted-foreground line-through"
                   />
                 </div>
@@ -144,7 +143,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
               <Price
                 amount={product.price}
                 currency={product.currency || 'IDR'}
-                locale="id-ID"
                 className="text-base font-extrabold tracking-tight text-foreground"
               />
             </div>

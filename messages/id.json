@@ -272,6 +272,12 @@
       "backToTop": "Kembali ke atas",
       "dismiss": "Tutup",
       "loading": "Memuat…"
+    },
+    "time": {
+      "justNow": "baru saja",
+      "minutesAgo": "{count, plural, =1 {# menit yang lalu} other {# menit yang lalu}}",
+      "hoursAgo": "{count, plural, =1 {# jam yang lalu} other {# jam yang lalu}}",
+      "daysAgo": "{count, plural, =1 {# hari yang lalu} other {# hari yang lalu}}"
     }
   },
   "nav": {

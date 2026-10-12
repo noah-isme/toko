@@ -13,7 +13,7 @@ import type { SortOption } from '@/components/product-sort';
 import { PullToRefresh } from '@/components/pull-to-refresh';
 import { Button } from '@/components/ui/button';
 import { useProducts } from '@/entities/catalog/hooks';
-import { formatCurrency } from '@/lib/api/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import {
   emptyCategoryProducts,
   emptyProducts,
@@ -46,6 +46,7 @@ const ITEMS_PER_PAGE = 12;
 export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean }) {
   const t = useTranslations('catalog.listing');
   const tEmpty = useTranslations('common.empty');
+  const fmt = useFormat();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -521,8 +522,8 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
       chips.push({
         id: 'price-range',
         label: t('chips.price', {
-          min: formatCurrency(priceRange[0]),
-          max: formatCurrency(priceRange[1]),
+          min: fmt.currency(priceRange[0]),
+          max: fmt.currency(priceRange[1]),
         }),
         onRemove: () => {
           setPriceRange(priceRangeDefaults);
@@ -534,6 +535,7 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
     return chips;
   }, [
     discountOnly,
+    fmt,
     inStockOnly,
     isPriceRangeActive,
     priceRange,

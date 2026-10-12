@@ -9,8 +9,8 @@ import { useApplyPromoMutation, useRemovePromoMutation, useValidatePromoQuery } 
 import { isPromoValidationKey, promoApplyInputSchema, type PromoApplyInput } from '../schemas';
 
 import { useCartQuery } from '@/entities/cart/hooks';
-import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -34,6 +34,7 @@ export interface PromoFieldProps {
 export function PromoField({ cartId, className }: PromoFieldProps) {
   const t = useTranslations('cart.promo');
   const tv = useTranslations('cart.promo.validation');
+  const fmt = useFormat();
   const inputId = useId();
   const helperId = `${inputId}-helper`;
   const errorId = `${inputId}-error`;
@@ -101,7 +102,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
     : t('helper');
 
   const discountText = appliedPromo?.discountValue
-    ? t('savings', { amount: formatCurrency(appliedPromo.discountValue) })
+    ? t('savings', { amount: fmt.currency(appliedPromo.discountValue) })
     : undefined;
 
   // Schema errors are catalog keys; anything else (e.g. a server message) is shown as is.
@@ -157,7 +158,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
             {cartMeta?.totals?.discount ? (
               <p>
                 {t('discount')}{' '}
-                <span className="font-semibold">{formatCurrency(cartMeta.totals.discount)}</span>
+                <span className="font-semibold">{fmt.currency(cartMeta.totals.discount)}</span>
               </p>
             ) : null}
             <GuardedButton

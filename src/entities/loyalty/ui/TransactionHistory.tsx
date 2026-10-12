@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowUp, ArrowDown, Minus, Plus, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DateTimeFormatOptions } from 'next-intl';
 import { memo, useState } from 'react';
 
 import { useLoyaltyTransactionsQuery } from '../hooks';
@@ -26,6 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 
 const TRANSACTION_TYPE_STYLES: Record<
   LoyaltyTransaction['type'],
@@ -55,28 +56,23 @@ const TRANSACTION_TYPE_STYLES: Record<
 
 const TYPE_OPTIONS = ['', 'earned', 'redeemed', 'expired', 'adjusted', 'bonus'] as const;
 
-function formatTransactionDate(value: string) {
-  try {
-    return new Intl.DateTimeFormat('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
-}
-
 interface TransactionHistoryProps {
   className?: string;
 }
+
+const TRANSACTION_DATE: DateTimeFormatOptions = {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+};
 
 export const TransactionHistory = memo(function TransactionHistory({
   className,
 }: TransactionHistoryProps) {
   const t = useTranslations('account.loyalty');
+  const fmt = useFormat();
   const [params, setParams] = useState({
     page: 1,
     pageSize: 10,
@@ -198,7 +194,7 @@ export const TransactionHistory = memo(function TransactionHistory({
                 return (
                   <TableRow key={transaction.id}>
                     <TableCell className="text-sm text-muted-foreground">
-                      {formatTransactionDate(transaction.createdAt)}
+                      {fmt.date(transaction.createdAt, TRANSACTION_DATE)}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={cn('gap-1', style.color)}>
@@ -224,10 +220,10 @@ export const TransactionHistory = memo(function TransactionHistory({
                       )}
                     >
                       {isPositive ? '+' : ''}
-                      {transaction.points.toLocaleString('id-ID')}
+                      {fmt.number(transaction.points)}
                     </TableCell>
                     <TableCell className="text-right text-sm tabular-nums text-muted-foreground">
-                      {transaction.balance.toLocaleString('id-ID')}
+                      {fmt.number(transaction.balance)}
                     </TableCell>
                   </TableRow>
                 );

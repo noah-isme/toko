@@ -11,14 +11,15 @@ import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
-import { formatCurrency, formatDateTime } from '@/lib/api/utils';
 import { humanizeStatus, orderStatusLabel, type AccountTranslator } from '@/shared/i18n/status';
+import { useFormat, type StorefrontFormat } from '@/shared/i18n/use-format';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
 
 export default function OrderDetailPage() {
   const t = useTranslations('account');
+  const fmt = useFormat();
   const params = useParams();
   const orderId = typeof params?.orderId === 'string' ? params.orderId : '';
   const { data: order, isLoading, error } = useOrderQuery(orderId);
@@ -58,7 +59,7 @@ export default function OrderDetailPage() {
   const timeline = buildStatusTimeline(order);
 
   const handleDownloadInvoice = () => {
-    const invoiceText = buildInvoiceText(t, order);
+    const invoiceText = buildInvoiceText(t, fmt, order);
     const blob = new Blob([invoiceText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -85,7 +86,7 @@ export default function OrderDetailPage() {
           <p className="text-sm text-muted-foreground">{t('orderDetail.orderNumber')}</p>
           <h1 className="font-display text-4xl leading-none">{order.orderNumber}</h1>
           <p className="text-sm text-muted-foreground">
-            {t('orderDetail.createdAt', { date: formatDateTime(order.createdAt) })}
+            {t('orderDetail.createdAt', { date: fmt.dateTime(order.createdAt) })}
           </p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass}`}>
@@ -143,14 +144,14 @@ export default function OrderDetailPage() {
                     <p className="text-xs text-muted-foreground">
                       {t('orderDetail.qtyPrice', {
                         qty: item.qty,
-                        price: formatCurrency(Number(item.unitPrice) || 0, currency),
+                        price: fmt.currency(Number(item.unitPrice) || 0, currency),
                       })}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground">{t('orderDetail.subtotal')}</p>
                     <p className="font-semibold">
-                      {formatCurrency(Number(item.subtotal) || 0, currency)}
+                      {fmt.currency(Number(item.subtotal) || 0, currency)}
                     </p>
                   </div>
                 </li>
@@ -180,7 +181,7 @@ export default function OrderDetailPage() {
                         {getStatusLabel(t, entry.status, entry.label)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {formatDateTime(entry.timestamp)}
+                        {fmt.dateTime(entry.timestamp)}
                       </p>
                     </div>
                   </li>
@@ -243,32 +244,32 @@ export default function OrderDetailPage() {
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t('orderDetail.subtotal')}</span>
                 <span className="font-medium">
-                  {formatCurrency(order.pricing.subtotal, currency)}
+                  {fmt.currency(order.pricing.subtotal, currency)}
                 </span>
               </div>
               {order.pricing.discount ? (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">{t('orderDetail.discount')}</span>
                   <span className="font-medium">
-                    -{formatCurrency(order.pricing.discount, currency)}
+                    -{fmt.currency(order.pricing.discount, currency)}
                   </span>
                 </div>
               ) : null}
               {order.pricing.tax ? (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">{t('orderDetail.tax')}</span>
-                  <span className="font-medium">{formatCurrency(order.pricing.tax, currency)}</span>
+                  <span className="font-medium">{fmt.currency(order.pricing.tax, currency)}</span>
                 </div>
               ) : null}
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t('orderDetail.shippingFee')}</span>
                 <span className="font-medium">
-                  {formatCurrency(order.pricing.shipping, currency)}
+                  {fmt.currency(order.pricing.shipping, currency)}
                 </span>
               </div>
               <div className="flex items-center justify-between border-t pt-2 font-semibold">
                 <span>{t('orderDetail.total')}</span>
-                <span>{formatCurrency(order.pricing.total, currency)}</span>
+                <span>{fmt.currency(order.pricing.total, currency)}</span>
               </div>
             </div>
           </section>
@@ -293,7 +294,7 @@ export default function OrderDetailPage() {
                   {order.shipping.estimatedDelivery ? (
                     <p className="text-muted-foreground">
                       {t('orderDetail.eta', {
-                        date: formatDateTime(order.shipping.estimatedDelivery),
+                        date: fmt.dateTime(order.shipping.estimatedDelivery),
                       })}
                     </p>
                   ) : null}
@@ -379,6 +380,7 @@ function getStatusColor(status: string) {
 
 function buildInvoiceText(
   t: AccountTranslator,
+  fmt: StorefrontFormat,
   order: {
     id: string;
     orderNumber: string;
@@ -431,7 +433,7 @@ function buildInvoiceText(
 
   const lines = [
     t('invoice.title', { number: order.orderNumber || order.id }),
-    t('invoice.date', { date: formatDateTime(order.createdAt) }),
+    t('invoice.date', { date: fmt.dateTime(order.createdAt) }),
     '',
     t('invoice.customer', { name: order.user.name }),
     t('invoice.email', { email: order.user.email }),
@@ -443,17 +445,17 @@ function buildInvoiceText(
     t('invoice.products'),
     ...order.items.map((item) => {
       const variant = item.variantName ? ` (${item.variantName})` : '';
-      return `- ${item.productTitle}${variant} x${item.qty} @ ${formatCurrency(
+      return `- ${item.productTitle}${variant} x${item.qty} @ ${fmt.currency(
         Number(item.unitPrice) || 0,
         currency,
-      )} = ${formatCurrency(Number(item.subtotal) || 0, currency)}`;
+      )} = ${fmt.currency(Number(item.subtotal) || 0, currency)}`;
     }),
     '',
-    t('invoice.subtotal', { amount: formatCurrency(order.pricing.subtotal, currency) }),
-    t('invoice.discount', { amount: formatCurrency(order.pricing.discount, currency) }),
-    t('invoice.tax', { amount: formatCurrency(order.pricing.tax, currency) }),
-    t('invoice.shipping', { amount: formatCurrency(order.pricing.shipping, currency) }),
-    t('invoice.total', { amount: formatCurrency(order.pricing.total, currency) }),
+    t('invoice.subtotal', { amount: fmt.currency(order.pricing.subtotal, currency) }),
+    t('invoice.discount', { amount: fmt.currency(order.pricing.discount, currency) }),
+    t('invoice.tax', { amount: fmt.currency(order.pricing.tax, currency) }),
+    t('invoice.shipping', { amount: fmt.currency(order.pricing.shipping, currency) }),
+    t('invoice.total', { amount: fmt.currency(order.pricing.total, currency) }),
   ];
 
   if (order.shipping) {
@@ -465,7 +467,7 @@ function buildInvoiceText(
       lines.push(t('invoice.trackingNumber', { number: order.shipping.trackingNumber }));
     }
     if (order.shipping.estimatedDelivery) {
-      lines.push(t('invoice.eta', { date: formatDateTime(order.shipping.estimatedDelivery) }));
+      lines.push(t('invoice.eta', { date: fmt.dateTime(order.shipping.estimatedDelivery) }));
     }
   }
 

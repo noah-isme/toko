@@ -33,9 +33,9 @@ beforeEach(() => {
 });
 
 import CheckoutPage from '@/app/(storefront)/checkout/page';
-import { formatCurrency } from '@/lib/api/utils';
 import { server } from '@/mocks/server';
 import { apiPath } from '@/mocks/utils';
+import { formatCurrency } from '@/shared/i18n/format';
 
 // Intl inserts a non-breaking space after "Rp"; Testing Library normalizes it to
 // a plain space, so expected strings have to be normalized the same way.

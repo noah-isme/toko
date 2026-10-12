@@ -9,23 +9,12 @@ import type { Review } from '../types';
 
 import { ReviewImageGallery } from '@/components/image-upload';
 import { cn } from '@/lib/utils';
+import { PADDED_SHORT_DATE, useFormat } from '@/shared/i18n/use-format';
 
 interface ReviewItemProps {
   review: Review;
   isOwner?: boolean;
   productId?: string;
-}
-
-function formatReviewDate(value: string) {
-  try {
-    return new Intl.DateTimeFormat('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
 }
 
 function ReviewStatusBadge({ status }: { status: Review['status'] }) {
@@ -58,6 +47,7 @@ export const ReviewItem = memo(function ReviewItem({
   productId,
 }: ReviewItemProps) {
   const t = useTranslations('product.reviews.item');
+  const fmt = useFormat();
   const { mutate: voteMutate, isPending, isReviewInFlight } = useVoteHelpfulMutation(review.id);
   const { mutate: deleteMutate, isProductInFlight } = useDeleteReviewMutation(
     isOwner ? productId : undefined,
@@ -89,7 +79,9 @@ export const ReviewItem = memo(function ReviewItem({
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-foreground">{author}</p>
-          <p className="text-xs text-muted-foreground">{formatReviewDate(review.createdAt)}</p>
+          <p className="text-xs text-muted-foreground">
+            {fmt.date(review.createdAt, PADDED_SHORT_DATE)}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <ReviewStatusBadge status={review.status} />

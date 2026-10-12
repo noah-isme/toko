@@ -11,7 +11,8 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/lib/api/services';
-import { formatDateTime, getErrorMessage, isValidPhoneNumber } from '@/lib/api/utils';
+import { getErrorMessage, isValidPhoneNumber } from '@/lib/api/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { useToast } from '@/shared/ui/toast';
@@ -25,6 +26,7 @@ export default function ProfilePage() {
   const t = useTranslations('account.profile');
   const tAccount = useTranslations('account');
   const tErrors = useTranslations('errors');
+  const fmt = useFormat();
   const { user, isAuthenticated, isLoading, updateProfile } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -335,7 +337,7 @@ export default function ProfilePage() {
                       {session.location ? ` • ${session.location}` : ''}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {t('security.lastActive', { date: formatDateTime(session.lastActive) })}
+                      {t('security.lastActive', { date: fmt.dateTime(session.lastActive) })}
                     </p>
                   </div>
                 </div>

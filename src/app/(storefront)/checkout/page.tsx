@@ -24,7 +24,6 @@ import {
 import { mapAddressToCheckout, trackCheckoutAddressSelect } from './_lib/address';
 import {
   computeCheckoutTotals,
-  formatQuoteTime,
   findShippingOption,
   getCartSignature,
   getFallbackShippingId,
@@ -53,6 +52,7 @@ import { useCheckoutMutation, useShippingQuoteMutation } from '@/entities/checko
 import type { ShippingOption } from '@/entities/checkout/api/hooks';
 import { PromoField } from '@/entities/promo/ui/PromoField';
 import type { PaymentMethod } from '@/lib/api/types';
+import { useFormat } from '@/shared/i18n/use-format';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { CheckoutSkeleton } from '@/shared/ui/skeletons/CheckoutSkeleton';
@@ -75,6 +75,7 @@ const EMPTY_ADDRESSES: SavedAddress[] = [];
 export default function CheckoutPage() {
   const tEmpty = useTranslations('common.empty');
   const t = useTranslations('checkout');
+  const fmt = useFormat();
   const { user } = useAuth();
   const router = useRouter();
   const storedCartId = useCartStore((state) => state.cartId);
@@ -311,8 +312,8 @@ export default function CheckoutPage() {
   );
 
   const lastQuoteLabel = useMemo(
-    () => (lastQuoteUpdatedAt ? formatQuoteTime(lastQuoteUpdatedAt) : null),
-    [lastQuoteUpdatedAt],
+    () => (lastQuoteUpdatedAt ? fmt.time(lastQuoteUpdatedAt) : null),
+    [fmt, lastQuoteUpdatedAt],
   );
 
   const isProcessing = checkoutMutation.isPending;

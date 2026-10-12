@@ -13,9 +13,9 @@ import {
   useMarkNotificationRead,
   useNotifications,
 } from '@/entities/notifications/hooks';
-import { formatDateTime } from '@/lib/api';
 import type { Notification } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
@@ -28,6 +28,7 @@ function notificationHref(notification: Notification): string {
 
 export default function NotificationsPage() {
   const t = useTranslations('account.notifications');
+  const fmt = useFormat();
   const [page, setPage] = useState(1);
   const router = useRouter();
   const { data, isLoading, error } = useNotifications(page, PAGE_SIZE);
@@ -136,7 +137,7 @@ export default function NotificationsPage() {
                 </p>
                 <p className="text-sm text-muted-foreground">{notification.body}</p>
                 <p className="mt-1 text-xs text-muted-foreground/80">
-                  {formatDateTime(notification.createdAt)}
+                  {fmt.dateTime(notification.createdAt)}
                 </p>
               </div>
             </button>

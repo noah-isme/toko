@@ -21,9 +21,9 @@ import {
   useNotifications,
   useUnreadNotificationCount,
 } from '@/entities/notifications/hooks';
-import { formatDateTime } from '@/lib/api';
 import type { Notification } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 
 /**
  * Resolve the in-app destination for a notification from its `data` payload.
@@ -40,6 +40,7 @@ function notificationHref(notification: Notification): Route {
 
 export function NotificationBell() {
   const t = useTranslations('account.notifications');
+  const fmt = useFormat();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -135,7 +136,7 @@ export function NotificationBell() {
                       {notification.body}
                     </p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground/80">
-                      {formatDateTime(notification.createdAt)}
+                      {fmt.dateTime(notification.createdAt)}
                     </p>
                   </div>
                 </div>

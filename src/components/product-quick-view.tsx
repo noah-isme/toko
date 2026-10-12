@@ -17,7 +17,7 @@ import { useProduct } from '@/entities/catalog/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { useToast } from '@/hooks/use-toast';
-import { formatCurrency } from '@/lib/api';
+import { useFormat } from '@/shared/i18n/use-format';
 import { useCartStore } from '@/stores/cart-store';
 
 interface ProductQuickViewProps {
@@ -28,6 +28,7 @@ interface ProductQuickViewProps {
 
 export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProps) {
   const t = useTranslations('product.quickView');
+  const fmt = useFormat();
   const { data: product, isLoading } = useProduct(slug, { enabled: isOpen });
   const [quantity, setQuantity] = useState(1);
   const { cartId } = useCartStore();
@@ -115,7 +116,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                 {/* Price */}
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">{formatCurrency(product.price)}</span>
+                    <span className="text-3xl font-bold">{fmt.currency(product.price)}</span>
                   </div>
                 </div>
 

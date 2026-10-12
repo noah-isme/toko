@@ -15,6 +15,7 @@ import {
 } from '@/entities/search/hooks';
 import type { SearchFilters, SearchFacet } from '@/entities/search/types';
 import { cn } from '@/lib/utils';
+import { NUMERIC_DATE, useFormat } from '@/shared/i18n/use-format';
 
 interface FilterSidebarProps {
   filters: SearchFilters;
@@ -114,6 +115,7 @@ export function AdvancedFilterSidebar({
   className,
 }: FilterSidebarProps) {
   const t = useTranslations('catalog.filters');
+  const fmt = useFormat();
   const [open, setOpen] = useState(false);
   const activeCount = useActiveFilterCount(filters);
 
@@ -380,7 +382,7 @@ export function AdvancedFilterSidebar({
             className="flex-1"
             onClick={() =>
               saveSearch.mutate({
-                name: t('savedSearchName', { date: new Date().toLocaleDateString('id-ID') }),
+                name: t('savedSearchName', { date: fmt.date(new Date(), NUMERIC_DATE) }),
                 filters,
               })
             }
@@ -393,7 +395,7 @@ export function AdvancedFilterSidebar({
             className="flex-1"
             onClick={() =>
               saveSearch.mutate({
-                name: t('savedSearchName', { date: new Date().toLocaleDateString('id-ID') }),
+                name: t('savedSearchName', { date: fmt.date(new Date(), NUMERIC_DATE) }),
                 filters,
                 alertEnabled: true,
               })

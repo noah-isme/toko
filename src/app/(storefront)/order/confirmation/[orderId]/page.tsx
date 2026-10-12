@@ -12,8 +12,8 @@ import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Button } from '@/components/ui/button';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
-import { formatCurrency, formatDateTime } from '@/lib/api/utils';
 import { humanizeStatus, orderStatusLabel } from '@/shared/i18n/status';
+import { useFormat } from '@/shared/i18n/use-format';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
 import { useCartStore } from '@/stores/cart-store';
@@ -85,6 +85,7 @@ function getStatusConfig(t: ConfirmationTranslator, status: string) {
 export default function OrderConfirmationPage() {
   const t = useTranslations('account.confirmation');
   const tAccount = useTranslations('account');
+  const fmt = useFormat();
   const params = useParams();
   const orderId = typeof params?.orderId === 'string' ? params.orderId : null;
   const router = useRouter();
@@ -252,10 +253,7 @@ export default function OrderConfirmationPage() {
         <div className="border-t pt-4">
           <p className="text-sm text-muted-foreground">{t('totalPayment')}</p>
           <p className="text-2xl font-bold">
-            {new Intl.NumberFormat('id-ID', {
-              style: 'currency',
-              currency: order.currency || 'IDR',
-            }).format(order.pricing?.total || 0)}
+            {fmt.currency(order.pricing?.total || 0, order.currency || 'IDR')}
           </p>
         </div>
         {isPendingPayment ? (
@@ -276,7 +274,7 @@ export default function OrderConfirmationPage() {
               )}
               {order.payment?.paymentExpiry ? (
                 <p className="mt-1 text-xs text-amber-800">
-                  {t('validUntil', { date: formatDateTime(order.payment.paymentExpiry) })}
+                  {t('validUntil', { date: fmt.dateTime(order.payment.paymentExpiry) })}
                 </p>
               ) : null}
               <p className="mt-2 text-xs text-amber-800">{t('autoCancel')}</p>
@@ -328,7 +326,7 @@ export default function OrderConfirmationPage() {
                   <div className="space-y-1">
                     <p className="text-sm font-semibold">{statusLabel}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDateTime(item.timestamp ?? item.at ?? '')}
+                      {fmt.dateTime(item.timestamp ?? item.at ?? '')}
                     </p>
                   </div>
                 </li>
@@ -372,7 +370,7 @@ export default function OrderConfirmationPage() {
                 {order.shipping.estimatedDelivery ? (
                   <p>
                     {t.rich('eta', {
-                      date: formatDateTime(order.shipping.estimatedDelivery),
+                      date: fmt.dateTime(order.shipping.estimatedDelivery),
                       strong: (chunks) => (
                         <span className="font-medium text-foreground">{chunks}</span>
                       ),
@@ -432,11 +430,11 @@ export default function OrderConfirmationPage() {
                     <p className="text-xs text-muted-foreground">
                       {t('qtyPrice', {
                         qty: item.qty,
-                        price: formatCurrency(Number(item.unitPrice) || 0, order.currency || 'IDR'),
+                        price: fmt.currency(Number(item.unitPrice) || 0, order.currency || 'IDR'),
                       })}
                     </p>
                     <p className="text-sm font-semibold text-foreground">
-                      {formatCurrency(Number(item.subtotal) || 0, order.currency || 'IDR')}
+                      {fmt.currency(Number(item.subtotal) || 0, order.currency || 'IDR')}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">

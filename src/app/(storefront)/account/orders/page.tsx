@@ -14,6 +14,7 @@ import { useOrdersQuery } from '@/entities/orders/api/hooks';
 import type { OrderListItem } from '@/entities/orders/schemas';
 import { cn } from '@/lib/utils';
 import { humanizeStatus, orderStatusLabel } from '@/shared/i18n/status';
+import { useFormat } from '@/shared/i18n/use-format';
 import { emptyOrders } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
@@ -162,6 +163,7 @@ function OrderHistoryContent() {
 
 function OrderCard({ order }: { order: OrderListItem }) {
   const t = useTranslations('account');
+  const fmt = useFormat();
   const dateParams = order.createdAt ? new Date(order.createdAt) : new Date();
   const isPending = order.status.toLowerCase().includes('pending');
   const statusLabel = orderStatusLabel(t, order.status) ?? humanizeStatus(order.status);
@@ -193,15 +195,7 @@ function OrderCard({ order }: { order: OrderListItem }) {
               {statusLabel}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {new Intl.DateTimeFormat('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            }).format(dateParams)}
-          </p>
+          <p className="text-sm text-muted-foreground">{fmt.dateTime(dateParams)}</p>
           {order.itemCount ? (
             <p className="text-sm text-muted-foreground">
               {t('orders.itemCount', { count: order.itemCount })}
@@ -216,7 +210,6 @@ function OrderCard({ order }: { order: OrderListItem }) {
           <Price
             amount={order.total}
             currency={order.currency || 'IDR'}
-            locale="id-ID"
             className="text-sm font-bold text-foreground"
           />
         </div>

@@ -7,11 +7,10 @@ import { memo, useState } from 'react';
 import { useVoteQuestionHelpfulMutation, useAnswerQuestionMutation } from '../hooks';
 import type { Question } from '../types';
 
-import { formatRelativeTime } from './utils';
-
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { PADDED_SHORT_DATE, useFormat } from '@/shared/i18n/use-format';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { useToast } from '@/shared/ui/toast';
 
@@ -19,18 +18,6 @@ interface QuestionItemProps {
   question: Question;
   onAnswer?: (questionId: string) => void;
   canAnswer?: boolean;
-}
-
-function formatQADate(value: string) {
-  try {
-    return new Intl.DateTimeFormat('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
 }
 
 function QuestionStatusBadge({ status }: { status: Question['status'] }) {
@@ -69,6 +56,7 @@ export const QuestionItem = memo(function QuestionItem({
 }: QuestionItemProps) {
   const t = useTranslations('product.qa.item');
   const tToast = useTranslations('product.qa.toast');
+  const fmt = useFormat();
   const { mutate, isPending, isInFlight } = useVoteQuestionHelpfulMutation(question.id);
   const { mutate: answerMutate, isPending: answerPending } = useAnswerQuestionMutation(question.id);
   const helpfulActive = question.myVote === 'up';
@@ -114,7 +102,9 @@ export const QuestionItem = memo(function QuestionItem({
           <p className="text-sm font-semibold text-foreground">
             {question.author ?? t('anonymous')}
           </p>
-          <p className="text-xs text-muted-foreground">{formatQADate(question.createdAt)}</p>
+          <p className="text-xs text-muted-foreground">
+            {fmt.date(question.createdAt, PADDED_SHORT_DATE)}
+          </p>
         </div>
         <QuestionStatusBadge status={question.status} />
       </header>
@@ -135,7 +125,7 @@ export const QuestionItem = memo(function QuestionItem({
             {question.answeredAt && (
               <>
                 <span>•</span>
-                <span>{formatRelativeTime(question.answeredAt)}</span>
+                <span>{fmt.relative(question.answeredAt)}</span>
               </>
             )}
           </div>

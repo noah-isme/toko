@@ -12,6 +12,7 @@ import {
   type SupportMessage,
   type SupportTicket,
 } from '@/lib/api/services/customerOperations';
+import { FULL_DATE_TIME, useFormat } from '@/shared/i18n/use-format';
 
 type MessageMap = Record<string, SupportMessage[]>;
 
@@ -19,6 +20,7 @@ export default function SupportPage() {
   const t = useTranslations('account.support');
   const tAccount = useTranslations('account');
   const tCommon = useTranslations('common');
+  const fmt = useFormat();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [messages, setMessages] = useState<MessageMap>({});
@@ -154,7 +156,7 @@ export default function SupportPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-xs text-muted-foreground">
-                  {t('createdAt', { date: new Date(ticket.createdAt).toLocaleString('id-ID') })}
+                  {t('createdAt', { date: fmt.date(ticket.createdAt, FULL_DATE_TIME) })}
                   {ticket.orderId ? ` • ${t('order', { orderId: ticket.orderId })}` : ''}
                 </p>
                 <div
@@ -169,7 +171,7 @@ export default function SupportPage() {
                         <div className="mb-1 flex justify-between gap-3 text-xs text-muted-foreground">
                           <span>{entry.authorType === 'customer' ? t('you') : t('team')}</span>
                           <time dateTime={entry.createdAt}>
-                            {new Date(entry.createdAt).toLocaleString('id-ID')}
+                            {fmt.date(entry.createdAt, FULL_DATE_TIME)}
                           </time>
                         </div>
                         <p className="whitespace-pre-wrap">{entry.message}</p>

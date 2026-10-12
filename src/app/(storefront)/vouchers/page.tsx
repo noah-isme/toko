@@ -9,23 +9,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { promotionsApi, type PublicVoucher } from '@/lib/api/services/promotions';
-import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
+import { useFormat, type StorefrontFormat } from '@/shared/i18n/use-format';
 import { useToast } from '@/shared/ui/toast';
 
 type VouchersTranslator = ReturnType<typeof useTranslations<'catalog.vouchers'>>;
 
-function discountLabel(t: VouchersTranslator, voucher: PublicVoucher) {
+function discountLabel(t: VouchersTranslator, fmt: StorefrontFormat, voucher: PublicVoucher) {
   if (voucher.kind === 'percent') {
     return t('percentOff', { percent: String((voucher.percentBps ?? 0) / 100) });
   }
-  return formatCurrency(voucher.value);
+  return fmt.currency(voucher.value);
 }
 
-function voucherDescription(t: VouchersTranslator, voucher: PublicVoucher) {
+function voucherDescription(t: VouchersTranslator, fmt: StorefrontFormat, voucher: PublicVoucher) {
   const details: string[] = [];
-  if (voucher.minSpend > 0)
-    details.push(t('minSpend', { amount: formatCurrency(voucher.minSpend) }));
+  if (voucher.minSpend > 0) details.push(t('minSpend', { amount: fmt.currency(voucher.minSpend) }));
   if (voucher.usageLimit != null)
     details.push(t('remaining', { count: Math.max(0, voucher.usageLimit - voucher.usedCount) }));
   if (voucher.perUserLimit != null && voucher.perUserLimit > 0)
@@ -33,17 +32,9 @@ function voucherDescription(t: VouchersTranslator, voucher: PublicVoucher) {
   return details.join(' • ');
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return '';
-  return new Date(value).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
 export default function VouchersPage() {
   const t = useTranslations('catalog.vouchers');
+  const fmt = useFormat();
   const { toast } = useToast();
   const [vouchers, setVouchers] = useState<PublicVoucher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,7 +124,7 @@ export default function VouchersPage() {
                       </Badge>
                     </div>
                     <div className="text-2xl font-bold text-primary">
-                      {discountLabel(t, voucher)}
+                      {discountLabel(t, fmt, voucher)}
                     </div>
                   </div>
                   <Button
@@ -148,14 +139,14 @@ export default function VouchersPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  {voucherDescription(t, voucher) || t('termsApply')}
+                  {voucherDescription(t, fmt, voucher) || t('termsApply')}
                 </p>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{t('valid')}</Badge>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
                     {voucher.validTo
-                      ? t('validUntil', { date: formatDate(voucher.validTo) })
+                      ? t('validUntil', { date: fmt.date(voucher.validTo) })
                       : t('noExpiry')}
                   </div>
                 </div>

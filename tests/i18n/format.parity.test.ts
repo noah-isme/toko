@@ -1,15 +1,32 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  formatCurrency as legacyFormatCurrency,
-  formatDate as legacyFormatDate,
-} from '@/lib/api/utils';
 import { formatCurrency, formatDate } from '@/shared/i18n/format';
+
+/**
+ * Frozen copies of the legacy `src/lib/api/utils.ts` helpers (removed once every caller moved to
+ * the locale-aware formatters). They pin the `id` output the UI showed before the migration.
+ */
+function legacyFormatCurrency(amount: number, currency: string = 'IDR'): string {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function legacyFormatDate(date: string | Date): string {
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(date));
+}
 
 const AMOUNTS = [0, 1, 999, 1_000, 15_500, 250_000, 1_000_000, 12_345_678, 1_500.5, -75_000];
 
 // Normalise the narrow/no-break spaces Intl puts between the currency and the number.
-const plain = (value: string) => value.replace(/[  ]/g, ' ');
+const plain = (value: string) => value.replace(/[\u00a0\u202f]/g, ' ');
 
 describe('shared i18n formatters', () => {
   it.each(AMOUNTS)('formatCurrency(%d, "id") matches the legacy helper exactly', (amount) => {

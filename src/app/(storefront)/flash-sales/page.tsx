@@ -16,6 +16,7 @@ import {
   type FlashSaleCampaign,
   type FlashSaleItem,
 } from '@/lib/api/services/promotions';
+import { useFormat } from '@/shared/i18n/use-format';
 import { useCartStore } from '@/stores/cart-store';
 
 function countdown(target: string, now: number) {
@@ -260,6 +261,7 @@ function FlashSaleCard({
   adding: boolean;
 }) {
   const t = useTranslations('catalog.flashSale');
+  const fmt = useFormat();
   const discount = Math.round(item.discountBps / 100);
   const stockPercent = item.stockLimit
     ? Math.max(5, Math.min(100, Math.round((item.stock / item.stockLimit) * 100)))
@@ -298,9 +300,7 @@ function FlashSaleCard({
         </Link>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground line-through">
-            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-              item.originalPrice,
-            )}
+            {fmt.currency(item.originalPrice)}
           </span>
           <Price
             amount={item.salePrice}

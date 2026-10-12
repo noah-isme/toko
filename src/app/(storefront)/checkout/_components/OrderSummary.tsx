@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import React from 'react';
 
 import type { Totals } from '@/entities/checkout/schemas';
-import { formatCurrency } from '@/lib/api/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 
 export interface OrderSummaryProps {
   totals: Pick<Totals, 'subtotal' | 'discount' | 'tax' | 'shipping' | 'total'>;
@@ -12,6 +12,7 @@ export interface OrderSummaryProps {
 
 export function OrderSummary({ totals }: OrderSummaryProps) {
   const t = useTranslations('checkout.summary');
+  const fmt = useFormat();
   const taxRate = taxRateLabel(totals.subtotal, totals.discount ?? 0, totals.tax);
   const rows: Array<{
     id: string;
@@ -47,13 +48,13 @@ export function OrderSummary({ totals }: OrderSummaryProps) {
           .map((row) => (
             <div key={row.id} className="flex items-center justify-between">
               <dt className="text-muted-foreground">{row.label}</dt>
-              <dd>{formatCurrency(row.value)}</dd>
+              <dd>{fmt.currency(row.value)}</dd>
             </div>
           ))}
       </dl>
       <div className="flex items-center justify-between border-t pt-4 text-base font-semibold">
         <span>{t('total')}</span>
-        <span>{formatCurrency(totals.total)}</span>
+        <span>{fmt.currency(totals.total)}</span>
       </div>
     </div>
   );

@@ -2,11 +2,12 @@ import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
 import { getLocale, getTranslations } from 'next-intl/server';
 
-import { isLocale } from '@/i18n/config';
+import { isLocale, type Locale } from '@/i18n/config';
+import { formatCurrency } from '@/shared/i18n/format';
 
 const brand = 'toko';
 
-function formatPrice(value: string | null) {
+function formatPrice(value: string | null, locale: Locale) {
   if (!value) {
     return null;
   }
@@ -16,22 +17,18 @@ function formatPrice(value: string | null) {
     return null;
   }
 
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(numeric);
+  return formatCurrency(numeric, locale);
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const title = searchParams.get('title') ?? brand;
-  const price = formatPrice(searchParams.get('price'));
   const subtitle = searchParams.get('subtitle');
   // `/api` bypasses the proxy, so non-default locales arrive as `?locale=` (see ogImageUrl).
   const requestedLocale = searchParams.get('locale');
   const locale = isLocale(requestedLocale) ? requestedLocale : await getLocale();
   const t = await getTranslations({ locale, namespace: 'seo.og' });
+  const price = formatPrice(searchParams.get('price'), locale);
 
   return new ImageResponse(
     (

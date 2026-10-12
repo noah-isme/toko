@@ -8,11 +8,13 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { customerOperationsApi, type CustomerReturn } from '@/lib/api/services/customerOperations';
+import { FULL_DATE_TIME, useFormat } from '@/shared/i18n/use-format';
 
 export default function ReturnsPage() {
   const t = useTranslations('account.returns');
   const tAccount = useTranslations('account');
   const tCommon = useTranslations('common');
+  const fmt = useFormat();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [returns, setReturns] = useState<CustomerReturn[]>([]);
   const [orderId, setOrderId] = useState('');
@@ -138,7 +140,7 @@ export default function ReturnsPage() {
                     <p className="font-medium">{t('order', { orderId: item.orderId })}</p>
                     <p className="text-sm text-muted-foreground">{item.reason}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(item.createdAt).toLocaleString('id-ID')}
+                      {fmt.date(item.createdAt, FULL_DATE_TIME)}
                     </p>
                   </div>
                   <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">

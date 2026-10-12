@@ -4,44 +4,8 @@
 import { ApiClientError } from './apiClient';
 import type { ApiErrorCode } from './types';
 
-/**
- * Format currency in Indonesian Rupiah
- */
-export function formatCurrency(amount: number, currency: string = 'IDR'): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-/**
- * Format date in Indonesian locale
- */
-export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
-  const defaultOptions: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    ...options,
-  };
-
-  return new Intl.DateTimeFormat('id-ID', defaultOptions).format(new Date(date));
-}
-
-/**
- * Format date and time in Indonesian locale
- */
-export function formatDateTime(date: string | Date): string {
-  return formatDate(date, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+// Currency and date formatting moved to `@/shared/i18n/format` (plain code) and
+// `@/shared/i18n/use-format` (components): both follow the active locale.
 
 /**
  * `errors` catalog keys `getErrorMessage` resolves: `api.<ApiErrorCode>` for known API error

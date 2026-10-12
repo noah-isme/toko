@@ -11,8 +11,8 @@ import { useEffect } from 'react';
 import { TrackingActions } from '@/components/tracking-actions';
 import { Button } from '@/components/ui/button';
 import { useShipment } from '@/entities/orders/api/hooks';
-import { formatDateTime } from '@/lib/api/utils';
 import { shipmentStatusLabel } from '@/shared/i18n/status';
+import { useFormat } from '@/shared/i18n/use-format';
 import { abs } from '@/shared/seo/seo';
 import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 import { captureSentryException } from '@/shared/telemetry/sentry';
@@ -36,6 +36,7 @@ const TrackingMap = dynamic(() => import('@/components/tracking-map'), {
 export default function OrderTrackingPage() {
   const t = useTranslations('account.tracking');
   const tAccount = useTranslations('account');
+  const fmt = useFormat();
   const params = useParams();
   const orderId = typeof params?.orderId === 'string' ? params.orderId : '';
 
@@ -103,7 +104,7 @@ export default function OrderTrackingPage() {
           <p className="text-base font-semibold">{statusLabel}</p>
           {shipment.estimatedDelivery ? (
             <p className="text-xs text-muted-foreground">
-              {t('eta', { date: formatDateTime(shipment.estimatedDelivery) })}
+              {t('eta', { date: fmt.dateTime(shipment.estimatedDelivery) })}
             </p>
           ) : null}
         </div>
@@ -136,7 +137,7 @@ export default function OrderTrackingPage() {
                     <p className="text-sm font-semibold">{label}</p>
                     <p className="text-xs text-muted-foreground">{event.description}</p>
                     <p className="text-xs text-muted-foreground">
-                      {event.location} - {formatDateTime(event.timestamp)}
+                      {event.location} - {fmt.dateTime(event.timestamp)}
                     </p>
                   </div>
                 </li>

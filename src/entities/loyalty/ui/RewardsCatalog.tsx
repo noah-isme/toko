@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import { useToast } from '@/shared/ui/toast';
 
 interface RewardsCatalogProps {
@@ -37,6 +38,7 @@ export const RewardsCatalog = memo(function RewardsCatalog({
   className,
 }: RewardsCatalogProps) {
   const t = useTranslations('account.loyalty.rewards');
+  const fmt = useFormat();
   const { isAuthenticated } = useAuth();
   const { redeem, isPending: isRedeeming } = useRedeemRewardMutation();
   const { toast } = useToast();
@@ -118,7 +120,7 @@ export const RewardsCatalog = memo(function RewardsCatalog({
 
                 <div className="flex items-center justify-between border-t border-border/50 pt-3">
                   <div className="flex items-center gap-1.5 text-lg font-bold text-primary">
-                    {reward.pointsCost.toLocaleString('id-ID')}
+                    {fmt.number(reward.pointsCost)}
                     <Sparkles className="h-4 w-4" />
                   </div>
                   {reward.pointsCost === 0 && (

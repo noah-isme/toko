@@ -15,11 +15,13 @@ import {
   type FlashSaleCampaign,
   type FlashSaleItem,
 } from '@/lib/api/services/promotions';
+import { useFormat } from '@/shared/i18n/use-format';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { useCartStore } from '@/stores/cart-store';
 
 export function FlashSaleSection() {
   const t = useTranslations('catalog.flashSale');
+  const fmt = useFormat();
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
 
@@ -158,9 +160,7 @@ export function FlashSaleSection() {
               <div className="mt-4 space-y-3 border-t border-border/40 pt-3">
                 <div>
                   <div className="text-xs text-muted-foreground line-through">
-                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-                      item.originalPrice,
-                    )}
+                    {fmt.currency(item.originalPrice)}
                   </div>
                   <Price
                     amount={item.salePrice}

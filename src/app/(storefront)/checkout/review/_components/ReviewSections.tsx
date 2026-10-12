@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { CheckoutStepper } from '@/components/checkout-stepper';
 import { Button } from '@/components/ui/button';
 import type { PaymentIntent, PaymentStatus } from '@/entities/payment/schemas';
+import { FULL_DATE_TIME, useFormat } from '@/shared/i18n/use-format';
 import { DelayedLoader } from '@/shared/ui/DelayedLoader';
 import { DisabledHint } from '@/shared/ui/DisabledHint';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -71,6 +72,7 @@ export function PaymentMethodPanel({
   paymentError: string | null;
 }) {
   const t = useTranslations('checkout.review.payment');
+  const fmt = useFormat();
   return (
     <section className="space-y-4 rounded-lg border p-6">
       <div className="space-y-1">
@@ -124,7 +126,7 @@ export function PaymentMethodPanel({
         {paymentIntent?.expiresAt ? (
           <p className="text-xs text-muted-foreground">
             {t('payBefore', {
-              deadline: new Date(paymentIntent.expiresAt).toLocaleString('id-ID'),
+              deadline: fmt.date(paymentIntent.expiresAt, FULL_DATE_TIME),
             })}
           </p>
         ) : null}

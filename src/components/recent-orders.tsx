@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
 import { useOrders } from '@/entities/orders/api/hooks';
-import { formatCurrency, formatDate } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { orderStatusLabel } from '@/shared/i18n/status';
+import { useFormat } from '@/shared/i18n/use-format';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
 interface RecentOrdersProps {
@@ -17,6 +17,7 @@ interface RecentOrdersProps {
 
 export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
   const t = useTranslations('account');
+  const fmt = useFormat();
   const { data, isLoading, error } = useOrders(1, limit);
 
   if (isLoading) {
@@ -84,10 +85,10 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
                   <p className="text-sm text-muted-foreground">
                     {t('recentOrders.itemCount', { count: order.itemCount || 0 })}
                   </p>
-                  <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
+                  <p className="text-xs text-muted-foreground">{fmt.date(order.createdAt)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">{formatCurrency(order.total)}</p>
+                  <p className="font-semibold">{fmt.currency(order.total)}</p>
                 </div>
               </div>
             </Link>

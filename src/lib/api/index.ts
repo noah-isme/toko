@@ -8,13 +8,13 @@
  *
  * @example
  * ```typescript
- * import { authApi, formatCurrency } from '@/lib/api';
+ * import { authApi, getErrorMessage } from '@/lib/api';
  *
  * // Use service directly
  * const user = await authApi.getCurrentUser();
  *
- * // Use utilities
- * const formatted = formatCurrency(12000000); // "Rp 12.000.000"
+ * Currency/date formatting is locale-aware: see `@/shared/i18n/use-format` (components) and
+ * `@/shared/i18n/format` (plain code).
  * ```
  */
 
@@ -47,9 +47,6 @@ export {
 
 // Utilities
 export {
-  formatCurrency,
-  formatDate,
-  formatDateTime,
   getErrorMessage,
   calculateDiscountPercent,
   buildQueryString,
