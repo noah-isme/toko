@@ -20,7 +20,7 @@ vi.mock('@/entities/admin/hooks', () => ({
   useUpdateAdminProduct: () => ({ isPending: false, mutateAsync: vi.fn() }),
   useAdminProducts: () => ({ isLoading: false, isError: false, data: { data: [] } }),
   useAdminFlashSale: () => flashSaleQuery.current,
-  useCreateAdminFlashSale: () => ({ isPending: false, mutateAsync: vi.fn() }),
+  useUpdateAdminFlashSale: () => ({ isPending: false, mutateAsync: vi.fn() }),
   useUpdateAdminFlashSaleStatus: () => ({ isPending: false, mutateAsync: vi.fn() }),
 }));
 
