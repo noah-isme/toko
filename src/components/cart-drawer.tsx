@@ -3,6 +3,7 @@
 import { ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useEffect, useId, useRef, useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -24,6 +25,7 @@ import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
 import { useCartStore } from '@/stores/cart-store';
 
 export function CartDrawer() {
+  const tEmpty = useTranslations('common.empty');
   const [open, setOpen] = useState(false);
   const cartId = useCartStore((state) => state.cartId);
   const { data, isLoading, isFetching } = useCartQuery(cartId || undefined);
@@ -84,7 +86,7 @@ export function CartDrawer() {
           {isBusy ? (
             <CartSkeleton items={3} />
           ) : !data || data.items.length === 0 ? (
-            <EmptyState {...emptyCart()} className="border-none bg-transparent" />
+            <EmptyState {...emptyCart(tEmpty)} className="border-none bg-transparent" />
           ) : (
             <ul className="space-y-3">
               {data.items.map((item) => (

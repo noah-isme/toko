@@ -42,6 +42,51 @@
         "label": "Preference cookies",
         "description": "Remember your preferences like language, theme, and region."
       }
+    },
+    "loading": "Memuat...",
+    "pullToRefresh": {
+      "refreshing": "Memuat ulang…",
+      "release": "Lepas untuk memuat ulang",
+      "pull": "Tarik untuk memuat ulang"
+    },
+    "empty": {
+      "products": {
+        "title": "Produk belum tersedia",
+        "description": "Kami tidak menemukan produk yang sesuai. Coba ubah filter atau periksa kembali nanti.",
+        "cta": "Lihat semua produk"
+      },
+      "cart": {
+        "title": "Keranjang belanja kosong",
+        "description": "Mulai tambahkan produk ke keranjang Anda untuk melanjutkan ke proses checkout.",
+        "cta": "Belanja sekarang"
+      },
+      "orders": {
+        "title": "Belum ada pesanan",
+        "description": "Riwayat pesanan Anda akan muncul di sini setelah berhasil melakukan checkout.",
+        "cta": "Lanjutkan belanja"
+      },
+      "favorites": {
+        "title": "Belum ada favorit",
+        "description": "Simpan produk favorit Anda untuk membandingkan harga dan kembali berbelanja lebih cepat.",
+        "cta": "Jelajahi produk"
+      },
+      "favoritesUnavailable": {
+        "title": "Favorit tidak tersedia",
+        "description": "Sebagian produk favorit Anda sudah tidak dijual. Coba cari produk serupa yang masih tersedia.",
+        "cta": "Cari produk lain"
+      },
+      "searchResults": {
+        "title": "Hasil pencarian tidak ditemukan",
+        "description": "Kami tidak menemukan produk untuk \"{query}\". Coba kata kunci lain atau hapus beberapa filter.",
+        "descriptionDefault": "Kami tidak menemukan produk dengan kata kunci tersebut. Coba kata kunci lain.",
+        "cta": "Lihat semua produk"
+      },
+      "categoryProducts": {
+        "title": "Produk belum tersedia",
+        "description": "Kategori {categories} belum memiliki produk. Coba lihat kategori lain untuk menemukan produk serupa.",
+        "descriptionDefault": "Kategori ini belum memiliki produk. Coba lihat kategori lain untuk menemukan produk serupa.",
+        "cta": "Jelajahi kategori lain"
+      }
     }
   },
   "nav": {
@@ -111,7 +156,152 @@
       "consent": "By subscribing, you agree to our Privacy Policy and consent to receive updates from our company."
     }
   },
-  "catalog": {},
+  "catalog": {
+    "page": {
+      "eyebrow": "The collection",
+      "title": "Temukan pilihan Anda.",
+      "description": "Jelajahi produk pilihan untuk ruang, rutinitas, dan momen keseharian Anda."
+    },
+    "results": {
+      "heading": "Hasil Pencarian",
+      "count": "{count} produk ditemukan",
+      "countForQuery": "{count} produk ditemukan untuk \"{query}\"",
+      "showing": "Menampilkan {from} - {to} dari {total}",
+      "loadError": "Gagal memuat produk.",
+      "retry": "Coba Lagi",
+      "emptyTitle": "Tidak ada produk ditemukan",
+      "emptyQuery": "Coba kata kunci lain atau hapus beberapa filter",
+      "emptyDefault": "Belum ada produk yang tersedia",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya"
+    },
+    "chips": {
+      "query": "Pencarian: \"{query}\"",
+      "category": "Kategori: {value}",
+      "brand": "Merek: {value}",
+      "price": "Harga: {min} - {max}",
+      "rating": "Rating: {rating}+",
+      "inStock": "Stok Tersedia",
+      "discount": "Promo/Diskon",
+      "remove": "Hapus filter",
+      "clearAll": "Hapus Semua ({count})"
+    },
+    "sort": {
+      "label": "Urutkan",
+      "options": {
+        "relevance": "Relevansi",
+        "nameAsc": "Nama: A - Z",
+        "nameDesc": "Nama: Z - A",
+        "priceAsc": "Harga: Termurah",
+        "priceDesc": "Harga: Termahal",
+        "newest": "Terbaru",
+        "oldest": "Terlama",
+        "rating": "Rating Tertinggi",
+        "popularity": "Terpopuler",
+        "discount": "Diskon Terbesar"
+      }
+    },
+    "filters": {
+      "loading": "Memuat pilihan filter",
+      "unavailable": "Filter kategori dan merek belum tersedia. Filter harga tetap dapat digunakan.",
+      "retry": "Coba Lagi",
+      "categories": "Kategori",
+      "brands": "Merek",
+      "price": "Harga",
+      "ratingStars": "{rating}+ stars",
+      "allRatings": "Semua rating",
+      "heading": "Filter",
+      "sheetTitle": "Filter Produk",
+      "clearAll": "Hapus Semua",
+      "close": "Tutup",
+      "apply": "Terapkan",
+      "save": "Simpan",
+      "notify": "Notif",
+      "savedSearchName": "Pencarian {date}"
+    },
+    "savedSearch": {
+      "saved": "Pencarian disimpan",
+      "savedDescription": "\"{name}\" telah disimpan untuk akses cepat",
+      "saveError": "Gagal menyimpan pencarian",
+      "deleted": "Pencarian dihapus",
+      "deletedDescription": "Pencarian tersimpan telah dihapus",
+      "deleteError": "Gagal menghapus pencarian",
+      "alertOn": "Notifikasi diaktifkan",
+      "alertOff": "Notifikasi dinonaktifkan",
+      "alertOnDescription": "Anda akan menerima notifikasi untuk pencarian ini",
+      "alertOffDescription": "Anda akan tidak menerima notifikasi untuk pencarian ini",
+      "alertError": "Gagal mengubah notifikasi"
+    },
+    "card": {
+      "quickView": "Lihat Cepat",
+      "addToCart": "Keranjang",
+      "outOfStock": "Habis"
+    },
+    "compare": {
+      "add": "Tambahkan ke perbandingan",
+      "remove": "Hapus dari perbandingan",
+      "full": "Maksimal {max} produk untuk dibandingkan"
+    },
+    "favorite": {
+      "add": "Tambahkan ke favorit",
+      "remove": "Hapus dari favorit"
+    },
+    "productSort": {
+      "label": "Sort products",
+      "placeholder": "Sort by...",
+      "options": {
+        "nameAsc": "Name: A to Z",
+        "nameDesc": "Name: Z to A",
+        "priceAsc": "Price: Low to High",
+        "priceDesc": "Price: High to Low",
+        "newest": "Newest First",
+        "rating": "Highest Rated"
+      }
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous",
+      "previousLabel": "Previous page",
+      "next": "Next",
+      "nextLabel": "Next page",
+      "page": "Page {page}"
+    },
+    "listing": {
+      "title": "Semua Produk",
+      "available": "{count} produk tersedia",
+      "pageOf": " — Halaman {page} dari {total}",
+      "clearAll": "Clear all",
+      "loadErrorTitle": "Failed to load products",
+      "loadErrorDescription": "Please try again later",
+      "retry": "Retry",
+      "resetFilters": "Reset filters",
+      "chips": {
+        "search": "Pencarian: {query}",
+        "rating": "Rating {rating}+ bintang",
+        "inStock": "Stok tersedia",
+        "discount": "Promo",
+        "price": "Harga {min} - {max}"
+      }
+    },
+    "sidebar": {
+      "title": "Filters",
+      "priceRange": "Price Range",
+      "ratingAvailability": "Rating & Availability",
+      "andUp": "ke atas",
+      "inStockOnly": "Stok tersedia saja",
+      "discountOnly": "Promo saja",
+      "categories": "Categories",
+      "brands": "Brands",
+      "clearAll": "Clear all",
+      "showResults": "Show Results"
+    },
+    "priceRange": {
+      "label": "Price Range",
+      "min": "Min Price",
+      "max": "Max Price",
+      "apply": "Apply Filter"
+    }
+  },
   "product": {},
   "cart": {},
   "checkout": {},

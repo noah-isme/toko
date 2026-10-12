@@ -4,6 +4,7 @@ import { FolderOpen, Package, SearchX, X } from 'lucide-react';
 import type { Route } from 'next';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Pagination } from '@/components/pagination';
@@ -43,6 +44,8 @@ const ProductSort = dynamic(
 const ITEMS_PER_PAGE = 12;
 
 export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean }) {
+  const t = useTranslations('catalog.listing');
+  const tEmpty = useTranslations('common.empty');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -451,7 +454,7 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
     if (searchTerm.length > 0) {
       chips.push({
         id: 'search',
-        label: `Pencarian: ${searchTermRaw}`,
+        label: t('chips.search', { query: searchTermRaw }),
         onRemove: () => {
           setSearchTerm('');
           setCurrentPage(1);
@@ -484,7 +487,7 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
     if (ratingFilter) {
       chips.push({
         id: `rating-${ratingFilter}`,
-        label: `Rating ${ratingFilter}+ bintang`,
+        label: t('chips.rating', { rating: ratingFilter }),
         onRemove: () => {
           setRatingFilter(null);
           setCurrentPage(1);
@@ -495,7 +498,7 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
     if (inStockOnly) {
       chips.push({
         id: 'in-stock',
-        label: 'Stok tersedia',
+        label: t('chips.inStock'),
         onRemove: () => {
           setInStockOnly(false);
           setCurrentPage(1);
@@ -506,7 +509,7 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
     if (discountOnly) {
       chips.push({
         id: 'discount',
-        label: 'Promo',
+        label: t('chips.discount'),
         onRemove: () => {
           setDiscountOnly(false);
           setCurrentPage(1);
@@ -517,7 +520,10 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
     if (isPriceRangeActive) {
       chips.push({
         id: 'price-range',
-        label: `Harga ${formatCurrency(priceRange[0])} - ${formatCurrency(priceRange[1])}`,
+        label: t('chips.price', {
+          min: formatCurrency(priceRange[0]),
+          max: formatCurrency(priceRange[1]),
+        }),
         onRemove: () => {
           setPriceRange(priceRangeDefaults);
           setCurrentPage(1);
@@ -538,17 +544,18 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
     selectedBrands,
     selectedCategories,
     setSearchTerm,
+    t,
   ]);
 
   const emptyState = useMemo(() => {
     if (searchTerm.length > 0) {
-      return emptySearchResults(searchTermRaw);
+      return emptySearchResults(searchTermRaw, tEmpty);
     }
     if (selectedCategories.length > 0) {
-      return emptyCategoryProducts(selectedCategories);
+      return emptyCategoryProducts(selectedCategories, tEmpty);
     }
-    return emptyProducts();
-  }, [searchTerm, searchTermRaw, selectedCategories]);
+    return emptyProducts(tEmpty);
+  }, [searchTerm, searchTermRaw, selectedCategories, tEmpty]);
 
   const emptyStateIcon = useMemo(() => {
     if (searchTerm.length > 0) {
@@ -584,11 +591,11 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
         <header className="flex flex-col gap-4 border-b border-border/80 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             {showHeader ? (
-              <h1 className="font-display text-3xl text-foreground">Semua Produk</h1>
+              <h1 className="font-display text-3xl text-foreground">{t('title')}</h1>
             ) : null}
             <p className="text-xs text-muted-foreground">
-              {filteredAndSortedProducts.length} produk tersedia
-              {totalPages > 1 && ` — Halaman ${currentPage} dari ${totalPages}`}
+              {t('available', { count: filteredAndSortedProducts.length })}
+              {totalPages > 1 && t('pageOf', { page: currentPage, total: totalPages })}
             </p>
           </div>
           <ProductSort value={sortBy} onChange={handleSortChange} />
@@ -608,7 +615,7 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
             ))}
             {hasActiveFilters ? (
               <Button variant="ghost" size="sm" onClick={clearFilters}>
-                Clear all
+                {t('clearAll')}
               </Button>
             ) : null}
           </div>
@@ -618,11 +625,11 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
         ) : error ? (
           <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/10 px-6 py-16 text-center">
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">Failed to load products</h2>
+              <h2 className="text-xl font-semibold text-foreground">{t('loadErrorTitle')}</h2>
               <p className="mx-auto max-w-md text-sm text-muted-foreground">
-                Please try again later
+                {t('loadErrorDescription')}
               </p>
-              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <Button onClick={() => window.location.reload()}>{t('retry')}</Button>
             </div>
           </div>
         ) : filteredAndSortedProducts.length === 0 ? (
@@ -631,7 +638,7 @@ export function ProductsCatalog({ showHeader = true }: { showHeader?: boolean })
             {hasActiveFilters ? (
               <div className="flex justify-center">
                 <Button variant="outline" onClick={clearFilters}>
-                  Reset filters
+                  {t('resetFilters')}
                 </Button>
               </div>
             ) : null}

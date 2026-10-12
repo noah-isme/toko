@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 
 import { searchApi } from './api';
@@ -103,6 +104,7 @@ export function useSavedSearchesQuery() {
 export function useSaveSearchMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('catalog.savedSearch');
 
   return useMutation({
     mutationFn: ({
@@ -119,8 +121,8 @@ export function useSaveSearchMutation() {
       capturePosthogEvent('search_save', { searchId: data.id, name: data.name });
       toast({
         id: 'search-save-success',
-        title: 'Pencarian disimpan',
-        description: `"${data.name}" telah disimpan untuk akses cepat`,
+        title: t('saved'),
+        description: t('savedDescription', { name: data.name }),
         variant: 'success',
       });
     },
@@ -128,7 +130,7 @@ export function useSaveSearchMutation() {
       captureSentryException(error, { tags: { feature: 'search', action: 'save' } });
       toast({
         id: 'search-save-error',
-        title: 'Gagal menyimpan pencarian',
+        title: t('saveError'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -139,6 +141,7 @@ export function useSaveSearchMutation() {
 export function useDeleteSavedSearchMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('catalog.savedSearch');
 
   return useMutation({
     mutationFn: (id: string) => searchApi.deleteSavedSearch(id),
@@ -147,8 +150,8 @@ export function useDeleteSavedSearchMutation() {
       capturePosthogEvent('search_delete', { searchId: id });
       toast({
         id: 'search-delete-success',
-        title: 'Pencarian dihapus',
-        description: 'Pencarian tersimpan telah dihapus',
+        title: t('deleted'),
+        description: t('deletedDescription'),
         variant: 'success',
       });
     },
@@ -156,7 +159,7 @@ export function useDeleteSavedSearchMutation() {
       captureSentryException(error, { tags: { feature: 'search', action: 'delete' } });
       toast({
         id: 'search-delete-error',
-        title: 'Gagal menghapus pencarian',
+        title: t('deleteError'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -167,6 +170,7 @@ export function useDeleteSavedSearchMutation() {
 export function useToggleSavedSearchAlertMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('catalog.savedSearch');
 
   return useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
@@ -187,8 +191,8 @@ export function useToggleSavedSearchAlertMutation() {
       capturePosthogEvent('search_alert_toggle', { searchId: data.id, enabled: data.alertEnabled });
       toast({
         id: 'search-alert-success',
-        title: data.alertEnabled ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan',
-        description: `Anda akan ${data.alertEnabled ? '' : 'tidak '}menerima notifikasi untuk pencarian ini`,
+        title: data.alertEnabled ? t('alertOn') : t('alertOff'),
+        description: data.alertEnabled ? t('alertOnDescription') : t('alertOffDescription'),
         variant: 'success',
       });
     },
@@ -199,7 +203,7 @@ export function useToggleSavedSearchAlertMutation() {
       captureSentryException(error, { tags: { feature: 'search', action: 'toggle_alert' } });
       toast({
         id: 'search-alert-error',
-        title: 'Gagal mengubah notifikasi',
+        title: t('alertError'),
         description: normalizeError(error),
         variant: 'destructive',
       });

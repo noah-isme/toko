@@ -3,6 +3,7 @@
    sync client-only storage and query data into state exactly as before the refactor. */
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Suspense, lazy, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { AddressManagerDialog } from './_components/AddressManagerDialog';
@@ -71,6 +72,7 @@ const OrderSummary = lazy(() =>
 const EMPTY_ADDRESSES: SavedAddress[] = [];
 
 export default function CheckoutPage() {
+  const tEmpty = useTranslations('common.empty');
   const { user } = useAuth();
   const router = useRouter();
   const storedCartId = useCartStore((state) => state.cartId);
@@ -361,7 +363,7 @@ export default function CheckoutPage() {
   }
 
   if (!activeCartId || !cart || cart.items.length === 0) {
-    return <EmptyState {...emptyCart()} className="mx-auto max-w-lg" />;
+    return <EmptyState {...emptyCart(tEmpty)} className="mx-auto max-w-lg" />;
   }
 
   return (

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ interface PriceRangeFilterProps {
 }
 
 export function PriceRangeFilter({ min, max, value, onChange, className }: PriceRangeFilterProps) {
+  const t = useTranslations('catalog.priceRange');
   const [localValue, setLocalValue] = useState<[number, number]>(value);
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export function PriceRangeFilter({ min, max, value, onChange, className }: Price
     <div className={cn('space-y-4', className)}>
       <div className="space-y-2">
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Price Range
+          {t('label')}
         </label>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{formatCurrency(localValue[0])}</span>
@@ -78,7 +80,7 @@ export function PriceRangeFilter({ min, max, value, onChange, className }: Price
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <label htmlFor="min-price" className="text-xs font-medium text-muted-foreground">
-            Min Price
+            {t('min')}
           </label>
           <Input
             id="min-price"
@@ -92,7 +94,7 @@ export function PriceRangeFilter({ min, max, value, onChange, className }: Price
         </div>
         <div className="space-y-2">
           <label htmlFor="max-price" className="text-xs font-medium text-muted-foreground">
-            Max Price
+            {t('max')}
           </label>
           <Input
             id="max-price"
@@ -109,7 +111,7 @@ export function PriceRangeFilter({ min, max, value, onChange, className }: Price
       {/* Apply Button */}
       {(localValue[0] !== value[0] || localValue[1] !== value[1]) && (
         <Button onClick={handleApply} className="w-full" size="sm">
-          Apply Filter
+          {t('apply')}
         </Button>
       )}
     </div>

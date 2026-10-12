@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2, ArrowDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -41,6 +42,7 @@ export function PullToRefresh({
   disabled = false,
   className,
 }: PullToRefreshProps) {
+  const t = useTranslations('common.pullToRefresh');
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const startYRef = useRef<number | null>(null);
@@ -138,7 +140,7 @@ export function PullToRefresh({
                   className={cn('h-4 w-4', !reducedMotionRef.current && 'animate-spin')}
                   aria-hidden="true"
                 />
-                Memuat ulang…
+                {t('refreshing')}
               </>
             ) : (
               <>
@@ -146,7 +148,7 @@ export function PullToRefresh({
                   className={cn('h-4 w-4 transition-transform', isArmed && 'rotate-180')}
                   aria-hidden="true"
                 />
-                {isArmed ? 'Lepas untuk memuat ulang' : 'Tarik untuk memuat ulang'}
+                {isArmed ? t('release') : t('pull')}
               </>
             )}
           </span>

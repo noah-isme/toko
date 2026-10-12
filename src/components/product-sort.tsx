@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import {
   Select,
   SelectContent,
@@ -22,26 +24,30 @@ interface ProductSortProps {
   className?: string;
 }
 
-const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
-  { value: 'name-asc', label: 'Name: A to Z' },
-  { value: 'name-desc', label: 'Name: Z to A' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'newest', label: 'Newest First' },
-  { value: 'rating', label: 'Highest Rated' },
+/** Keys under `catalog.productSort.options` in the message catalogs. */
+type SortLabelKey = 'nameAsc' | 'nameDesc' | 'priceAsc' | 'priceDesc' | 'newest' | 'rating';
+
+const SORT_OPTIONS: Array<{ value: SortOption; labelKey: SortLabelKey }> = [
+  { value: 'name-asc', labelKey: 'nameAsc' },
+  { value: 'name-desc', labelKey: 'nameDesc' },
+  { value: 'price-asc', labelKey: 'priceAsc' },
+  { value: 'price-desc', labelKey: 'priceDesc' },
+  { value: 'newest', labelKey: 'newest' },
+  { value: 'rating', labelKey: 'rating' },
 ];
 
 export function ProductSort({ value, onChange, className }: ProductSortProps) {
+  const t = useTranslations('catalog.productSort');
   return (
     <div className={className}>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full sm:w-[200px]" aria-label="Sort products">
-          <SelectValue placeholder="Sort by..." />
+        <SelectTrigger className="w-full sm:w-[200px]" aria-label={t('label')}>
+          <SelectValue placeholder={t('placeholder')} />
         </SelectTrigger>
         <SelectContent>
           {SORT_OPTIONS.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              {option.label}
+              {t(`options.${option.labelKey}`)}
             </SelectItem>
           ))}
         </SelectContent>

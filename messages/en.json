@@ -42,6 +42,51 @@
         "label": "Preference cookies",
         "description": "Remember your preferences like language, theme, and region."
       }
+    },
+    "loading": "Loading...",
+    "pullToRefresh": {
+      "refreshing": "Refreshing…",
+      "release": "Release to refresh",
+      "pull": "Pull to refresh"
+    },
+    "empty": {
+      "products": {
+        "title": "No products yet",
+        "description": "We could not find any matching products. Try changing the filters or check back later.",
+        "cta": "View all products"
+      },
+      "cart": {
+        "title": "Your shopping cart is empty",
+        "description": "Start adding products to your cart to continue to checkout.",
+        "cta": "Shop now"
+      },
+      "orders": {
+        "title": "No orders yet",
+        "description": "Your order history will appear here after you complete a checkout.",
+        "cta": "Continue shopping"
+      },
+      "favorites": {
+        "title": "No favorites yet",
+        "description": "Save your favorite products to compare prices and get back to shopping faster.",
+        "cta": "Explore products"
+      },
+      "favoritesUnavailable": {
+        "title": "Favorites unavailable",
+        "description": "Some of your favorite products are no longer sold. Try finding similar products that are still available.",
+        "cta": "Find other products"
+      },
+      "searchResults": {
+        "title": "No search results found",
+        "description": "We could not find any products for \"{query}\". Try another keyword or remove some filters.",
+        "descriptionDefault": "We could not find any products for that keyword. Try another keyword.",
+        "cta": "View all products"
+      },
+      "categoryProducts": {
+        "title": "No products yet",
+        "description": "The {categories} category has no products yet. Try another category to find similar products.",
+        "descriptionDefault": "This category has no products yet. Try another category to find similar products.",
+        "cta": "Explore other categories"
+      }
     }
   },
   "nav": {
@@ -111,7 +156,152 @@
       "consent": "By subscribing, you agree to our Privacy Policy and consent to receive updates from our company."
     }
   },
-  "catalog": {},
+  "catalog": {
+    "page": {
+      "eyebrow": "The collection",
+      "title": "Find your pick.",
+      "description": "Explore curated products for your spaces, routines, and everyday moments."
+    },
+    "results": {
+      "heading": "Search Results",
+      "count": "{count, plural, one {# product found} other {# products found}}",
+      "countForQuery": "{count, plural, one {# product found} other {# products found}} for \"{query}\"",
+      "showing": "Showing {from} - {to} of {total}",
+      "loadError": "Failed to load products.",
+      "retry": "Try Again",
+      "emptyTitle": "No products found",
+      "emptyQuery": "Try another keyword or remove some filters",
+      "emptyDefault": "No products are available yet",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "chips": {
+      "query": "Search: \"{query}\"",
+      "category": "Category: {value}",
+      "brand": "Brand: {value}",
+      "price": "Price: {min} - {max}",
+      "rating": "Rating: {rating}+",
+      "inStock": "In Stock",
+      "discount": "Promo/Discount",
+      "remove": "Remove filter",
+      "clearAll": "Clear All ({count})"
+    },
+    "sort": {
+      "label": "Sort",
+      "options": {
+        "relevance": "Relevance",
+        "nameAsc": "Name: A - Z",
+        "nameDesc": "Name: Z - A",
+        "priceAsc": "Price: Lowest",
+        "priceDesc": "Price: Highest",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "rating": "Highest Rated",
+        "popularity": "Most Popular",
+        "discount": "Biggest Discount"
+      }
+    },
+    "filters": {
+      "loading": "Loading filter options",
+      "unavailable": "Category and brand filters are not available yet. The price filter can still be used.",
+      "retry": "Try Again",
+      "categories": "Categories",
+      "brands": "Brands",
+      "price": "Price",
+      "ratingStars": "{rating}+ stars",
+      "allRatings": "All ratings",
+      "heading": "Filters",
+      "sheetTitle": "Filter Products",
+      "clearAll": "Clear All",
+      "close": "Close",
+      "apply": "Apply",
+      "save": "Save",
+      "notify": "Alert",
+      "savedSearchName": "Search {date}"
+    },
+    "savedSearch": {
+      "saved": "Search saved",
+      "savedDescription": "\"{name}\" has been saved for quick access",
+      "saveError": "Failed to save search",
+      "deleted": "Search deleted",
+      "deletedDescription": "The saved search has been deleted",
+      "deleteError": "Failed to delete search",
+      "alertOn": "Alerts enabled",
+      "alertOff": "Alerts disabled",
+      "alertOnDescription": "You will receive alerts for this search",
+      "alertOffDescription": "You will no longer receive alerts for this search",
+      "alertError": "Failed to update alerts"
+    },
+    "card": {
+      "quickView": "Quick View",
+      "addToCart": "Add to cart",
+      "outOfStock": "Sold out"
+    },
+    "compare": {
+      "add": "Add to comparison",
+      "remove": "Remove from comparison",
+      "full": "You can compare up to {max} products"
+    },
+    "favorite": {
+      "add": "Add to favorites",
+      "remove": "Remove from favorites"
+    },
+    "productSort": {
+      "label": "Sort products",
+      "placeholder": "Sort by...",
+      "options": {
+        "nameAsc": "Name: A to Z",
+        "nameDesc": "Name: Z to A",
+        "priceAsc": "Price: Low to High",
+        "priceDesc": "Price: High to Low",
+        "newest": "Newest First",
+        "rating": "Highest Rated"
+      }
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous",
+      "previousLabel": "Previous page",
+      "next": "Next",
+      "nextLabel": "Next page",
+      "page": "Page {page}"
+    },
+    "listing": {
+      "title": "All Products",
+      "available": "{count, plural, one {# product available} other {# products available}}",
+      "pageOf": " — Page {page} of {total}",
+      "clearAll": "Clear all",
+      "loadErrorTitle": "Failed to load products",
+      "loadErrorDescription": "Please try again later",
+      "retry": "Retry",
+      "resetFilters": "Reset filters",
+      "chips": {
+        "search": "Search: {query}",
+        "rating": "Rating {rating}+ stars",
+        "inStock": "In stock",
+        "discount": "Promo",
+        "price": "Price {min} - {max}"
+      }
+    },
+    "sidebar": {
+      "title": "Filters",
+      "priceRange": "Price Range",
+      "ratingAvailability": "Rating & Availability",
+      "andUp": "& up",
+      "inStockOnly": "In stock only",
+      "discountOnly": "On sale only",
+      "categories": "Categories",
+      "brands": "Brands",
+      "clearAll": "Clear all",
+      "showResults": "Show Results"
+    },
+    "priceRange": {
+      "label": "Price Range",
+      "min": "Min Price",
+      "max": "Max Price",
+      "apply": "Apply Filter"
+    }
+  },
   "product": {},
   "cart": {},
   "checkout": {},

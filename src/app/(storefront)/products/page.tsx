@@ -1,5 +1,6 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 
 import { catalogKeys } from '@/entities/catalog/keys';
@@ -62,6 +63,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     if (error) console.warn('[products] server prefetch failed', error);
   }
 
+  const t = await getTranslations('catalog.page');
   const breadcrumb = breadcrumbJsonLd([
     { name: 'Home', item: '/' },
     { name: pageTitle, item: '/products' },
@@ -72,12 +74,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <JsonLd id="breadcrumb-jsonld" data={breadcrumb} />
       <div className="space-y-8">
         <header className="relative overflow-hidden rounded-[1.75rem] border border-border/70 bg-card px-6 py-10 shadow-[0_16px_45px_-36px_rgba(43,32,22,0.5)] sm:px-10">
-          <p className="eyebrow">The collection</p>
+          <p className="eyebrow">{t('eyebrow')}</p>
           <h1 className="font-display mt-3 text-5xl leading-none text-foreground sm:text-6xl">
-            Temukan pilihan Anda.
+            {t('title')}
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-            Jelajahi produk pilihan untuk ruang, rutinitas, dan momen keseharian Anda.
+            {t('description')}
           </p>
         </header>
         <Suspense

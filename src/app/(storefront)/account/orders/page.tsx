@@ -4,6 +4,7 @@ import { ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -39,6 +40,7 @@ export default function OrderHistoryPage() {
 }
 
 function OrderHistoryContent() {
+  const tEmpty = useTranslations('common.empty');
   const searchParams = useSearchParams();
   const emptyParam = searchParams.get('empty') || undefined;
   const errorParam = searchParams.get('error') || undefined;
@@ -123,7 +125,7 @@ function OrderHistoryContent() {
   if (allOrders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <EmptyState icon={<ShoppingBag aria-hidden="true" />} {...emptyOrders()} />
+        <EmptyState icon={<ShoppingBag aria-hidden="true" />} {...emptyOrders(tEmpty)} />
       </div>
     );
   }

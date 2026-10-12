@@ -3,6 +3,7 @@
 import { Search, Filter, X, Loader2, Star, Tag, Truck, Zap } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
 import { ProductCard } from '@/components/product-card';
@@ -43,6 +44,7 @@ const ITEMS_PER_PAGE = PRODUCTS_PAGE_SIZE;
 export function AdvancedSearchResults() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('catalog');
 
   // Parse initial filters from URL - compute directly from searchParams to avoid useEffect setState
   const initialFilters = useMemo(() => parseSearchStateFromUrl(searchParams), [searchParams]);
@@ -137,44 +139,47 @@ export function AdvancedSearchResults() {
 
     if (filters.query) {
       items.push({
-        label: `Pencarian: "${filters.query}"`,
+        label: t('chips.query', { query: filters.query }),
         onRemove: () => handleFiltersChange({ query: undefined }),
       });
     }
     filters.categories?.forEach((cat) => {
       items.push({
-        label: `Kategori: ${cat}`,
+        label: t('chips.category', { value: cat }),
         onRemove: () =>
           handleFiltersChange({ categories: filters.categories!.filter((c) => c !== cat) }),
       });
     });
     filters.brands?.forEach((brand) => {
       items.push({
-        label: `Merek: ${brand}`,
+        label: t('chips.brand', { value: brand }),
         onRemove: () => handleFiltersChange({ brands: filters.brands!.filter((b) => b !== brand) }),
       });
     });
     if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000)) {
       items.push({
-        label: `Harga: ${formatCurrency(filters.priceRange[0])} - ${formatCurrency(filters.priceRange[1])}`,
+        label: t('chips.price', {
+          min: formatCurrency(filters.priceRange[0]),
+          max: formatCurrency(filters.priceRange[1]),
+        }),
         onRemove: () => handleFiltersChange({ priceRange: [0, 10000000] }),
       });
     }
     if (filters.rating) {
       items.push({
-        label: `Rating: ${filters.rating}+`,
+        label: t('chips.rating', { rating: filters.rating }),
         onRemove: () => handleFiltersChange({ rating: null }),
       });
     }
     if (filters.inStockOnly) {
       items.push({
-        label: 'Stok Tersedia',
+        label: t('chips.inStock'),
         onRemove: () => handleFiltersChange({ inStockOnly: false }),
       });
     }
     if (filters.discountOnly) {
       items.push({
-        label: 'Promo/Diskon',
+        label: t('chips.discount'),
         onRemove: () => handleFiltersChange({ discountOnly: false }),
       });
     }
@@ -195,15 +200,15 @@ export function AdvancedSearchResults() {
       });
     }
     return items;
-  }, [filters, handleFiltersChange]);
+  }, [filters, handleFiltersChange, t]);
 
   if (error) {
     return (
       <div className="py-12 text-center text-destructive">
-        <p>Gagal memuat produk.</p>
+        <p>{t('results.loadError')}</p>
         <p className="text-sm">{error.message}</p>
         <Button onClick={() => refetch()} variant="outline" className="mt-4">
-          Coba Lagi
+          {t('results.retry')}
         </Button>
       </div>
     );
@@ -214,9 +219,11 @@ export function AdvancedSearchResults() {
       {/* Search Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Hasil Pencarian</h1>
+          <h1 className="text-2xl font-bold">{t('results.heading')}</h1>
           <p className="text-muted-foreground">
-            {totalItems} produk ditemukan{filters.query ? ` untuk "${filters.query}"` : ''}
+            {filters.query
+              ? t('results.countForQuery', { count: totalItems, query: filters.query })
+              : t('results.count', { count: totalItems })}
           </p>
         </div>
 
@@ -232,7 +239,7 @@ export function AdvancedSearchResults() {
                 <button
                   onClick={filter.onRemove}
                   className="ml-1 hover:text-primary/70"
-                  aria-label="Hapus filter"
+                  aria-label={t('chips.remove')}
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -240,7 +247,7 @@ export function AdvancedSearchResults() {
             ))}
             {activeFilters.length > 3 && (
               <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-                Hapus Semua ({activeCount})
+                {t('chips.clearAll', { count: activeCount })}
               </Button>
             )}
           </div>
@@ -263,13 +270,13 @@ export function AdvancedSearchResults() {
             <div className="flex flex-wrap items-center gap-2">
               {/* Sort */}
               <Select value={sortBy} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-[200px]" aria-label="Urutkan">
-                  <SelectValue placeholder="Urutkan" />
+                <SelectTrigger className="w-[200px]" aria-label={t('sort.label')}>
+                  <SelectValue placeholder={t('sort.label')} />
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {t(`sort.options.${option.labelKey}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -277,8 +284,11 @@ export function AdvancedSearchResults() {
             </div>
 
             <div className="text-sm text-muted-foreground">
-              Menampilkan {totalItems > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0} -{' '}
-              {Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} dari {totalItems}
+              {t('results.showing', {
+                from: totalItems > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0,
+                to: Math.min(currentPage * ITEMS_PER_PAGE, totalItems),
+                total: totalItems,
+              })}
             </div>
           </div>
 
@@ -293,12 +303,8 @@ export function AdvancedSearchResults() {
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <EmptyState
                 icon={<Search className="h-12 w-12 text-muted-foreground/50" />}
-                title="Tidak ada produk ditemukan"
-                description={
-                  filters.query
-                    ? `Coba kata kunci lain atau hapus beberapa filter`
-                    : 'Belum ada produk yang tersedia'
-                }
+                title={t('results.emptyTitle')}
+                description={filters.query ? t('results.emptyQuery') : t('results.emptyDefault')}
               />
             </div>
           ) : (
@@ -318,7 +324,7 @@ export function AdvancedSearchResults() {
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage <= 1}
                   >
-                    Sebelumnya
+                    {t('results.previous')}
                   </Button>
 
                   <div className="flex items-center gap-1">
@@ -353,7 +359,7 @@ export function AdvancedSearchResults() {
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages}
                   >
-                    Berikutnya
+                    {t('results.next')}
                   </Button>
                 </div>
               )}

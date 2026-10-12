@@ -1,6 +1,7 @@
 'use client';
 
 import { HeartCrack, HeartOff } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { ProductCard } from '@/components/product-card';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
@@ -11,6 +12,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { FavoritesGridSkeleton } from '@/shared/ui/skeletons/FavoritesGridSkeleton';
 
 export default function FavoritesPage() {
+  const tEmpty = useTranslations('common.empty');
   const userId = getGuestId() ?? undefined;
   const { data: favorites, isLoading: isLoadingFavorites } = useFavoritesQuery(userId);
 
@@ -27,7 +29,7 @@ export default function FavoritesPage() {
     return (
       <div className="container py-8">
         <h1 className="mb-8 text-3xl font-bold">Favorit Saya</h1>
-        <EmptyState icon={<HeartOff aria-hidden="true" />} {...emptyFavorites()} />
+        <EmptyState icon={<HeartOff aria-hidden="true" />} {...emptyFavorites(tEmpty)} />
       </div>
     );
   }

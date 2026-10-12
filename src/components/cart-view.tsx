@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import { Price } from '@/components/price';
 import { SavedForLater } from '@/components/saved-for-later';
@@ -22,6 +23,7 @@ import { useCartStore } from '@/stores/cart-store';
 import { useSavedForLaterStore } from '@/stores/saved-for-later-store';
 
 export function CartView() {
+  const tEmpty = useTranslations('common.empty');
   const cartId = useCartStore((state) => state.cartId);
   const { data, isLoading, isFetching } = useCartQuery(cartId || undefined);
   const updateItemMutation = useUpdateCartItemMutation();
@@ -40,7 +42,7 @@ export function CartView() {
     // reachable here or it would look like the items vanished.
     return (
       <div className="space-y-6">
-        <EmptyState {...emptyCart()} />
+        <EmptyState {...emptyCart(tEmpty)} />
         {data ? <SavedForLater cartId={data.id} /> : null}
       </div>
     );
