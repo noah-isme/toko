@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { datetimeLocalToIso } from '@/entities/admin/datetime-local';
 import { useAdminProducts } from '@/entities/admin/hooks';
 import { useCreateAdminFlashSale } from '@/entities/admin/hooks';
 import type { AdminFlashSaleStatus } from '@/entities/admin/types';
@@ -75,8 +76,8 @@ function formValuesToInput(values: FlashSaleFormValues) {
     name: values.name.trim(),
     slug: values.slug.trim() || slugify(values.name),
     status: values.status,
-    startsAt: values.startsAt,
-    endsAt: values.endsAt,
+    startsAt: datetimeLocalToIso(values.startsAt),
+    endsAt: datetimeLocalToIso(values.endsAt),
     items,
   };
 }

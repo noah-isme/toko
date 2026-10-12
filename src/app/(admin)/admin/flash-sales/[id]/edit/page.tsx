@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { datetimeLocalToIso, isoToDatetimeLocal } from '@/entities/admin/datetime-local';
 import { useAdminProducts } from '@/entities/admin/hooks';
 import {
   useAdminFlashSale,
@@ -74,8 +75,8 @@ function flashSaleToFormValues(fs: AdminFlashSale): FlashSaleFormValues {
     name: fs.name,
     slug: fs.slug,
     status: fs.status,
-    startsAt: new Date(fs.startsAt).toISOString().slice(0, 16),
-    endsAt: new Date(fs.endsAt).toISOString().slice(0, 16),
+    startsAt: isoToDatetimeLocal(fs.startsAt),
+    endsAt: isoToDatetimeLocal(fs.endsAt),
     items: fs.items.map((item) => ({
       id: item.id,
       productId: item.productId,
@@ -101,8 +102,8 @@ function formValuesToInput(values: FlashSaleFormValues): AdminFlashSaleUpdateInp
     name: values.name.trim(),
     slug: values.slug.trim() || slugify(values.name),
     status: values.status,
-    startsAt: values.startsAt,
-    endsAt: values.endsAt,
+    startsAt: datetimeLocalToIso(values.startsAt),
+    endsAt: datetimeLocalToIso(values.endsAt),
     items,
   };
 }
