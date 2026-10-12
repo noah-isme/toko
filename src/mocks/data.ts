@@ -190,7 +190,7 @@ export const SEED_PRODUCTS = [
     brand: 'dell',
     category: 'electronics',
     price: 18000000,
-    thumbnail: 'https://images.unsplash.com/photo-1593642632823-8f785667771b?w=800',
+    thumbnail: 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800',
   },
   {
     title: 'Canon EOS R5',
@@ -214,7 +214,7 @@ export const SEED_PRODUCTS = [
     brand: 'adidas',
     category: 'fashion',
     price: 2000000,
-    thumbnail: 'https://images.unsplash.com/photo-1587563871167-1ee7c735c5c3?w=800',
+    thumbnail: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800',
   },
   {
     title: 'IKEAS LANDSKRONA Sofa',
@@ -230,7 +230,7 @@ export const SEED_PRODUCTS = [
     brand: 'dyson',
     category: 'home-living',
     price: 12000000,
-    thumbnail: 'https://images.unsplash.com/photo-1558317374-a35498f3ffa2?w=800',
+    thumbnail: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=800',
   },
   {
     title: 'LEGO Star Wars Millenium Falcon',
