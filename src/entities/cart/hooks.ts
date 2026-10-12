@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useReducer, useRef } from 'react';
 
 import { getCartQueryKey, patchCartItems, readCartCache, writeCartCache } from './cache';
@@ -193,6 +194,7 @@ export function useCartQuery(cartId?: string, anonId?: string) {
 export function useAddToCartMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('cart.toast');
 
   const mutation = useGuardedMutation<CartView, Error, AddCartItemVariables, MutationContext>(
     (variables) =>
@@ -267,7 +269,7 @@ export function useAddToCartMutation() {
         writeCartCache(queryClient, variables.cartId, data);
         toast({
           id: `cart-${variables.productId}-${variables.variantId ?? 'base'}-add-success`,
-          title: 'Ditambahkan ke keranjang',
+          title: t('added'),
           variant: 'success',
         });
       },
@@ -275,7 +277,7 @@ export function useAddToCartMutation() {
         writeCartCache(queryClient, variables.cartId, context?.previousCart);
         toast({
           id: `cart-${variables.productId}-${variables.variantId ?? 'base'}-add-error`,
-          title: 'Gagal menambahkan ke keranjang',
+          title: t('addFailed'),
           description: normalizeError(error),
           variant: 'destructive',
         });
@@ -299,6 +301,7 @@ export function useAddToCartMutation() {
 export function useUpdateCartItemMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('cart.toast');
 
   const mutation = useGuardedMutation<CartView, Error, UpdateCartItemVariables, MutationContext>(
     (variables) => `update:${variables.itemId}`,
@@ -349,7 +352,7 @@ export function useUpdateCartItemMutation() {
         writeCartCache(queryClient, variables.cartId, data);
         toast({
           id: `cart-${variables.itemId}-update-success`,
-          title: 'Jumlah diperbarui',
+          title: t('updated'),
           variant: 'success',
         });
       },
@@ -357,7 +360,7 @@ export function useUpdateCartItemMutation() {
         writeCartCache(queryClient, variables.cartId, context?.previousCart);
         toast({
           id: `cart-${variables.itemId}-update-error`,
-          title: 'Gagal memperbarui jumlah',
+          title: t('updateFailed'),
           description: normalizeError(error),
           variant: 'destructive',
         });
@@ -380,6 +383,7 @@ export function useUpdateCartItemMutation() {
 export function useRemoveCartItemMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('cart.toast');
 
   const mutation = useGuardedMutation<CartView, Error, RemoveCartItemVariables, MutationContext>(
     (variables) => `remove:${variables.itemId}`,
@@ -418,7 +422,7 @@ export function useRemoveCartItemMutation() {
         writeCartCache(queryClient, variables.cartId, data);
         toast({
           id: `cart-${variables.itemId}-remove-success`,
-          title: 'Item dihapus',
+          title: t('removed'),
           variant: 'success',
         });
       },
@@ -426,7 +430,7 @@ export function useRemoveCartItemMutation() {
         writeCartCache(queryClient, variables.cartId, context?.previousCart);
         toast({
           id: `cart-${variables.itemId}-remove-error`,
-          title: 'Gagal menghapus item',
+          title: t('removeFailed'),
           description: normalizeError(error),
           variant: 'destructive',
         });

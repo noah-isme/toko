@@ -1,6 +1,7 @@
 'use client';
 
 import { Minus, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +13,7 @@ interface QuantityPickerProps {
 }
 
 export function QuantityPicker({ quantity, min = 1, max = 10, onChange }: QuantityPickerProps) {
+  const t = useTranslations('cart.quantityPicker');
   const decrease = () => {
     if (quantity > min) {
       onChange(quantity - 1);
@@ -26,11 +28,11 @@ export function QuantityPicker({ quantity, min = 1, max = 10, onChange }: Quanti
 
   return (
     <div className="flex items-center gap-2">
-      <Button aria-label="Decrease quantity" size="icon" variant="outline" onClick={decrease}>
+      <Button aria-label={t('decrease')} size="icon" variant="outline" onClick={decrease}>
         <Minus className="h-4 w-4" />
       </Button>
       <span className="w-6 text-center text-sm font-medium">{quantity}</span>
-      <Button aria-label="Increase quantity" size="icon" variant="outline" onClick={increase}>
+      <Button aria-label={t('increase')} size="icon" variant="outline" onClick={increase}>
         <Plus className="h-4 w-4" />
       </Button>
     </div>

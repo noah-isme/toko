@@ -23,6 +23,8 @@ import { useCartStore } from '@/stores/cart-store';
 import { useSavedForLaterStore } from '@/stores/saved-for-later-store';
 
 export function CartView() {
+  const t = useTranslations('cart.view');
+  const tSummary = useTranslations('cart.view.summary');
   const tEmpty = useTranslations('common.empty');
   const cartId = useCartStore((state) => state.cartId);
   const { data, isLoading, isFetching } = useCartQuery(cartId || undefined);
@@ -52,17 +54,15 @@ export function CartView() {
     <div className="space-y-7">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="eyebrow">Your bag</p>
+          <p className="eyebrow">{t('eyebrow')}</p>
           <h1 className="font-display text-4xl leading-none text-foreground sm:text-5xl">
-            Keranjang Belanja
+            {t('title')}
           </h1>
-          <p className="text-xs text-muted-foreground">
-            Tinjau produk sebelum melanjutkan ke pembayaran
-          </p>
+          <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
         </div>
         <DelayedLoader
           active={isMutatingCart}
-          label="Menyimpan perubahan keranjang…"
+          label={t('savingChanges')}
           className="text-xs sm:text-sm"
         />
       </div>
@@ -111,9 +111,9 @@ export function CartView() {
                       }
                       disabled={decrementDisabled}
                       isLoading={updateItemMutation.isItemInFlight(item.id)}
-                      loadingLabel="Mengubah jumlah…"
+                      loadingLabel={t('updatingQuantity')}
                     >
-                      <span className="sr-only">Kurangi jumlah</span>
+                      <span className="sr-only">{t('decrease')}</span>
                       <span aria-hidden="true">−</span>
                     </GuardedButton>
                     <span aria-live="polite">{item.quantity}</span>
@@ -130,9 +130,9 @@ export function CartView() {
                       }
                       disabled={incrementDisabled}
                       isLoading={updateItemMutation.isItemInFlight(item.id)}
-                      loadingLabel="Mengubah jumlah…"
+                      loadingLabel={t('updatingQuantity')}
                     >
-                      <span className="sr-only">Tambah jumlah</span>
+                      <span className="sr-only">{t('increase')}</span>
                       <span aria-hidden="true">+</span>
                     </GuardedButton>
                     <GuardedButton
@@ -156,10 +156,10 @@ export function CartView() {
                       }}
                       disabled={isUpdating}
                       isLoading={removeItemMutation.isItemInFlight(item.id)}
-                      loadingLabel="Menyimpan…"
+                      loadingLabel={t('saving')}
                       className="ml-2 min-h-[44px]"
                     >
-                      Simpan Nanti
+                      {t('saveForLater')}
                     </GuardedButton>
                     <GuardedButton
                       variant="ghost"
@@ -172,10 +172,10 @@ export function CartView() {
                       }
                       disabled={isUpdating}
                       isLoading={removeItemMutation.isItemInFlight(item.id)}
-                      loadingLabel="Menghapus…"
+                      loadingLabel={t('removing')}
                       className="ml-2 min-h-[44px]"
                     >
-                      Hapus
+                      {t('remove')}
                     </GuardedButton>
                   </div>
                 </div>
@@ -193,11 +193,13 @@ export function CartView() {
       {/* Order Summary Card */}
       <div className="premium-surface space-y-3 rounded-2xl p-5 sm:ml-auto sm:max-w-md">
         <h2 className="border-b border-border pb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          Ringkasan Pesanan
+          {tSummary('title')}
         </h2>
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Subtotal ({data.itemCount} barang)</span>
+            <span className="text-muted-foreground">
+              {tSummary('subtotal', { count: data.itemCount })}
+            </span>
             <Price
               amount={data.subtotal.amount}
               currency={data.subtotal.currency}
@@ -206,7 +208,7 @@ export function CartView() {
           </div>
           {(data as any).totals?.discount ? (
             <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
-              <span>Diskon</span>
+              <span>{tSummary('discount')}</span>
               <span className="font-bold">
                 -
                 <Price
@@ -219,7 +221,7 @@ export function CartView() {
           ) : null}
           {(data as any).totals?.tax ? (
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Pajak</span>
+              <span className="text-muted-foreground">{tSummary('tax')}</span>
               <Price
                 amount={(data as any).totals.tax}
                 currency={data.subtotal.currency}
@@ -228,7 +230,7 @@ export function CartView() {
             </div>
           ) : null}
           <div className="flex items-center justify-between border-t border-border pt-2">
-            <span className="font-bold text-foreground">Total</span>
+            <span className="font-bold text-foreground">{tSummary('total')}</span>
             <Price
               amount={data.subtotal.amount}
               currency={data.subtotal.currency}
@@ -251,7 +253,7 @@ export function CartView() {
             }
           }}
         >
-          <Link href="/checkout">Lanjut ke Pembayaran →</Link>
+          <Link href="/checkout">{tSummary('checkout')}</Link>
         </Button>
       </div>
     </div>

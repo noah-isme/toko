@@ -582,7 +582,86 @@
       }
     }
   },
-  "cart": {},
+  "cart": {
+    "drawer": {
+      "triggerLabel": "{count, plural, =0 {Open cart} =1 {Open cart with {count} item} other {Open cart with {count} items}}",
+      "trigger": "Cart",
+      "title": "Your cart",
+      "description": "Review the items in your shopping cart before checkout.",
+      "close": "Tutup",
+      "quantity": "Qty: {quantity}",
+      "subtotal": "Subtotal",
+      "checkout": "Go to checkout"
+    },
+    "view": {
+      "eyebrow": "Your bag",
+      "title": "Keranjang Belanja",
+      "subtitle": "Tinjau produk sebelum melanjutkan ke pembayaran",
+      "savingChanges": "Menyimpan perubahan keranjang…",
+      "updatingQuantity": "Mengubah jumlah…",
+      "decrease": "Kurangi jumlah",
+      "increase": "Tambah jumlah",
+      "saving": "Menyimpan…",
+      "saveForLater": "Simpan Nanti",
+      "removing": "Menghapus…",
+      "remove": "Hapus",
+      "summary": {
+        "title": "Ringkasan Pesanan",
+        "subtotal": "Subtotal ({count} barang)",
+        "discount": "Diskon",
+        "tax": "Pajak",
+        "total": "Total",
+        "checkout": "Lanjut ke Pembayaran →"
+      }
+    },
+    "savedForLater": {
+      "title": "Disimpan untuk nanti ({count})",
+      "moving": "Memindahkan…",
+      "moveToCart": "Pindahkan ke keranjang",
+      "remove": "Hapus"
+    },
+    "quantityPicker": {
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity"
+    },
+    "toast": {
+      "added": "Ditambahkan ke keranjang",
+      "addFailed": "Gagal menambahkan ke keranjang",
+      "updated": "Jumlah diperbarui",
+      "updateFailed": "Gagal memperbarui jumlah",
+      "removed": "Item dihapus",
+      "removeFailed": "Gagal menghapus item"
+    },
+    "promo": {
+      "title": "Kode Promo",
+      "helper": "Masukkan kode promo untuk mendapatkan diskon.",
+      "codeActive": "Kode {code} aktif",
+      "savings": "Menghemat {amount} saat checkout.",
+      "inputLabel": "Masukkan kode",
+      "placeholder": "contoh: SAVE10",
+      "applying": "Menerapkan promo…",
+      "apply": "Terapkan",
+      "appliedTitle": "Kode {code} aktif.",
+      "discount": "Diskon:",
+      "removingCode": "Menghapus kode…",
+      "removeCode": "Hapus kode",
+      "removingPromo": "Menghapus kode promo…",
+      "validation": {
+        "codeRequired": "Masukkan kode promo",
+        "codeEmpty": "Kode promo wajib diisi",
+        "codeTooLong": "Kode promo terlalu panjang",
+        "codeInvalid": "Kode promo tidak valid",
+        "cartMissing": "Keranjang tidak ditemukan untuk kode promo",
+        "notValidated": "Promo perlu divalidasi sebelum diterapkan"
+      },
+      "toast": {
+        "applied": "Kode promo diterapkan",
+        "applyFailed": "Gagal menerapkan kode promo",
+        "removed": "Kode promo dihapus",
+        "removeFailed": "Gagal menghapus kode promo"
+      }
+    }
+  },
   "checkout": {},
   "auth": {},
   "account": {},

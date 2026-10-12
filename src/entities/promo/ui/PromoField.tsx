@@ -1,11 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { useEffect, useId } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useApplyPromoMutation, useRemovePromoMutation, useValidatePromoQuery } from '../hooks';
-import { promoApplyInputSchema, type PromoApplyInput } from '../schemas';
+import { isPromoValidationKey, promoApplyInputSchema, type PromoApplyInput } from '../schemas';
 
 import { useCartQuery } from '@/entities/cart/hooks';
 import { formatCurrency } from '@/lib/api/utils';
@@ -31,6 +32,8 @@ export interface PromoFieldProps {
 }
 
 export function PromoField({ cartId, className }: PromoFieldProps) {
+  const t = useTranslations('cart.promo');
+  const tv = useTranslations('cart.promo.validation');
   const inputId = useId();
   const helperId = `${inputId}-helper`;
   const errorId = `${inputId}-error`;
@@ -62,7 +65,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
   const handleSubmit = form.handleSubmit(async (values) => {
     const code = values.code.trim();
     if (!code) {
-      form.setError('code', { type: 'manual', message: 'Kode promo wajib diisi' });
+      form.setError('code', { type: 'manual', message: tv('codeEmpty') });
       return;
     }
 
@@ -71,7 +74,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
       if (!validation.data?.valid || !validation.data.promo) {
         form.setError('code', {
           type: 'validate',
-          message: validation.data?.message ?? 'Kode promo tidak valid',
+          message: validation.data?.message ?? tv('codeInvalid'),
         });
         return;
       }
@@ -94,19 +97,21 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
 
   const isBusy = applyMutation.isPending || removeMutation.isPending;
   const helperText = appliedPromo
-    ? (appliedPromo.label ?? `Kode ${appliedPromo.code} aktif`)
-    : 'Masukkan kode promo untuk mendapatkan diskon.';
+    ? (appliedPromo.label ?? t('codeActive', { code: appliedPromo.code }))
+    : t('helper');
 
   const discountText = appliedPromo?.discountValue
-    ? `Menghemat ${formatCurrency(appliedPromo.discountValue)} saat checkout.`
+    ? t('savings', { amount: formatCurrency(appliedPromo.discountValue) })
     : undefined;
 
-  const errorMessage = form.formState.errors.code?.message;
+  // Schema errors are catalog keys; anything else (e.g. a server message) is shown as is.
+  const rawError = form.formState.errors.code?.message;
+  const errorMessage = isPromoValidationKey(rawError) ? tv(rawError) : rawError;
 
   return (
     <section className={cn('space-y-3 rounded-lg border p-4', className)}>
       <div className="space-y-1">
-        <h2 className="text-base font-semibold">Kode Promo</h2>
+        <h2 className="text-base font-semibold">{t('title')}</h2>
         <p id={helperId} className="text-sm text-muted-foreground">
           {helperText}
           {discountText ? <span className="block text-emerald-600">{discountText}</span> : null}
@@ -115,7 +120,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
       <form className="space-y-3" onSubmit={handleSubmit} noValidate>
         <div className="space-y-2">
           <label htmlFor={inputId} className="text-sm font-medium">
-            Masukkan kode
+            {t('inputLabel')}
           </label>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <input
@@ -127,7 +132,7 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
               aria-invalid={errorMessage ? 'true' : undefined}
               disabled={isBusy || Boolean(appliedPromo)}
               className="prm:no-anim w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors duration-150 ease-out placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
-              placeholder="contoh: SAVE10"
+              placeholder={t('placeholder')}
             />
             <GuardedButton
               type="submit"
@@ -135,9 +140,9 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
               className="w-full sm:w-auto"
               disabled={isBusy || Boolean(appliedPromo)}
               isLoading={applyMutation.isPending}
-              loadingLabel="Menerapkan promo…"
+              loadingLabel={t('applying')}
             >
-              Terapkan
+              {t('apply')}
             </GuardedButton>
           </div>
           {errorMessage ? (
@@ -148,10 +153,10 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
         </div>
         {appliedPromo ? (
           <div className="space-y-2 rounded-md border border-emerald-200/70 bg-emerald-50 p-3 text-sm text-emerald-900">
-            <p className="font-medium">Kode {appliedPromo.code} aktif.</p>
+            <p className="font-medium">{t('appliedTitle', { code: appliedPromo.code })}</p>
             {cartMeta?.totals?.discount ? (
               <p>
-                Diskon:{' '}
+                {t('discount')}{' '}
                 <span className="font-semibold">{formatCurrency(cartMeta.totals.discount)}</span>
               </p>
             ) : null}
@@ -161,17 +166,17 @@ export function PromoField({ cartId, className }: PromoFieldProps) {
               variant="outline"
               disabled={isBusy}
               isLoading={removeMutation.isPending}
-              loadingLabel="Menghapus kode…"
+              loadingLabel={t('removingCode')}
               onClick={() => removeMutation.mutate()}
             >
-              Hapus kode
+              {t('removeCode')}
             </GuardedButton>
           </div>
         ) : null}
       </form>
       <DelayedLoader
         active={isBusy}
-        label={removeMutation.isPending ? 'Menghapus kode promo…' : 'Menerapkan promo…'}
+        label={removeMutation.isPending ? t('removingPromo') : t('applying')}
         delayMs={400}
         className="text-xs text-muted-foreground"
       />

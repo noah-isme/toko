@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { Price } from '@/components/price';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -11,6 +13,7 @@ interface SavedForLaterProps {
 }
 
 export function SavedForLater({ cartId }: SavedForLaterProps) {
+  const t = useTranslations('cart.savedForLater');
   const items = useSavedForLaterStore((state) => state.items);
   const remove = useSavedForLaterStore((state) => state.remove);
   const addToCart = useAddToCartMutation();
@@ -22,7 +25,7 @@ export function SavedForLater({ cartId }: SavedForLaterProps) {
   return (
     <section aria-labelledby="saved-for-later-heading" className="space-y-4">
       <h2 id="saved-for-later-heading" className="text-lg font-semibold">
-        Disimpan untuk nanti ({items.length})
+        {t('title', { count: items.length })}
       </h2>
       <ul className="space-y-4">
         {items.map((item) => (
@@ -39,7 +42,7 @@ export function SavedForLater({ cartId }: SavedForLaterProps) {
                   size="sm"
                   className="min-h-[44px]"
                   isLoading={addToCart.isProductInFlight(item.productId)}
-                  loadingLabel="Memindahkan…"
+                  loadingLabel={t('moving')}
                   onClick={async () => {
                     try {
                       await addToCart.mutateAsync({
@@ -60,7 +63,7 @@ export function SavedForLater({ cartId }: SavedForLaterProps) {
                     remove(item.productId);
                   }}
                 >
-                  Pindahkan ke keranjang
+                  {t('moveToCart')}
                 </GuardedButton>
                 <GuardedButton
                   variant="ghost"
@@ -68,7 +71,7 @@ export function SavedForLater({ cartId }: SavedForLaterProps) {
                   className="min-h-[44px]"
                   onClick={() => remove(item.productId)}
                 >
-                  Hapus
+                  {t('remove')}
                 </GuardedButton>
               </div>
             </div>

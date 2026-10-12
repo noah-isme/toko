@@ -582,7 +582,86 @@
       }
     }
   },
-  "cart": {},
+  "cart": {
+    "drawer": {
+      "triggerLabel": "{count, plural, =0 {Open cart} =1 {Open cart with {count} item} other {Open cart with {count} items}}",
+      "trigger": "Cart",
+      "title": "Your cart",
+      "description": "Review the items in your shopping cart before checkout.",
+      "close": "Close",
+      "quantity": "Qty: {quantity}",
+      "subtotal": "Subtotal",
+      "checkout": "Go to checkout"
+    },
+    "view": {
+      "eyebrow": "Your bag",
+      "title": "Shopping Cart",
+      "subtitle": "Review your products before continuing to payment",
+      "savingChanges": "Saving cart changes…",
+      "updatingQuantity": "Updating quantity…",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "saving": "Saving…",
+      "saveForLater": "Save for Later",
+      "removing": "Removing…",
+      "remove": "Remove",
+      "summary": {
+        "title": "Order Summary",
+        "subtotal": "{count, plural, one {Subtotal (# item)} other {Subtotal (# items)}}",
+        "discount": "Discount",
+        "tax": "Tax",
+        "total": "Total",
+        "checkout": "Continue to Payment →"
+      }
+    },
+    "savedForLater": {
+      "title": "Saved for later ({count})",
+      "moving": "Moving…",
+      "moveToCart": "Move to cart",
+      "remove": "Remove"
+    },
+    "quantityPicker": {
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity"
+    },
+    "toast": {
+      "added": "Added to cart",
+      "addFailed": "Failed to add to cart",
+      "updated": "Quantity updated",
+      "updateFailed": "Failed to update quantity",
+      "removed": "Item removed",
+      "removeFailed": "Failed to remove item"
+    },
+    "promo": {
+      "title": "Promo Code",
+      "helper": "Enter a promo code to get a discount.",
+      "codeActive": "Code {code} active",
+      "savings": "Saves {amount} at checkout.",
+      "inputLabel": "Enter code",
+      "placeholder": "e.g. SAVE10",
+      "applying": "Applying promo…",
+      "apply": "Apply",
+      "appliedTitle": "Code {code} is active.",
+      "discount": "Discount:",
+      "removingCode": "Removing code…",
+      "removeCode": "Remove code",
+      "removingPromo": "Removing promo code…",
+      "validation": {
+        "codeRequired": "Enter a promo code",
+        "codeEmpty": "Promo code is required",
+        "codeTooLong": "Promo code is too long",
+        "codeInvalid": "Invalid promo code",
+        "cartMissing": "No cart found for the promo code",
+        "notValidated": "The promo must be validated before it is applied"
+      },
+      "toast": {
+        "applied": "Promo code applied",
+        "applyFailed": "Failed to apply promo code",
+        "removed": "Promo code removed",
+        "removeFailed": "Failed to remove promo code"
+      }
+    }
+  },
   "checkout": {},
   "auth": {},
   "account": {},

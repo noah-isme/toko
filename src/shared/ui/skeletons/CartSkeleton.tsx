@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -9,10 +10,11 @@ export interface CartSkeletonProps {
 }
 
 export function CartSkeleton({ items = 4 }: CartSkeletonProps) {
+  const t = useTranslations('common');
   return (
     <React.Fragment>
       <div className="space-y-4" role="status">
-        {srOnly('Memuat...')}
+        {srOnly(t('loading'))}
         {Array.from({ length: items }).map((_, index) => (
           <div
             key={index}
