@@ -117,9 +117,9 @@ export function QuestionList({
         <h2 className="flex items-center gap-2 text-xl font-semibold">
           <HelpCircle className="h-5 w-5 text-primary" />
           {t('title')}
-          {meta && meta.total && (
+          {meta?.total ? (
             <span className="text-sm font-normal text-muted-foreground">({meta.total})</span>
-          )}
+          ) : null}
         </h2>
         <div className="flex items-center gap-3">
           <Select value={params.sort} onValueChange={handleSortChange}>
@@ -159,7 +159,7 @@ export function QuestionList({
         </div>
       )}
 
-      {meta && meta.totalPages && meta.totalPages > 1 && (
+      {meta?.totalPages !== undefined && meta.totalPages > 1 && (
         <nav
           className="flex items-center justify-center gap-2"
           aria-label={t('paginationLabel')}
