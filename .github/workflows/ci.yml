@@ -14,16 +14,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+
       - name: Use Node.js 22.13.x
         uses: actions/setup-node@v4
         with:
           node-version: '22.13.x'
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.5.2
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -71,16 +69,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+
       - name: Use Node.js 22.13.x
         uses: actions/setup-node@v4
         with:
           node-version: '22.13.x'
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.5.2
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -133,16 +129,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+
       - name: Use Node.js 22.13.x
         uses: actions/setup-node@v4
         with:
           node-version: '22.13.x'
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.5.2
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
