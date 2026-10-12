@@ -5,6 +5,7 @@
 'use client';
 
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +34,8 @@ export function AdminPageHeader({
   );
 }
 
-export function AdminLoading({ label = 'Loading...' }: { label?: string }) {
+export function AdminLoading({ label }: { label?: string }) {
+  const t = useTranslations('admin.ui');
   return (
     <div
       className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground"
@@ -41,13 +43,14 @@ export function AdminLoading({ label = 'Loading...' }: { label?: string }) {
       data-testid="admin-loading"
     >
       <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-      <span>{label}</span>
+      <span>{label ?? t('loading')}</span>
     </div>
   );
 }
 
 export function AdminError({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
-  const message = error instanceof Error ? error.message : 'Something went wrong.';
+  const t = useTranslations('admin.ui');
+  const message = error instanceof Error ? error.message : t('errorFallback');
   return (
     <div
       className="flex flex-col items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-6 py-12 text-center"
@@ -56,12 +59,12 @@ export function AdminError({ error, onRetry }: { error: unknown; onRetry?: () =>
     >
       <AlertCircle className="h-8 w-8 text-destructive" aria-hidden="true" />
       <div className="space-y-1">
-        <p className="font-medium">Could not load data</p>
+        <p className="font-medium">{t('errorTitle')}</p>
         <p className="max-w-md text-sm text-muted-foreground">{message}</p>
       </div>
       {onRetry ? (
         <Button variant="outline" size="sm" onClick={onRetry} data-testid="admin-error-retry">
-          Try again
+          {t('retry')}
         </Button>
       ) : null}
     </div>
@@ -92,6 +95,7 @@ const ORDER_STATUS_CLASSES: Record<AdminOrderStatus, string> = {
 };
 
 export function OrderStatusBadge({ status }: { status: AdminOrderStatus }) {
+  const t = useTranslations('admin');
   return (
     <Badge
       variant="outline"
@@ -99,12 +103,13 @@ export function OrderStatusBadge({ status }: { status: AdminOrderStatus }) {
       data-testid="order-status-badge"
       data-status={status}
     >
-      {orderStatusLabel(status)}
+      {orderStatusLabel(t, status)}
     </Badge>
   );
 }
 
 export function ActiveBadge({ active }: { active: boolean }) {
+  const t = useTranslations('admin.ui');
   return (
     <Badge
       variant="outline"
@@ -113,7 +118,7 @@ export function ActiveBadge({ active }: { active: boolean }) {
         active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-muted text-muted-foreground',
       )}
     >
-      {active ? 'Active' : 'Inactive'}
+      {active ? t('active') : t('inactive')}
     </Badge>
   );
 }

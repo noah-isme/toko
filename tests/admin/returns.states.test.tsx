@@ -68,8 +68,8 @@ describe('admin returns page states', () => {
     renderPage();
 
     await screen.findByText(sampleReturn.reason);
-    // Status buttons are labelled with the backend enum value, which is locale-independent.
-    await userEvent.click(screen.getByRole('button', { name: 'APPROVED' }));
+    // Status buttons carry a locale-independent test id (their label is translated).
+    await userEvent.click(screen.getByTestId('admin-return-status-APPROVED'));
 
     await waitFor(() => expect(api.updateReturn).toHaveBeenCalledWith('ret-1', 'APPROVED'));
     await waitFor(() => expect(api.listReturns).toHaveBeenCalledTimes(2));

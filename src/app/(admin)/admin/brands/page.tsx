@@ -13,9 +13,7 @@ import {
 export default function BrandsPage() {
   return (
     <TaxonomyManager
-      title="Brands"
-      description="Manage product brands"
-      entityLabel="Brand"
+      kind="brands"
       icon={Building2}
       query={useAdminBrands()}
       createMutation={useCreateAdminBrand()}

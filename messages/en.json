@@ -2186,5 +2186,677 @@
       "description": "Review the products in your shopping cart before proceeding to checkout."
     }
   },
-  "admin": {}
+  "admin": {
+    "meta": {
+      "title": "Admin"
+    },
+    "shell": {
+      "brand": "toko admin",
+      "viewStore": "View store",
+      "signOut": "Sign out",
+      "openMenu": "Open admin menu",
+      "navigation": "Admin navigation"
+    },
+    "guard": {
+      "checking": "Checking permissions...",
+      "title": "Admin access required",
+      "description": "Your account does not have the admin role. Ask a store owner to grant it, then reload this page.",
+      "backToStore": "Back to store"
+    },
+    "nav": {
+      "label": "Admin sections",
+      "items": {
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "inventory": "Inventory",
+        "customers": "Customers",
+        "categories": "Categories",
+        "brands": "Brands",
+        "orders": "Orders",
+        "vouchers": "Vouchers",
+        "flashSales": "Flash Sales",
+        "returns": "Returns",
+        "support": "Support",
+        "analytics": "Analytics",
+        "webhooks": "Webhooks",
+        "auditLogs": "Audit Logs",
+        "settings": "Settings"
+      }
+    },
+    "ui": {
+      "loading": "Loading...",
+      "errorTitle": "Could not load data",
+      "errorFallback": "Something went wrong.",
+      "retry": "Try again",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "common": {
+      "unknownError": "Unknown error",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "edit": "Edit",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}",
+      "actions": "Actions",
+      "status": "Status",
+      "guest": "Guest"
+    },
+    "status": {
+      "PENDING_PAYMENT": "Pending Payment",
+      "PAID": "Paid",
+      "PACKED": "Packed",
+      "SHIPPED": "Shipped",
+      "OUT_FOR_DELIVERY": "Out for Delivery",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "time": {
+      "justNow": "Just now"
+    },
+    "notFound": {
+      "back": "Back to the admin dashboard"
+    },
+    "ranges": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "all": "All time"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Overview of your store performance",
+      "loading": "Loading dashboard...",
+      "dateRange": "Date range",
+      "viewAllOrders": "View All Orders",
+      "stats": {
+        "revenue": "Total Revenue",
+        "orders": "Orders",
+        "products": "Products",
+        "customers": "Customers",
+        "averageOrderValue": "Average Order Value",
+        "pending": "Pending",
+        "shipped": "Shipped",
+        "delivered": "Delivered"
+      },
+      "recentOrders": "Recent Orders",
+      "loadingOrders": "Loading orders...",
+      "noOrders": "No orders yet.",
+      "topProducts": "Top Products",
+      "noSales": "No sales in this period.",
+      "unitsSold": "{count, number} sold"
+    },
+    "products": {
+      "title": "Products",
+      "description": "Manage your product catalog",
+      "add": "Add Product",
+      "all": "All Products",
+      "searchPlaceholder": "Search products...",
+      "searchLabel": "Search products",
+      "loading": "Loading products...",
+      "noMatches": "No products match your search.",
+      "empty": "No products yet.",
+      "addFirst": "Add your first product",
+      "columns": {
+        "product": "Product",
+        "sku": "SKU",
+        "category": "Category",
+        "price": "Price",
+        "stock": "Stock"
+      },
+      "units": "{count, number} {count, plural, one {unit} other {units}}",
+      "outOfStock": "Out of stock",
+      "updateStockFor": "Update stock for {title}",
+      "editProduct": "Edit {title}",
+      "deleteProduct": "Delete {title}",
+      "stockDialogTitle": "Update Stock: {title}",
+      "stockQuantity": "Stock quantity",
+      "deleteDialogTitle": "Delete Product",
+      "deleteConfirm": "Are you sure you want to delete <strong>{title}</strong>? This action cannot be undone.",
+      "toast": {
+        "stockUpdated": "Stock updated",
+        "stockFailed": "Could not update stock",
+        "deleted": "Product deleted",
+        "deleteFailed": "Could not delete product",
+        "created": "Product created",
+        "createFailed": "Could not create product",
+        "updated": "Product updated",
+        "updateFailed": "Could not update product"
+      },
+      "back": "Back to products",
+      "new": {
+        "title": "New Product",
+        "description": "Add a new product to your catalog",
+        "submit": "Create Product"
+      },
+      "edit": {
+        "title": "Edit Product",
+        "description": "Update product details",
+        "loading": "Loading product...",
+        "submit": "Save Changes"
+      }
+    },
+    "productForm": {
+      "basics": "Basics",
+      "title": "Title",
+      "titlePlaceholder": "Product name",
+      "slug": "Slug",
+      "slugPlaceholder": "product-slug",
+      "price": "Price (Rp)",
+      "compareAt": "Compare-at price (Rp)",
+      "optional": "Optional",
+      "compareAtHint": "Shown struck through when higher than the price.",
+      "category": "Category",
+      "selectCategory": "Select category",
+      "noCategory": "No category",
+      "brand": "Brand",
+      "selectBrand": "Select brand",
+      "noBrand": "No brand",
+      "thumbnail": "Thumbnail URL",
+      "badges": "Badges",
+      "badgesHint": "Comma separated.",
+      "inStock": "In stock",
+      "description": "Description",
+      "descriptionPlaceholder": "Product description...",
+      "images": "Images",
+      "addImage": "Add image",
+      "noImages": "No gallery images.",
+      "imageUrl": "Image URL {index}",
+      "removeImage": "Remove image {index}",
+      "specs": "Specifications",
+      "addSpec": "Add spec",
+      "noSpecs": "No specifications.",
+      "specNamePlaceholder": "Weight",
+      "specName": "Spec name {index}",
+      "specValue": "Spec value {index}",
+      "removeSpec": "Remove spec {index}",
+      "variants": "Variants",
+      "addVariant": "Add variant",
+      "noVariants": "No variants. Stock is tracked per variant, so add at least one to sell this product.",
+      "variant": "Variant {index}",
+      "removeVariant": "Remove variant {index}",
+      "sku": "SKU",
+      "stock": "Stock",
+      "attributes": "Attributes (JSON)",
+      "errors": {
+        "titleRequired": "Title is required",
+        "invalid": "Invalid form values",
+        "variantAttributes": "Variant {index}: attributes must be a JSON object"
+      }
+    },
+    "taxonomy": {
+      "name": "Name",
+      "slug": "Slug",
+      "nameRequired": "Name is required",
+      "productCount": "<strong>{count, number}</strong> {count, plural, one {product} other {products}}",
+      "deleteFailedHint": "Still referenced by products?",
+      "create": "Create",
+      "update": "Update",
+      "deleteConfirm": "Delete <strong>{name}</strong>? Products referencing it keep existing but lose this association.",
+      "categories": {
+        "title": "Categories",
+        "description": "Manage product categories",
+        "add": "Add Category",
+        "edit": "Edit Category",
+        "delete": "Delete Category",
+        "loading": "Loading categories...",
+        "empty": "No categories yet.",
+        "namePlaceholder": "Category name",
+        "slugPlaceholder": "category-slug",
+        "created": "Category created",
+        "updated": "Category updated",
+        "deleted": "Category deleted",
+        "saveFailed": "Could not save category",
+        "deleteFailed": "Could not delete category"
+      },
+      "brands": {
+        "title": "Brands",
+        "description": "Manage product brands",
+        "add": "Add Brand",
+        "edit": "Edit Brand",
+        "delete": "Delete Brand",
+        "loading": "Loading brands...",
+        "empty": "No brands yet.",
+        "namePlaceholder": "Brand name",
+        "slugPlaceholder": "brand-slug",
+        "created": "Brand created",
+        "updated": "Brand updated",
+        "deleted": "Brand deleted",
+        "saveFailed": "Could not save brand",
+        "deleteFailed": "Could not delete brand"
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "description": "Manage and track customer orders",
+      "stats": {
+        "total": "Total Orders",
+        "revenue": "Revenue",
+        "pending": "Pending",
+        "averageOrderValue": "Avg. Order Value"
+      },
+      "all": "All Orders",
+      "searchPlaceholder": "Search orders...",
+      "searchLabel": "Search orders",
+      "filterLabel": "Filter by status",
+      "allStatuses": "All Status",
+      "loading": "Loading orders...",
+      "empty": "No orders match these filters.",
+      "columns": {
+        "order": "Order",
+        "customer": "Customer",
+        "total": "Total",
+        "payment": "Payment",
+        "tracking": "Tracking"
+      },
+      "payment": {
+        "PAID": "Paid",
+        "PENDING": "Pending",
+        "FAILED": "Failed",
+        "EXPIRED": "Expired",
+        "REFUNDED": "Refunded",
+        "none": "None"
+      },
+      "changeStatusFor": "Change status for order {order}",
+      "advanceTo": "Advance to...",
+      "viewDetails": "View order details",
+      "createShipment": "Create shipment",
+      "toast": {
+        "statusUpdated": "Status updated",
+        "statusChange": "{order} → {status}",
+        "statusFailed": "Could not update status",
+        "transitionNotAllowed": "Transition not allowed",
+        "shipmentRequired": "Courier and tracking number are required",
+        "shipmentCreated": "Shipment created",
+        "shipmentFailed": "Could not create shipment"
+      },
+      "detail": {
+        "title": "Order {order}",
+        "loading": "Loading order...",
+        "customer": "Customer",
+        "placed": "Placed {date}",
+        "items": "Items",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "discountWithCode": "Discount ({code})",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "total": "Total",
+        "notes": "Notes"
+      },
+      "shipment": {
+        "title": "Create Shipment for {order}",
+        "courier": "Courier",
+        "selectCourier": "Select courier",
+        "trackingNumber": "Tracking Number",
+        "trackingPlaceholder": "Enter tracking number",
+        "submit": "Create Shipment",
+        "submitting": "Creating..."
+      }
+    },
+    "voucher": {
+      "percentValue": "{value, number}%",
+      "kind": {
+        "percent": "Percent",
+        "fixed_amount": "Fixed"
+      }
+    },
+    "vouchers": {
+      "title": "Vouchers",
+      "description": "Manage discount codes and promotions",
+      "create": "Create Voucher",
+      "edit": "Edit Voucher",
+      "stats": {
+        "total": "Total Vouchers",
+        "active": "Active",
+        "redemptions": "Total Redemptions"
+      },
+      "all": "All Vouchers",
+      "searchPlaceholder": "Search vouchers...",
+      "searchLabel": "Search vouchers",
+      "loading": "Loading vouchers...",
+      "noMatches": "No vouchers match your search.",
+      "empty": "No vouchers yet.",
+      "columns": {
+        "code": "Code",
+        "kind": "Kind",
+        "value": "Value",
+        "minSpend": "Min Spend",
+        "usage": "Usage",
+        "period": "Period"
+      },
+      "always": "Always",
+      "openEnded": "...",
+      "editCode": "Edit {code}",
+      "deleteCode": "Delete {code}",
+      "form": {
+        "code": "Code",
+        "codeLocked": "Code cannot be changed.",
+        "kind": "Kind",
+        "kindPercent": "Percentage (%)",
+        "kindFixed": "Fixed Amount (Rp)",
+        "percentOff": "Percent off",
+        "amountOff": "Discount amount (Rp)",
+        "minSpend": "Min Spend (Rp)",
+        "usageLimit": "Usage Limit",
+        "perUserLimit": "Per Customer Limit",
+        "unlimited": "Unlimited",
+        "validFrom": "Valid From",
+        "validTo": "Valid To",
+        "priority": "Priority",
+        "priorityHint": "Higher priority wins when several vouchers match.",
+        "combinable": "Combinable with other vouchers",
+        "create": "Create",
+        "update": "Update"
+      },
+      "deleteTitle": "Delete Voucher",
+      "deleteConfirm": "Delete <strong>{code}</strong>? Orders that already used it keep their discount.",
+      "toast": {
+        "codeRequired": "Code is required",
+        "updated": "Voucher updated",
+        "created": "Voucher created",
+        "saveFailed": "Could not save voucher",
+        "deleted": "Voucher deleted",
+        "deleteFailed": "Could not delete voucher"
+      }
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Revenue, orders, and best sellers",
+      "dateRange": "Date range",
+      "loading": "Loading analytics...",
+      "summary": {
+        "revenue": "Revenue",
+        "orders": "Orders",
+        "averageOrderValue": "Average Order Value",
+        "customers": "Customers",
+        "products": "Products"
+      },
+      "ordersByStatus": "Orders by Status",
+      "revenueShare": "Revenue Share of Top Products",
+      "noSales": "No sales in this range.",
+      "topProducts": "Top Products",
+      "columns": {
+        "product": "Product",
+        "unitsSold": "Units Sold",
+        "revenue": "Revenue"
+      }
+    },
+    "inventory": {
+      "title": "Inventory",
+      "description": "Manage variant stock with tenant-scoped updates.",
+      "loading": "Loading inventory…",
+      "available": "{count, number} available",
+      "stockFor": "Stock for {title}",
+      "empty": "No variants found.",
+      "toast": {
+        "invalid": "Enter a non-negative stock quantity",
+        "updated": "Inventory updated",
+        "failed": "Could not update inventory"
+      }
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "Customers with activity in this store.",
+      "loading": "Loading customers…",
+      "joined": "Joined {date}",
+      "empty": "No customers found."
+    },
+    "returns": {
+      "title": "Returns",
+      "description": "Review customer return requests and refund eligibility",
+      "empty": "No return requests.",
+      "order": "Order {orderId}",
+      "refund": "Refund",
+      "updateFailed": "Could not update the status.",
+      "refundFailed": "Refund failed.",
+      "status": {
+        "REQUESTED": "Requested",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "RECEIVED": "Received",
+        "REFUNDED": "Refunded",
+        "CANCELLED": "Cancelled"
+      }
+    },
+    "support": {
+      "title": "Support",
+      "description": "Respond to customer support tickets",
+      "empty": "No support tickets.",
+      "order": "Order {orderId}",
+      "statusLabel": "Ticket status for {subject}",
+      "replyPlaceholder": "Reply to customer",
+      "send": "Send",
+      "author": {
+        "customer": "Customer",
+        "agent": "Agent"
+      },
+      "updateFailed": "Could not update the ticket.",
+      "sendFailed": "Could not send the reply.",
+      "status": {
+        "OPEN": "Open",
+        "PENDING_CUSTOMER": "Waiting for customer",
+        "PENDING_AGENT": "Waiting for agent",
+        "RESOLVED": "Resolved",
+        "CLOSED": "Closed"
+      },
+      "priority": {
+        "LOW": "Low",
+        "NORMAL": "Normal",
+        "HIGH": "High",
+        "URGENT": "Urgent"
+      }
+    },
+    "settings": {
+      "title": "Store settings",
+      "description": "Tenant-scoped storefront configuration and onboarding.",
+      "loading": "Loading store settings…",
+      "profile": "Store profile",
+      "storeName": "Store name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "currency": "Currency",
+      "storeDescription": "Description",
+      "shippingOrigin": "Shipping origin code",
+      "save": "Save settings",
+      "saving": "Saving…",
+      "onboarding": "Onboarding",
+      "onboardingHint": "Complete onboarding after the store profile, catalog, payment, and shipping credentials are configured.",
+      "markComplete": "Mark complete",
+      "toast": {
+        "saved": "Store settings saved",
+        "saveFailed": "Could not save settings",
+        "onboardingComplete": "Onboarding marked complete"
+      }
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "description": "Outbound event endpoints and their delivery history",
+      "add": "Add Endpoint",
+      "edit": "Edit Endpoint",
+      "endpoints": "Endpoints",
+      "loadingEndpoints": "Loading endpoints...",
+      "noEndpoints": "No webhook endpoints configured.",
+      "columns": {
+        "name": "Name",
+        "url": "URL",
+        "topics": "Topics",
+        "secret": "Secret",
+        "endpoint": "Endpoint",
+        "attempt": "Attempt",
+        "response": "Response",
+        "error": "Error",
+        "when": "When"
+      },
+      "deleteName": "Delete {name}",
+      "recentDeliveries": "Recent Deliveries",
+      "filterEndpoint": "Filter by endpoint",
+      "allEndpoints": "All endpoints",
+      "filterStatus": "Filter by status",
+      "allStatuses": "All statuses",
+      "refresh": "Refresh deliveries",
+      "loadingDeliveries": "Loading deliveries...",
+      "noDeliveries": "No deliveries recorded.",
+      "replay": "Replay",
+      "deliveryStatus": {
+        "PENDING": "Pending",
+        "SUCCESS": "Success",
+        "FAILED": "Failed",
+        "DEAD": "Dead"
+      },
+      "form": {
+        "name": "Name",
+        "namePlaceholder": "Fulfilment service",
+        "url": "URL",
+        "secret": "Signing secret",
+        "secretPlaceholder": "Shared HMAC secret",
+        "secretHint": "Used to sign each payload. Store it only in the receiving service.",
+        "topics": "Topics",
+        "active": "Active",
+        "create": "Create",
+        "update": "Update"
+      },
+      "deleteTitle": "Delete Endpoint",
+      "deleteConfirm": "Delete <strong>{name}</strong>? Pending deliveries to this endpoint stop.",
+      "toast": {
+        "required": "Name, URL and secret are required",
+        "topicRequired": "Select at least one topic",
+        "updated": "Endpoint updated",
+        "created": "Endpoint created",
+        "saveFailed": "Could not save endpoint",
+        "deleted": "Endpoint deleted",
+        "deleteFailed": "Could not delete endpoint",
+        "replayQueued": "Delivery queued for replay",
+        "replayFailed": "Could not replay delivery"
+      }
+    },
+    "auditLogs": {
+      "title": "Audit Logs",
+      "clearFilters": "Clear filters",
+      "filters": "Filters",
+      "actionPlaceholder": "Action contains…",
+      "resourcePlaceholder": "Resource type…",
+      "startDate": "From date",
+      "endDate": "To date",
+      "columns": {
+        "id": "ID",
+        "actor": "Actor",
+        "action": "Action",
+        "resource": "Resource",
+        "method": "Method",
+        "ip": "IP",
+        "created": "Created"
+      },
+      "actor": {
+        "user": "user",
+        "system": "system",
+        "anonymous": "anonymous"
+      },
+      "empty": "No audit logs found.",
+      "pageSummary": "Page {page} of {total} — {count, number} total",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
+    },
+    "flashSales": {
+      "title": "Flash Sales",
+      "description": "Manage limited-time flash sale campaigns",
+      "create": "Create Flash Sale",
+      "loadingProducts": "Loading products...",
+      "all": "All Flash Sales",
+      "searchPlaceholder": "Search flash sales...",
+      "searchLabel": "Search flash sales",
+      "loading": "Loading flash sales...",
+      "noMatches": "No flash sales match your search.",
+      "empty": "No flash sales yet.",
+      "createFirst": "Create your first flash sale",
+      "columns": {
+        "campaign": "Campaign",
+        "period": "Period",
+        "items": "Items",
+        "totalSold": "Total Sold"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "SCHEDULED": "Scheduled",
+        "ACTIVE": "Active",
+        "ENDED": "Ended"
+      },
+      "changeStatusFor": "Change status for {name}",
+      "editName": "Edit {name}",
+      "deleteName": "Delete {name}",
+      "statusDialogTitle": "Change Status: {name}",
+      "statusDialogFrom": "Change status from <strong>{status}</strong> to",
+      "newStatus": "New status",
+      "updateStatus": "Update Status",
+      "deleteTitle": "Delete Flash Sale",
+      "deleteConfirm": "Are you sure you want to delete <strong>{name}</strong>? This action cannot be undone. Note: Backend does not have a delete endpoint; consider setting status to ENDED instead.",
+      "toast": {
+        "statusUpdated": "Status updated",
+        "statusChange": "{name} → {status}",
+        "statusFailed": "Could not update status",
+        "deleteUnsupported": "Delete not implemented",
+        "deleteUnsupportedHint": "Backend does not support delete. Set status to ENDED.",
+        "error": "Error",
+        "created": "Flash sale created",
+        "createFailed": "Could not create flash sale",
+        "duplicated": "Flash sale created (duplicate)",
+        "updateFailed": "Could not update flash sale"
+      },
+      "new": {
+        "title": "Create Flash Sale",
+        "description": "Set up a new limited-time campaign",
+        "submit": "Create Flash Sale",
+        "submitting": "Creating..."
+      },
+      "edit": {
+        "title": "Edit Flash Sale",
+        "description": "Update campaign details",
+        "notFound": "Flash sale not found",
+        "backToList": "Back to list",
+        "createNew": "Create New",
+        "currentStatus": "Current Status",
+        "itemId": "ID: {id}",
+        "submit": "Save Changes (Creates New)"
+      },
+      "form": {
+        "details": "Campaign Details",
+        "name": "Name",
+        "namePlaceholder": "Summer Flash Sale",
+        "slug": "Slug",
+        "slugPlaceholder": "summer-flash-sale",
+        "selectStatus": "Select status",
+        "startsAt": "Start Date & Time",
+        "endsAt": "End Date & Time",
+        "items": "Flash Sale Items",
+        "addProduct": "Add Product",
+        "noProducts": "No products available. Create products first.",
+        "noItems": "No items added yet. Click \"Add Product\" to start.",
+        "item": "Item {index}",
+        "removeItem": "Remove item {index}",
+        "product": "Product",
+        "selectProduct": "Select product",
+        "selectProductOption": "Select a product...",
+        "productOption": "{title} ({price})",
+        "salePrice": "Sale Price (Rp)",
+        "salePricePlaceholder": "e.g. 1500000",
+        "stockLimit": "Stock Limit (optional)",
+        "stockLimitPlaceholder": "Leave empty for no limit",
+        "stockLimitHint": "Empty = use catalog stock",
+        "errors": {
+          "nameRequired": "Name is required",
+          "datesRequired": "Start and end dates are required",
+          "endBeforeStart": "End date must be after start date",
+          "productRequired": "At least one product is required",
+          "salePrice": "Sale price must be greater than 0 for all items",
+          "createFailed": "Failed to create flash sale",
+          "updateFailed": "Failed to update flash sale",
+          "statusFailed": "Failed to update status"
+        }
+      }
+    }
+  }
 }

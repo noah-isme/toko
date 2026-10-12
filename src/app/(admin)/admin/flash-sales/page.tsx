@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Edit, Plus, Search, Trash2, Calendar, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -23,25 +24,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatCurrency, formatDate } from '@/entities/admin/format';
 import {
   useAdminFlashSales,
   useCreateAdminFlashSale,
   useUpdateAdminFlashSaleStatus,
 } from '@/entities/admin/hooks';
 import type { AdminFlashSale, AdminFlashSaleStatus } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
 const PAGE_SIZE = 20;
 
-const STATUS_LABELS: Record<AdminFlashSaleStatus, string> = {
-  DRAFT: 'Draft',
-  SCHEDULED: 'Scheduled',
-  ACTIVE: 'Active',
-  ENDED: 'Ended',
-};
+const FLASH_SALE_STATUSES: AdminFlashSaleStatus[] = ['DRAFT', 'SCHEDULED', 'ACTIVE', 'ENDED'];
 
 const STATUS_COLORS: Record<AdminFlashSaleStatus, string> = {
   DRAFT: 'bg-gray-100 text-gray-800',
@@ -51,6 +47,9 @@ const STATUS_COLORS: Record<AdminFlashSaleStatus, string> = {
 };
 
 export default function FlashSalesPage() {
+  const t = useTranslations('admin.flashSales');
+  const tCommon = useTranslations('admin.common');
+  const { date } = useAdminFormat();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
@@ -87,15 +86,18 @@ export default function FlashSalesPage() {
         status: statusTarget.status,
       });
       toast({
-        title: 'Status updated',
-        description: `${statusTarget.flashSale.name} → ${STATUS_LABELS[statusTarget.status]}`,
+        title: t('toast.statusUpdated'),
+        description: t('toast.statusChange', {
+          name: statusTarget.flashSale.name,
+          status: t(`status.${statusTarget.status}`),
+        }),
         variant: 'success',
       });
       setStatusTarget(null);
     } catch (error) {
       toast({
-        title: 'Could not update status',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.statusFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -107,15 +109,15 @@ export default function FlashSalesPage() {
       // Backend doesn't have delete endpoint, but we can use the status to 'ENDED' or similar
       // For now, just show toast - in reality you'd need a delete endpoint
       toast({
-        title: 'Delete not implemented',
-        description: 'Backend does not support delete. Set status to ENDED.',
+        title: t('toast.deleteUnsupported'),
+        description: t('toast.deleteUnsupportedHint'),
         variant: 'destructive',
       });
       setDeleteTarget(null);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.error'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -124,13 +126,13 @@ export default function FlashSalesPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Flash Sales"
-        description="Manage limited-time flash sale campaigns"
+        title={t('title')}
+        description={t('description')}
         actions={
           <Button asChild>
             <Link href="/admin/flash-sales/new">
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-              Create Flash Sale
+              {t('create')}
             </Link>
           </Button>
         }
@@ -139,7 +141,7 @@ export default function FlashSalesPage() {
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>
-            All Flash Sales
+            {t('all')}
             {totalItems > 0 ? (
               <span className="ml-2 text-sm font-normal text-muted-foreground">({totalItems})</span>
             ) : null}
@@ -150,27 +152,25 @@ export default function FlashSalesPage() {
               aria-hidden="true"
             />
             <Input
-              placeholder="Search flash sales..."
+              placeholder={t('searchPlaceholder')}
               value={search}
               onChange={(event) => handleSearchChange(event.target.value)}
               className="pl-10"
-              aria-label="Search flash sales"
+              aria-label={t('searchLabel')}
             />
           </div>
         </CardHeader>
         <CardContent>
           {query.isLoading ? (
-            <AdminLoading label="Loading flash sales..." />
+            <AdminLoading label={t('loading')} />
           ) : query.isError ? (
             <AdminError error={query.error} onRetry={() => void query.refetch()} />
           ) : flashSales.length === 0 ? (
             <AdminEmpty
-              message={
-                debouncedSearch ? 'No flash sales match your search.' : 'No flash sales yet.'
-              }
+              message={debouncedSearch ? t('noMatches') : t('empty')}
               action={
                 <Button asChild size="sm">
-                  <Link href="/admin/flash-sales/new">Create your first flash sale</Link>
+                  <Link href="/admin/flash-sales/new">{t('createFirst')}</Link>
                 </Button>
               }
             />
@@ -180,12 +180,12 @@ export default function FlashSalesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Campaign</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Period</TableHead>
-                      <TableHead>Items</TableHead>
-                      <TableHead>Total Sold</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t('columns.campaign')}</TableHead>
+                      <TableHead>{tCommon('status')}</TableHead>
+                      <TableHead>{t('columns.period')}</TableHead>
+                      <TableHead>{t('columns.items')}</TableHead>
+                      <TableHead>{t('columns.totalSold')}</TableHead>
+                      <TableHead className="text-right">{tCommon('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -209,7 +209,7 @@ export default function FlashSalesPage() {
                               STATUS_COLORS[fs.status],
                             )}
                           >
-                            {STATUS_LABELS[fs.status]}
+                            {t(`status.${fs.status}`)}
                           </span>
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
@@ -217,7 +217,7 @@ export default function FlashSalesPage() {
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <Calendar className="h-3 w-3" aria-hidden="true" />
                               <span>
-                                {formatDate(fs.startsAt)} → {formatDate(fs.endsAt)}
+                                {date(fs.startsAt)} → {date(fs.endsAt)}
                               </span>
                             </div>
                           </div>
@@ -231,7 +231,7 @@ export default function FlashSalesPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={`Change status for ${fs.name}`}
+                              aria-label={t('changeStatusFor', { name: fs.name })}
                               onClick={() =>
                                 setStatusTarget({
                                   flashSale: fs,
@@ -248,7 +248,7 @@ export default function FlashSalesPage() {
                             <Button asChild variant="ghost" size="icon">
                               <Link
                                 href={`/admin/flash-sales/${fs.id}/edit` as never}
-                                aria-label={`Edit ${fs.name}`}
+                                aria-label={t('editName', { name: fs.name })}
                               >
                                 <Edit className="h-4 w-4" />
                               </Link>
@@ -257,7 +257,7 @@ export default function FlashSalesPage() {
                               variant="ghost"
                               size="icon"
                               className="text-red-600"
-                              aria-label={`Delete ${fs.name}`}
+                              aria-label={t('deleteName', { name: fs.name })}
                               onClick={() => setDeleteTarget(fs)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -273,7 +273,7 @@ export default function FlashSalesPage() {
               {totalPages > 1 ? (
                 <div className="mt-4 flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
+                    {tCommon('pageOf', { page, total: totalPages })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -282,7 +282,7 @@ export default function FlashSalesPage() {
                       disabled={page <= 1}
                       onClick={() => setPage((current) => Math.max(1, current - 1))}
                     >
-                      Previous
+                      {tCommon('previous')}
                     </Button>
                     <Button
                       variant="outline"
@@ -290,7 +290,7 @@ export default function FlashSalesPage() {
                       disabled={page >= totalPages}
                       onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     >
-                      Next
+                      {tCommon('next')}
                     </Button>
                   </div>
                 </div>
@@ -303,12 +303,17 @@ export default function FlashSalesPage() {
       <Dialog open={statusTarget !== null} onOpenChange={(open) => !open && setStatusTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change Status: {statusTarget?.flashSale.name}</DialogTitle>
+            <DialogTitle>
+              {t('statusDialogTitle', { name: statusTarget?.flashSale.name ?? '' })}
+            </DialogTitle>
           </DialogHeader>
           <p className="py-4 text-sm text-muted-foreground">
-            Change status from{' '}
-            <strong>{statusTarget ? STATUS_LABELS[statusTarget.flashSale.status] : ''}</strong> to{' '}
+            {t.rich('statusDialogFrom', {
+              status: statusTarget ? t(`status.${statusTarget.flashSale.status}`) : '',
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}{' '}
             <select
+              aria-label={t('newStatus')}
               value={statusTarget?.status}
               onChange={(e) =>
                 setStatusTarget(
@@ -319,22 +324,23 @@ export default function FlashSalesPage() {
               }
               className="ml-2 rounded border px-2 py-1"
             >
-              <option value="DRAFT">Draft</option>
-              <option value="SCHEDULED">Scheduled</option>
-              <option value="ACTIVE">Active</option>
-              <option value="ENDED">Ended</option>
+              {FLASH_SALE_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {t(`status.${status}`)}
+                </option>
+              ))}
             </select>
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setStatusTarget(null)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button
               variant="default"
               onClick={handleStatusChange}
               disabled={updateStatus.isPending}
             >
-              {updateStatus.isPending ? 'Saving...' : 'Update Status'}
+              {updateStatus.isPending ? tCommon('saving') : t('updateStatus')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -343,19 +349,20 @@ export default function FlashSalesPage() {
       <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Flash Sale</DialogTitle>
+            <DialogTitle>{t('deleteTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete <strong>{deleteTarget?.name}</strong>? This action
-            cannot be undone. Note: Backend does not have a delete endpoint; consider setting status
-            to ENDED instead.
+            {t.rich('deleteConfirm', {
+              name: deleteTarget?.name ?? '',
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled>
-              Delete
+              {tCommon('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

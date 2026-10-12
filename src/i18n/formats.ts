@@ -34,5 +34,13 @@ export const FORMATS = {
       hour: '2-digit',
       minute: '2-digit',
     },
+    /** Compact all-numeric date and time for dense tables (admin): `12/10/2026, 17.00`. */
+    numeric: {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    },
   },
 } satisfies Formats;

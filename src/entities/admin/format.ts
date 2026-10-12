@@ -1,61 +1,20 @@
 /**
- * Formatting helpers used across admin pages.
+ * Admin display helpers that are not plain formatting: status labels, voucher values and the
+ * voucher activity rule. Currency/date formatting lives in `useAdminFormat()` (next-intl).
  */
+import type { useFormatter, useTranslations } from 'next-intl';
+
 import type { AdminOrderStatus, AdminVoucher } from './types';
 
-export function formatCurrency(amount: number, currency: string = 'IDR'): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
+/** The `admin` translator (`useTranslations('admin')`). */
+export type AdminTranslator = ReturnType<typeof useTranslations<'admin'>>;
 
-export function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+type Formatter = ReturnType<typeof useFormatter>;
 
-export function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return formatDate(dateString);
-}
-
-/** Human label for an order status enum value. */
-export function orderStatusLabel(status: AdminOrderStatus): string {
-  switch (status) {
-    case 'PENDING_PAYMENT':
-      return 'Pending Payment';
-    case 'PAID':
-      return 'Paid';
-    case 'PACKED':
-      return 'Packed';
-    case 'SHIPPED':
-      return 'Shipped';
-    case 'OUT_FOR_DELIVERY':
-      return 'Out for Delivery';
-    case 'DELIVERED':
-      return 'Delivered';
-    case 'CANCELLED':
-      return 'Cancelled';
-    default:
-      return status;
-  }
+/** Localized label of an order status (`admin.status.<STATUS>`); unknown values pass through. */
+export function orderStatusLabel(t: AdminTranslator, status: AdminOrderStatus): string {
+  const key = `status.${status}` as const;
+  return t.has(key) ? t(key) : status;
 }
 
 export const ADMIN_ORDER_STATUSES: AdminOrderStatus[] = [
@@ -68,13 +27,19 @@ export const ADMIN_ORDER_STATUSES: AdminOrderStatus[] = [
   'CANCELLED',
 ];
 
-/** Discount display string for a voucher, percent or fixed. */
-export function voucherValueLabel(voucher: AdminVoucher): string {
+/**
+ * Discount display string for a voucher in the active locale: `admin.voucher.percentValue`
+ * (`12,5%` / `12.5%`) for percent vouchers, the currency amount for fixed ones.
+ */
+export function voucherValueLabel(
+  t: AdminTranslator,
+  format: Formatter,
+  voucher: AdminVoucher,
+): string {
   if (voucher.kind === 'percent') {
-    const bps = voucher.percentBps ?? 0;
-    return `${bps / 100}%`;
+    return t('voucher.percentValue', { value: (voucher.percentBps ?? 0) / 100 });
   }
-  return formatCurrency(voucher.value);
+  return format.number(voucher.value, 'currency');
 }
 
 /** A voucher is active when it is inside its validity window and has usage left. */

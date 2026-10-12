@@ -1,14 +1,19 @@
 'use client';
 
-import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight, Filter, X, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminError, AdminLoading } from '@/components/admin/admin-ui';
 import { useAdminAuditLogs } from '@/entities/admin/hooks';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { FORMATS } from '@/i18n/formats';
 import { cn } from '@/lib/utils';
 
 export default function AuditLogsPage() {
+  const t = useTranslations('admin.auditLogs');
+  const tCommon = useTranslations('admin.common');
+  const { format } = useAdminFormat();
   const [page, setPage] = useState(1);
   const [limit] = useState(25);
   const [actionFilter, setActionFilter] = useState('');
@@ -40,10 +45,15 @@ export default function AuditLogsPage() {
   const totalPages = data ? Math.ceil(data.pagination.totalItems / limit) : 0;
   const logs = data?.data ?? [];
 
+  const actorLabel = (kind: string) => {
+    const key = `actor.${kind}`;
+    return t.has(key as never) ? t(key as never) : kind;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Audit Logs</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
         <div className="flex items-center gap-2">
           {hasFilters && (
             <button
@@ -51,18 +61,19 @@ export default function AuditLogsPage() {
               className="text-sm text-muted-foreground hover:text-foreground"
             >
               <X className="mr-1 h-4 w-4" />
-              Clear filters
+              {t('clearFilters')}
             </button>
           )}
         </div>
       </div>
 
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" aria-label="Filters">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" aria-label={t('filters')}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Action contains…"
+            placeholder={t('actionPlaceholder')}
+            aria-label={t('actionPlaceholder')}
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleFilter()}
@@ -73,7 +84,8 @@ export default function AuditLogsPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Resource type…"
+            placeholder={t('resourcePlaceholder')}
+            aria-label={t('resourcePlaceholder')}
             value={resourceTypeFilter}
             onChange={(e) => setResourceTypeFilter(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleFilter()}
@@ -84,6 +96,7 @@ export default function AuditLogsPage() {
           <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="datetime-local"
+            aria-label={t('startDate')}
             value={startDateFilter}
             onChange={(e) => setStartDateFilter(e.target.value)}
             className="w-full rounded-md border bg-background py-2 pl-10 pr-4 text-sm"
@@ -93,6 +106,7 @@ export default function AuditLogsPage() {
           <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="datetime-local"
+            aria-label={t('endDate')}
             value={endDateFilter}
             onChange={(e) => setEndDateFilter(e.target.value)}
             className="w-full rounded-md border bg-background py-2 pl-10 pr-4 text-sm"
@@ -106,28 +120,28 @@ export default function AuditLogsPage() {
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  ID
+                  {t('columns.id')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  Actor
+                  {t('columns.actor')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  Action
+                  {t('columns.action')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  Resource
+                  {t('columns.resource')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  Method
+                  {t('columns.method')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  Status
+                  {tCommon('status')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  IP
+                  {t('columns.ip')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
-                  Created
+                  {t('columns.created')}
                 </th>
               </tr>
             </thead>
@@ -147,7 +161,7 @@ export default function AuditLogsPage() {
               ) : logs.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
-                    No audit logs found.
+                    {t('empty')}
                   </td>
                 </tr>
               ) : (
@@ -169,7 +183,7 @@ export default function AuditLogsPage() {
                               'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
                           )}
                         >
-                          {log.actorKind}
+                          {actorLabel(log.actorKind)}
                         </span>
                         {log.userId && (
                           <span className="font-mono text-xs text-muted-foreground">
@@ -219,7 +233,11 @@ export default function AuditLogsPage() {
                       {log.ipAddress ?? '—'}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                      {log.createdAt && format(new Date(log.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+                      {log.createdAt &&
+                        format.dateTime(new Date(log.createdAt), {
+                          ...FORMATS.dateTime.numeric,
+                          second: '2-digit',
+                        })}
                     </td>
                   </tr>
                 ))
@@ -231,14 +249,18 @@ export default function AuditLogsPage() {
         {data && totalPages > 1 && (
           <div className="flex items-center justify-between border-t px-4 py-3">
             <p className="text-sm text-muted-foreground">
-              Page {page} of {totalPages} — {data.pagination.totalItems} total
+              {t('pageSummary', {
+                page,
+                total: totalPages,
+                count: data.pagination.totalItems,
+              })}
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1 || isLoading}
                 className="rounded-md p-2 hover:bg-muted disabled:opacity-50"
-                aria-label="Previous page"
+                aria-label={t('previousPage')}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -246,7 +268,7 @@ export default function AuditLogsPage() {
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages || isLoading}
                 className="rounded-md p-2 hover:bg-muted disabled:opacity-50"
-                aria-label="Next page"
+                aria-label={t('nextPage')}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>

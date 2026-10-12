@@ -3,6 +3,7 @@
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { notFound, useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { ProductForm, productToFormValues } from '@/components/admin/product-form';
@@ -16,6 +17,8 @@ export default function EditProductPage() {
   const params = useParams<{ id: string }>();
   const productId = typeof params.id === 'string' ? params.id : undefined;
   const router = useRouter();
+  const t = useTranslations('admin.products');
+  const tCommon = useTranslations('admin.common');
   const { toast } = useToast();
 
   const query = useAdminProduct(productId);
@@ -25,12 +28,12 @@ export default function EditProductPage() {
     if (!productId) return;
     try {
       await updateProduct.mutateAsync({ id: productId, data: input });
-      toast({ title: 'Product updated', description: input.title, variant: 'success' });
+      toast({ title: t('toast.updated'), description: input.title, variant: 'success' });
       router.push('/admin/products' as never);
     } catch (error) {
       toast({
-        title: 'Could not update product',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.updateFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -44,18 +47,18 @@ export default function EditProductPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={'/admin/products' as never} aria-label="Back to products">
+          <Link href={'/admin/products' as never} aria-label={t('back')}>
             <ChevronLeft className="h-4 w-4" />
           </Link>
         </Button>
         <AdminPageHeader
-          title="Edit Product"
-          description={query.data ? query.data.title : 'Update product details'}
+          title={t('edit.title')}
+          description={query.data ? query.data.title : t('edit.description')}
         />
       </div>
 
       {query.isLoading ? (
-        <AdminLoading label="Loading product..." />
+        <AdminLoading label={t('edit.loading')} />
       ) : query.isError ? (
         <AdminError error={query.error} onRetry={() => void query.refetch()} />
       ) : query.data ? (
@@ -63,7 +66,7 @@ export default function EditProductPage() {
           // Remount when the loaded product changes so form state is seeded once.
           key={query.data.id}
           initialValues={productToFormValues(query.data)}
-          submitLabel="Save Changes"
+          submitLabel={t('edit.submit')}
           saving={updateProduct.isPending}
           onSubmit={handleSubmit}
           onError={(message) => toast({ title: message, variant: 'destructive' })}

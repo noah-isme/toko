@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar, DollarSign, Edit, Percent, Plus, Search, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import {
@@ -37,7 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatCurrency, isVoucherActive, voucherValueLabel } from '@/entities/admin/format';
+import { isVoucherActive, voucherValueLabel } from '@/entities/admin/format';
 import {
   useAdminVouchers,
   useAdminVoucherStats,
@@ -46,6 +47,7 @@ import {
   useUpdateAdminVoucher,
 } from '@/entities/admin/hooks';
 import type { AdminVoucher, AdminVoucherInput, AdminVoucherKind } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
@@ -128,6 +130,10 @@ function voucherToForm(voucher: AdminVoucher): VoucherForm {
 }
 
 export default function VouchersPage() {
+  const t = useTranslations('admin.vouchers');
+  const tAdmin = useTranslations('admin');
+  const tCommon = useTranslations('admin.common');
+  const { format, currency, day } = useAdminFormat();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
@@ -168,23 +174,23 @@ export default function VouchersPage() {
   const handleSave = async () => {
     const payload = formToPayload(form);
     if (!payload.code) {
-      toast({ title: 'Code is required', variant: 'destructive' });
+      toast({ title: t('toast.codeRequired'), variant: 'destructive' });
       return;
     }
     try {
       if (editing) {
         await updateVoucher.mutateAsync({ code: editing.code, data: payload });
-        toast({ title: 'Voucher updated', description: payload.code, variant: 'success' });
+        toast({ title: t('toast.updated'), description: payload.code, variant: 'success' });
       } else {
         await createVoucher.mutateAsync(payload);
-        toast({ title: 'Voucher created', description: payload.code, variant: 'success' });
+        toast({ title: t('toast.created'), description: payload.code, variant: 'success' });
       }
       setDialogOpen(false);
       setEditing(null);
     } catch (error) {
       toast({
-        title: 'Could not save voucher',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.saveFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -194,12 +200,12 @@ export default function VouchersPage() {
     if (!deleteTarget) return;
     try {
       await deleteVoucher.mutateAsync(deleteTarget.code);
-      toast({ title: 'Voucher deleted', description: deleteTarget.code, variant: 'success' });
+      toast({ title: t('toast.deleted'), description: deleteTarget.code, variant: 'success' });
       setDeleteTarget(null);
     } catch (error) {
       toast({
-        title: 'Could not delete voucher',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.deleteFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -208,12 +214,12 @@ export default function VouchersPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Vouchers"
-        description="Manage discount codes and promotions"
+        title={t('title')}
+        description={t('description')}
         actions={
           <Button onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Create Voucher
+            {t('create')}
           </Button>
         }
       />
@@ -223,21 +229,23 @@ export default function VouchersPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Vouchers
+                {t('stats.total')}
               </CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-bold">{stats.data.totalVouchers}</CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {t('stats.active')}
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-bold">{stats.data.activeVouchers}</CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Redemptions
+                {t('stats.redemptions')}
               </CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-bold">{stats.data.totalUsage}</CardContent>
@@ -248,7 +256,7 @@ export default function VouchersPage() {
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>
-            All Vouchers
+            {t('all')}
             {totalItems > 0 ? (
               <span className="ml-2 text-sm font-normal text-muted-foreground">({totalItems})</span>
             ) : null}
@@ -259,28 +267,28 @@ export default function VouchersPage() {
               aria-hidden="true"
             />
             <Input
-              placeholder="Search vouchers..."
+              placeholder={t('searchPlaceholder')}
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
                 setPage(1);
               }}
               className="pl-10"
-              aria-label="Search vouchers"
+              aria-label={t('searchLabel')}
             />
           </div>
         </CardHeader>
         <CardContent>
           {query.isLoading ? (
-            <AdminLoading label="Loading vouchers..." />
+            <AdminLoading label={t('loading')} />
           ) : query.isError ? (
             <AdminError error={query.error} onRetry={() => void query.refetch()} />
           ) : vouchers.length === 0 ? (
             <AdminEmpty
-              message={debouncedSearch ? 'No vouchers match your search.' : 'No vouchers yet.'}
+              message={debouncedSearch ? t('noMatches') : t('empty')}
               action={
                 <Button size="sm" onClick={openCreate}>
-                  Create Voucher
+                  {t('create')}
                 </Button>
               }
             />
@@ -290,14 +298,14 @@ export default function VouchersPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Kind</TableHead>
-                      <TableHead className="text-right">Value</TableHead>
-                      <TableHead className="text-right">Min Spend</TableHead>
-                      <TableHead>Usage</TableHead>
-                      <TableHead>Period</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t('columns.code')}</TableHead>
+                      <TableHead>{t('columns.kind')}</TableHead>
+                      <TableHead className="text-right">{t('columns.value')}</TableHead>
+                      <TableHead className="text-right">{t('columns.minSpend')}</TableHead>
+                      <TableHead>{t('columns.usage')}</TableHead>
+                      <TableHead>{t('columns.period')}</TableHead>
+                      <TableHead>{tCommon('status')}</TableHead>
+                      <TableHead className="text-right">{tCommon('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -318,14 +326,14 @@ export default function VouchersPage() {
                             ) : (
                               <DollarSign className="mr-1 h-3 w-3" aria-hidden="true" />
                             )}
-                            {voucher.kind === 'percent' ? 'Percent' : 'Fixed'}
+                            {tAdmin(`voucher.kind.${voucher.kind}`)}
                           </span>
                         </TableCell>
                         <TableCell className="text-right font-mono">
-                          {voucherValueLabel(voucher)}
+                          {voucherValueLabel(tAdmin, format, voucher)}
                         </TableCell>
                         <TableCell className="text-right font-mono">
-                          {voucher.minSpend > 0 ? formatCurrency(voucher.minSpend) : '-'}
+                          {voucher.minSpend > 0 ? currency(voucher.minSpend) : '-'}
                         </TableCell>
                         <TableCell>
                           {voucher.usageLimit == null ? (
@@ -356,17 +364,13 @@ export default function VouchersPage() {
                                 aria-hidden="true"
                               />
                               <span>
-                                {voucher.validFrom
-                                  ? new Date(voucher.validFrom).toLocaleDateString('id-ID')
-                                  : '...'}
+                                {voucher.validFrom ? day(voucher.validFrom) : t('openEnded')}
                                 {' - '}
-                                {voucher.validTo
-                                  ? new Date(voucher.validTo).toLocaleDateString('id-ID')
-                                  : '...'}
+                                {voucher.validTo ? day(voucher.validTo) : t('openEnded')}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-sm text-muted-foreground">Always</span>
+                            <span className="text-sm text-muted-foreground">{t('always')}</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -377,7 +381,7 @@ export default function VouchersPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={`Edit ${voucher.code}`}
+                              aria-label={t('editCode', { code: voucher.code })}
                               onClick={() => openEdit(voucher)}
                             >
                               <Edit className="h-4 w-4" />
@@ -386,7 +390,7 @@ export default function VouchersPage() {
                               variant="ghost"
                               size="icon"
                               className="text-red-600"
-                              aria-label={`Delete ${voucher.code}`}
+                              aria-label={t('deleteCode', { code: voucher.code })}
                               onClick={() => setDeleteTarget(voucher)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -402,7 +406,7 @@ export default function VouchersPage() {
               {totalPages > 1 ? (
                 <div className="mt-4 flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
+                    {tCommon('pageOf', { page, total: totalPages })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -411,7 +415,7 @@ export default function VouchersPage() {
                       disabled={page <= 1}
                       onClick={() => setPage((current) => Math.max(1, current - 1))}
                     >
-                      Previous
+                      {tCommon('previous')}
                     </Button>
                     <Button
                       variant="outline"
@@ -419,7 +423,7 @@ export default function VouchersPage() {
                       disabled={page >= totalPages}
                       onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     >
-                      Next
+                      {tCommon('next')}
                     </Button>
                   </div>
                 </div>
@@ -438,11 +442,11 @@ export default function VouchersPage() {
       >
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editing ? 'Edit Voucher' : 'Create Voucher'}</DialogTitle>
+            <DialogTitle>{editing ? t('edit') : t('create')}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="voucher-code">Code</Label>
+              <Label htmlFor="voucher-code">{t('form.code')}</Label>
               <Input
                 id="voucher-code"
                 value={form.code}
@@ -453,11 +457,11 @@ export default function VouchersPage() {
                 placeholder="WELCOME10"
               />
               {editing ? (
-                <p className="text-xs text-muted-foreground">Code cannot be changed.</p>
+                <p className="text-xs text-muted-foreground">{t('form.codeLocked')}</p>
               ) : null}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="voucher-kind">Kind</Label>
+              <Label htmlFor="voucher-kind">{t('form.kind')}</Label>
               <Select
                 value={form.kind}
                 onValueChange={(value) =>
@@ -468,14 +472,14 @@ export default function VouchersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="percent">Percentage (%)</SelectItem>
-                  <SelectItem value="fixed_amount">Fixed Amount (Rp)</SelectItem>
+                  <SelectItem value="percent">{t('form.kindPercent')}</SelectItem>
+                  <SelectItem value="fixed_amount">{t('form.kindFixed')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="voucher-amount">
-                {form.kind === 'percent' ? 'Percent off' : 'Discount amount (Rp)'}
+                {form.kind === 'percent' ? t('form.percentOff') : t('form.amountOff')}
               </Label>
               <Input
                 id="voucher-amount"
@@ -488,7 +492,7 @@ export default function VouchersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="voucher-min-spend">Min Spend (Rp)</Label>
+              <Label htmlFor="voucher-min-spend">{t('form.minSpend')}</Label>
               <Input
                 id="voucher-min-spend"
                 type="number"
@@ -500,7 +504,7 @@ export default function VouchersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="voucher-usage-limit">Usage Limit</Label>
+              <Label htmlFor="voucher-usage-limit">{t('form.usageLimit')}</Label>
               <Input
                 id="voucher-usage-limit"
                 type="number"
@@ -509,11 +513,11 @@ export default function VouchersPage() {
                 onChange={(event) =>
                   setForm((current) => ({ ...current, usageLimit: event.target.value }))
                 }
-                placeholder="Unlimited"
+                placeholder={t('form.unlimited')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="voucher-per-user">Per Customer Limit</Label>
+              <Label htmlFor="voucher-per-user">{t('form.perUserLimit')}</Label>
               <Input
                 id="voucher-per-user"
                 type="number"
@@ -522,11 +526,11 @@ export default function VouchersPage() {
                 onChange={(event) =>
                   setForm((current) => ({ ...current, perUserLimit: event.target.value }))
                 }
-                placeholder="Unlimited"
+                placeholder={t('form.unlimited')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="voucher-valid-from">Valid From</Label>
+              <Label htmlFor="voucher-valid-from">{t('form.validFrom')}</Label>
               <Input
                 id="voucher-valid-from"
                 type="datetime-local"
@@ -537,7 +541,7 @@ export default function VouchersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="voucher-valid-to">Valid To</Label>
+              <Label htmlFor="voucher-valid-to">{t('form.validTo')}</Label>
               <Input
                 id="voucher-valid-to"
                 type="datetime-local"
@@ -548,7 +552,7 @@ export default function VouchersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="voucher-priority">Priority</Label>
+              <Label htmlFor="voucher-priority">{t('form.priority')}</Label>
               <Input
                 id="voucher-priority"
                 type="number"
@@ -557,9 +561,7 @@ export default function VouchersPage() {
                   setForm((current) => ({ ...current, priority: Number(event.target.value) }))
                 }
               />
-              <p className="text-xs text-muted-foreground">
-                Higher priority wins when several vouchers match.
-              </p>
+              <p className="text-xs text-muted-foreground">{t('form.priorityHint')}</p>
             </div>
             <div className="flex items-center gap-2 self-end">
               <Checkbox
@@ -569,15 +571,15 @@ export default function VouchersPage() {
                   setForm((current) => ({ ...current, combinable: checked === true }))
                 }
               />
-              <Label htmlFor="voucher-combinable">Combinable with other vouchers</Label>
+              <Label htmlFor="voucher-combinable">{t('form.combinable')}</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
+              {saving ? tCommon('saving') : editing ? t('form.update') : t('form.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -586,18 +588,20 @@ export default function VouchersPage() {
       <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Voucher</DialogTitle>
+            <DialogTitle>{t('deleteTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Delete <strong>{deleteTarget?.code}</strong>? Orders that already used it keep their
-            discount.
+            {t.rich('deleteConfirm', {
+              code: deleteTarget?.code ?? '',
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleteVoucher.isPending}>
-              {deleteVoucher.isPending ? 'Deleting...' : 'Delete'}
+              {deleteVoucher.isPending ? tCommon('deleting') : tCommon('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

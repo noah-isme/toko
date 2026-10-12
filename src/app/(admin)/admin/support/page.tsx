@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -12,6 +13,7 @@ import {
   useUpdateAdminTicket,
 } from '@/entities/admin/hooks';
 import type { TicketStatus } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 
 const statuses: TicketStatus[] = [
   'OPEN',
@@ -22,14 +24,16 @@ const statuses: TicketStatus[] = [
 ];
 
 function TicketMessages({ ticketId }: { ticketId: string }) {
+  const t = useTranslations('admin.support');
+  const { date } = useAdminFormat();
   const { data: messages = [] } = useAdminTicketMessages(ticketId);
   return (
     <div className="space-y-2 rounded-md bg-muted/40 p-3">
       {messages.map((entry) => (
         <div key={entry.id} className="rounded-md border bg-background p-3 text-sm">
           <p className="mb-1 text-xs text-muted-foreground">
-            {entry.authorType === 'customer' ? 'Customer' : 'Agent'} •{' '}
-            {new Date(entry.createdAt).toLocaleString()}
+            {entry.authorType === 'customer' ? t('author.customer') : t('author.agent')} •{' '}
+            {date(entry.createdAt)}
           </p>
           <p className="whitespace-pre-wrap">{entry.message}</p>
         </div>
@@ -39,6 +43,7 @@ function TicketMessages({ ticketId }: { ticketId: string }) {
 }
 
 export default function AdminSupportPage() {
+  const t = useTranslations('admin.support');
   const ticketsQuery = useAdminTickets();
   const updateTicket = useUpdateAdminTicket();
   const sendMessage = useSendAdminTicketMessage();
@@ -50,7 +55,7 @@ export default function AdminSupportPage() {
     try {
       await updateTicket.mutateAsync({ id, status });
     } catch {
-      setError('Gagal memperbarui tiket.');
+      setError(t('updateFailed'));
     }
   };
 
@@ -61,20 +66,20 @@ export default function AdminSupportPage() {
       await sendMessage.mutateAsync({ id, message: text });
       setReply((value) => ({ ...value, [id]: '' }));
     } catch {
-      setError('Gagal mengirim balasan.');
+      setError(t('sendFailed'));
     }
   };
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Support" description="Respond to customer support tickets" />
+      <AdminPageHeader title={t('title')} description={t('description')} />
       {error && <p className="text-sm text-destructive">{error}</p>}
       {ticketsQuery.isPending ? (
         <AdminLoading />
       ) : ticketsQuery.isError ? (
         <AdminError error={ticketsQuery.error} onRetry={() => void ticketsQuery.refetch()} />
       ) : items.length === 0 ? (
-        <AdminEmpty message="No support tickets." />
+        <AdminEmpty message={t('empty')} />
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
@@ -84,17 +89,20 @@ export default function AdminSupportPage() {
                   <div>
                     <p className="font-medium">{item.subject}</p>
                     <p className="text-xs text-muted-foreground">
-                      {item.priority} • {item.status}
-                      {item.orderId ? ` • Order ${item.orderId}` : ''}
+                      {t(`priority.${item.priority}`)} • {t(`status.${item.status}`)}
+                      {item.orderId ? ` • ${t('order', { orderId: item.orderId })}` : ''}
                     </p>
                   </div>
                   <select
                     value={item.status}
                     onChange={(event) => void update(item.id, event.target.value as TicketStatus)}
                     className="rounded-md border bg-background px-2 py-1 text-sm"
+                    aria-label={t('statusLabel', { subject: item.subject })}
                   >
                     {statuses.map((status) => (
-                      <option key={status}>{status}</option>
+                      <option key={status} value={status}>
+                        {t(`status.${status}`)}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -106,10 +114,10 @@ export default function AdminSupportPage() {
                       setReply((value) => ({ ...value, [item.id]: event.target.value }))
                     }
                     className="flex-1 rounded-md border bg-background px-3 py-2 text-sm"
-                    placeholder="Reply to customer"
+                    placeholder={t('replyPlaceholder')}
                   />
                   <Button size="sm" onClick={() => void send(item.id)}>
-                    Send
+                    {t('send')}
                   </Button>
                 </div>
               </CardContent>

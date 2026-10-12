@@ -8,6 +8,7 @@
 'use client';
 
 import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -113,7 +114,15 @@ export function productToFormValues(product: AdminProductDetail): ProductFormVal
   };
 }
 
-/** Throws when a variant carries unparseable JSON attributes. */
+/** A variant (1-based `index`) carries attributes that are not a JSON object. */
+export class VariantAttributesError extends Error {
+  constructor(readonly index: number) {
+    super(`Variant ${index}: attributes must be a JSON object`);
+    this.name = 'VariantAttributesError';
+  }
+}
+
+/** Throws `VariantAttributesError` when a variant carries unparseable JSON attributes. */
 export function formValuesToInput(values: ProductFormValues): AdminProductInput {
   const variants: AdminProductVariantInput[] = values.variants.map((variant, index) => {
     let attributes: Record<string, unknown> = {};
@@ -126,7 +135,7 @@ export function formValuesToInput(values: ProductFormValues): AdminProductInput 
         }
         attributes = parsed as Record<string, unknown>;
       } catch {
-        throw new Error(`Variant ${index + 1}: attributes must be a JSON object`);
+        throw new VariantAttributesError(index + 1);
       }
     }
     return {
@@ -177,6 +186,8 @@ export function ProductForm({
   onError,
   onCancel,
 }: ProductFormProps) {
+  const t = useTranslations('admin.productForm');
+  const tCommon = useTranslations('admin.common');
   const [values, setValues] = useState<ProductFormValues>(initialValues ?? EMPTY_VALUES);
   // Once the slug is hand-edited, stop deriving it from the title.
   const [slugTouched, setSlugTouched] = useState(Boolean(initialValues?.slug));
@@ -191,14 +202,18 @@ export function ProductForm({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!values.title.trim()) {
-      onError('Title is required');
+      onError(t('errors.titleRequired'));
       return;
     }
     let input: AdminProductInput;
     try {
       input = formValuesToInput(values);
     } catch (error) {
-      onError(error instanceof Error ? error.message : 'Invalid form values');
+      onError(
+        error instanceof VariantAttributesError
+          ? t('errors.variantAttributes', { index: error.index })
+          : t('errors.invalid'),
+      );
       return;
     }
     await onSubmit(input);
@@ -208,12 +223,12 @@ export function ProductForm({
     <form onSubmit={handleSubmit} className="space-y-6" data-testid="product-form">
       <Card>
         <CardHeader>
-          <CardTitle>Basics</CardTitle>
+          <CardTitle>{t('basics')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="product-title">Title</Label>
+              <Label htmlFor="product-title">{t('title')}</Label>
               <Input
                 id="product-title"
                 data-testid="product-form-title"
@@ -226,12 +241,12 @@ export function ProductForm({
                     slug: slugTouched ? current.slug : slugify(title),
                   }));
                 }}
-                placeholder="Product name"
+                placeholder={t('titlePlaceholder')}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-slug">Slug</Label>
+              <Label htmlFor="product-slug">{t('slug')}</Label>
               <Input
                 id="product-slug"
                 data-testid="product-form-slug"
@@ -240,11 +255,11 @@ export function ProductForm({
                   setSlugTouched(true);
                   update('slug', event.target.value);
                 }}
-                placeholder="product-slug"
+                placeholder={t('slugPlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-price">Price (Rp)</Label>
+              <Label htmlFor="product-price">{t('price')}</Label>
               <Input
                 id="product-price"
                 data-testid="product-form-price"
@@ -256,7 +271,7 @@ export function ProductForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-compare-at">Compare-at price (Rp)</Label>
+              <Label htmlFor="product-compare-at">{t('compareAt')}</Label>
               <Input
                 id="product-compare-at"
                 data-testid="product-form-compare-at"
@@ -264,23 +279,21 @@ export function ProductForm({
                 min={0}
                 value={values.compareAt}
                 onChange={(event) => update('compareAt', event.target.value)}
-                placeholder="Optional"
+                placeholder={t('optional')}
               />
-              <p className="text-xs text-muted-foreground">
-                Shown struck through when higher than the price.
-              </p>
+              <p className="text-xs text-muted-foreground">{t('compareAtHint')}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-category">Category</Label>
+              <Label htmlFor="product-category">{t('category')}</Label>
               <Select
                 value={values.categoryId}
                 onValueChange={(value) => update('categoryId', value)}
               >
                 <SelectTrigger id="product-category" data-testid="product-form-category">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t('selectCategory')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>No category</SelectItem>
+                  <SelectItem value={NONE}>{t('noCategory')}</SelectItem>
                   {(categories.data ?? []).map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
@@ -290,13 +303,13 @@ export function ProductForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-brand">Brand</Label>
+              <Label htmlFor="product-brand">{t('brand')}</Label>
               <Select value={values.brandId} onValueChange={(value) => update('brandId', value)}>
                 <SelectTrigger id="product-brand" data-testid="product-form-brand">
-                  <SelectValue placeholder="Select brand" />
+                  <SelectValue placeholder={t('selectBrand')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>No brand</SelectItem>
+                  <SelectItem value={NONE}>{t('noBrand')}</SelectItem>
                   {(brands.data ?? []).map((brand) => (
                     <SelectItem key={brand.id} value={brand.id}>
                       {brand.name}
@@ -306,7 +319,7 @@ export function ProductForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-thumbnail">Thumbnail URL</Label>
+              <Label htmlFor="product-thumbnail">{t('thumbnail')}</Label>
               <Input
                 id="product-thumbnail"
                 data-testid="product-form-thumbnail"
@@ -316,7 +329,7 @@ export function ProductForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="product-badges">Badges</Label>
+              <Label htmlFor="product-badges">{t('badges')}</Label>
               <Input
                 id="product-badges"
                 data-testid="product-form-badges"
@@ -324,7 +337,7 @@ export function ProductForm({
                 onChange={(event) => update('badges', event.target.value)}
                 placeholder="new, bestseller"
               />
-              <p className="text-xs text-muted-foreground">Comma separated.</p>
+              <p className="text-xs text-muted-foreground">{t('badgesHint')}</p>
             </div>
           </div>
 
@@ -335,18 +348,18 @@ export function ProductForm({
               checked={values.inStock}
               onCheckedChange={(checked) => update('inStock', checked)}
             />
-            <Label htmlFor="product-in-stock">In stock</Label>
+            <Label htmlFor="product-in-stock">{t('inStock')}</Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="product-description">Description</Label>
+            <Label htmlFor="product-description">{t('description')}</Label>
             <Textarea
               id="product-description"
               data-testid="product-form-description"
               value={values.description}
               onChange={(event) => update('description', event.target.value)}
               rows={5}
-              placeholder="Product description..."
+              placeholder={t('descriptionPlaceholder')}
             />
           </div>
         </CardContent>
@@ -354,7 +367,7 @@ export function ProductForm({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Images</CardTitle>
+          <CardTitle>{t('images')}</CardTitle>
           <Button
             type="button"
             variant="outline"
@@ -362,12 +375,12 @@ export function ProductForm({
             onClick={() => update('images', [...values.images, ''])}
           >
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add image
+            {t('addImage')}
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {values.images.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No gallery images.</p>
+            <p className="text-sm text-muted-foreground">{t('noImages')}</p>
           ) : (
             values.images.map((url, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -379,13 +392,13 @@ export function ProductForm({
                     update('images', next);
                   }}
                   placeholder="https://..."
-                  aria-label={`Image URL ${index + 1}`}
+                  aria-label={t('imageUrl', { index: index + 1 })}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  aria-label={`Remove image ${index + 1}`}
+                  aria-label={t('removeImage', { index: index + 1 })}
                   onClick={() =>
                     update(
                       'images',
@@ -403,7 +416,7 @@ export function ProductForm({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Specifications</CardTitle>
+          <CardTitle>{t('specs')}</CardTitle>
           <Button
             type="button"
             variant="outline"
@@ -411,12 +424,12 @@ export function ProductForm({
             onClick={() => update('specs', [...values.specs, { key: '', value: '' }])}
           >
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add spec
+            {t('addSpec')}
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {values.specs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No specifications.</p>
+            <p className="text-sm text-muted-foreground">{t('noSpecs')}</p>
           ) : (
             values.specs.map((spec, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -427,8 +440,8 @@ export function ProductForm({
                     next[index] = { ...spec, key: event.target.value };
                     update('specs', next);
                   }}
-                  placeholder="Weight"
-                  aria-label={`Spec name ${index + 1}`}
+                  placeholder={t('specNamePlaceholder')}
+                  aria-label={t('specName', { index: index + 1 })}
                 />
                 <Input
                   value={spec.value}
@@ -438,13 +451,13 @@ export function ProductForm({
                     update('specs', next);
                   }}
                   placeholder="1.2 kg"
-                  aria-label={`Spec value ${index + 1}`}
+                  aria-label={t('specValue', { index: index + 1 })}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  aria-label={`Remove spec ${index + 1}`}
+                  aria-label={t('removeSpec', { index: index + 1 })}
                   onClick={() =>
                     update(
                       'specs',
@@ -462,7 +475,7 @@ export function ProductForm({
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Variants</CardTitle>
+          <CardTitle>{t('variants')}</CardTitle>
           <Button
             type="button"
             variant="outline"
@@ -475,24 +488,22 @@ export function ProductForm({
             }
           >
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add variant
+            {t('addVariant')}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
           {values.variants.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No variants. Stock is tracked per variant, so add at least one to sell this product.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('noVariants')}</p>
           ) : (
             values.variants.map((variant, index) => (
               <div key={variant.id ?? `new-${index}`} className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-medium">Variant {index + 1}</p>
+                  <p className="text-sm font-medium">{t('variant', { index: index + 1 })}</p>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    aria-label={`Remove variant ${index + 1}`}
+                    aria-label={t('removeVariant', { index: index + 1 })}
                     onClick={() =>
                       update(
                         'variants',
@@ -505,7 +516,7 @@ export function ProductForm({
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor={`variant-sku-${index}`}>SKU</Label>
+                    <Label htmlFor={`variant-sku-${index}`}>{t('sku')}</Label>
                     <Input
                       id={`variant-sku-${index}`}
                       value={variant.sku}
@@ -518,7 +529,7 @@ export function ProductForm({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor={`variant-price-${index}`}>Price (Rp)</Label>
+                    <Label htmlFor={`variant-price-${index}`}>{t('price')}</Label>
                     <Input
                       id={`variant-price-${index}`}
                       type="number"
@@ -532,7 +543,7 @@ export function ProductForm({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor={`variant-stock-${index}`}>Stock</Label>
+                    <Label htmlFor={`variant-stock-${index}`}>{t('stock')}</Label>
                     <Input
                       id={`variant-stock-${index}`}
                       type="number"
@@ -546,7 +557,7 @@ export function ProductForm({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor={`variant-attributes-${index}`}>Attributes (JSON)</Label>
+                    <Label htmlFor={`variant-attributes-${index}`}>{t('attributes')}</Label>
                     <Input
                       id={`variant-attributes-${index}`}
                       value={variant.attributes}
@@ -576,7 +587,7 @@ export function ProductForm({
           {submitLabel}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>
-          Cancel
+          {tCommon('cancel')}
         </Button>
       </div>
     </form>

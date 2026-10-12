@@ -2186,5 +2186,677 @@
       "description": "Tinjau produk di keranjang belanja Anda sebelum melanjutkan ke pembayaran."
     }
   },
-  "admin": {}
+  "admin": {
+    "meta": {
+      "title": "Admin"
+    },
+    "shell": {
+      "brand": "toko admin",
+      "viewStore": "Lihat toko",
+      "signOut": "Keluar",
+      "openMenu": "Buka menu admin",
+      "navigation": "Navigasi admin"
+    },
+    "guard": {
+      "checking": "Memeriksa izin akses...",
+      "title": "Akses admin diperlukan",
+      "description": "Akun Anda tidak memiliki peran admin. Minta pemilik toko untuk memberikannya, lalu muat ulang halaman ini.",
+      "backToStore": "Kembali ke toko"
+    },
+    "nav": {
+      "label": "Bagian admin",
+      "items": {
+        "dashboard": "Dasbor",
+        "products": "Produk",
+        "inventory": "Inventaris",
+        "customers": "Pelanggan",
+        "categories": "Kategori",
+        "brands": "Merek",
+        "orders": "Pesanan",
+        "vouchers": "Voucher",
+        "flashSales": "Flash Sale",
+        "returns": "Retur",
+        "support": "Dukungan",
+        "analytics": "Analitik",
+        "webhooks": "Webhook",
+        "auditLogs": "Log Audit",
+        "settings": "Pengaturan"
+      }
+    },
+    "ui": {
+      "loading": "Memuat...",
+      "errorTitle": "Gagal memuat data",
+      "errorFallback": "Terjadi kesalahan.",
+      "retry": "Coba lagi",
+      "active": "Aktif",
+      "inactive": "Nonaktif"
+    },
+    "common": {
+      "unknownError": "Kesalahan tidak diketahui",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "saving": "Menyimpan...",
+      "delete": "Hapus",
+      "deleting": "Menghapus...",
+      "edit": "Ubah",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "pageOf": "Halaman {page} dari {total}",
+      "actions": "Aksi",
+      "status": "Status",
+      "guest": "Tamu"
+    },
+    "status": {
+      "PENDING_PAYMENT": "Menunggu Pembayaran",
+      "PAID": "Dibayar",
+      "PACKED": "Dikemas",
+      "SHIPPED": "Dikirim",
+      "OUT_FOR_DELIVERY": "Dalam Pengiriman",
+      "DELIVERED": "Diterima",
+      "CANCELLED": "Dibatalkan"
+    },
+    "time": {
+      "justNow": "Baru saja"
+    },
+    "notFound": {
+      "back": "Kembali ke dasbor admin"
+    },
+    "ranges": {
+      "7d": "7 hari terakhir",
+      "30d": "30 hari terakhir",
+      "90d": "90 hari terakhir",
+      "all": "Sepanjang waktu"
+    },
+    "dashboard": {
+      "title": "Dasbor",
+      "description": "Ringkasan performa toko Anda",
+      "loading": "Memuat dasbor...",
+      "dateRange": "Rentang tanggal",
+      "viewAllOrders": "Lihat Semua Pesanan",
+      "stats": {
+        "revenue": "Total Pendapatan",
+        "orders": "Pesanan",
+        "products": "Produk",
+        "customers": "Pelanggan",
+        "averageOrderValue": "Rata-rata Nilai Pesanan",
+        "pending": "Tertunda",
+        "shipped": "Dikirim",
+        "delivered": "Diterima"
+      },
+      "recentOrders": "Pesanan Terbaru",
+      "loadingOrders": "Memuat pesanan...",
+      "noOrders": "Belum ada pesanan.",
+      "topProducts": "Produk Terlaris",
+      "noSales": "Tidak ada penjualan pada periode ini.",
+      "unitsSold": "{count, number} terjual"
+    },
+    "products": {
+      "title": "Produk",
+      "description": "Kelola katalog produk Anda",
+      "add": "Tambah Produk",
+      "all": "Semua Produk",
+      "searchPlaceholder": "Cari produk...",
+      "searchLabel": "Cari produk",
+      "loading": "Memuat produk...",
+      "noMatches": "Tidak ada produk yang cocok dengan pencarian Anda.",
+      "empty": "Belum ada produk.",
+      "addFirst": "Tambahkan produk pertama Anda",
+      "columns": {
+        "product": "Produk",
+        "sku": "SKU",
+        "category": "Kategori",
+        "price": "Harga",
+        "stock": "Stok"
+      },
+      "units": "{count, number} unit",
+      "outOfStock": "Stok habis",
+      "updateStockFor": "Perbarui stok {title}",
+      "editProduct": "Ubah {title}",
+      "deleteProduct": "Hapus {title}",
+      "stockDialogTitle": "Perbarui Stok: {title}",
+      "stockQuantity": "Jumlah stok",
+      "deleteDialogTitle": "Hapus Produk",
+      "deleteConfirm": "Yakin ingin menghapus <strong>{title}</strong>? Tindakan ini tidak dapat dibatalkan.",
+      "toast": {
+        "stockUpdated": "Stok diperbarui",
+        "stockFailed": "Gagal memperbarui stok",
+        "deleted": "Produk dihapus",
+        "deleteFailed": "Gagal menghapus produk",
+        "created": "Produk dibuat",
+        "createFailed": "Gagal membuat produk",
+        "updated": "Produk diperbarui",
+        "updateFailed": "Gagal memperbarui produk"
+      },
+      "back": "Kembali ke produk",
+      "new": {
+        "title": "Produk Baru",
+        "description": "Tambahkan produk baru ke katalog Anda",
+        "submit": "Buat Produk"
+      },
+      "edit": {
+        "title": "Ubah Produk",
+        "description": "Perbarui detail produk",
+        "loading": "Memuat produk...",
+        "submit": "Simpan Perubahan"
+      }
+    },
+    "productForm": {
+      "basics": "Informasi Dasar",
+      "title": "Judul",
+      "titlePlaceholder": "Nama produk",
+      "slug": "Slug",
+      "slugPlaceholder": "slug-produk",
+      "price": "Harga (Rp)",
+      "compareAt": "Harga coret (Rp)",
+      "optional": "Opsional",
+      "compareAtHint": "Ditampilkan dicoret jika lebih tinggi dari harga.",
+      "category": "Kategori",
+      "selectCategory": "Pilih kategori",
+      "noCategory": "Tanpa kategori",
+      "brand": "Merek",
+      "selectBrand": "Pilih merek",
+      "noBrand": "Tanpa merek",
+      "thumbnail": "URL thumbnail",
+      "badges": "Lencana",
+      "badgesHint": "Pisahkan dengan koma.",
+      "inStock": "Tersedia",
+      "description": "Deskripsi",
+      "descriptionPlaceholder": "Deskripsi produk...",
+      "images": "Gambar",
+      "addImage": "Tambah gambar",
+      "noImages": "Belum ada gambar galeri.",
+      "imageUrl": "URL gambar {index}",
+      "removeImage": "Hapus gambar {index}",
+      "specs": "Spesifikasi",
+      "addSpec": "Tambah spesifikasi",
+      "noSpecs": "Belum ada spesifikasi.",
+      "specNamePlaceholder": "Berat",
+      "specName": "Nama spesifikasi {index}",
+      "specValue": "Nilai spesifikasi {index}",
+      "removeSpec": "Hapus spesifikasi {index}",
+      "variants": "Varian",
+      "addVariant": "Tambah varian",
+      "noVariants": "Belum ada varian. Stok dicatat per varian, jadi tambahkan minimal satu agar produk ini bisa dijual.",
+      "variant": "Varian {index}",
+      "removeVariant": "Hapus varian {index}",
+      "sku": "SKU",
+      "stock": "Stok",
+      "attributes": "Atribut (JSON)",
+      "errors": {
+        "titleRequired": "Judul wajib diisi",
+        "invalid": "Isian formulir tidak valid",
+        "variantAttributes": "Varian {index}: atribut harus berupa objek JSON"
+      }
+    },
+    "taxonomy": {
+      "name": "Nama",
+      "slug": "Slug",
+      "nameRequired": "Nama wajib diisi",
+      "productCount": "<strong>{count, number}</strong> produk",
+      "deleteFailedHint": "Masih dipakai oleh produk?",
+      "create": "Buat",
+      "update": "Perbarui",
+      "deleteConfirm": "Hapus <strong>{name}</strong>? Produk yang memakainya tetap ada, tetapi kehilangan keterkaitan ini.",
+      "categories": {
+        "title": "Kategori",
+        "description": "Kelola kategori produk",
+        "add": "Tambah Kategori",
+        "edit": "Ubah Kategori",
+        "delete": "Hapus Kategori",
+        "loading": "Memuat kategori...",
+        "empty": "Belum ada kategori.",
+        "namePlaceholder": "Nama kategori",
+        "slugPlaceholder": "slug-kategori",
+        "created": "Kategori dibuat",
+        "updated": "Kategori diperbarui",
+        "deleted": "Kategori dihapus",
+        "saveFailed": "Gagal menyimpan kategori",
+        "deleteFailed": "Gagal menghapus kategori"
+      },
+      "brands": {
+        "title": "Merek",
+        "description": "Kelola merek produk",
+        "add": "Tambah Merek",
+        "edit": "Ubah Merek",
+        "delete": "Hapus Merek",
+        "loading": "Memuat merek...",
+        "empty": "Belum ada merek.",
+        "namePlaceholder": "Nama merek",
+        "slugPlaceholder": "slug-merek",
+        "created": "Merek dibuat",
+        "updated": "Merek diperbarui",
+        "deleted": "Merek dihapus",
+        "saveFailed": "Gagal menyimpan merek",
+        "deleteFailed": "Gagal menghapus merek"
+      }
+    },
+    "orders": {
+      "title": "Pesanan",
+      "description": "Kelola dan lacak pesanan pelanggan",
+      "stats": {
+        "total": "Total Pesanan",
+        "revenue": "Pendapatan",
+        "pending": "Tertunda",
+        "averageOrderValue": "Rata-rata Nilai Pesanan"
+      },
+      "all": "Semua Pesanan",
+      "searchPlaceholder": "Cari pesanan...",
+      "searchLabel": "Cari pesanan",
+      "filterLabel": "Filter berdasarkan status",
+      "allStatuses": "Semua Status",
+      "loading": "Memuat pesanan...",
+      "empty": "Tidak ada pesanan yang cocok dengan filter ini.",
+      "columns": {
+        "order": "Pesanan",
+        "customer": "Pelanggan",
+        "total": "Total",
+        "payment": "Pembayaran",
+        "tracking": "Resi"
+      },
+      "payment": {
+        "PAID": "Lunas",
+        "PENDING": "Menunggu",
+        "FAILED": "Gagal",
+        "EXPIRED": "Kedaluwarsa",
+        "REFUNDED": "Dikembalikan",
+        "none": "Tidak ada"
+      },
+      "changeStatusFor": "Ubah status pesanan {order}",
+      "advanceTo": "Ubah ke...",
+      "viewDetails": "Lihat detail pesanan",
+      "createShipment": "Buat pengiriman",
+      "toast": {
+        "statusUpdated": "Status diperbarui",
+        "statusChange": "{order} → {status}",
+        "statusFailed": "Gagal memperbarui status",
+        "transitionNotAllowed": "Perubahan status tidak diizinkan",
+        "shipmentRequired": "Kurir dan nomor resi wajib diisi",
+        "shipmentCreated": "Pengiriman dibuat",
+        "shipmentFailed": "Gagal membuat pengiriman"
+      },
+      "detail": {
+        "title": "Pesanan {order}",
+        "loading": "Memuat pesanan...",
+        "customer": "Pelanggan",
+        "placed": "Dibuat {date}",
+        "items": "Item",
+        "subtotal": "Subtotal",
+        "discount": "Diskon",
+        "discountWithCode": "Diskon ({code})",
+        "shipping": "Ongkos kirim",
+        "tax": "Pajak",
+        "total": "Total",
+        "notes": "Catatan"
+      },
+      "shipment": {
+        "title": "Buat Pengiriman untuk {order}",
+        "courier": "Kurir",
+        "selectCourier": "Pilih kurir",
+        "trackingNumber": "Nomor Resi",
+        "trackingPlaceholder": "Masukkan nomor resi",
+        "submit": "Buat Pengiriman",
+        "submitting": "Membuat..."
+      }
+    },
+    "voucher": {
+      "percentValue": "{value, number}%",
+      "kind": {
+        "percent": "Persen",
+        "fixed_amount": "Nominal"
+      }
+    },
+    "vouchers": {
+      "title": "Voucher",
+      "description": "Kelola kode diskon dan promosi",
+      "create": "Buat Voucher",
+      "edit": "Ubah Voucher",
+      "stats": {
+        "total": "Total Voucher",
+        "active": "Aktif",
+        "redemptions": "Total Penukaran"
+      },
+      "all": "Semua Voucher",
+      "searchPlaceholder": "Cari voucher...",
+      "searchLabel": "Cari voucher",
+      "loading": "Memuat voucher...",
+      "noMatches": "Tidak ada voucher yang cocok dengan pencarian Anda.",
+      "empty": "Belum ada voucher.",
+      "columns": {
+        "code": "Kode",
+        "kind": "Jenis",
+        "value": "Nilai",
+        "minSpend": "Min. Belanja",
+        "usage": "Pemakaian",
+        "period": "Periode"
+      },
+      "always": "Selalu",
+      "openEnded": "...",
+      "editCode": "Ubah {code}",
+      "deleteCode": "Hapus {code}",
+      "form": {
+        "code": "Kode",
+        "codeLocked": "Kode tidak dapat diubah.",
+        "kind": "Jenis",
+        "kindPercent": "Persentase (%)",
+        "kindFixed": "Nominal Tetap (Rp)",
+        "percentOff": "Potongan persen",
+        "amountOff": "Jumlah potongan (Rp)",
+        "minSpend": "Min. Belanja (Rp)",
+        "usageLimit": "Batas Pemakaian",
+        "perUserLimit": "Batas per Pelanggan",
+        "unlimited": "Tanpa batas",
+        "validFrom": "Berlaku Dari",
+        "validTo": "Berlaku Sampai",
+        "priority": "Prioritas",
+        "priorityHint": "Prioritas lebih tinggi menang jika beberapa voucher cocok.",
+        "combinable": "Dapat digabung dengan voucher lain",
+        "create": "Buat",
+        "update": "Perbarui"
+      },
+      "deleteTitle": "Hapus Voucher",
+      "deleteConfirm": "Hapus <strong>{code}</strong>? Pesanan yang sudah memakainya tetap mendapat diskon.",
+      "toast": {
+        "codeRequired": "Kode wajib diisi",
+        "updated": "Voucher diperbarui",
+        "created": "Voucher dibuat",
+        "saveFailed": "Gagal menyimpan voucher",
+        "deleted": "Voucher dihapus",
+        "deleteFailed": "Gagal menghapus voucher"
+      }
+    },
+    "analytics": {
+      "title": "Analitik",
+      "description": "Pendapatan, pesanan, dan produk terlaris",
+      "dateRange": "Rentang tanggal",
+      "loading": "Memuat analitik...",
+      "summary": {
+        "revenue": "Pendapatan",
+        "orders": "Pesanan",
+        "averageOrderValue": "Rata-rata Nilai Pesanan",
+        "customers": "Pelanggan",
+        "products": "Produk"
+      },
+      "ordersByStatus": "Pesanan per Status",
+      "revenueShare": "Porsi Pendapatan Produk Teratas",
+      "noSales": "Tidak ada penjualan pada rentang ini.",
+      "topProducts": "Produk Terlaris",
+      "columns": {
+        "product": "Produk",
+        "unitsSold": "Unit Terjual",
+        "revenue": "Pendapatan"
+      }
+    },
+    "inventory": {
+      "title": "Inventaris",
+      "description": "Kelola stok varian dengan pembaruan per tenant.",
+      "loading": "Memuat inventaris…",
+      "available": "{count, number} tersedia",
+      "stockFor": "Stok untuk {title}",
+      "empty": "Tidak ada varian.",
+      "toast": {
+        "invalid": "Masukkan jumlah stok yang tidak negatif",
+        "updated": "Inventaris diperbarui",
+        "failed": "Gagal memperbarui inventaris"
+      }
+    },
+    "customers": {
+      "title": "Pelanggan",
+      "description": "Pelanggan yang beraktivitas di toko ini.",
+      "loading": "Memuat pelanggan…",
+      "joined": "Bergabung {date}",
+      "empty": "Tidak ada pelanggan."
+    },
+    "returns": {
+      "title": "Retur",
+      "description": "Tinjau permintaan retur pelanggan dan kelayakan pengembalian dana",
+      "empty": "Tidak ada permintaan retur.",
+      "order": "Pesanan {orderId}",
+      "refund": "Kembalikan Dana",
+      "updateFailed": "Gagal memperbarui status.",
+      "refundFailed": "Refund gagal.",
+      "status": {
+        "REQUESTED": "Diajukan",
+        "APPROVED": "Disetujui",
+        "REJECTED": "Ditolak",
+        "RECEIVED": "Diterima",
+        "REFUNDED": "Dana Dikembalikan",
+        "CANCELLED": "Dibatalkan"
+      }
+    },
+    "support": {
+      "title": "Dukungan",
+      "description": "Tanggapi tiket dukungan pelanggan",
+      "empty": "Tidak ada tiket dukungan.",
+      "order": "Pesanan {orderId}",
+      "statusLabel": "Status tiket {subject}",
+      "replyPlaceholder": "Balas pelanggan",
+      "send": "Kirim",
+      "author": {
+        "customer": "Pelanggan",
+        "agent": "Agen"
+      },
+      "updateFailed": "Gagal memperbarui tiket.",
+      "sendFailed": "Gagal mengirim balasan.",
+      "status": {
+        "OPEN": "Terbuka",
+        "PENDING_CUSTOMER": "Menunggu Pelanggan",
+        "PENDING_AGENT": "Menunggu Agen",
+        "RESOLVED": "Terselesaikan",
+        "CLOSED": "Ditutup"
+      },
+      "priority": {
+        "LOW": "Rendah",
+        "NORMAL": "Normal",
+        "HIGH": "Tinggi",
+        "URGENT": "Mendesak"
+      }
+    },
+    "settings": {
+      "title": "Pengaturan toko",
+      "description": "Konfigurasi etalase per tenant dan onboarding.",
+      "loading": "Memuat pengaturan toko…",
+      "profile": "Profil toko",
+      "storeName": "Nama toko",
+      "contactEmail": "Email kontak",
+      "contactPhone": "Telepon kontak",
+      "currency": "Mata uang",
+      "storeDescription": "Deskripsi",
+      "shippingOrigin": "Kode asal pengiriman",
+      "save": "Simpan pengaturan",
+      "saving": "Menyimpan…",
+      "onboarding": "Onboarding",
+      "onboardingHint": "Selesaikan onboarding setelah profil toko, katalog, pembayaran, dan kredensial pengiriman dikonfigurasi.",
+      "markComplete": "Tandai selesai",
+      "toast": {
+        "saved": "Pengaturan toko disimpan",
+        "saveFailed": "Gagal menyimpan pengaturan",
+        "onboardingComplete": "Onboarding ditandai selesai"
+      }
+    },
+    "webhooks": {
+      "title": "Webhook",
+      "description": "Endpoint event keluar dan riwayat pengirimannya",
+      "add": "Tambah Endpoint",
+      "edit": "Ubah Endpoint",
+      "endpoints": "Endpoint",
+      "loadingEndpoints": "Memuat endpoint...",
+      "noEndpoints": "Belum ada endpoint webhook.",
+      "columns": {
+        "name": "Nama",
+        "url": "URL",
+        "topics": "Topik",
+        "secret": "Secret",
+        "endpoint": "Endpoint",
+        "attempt": "Percobaan",
+        "response": "Respons",
+        "error": "Galat",
+        "when": "Waktu"
+      },
+      "deleteName": "Hapus {name}",
+      "recentDeliveries": "Pengiriman Terbaru",
+      "filterEndpoint": "Filter berdasarkan endpoint",
+      "allEndpoints": "Semua endpoint",
+      "filterStatus": "Filter berdasarkan status",
+      "allStatuses": "Semua status",
+      "refresh": "Muat ulang pengiriman",
+      "loadingDeliveries": "Memuat pengiriman...",
+      "noDeliveries": "Belum ada pengiriman tercatat.",
+      "replay": "Kirim ulang",
+      "deliveryStatus": {
+        "PENDING": "Menunggu",
+        "SUCCESS": "Berhasil",
+        "FAILED": "Gagal",
+        "DEAD": "Mati"
+      },
+      "form": {
+        "name": "Nama",
+        "namePlaceholder": "Layanan pemenuhan pesanan",
+        "url": "URL",
+        "secret": "Secret penandatanganan",
+        "secretPlaceholder": "Secret HMAC bersama",
+        "secretHint": "Dipakai untuk menandatangani setiap payload. Simpan hanya di layanan penerima.",
+        "topics": "Topik",
+        "active": "Aktif",
+        "create": "Buat",
+        "update": "Perbarui"
+      },
+      "deleteTitle": "Hapus Endpoint",
+      "deleteConfirm": "Hapus <strong>{name}</strong>? Pengiriman tertunda ke endpoint ini akan dihentikan.",
+      "toast": {
+        "required": "Nama, URL, dan secret wajib diisi",
+        "topicRequired": "Pilih minimal satu topik",
+        "updated": "Endpoint diperbarui",
+        "created": "Endpoint dibuat",
+        "saveFailed": "Gagal menyimpan endpoint",
+        "deleted": "Endpoint dihapus",
+        "deleteFailed": "Gagal menghapus endpoint",
+        "replayQueued": "Pengiriman dijadwalkan ulang",
+        "replayFailed": "Gagal mengirim ulang"
+      }
+    },
+    "auditLogs": {
+      "title": "Log Audit",
+      "clearFilters": "Hapus filter",
+      "filters": "Filter",
+      "actionPlaceholder": "Aksi mengandung…",
+      "resourcePlaceholder": "Jenis resource…",
+      "startDate": "Dari tanggal",
+      "endDate": "Sampai tanggal",
+      "columns": {
+        "id": "ID",
+        "actor": "Aktor",
+        "action": "Aksi",
+        "resource": "Resource",
+        "method": "Metode",
+        "ip": "IP",
+        "created": "Dibuat"
+      },
+      "actor": {
+        "user": "pengguna",
+        "system": "sistem",
+        "anonymous": "anonim"
+      },
+      "empty": "Tidak ada log audit.",
+      "pageSummary": "Halaman {page} dari {total} — {count, number} total",
+      "previousPage": "Halaman sebelumnya",
+      "nextPage": "Halaman berikutnya"
+    },
+    "flashSales": {
+      "title": "Flash Sale",
+      "description": "Kelola kampanye flash sale berbatas waktu",
+      "create": "Buat Flash Sale",
+      "loadingProducts": "Memuat produk...",
+      "all": "Semua Flash Sale",
+      "searchPlaceholder": "Cari flash sale...",
+      "searchLabel": "Cari flash sale",
+      "loading": "Memuat flash sale...",
+      "noMatches": "Tidak ada flash sale yang cocok dengan pencarian Anda.",
+      "empty": "Belum ada flash sale.",
+      "createFirst": "Buat flash sale pertama Anda",
+      "columns": {
+        "campaign": "Kampanye",
+        "period": "Periode",
+        "items": "Item",
+        "totalSold": "Total Terjual"
+      },
+      "status": {
+        "DRAFT": "Draf",
+        "SCHEDULED": "Terjadwal",
+        "ACTIVE": "Aktif",
+        "ENDED": "Berakhir"
+      },
+      "changeStatusFor": "Ubah status {name}",
+      "editName": "Ubah {name}",
+      "deleteName": "Hapus {name}",
+      "statusDialogTitle": "Ubah Status: {name}",
+      "statusDialogFrom": "Ubah status dari <strong>{status}</strong> menjadi",
+      "newStatus": "Status baru",
+      "updateStatus": "Perbarui Status",
+      "deleteTitle": "Hapus Flash Sale",
+      "deleteConfirm": "Yakin ingin menghapus <strong>{name}</strong>? Tindakan ini tidak dapat dibatalkan. Catatan: backend belum memiliki endpoint hapus; sebaiknya ubah status menjadi Berakhir.",
+      "toast": {
+        "statusUpdated": "Status diperbarui",
+        "statusChange": "{name} → {status}",
+        "statusFailed": "Gagal memperbarui status",
+        "deleteUnsupported": "Hapus belum tersedia",
+        "deleteUnsupportedHint": "Backend tidak mendukung penghapusan. Ubah status menjadi Berakhir.",
+        "error": "Kesalahan",
+        "created": "Flash sale dibuat",
+        "createFailed": "Gagal membuat flash sale",
+        "duplicated": "Flash sale dibuat (duplikat)",
+        "updateFailed": "Gagal memperbarui flash sale"
+      },
+      "new": {
+        "title": "Buat Flash Sale",
+        "description": "Siapkan kampanye berbatas waktu yang baru",
+        "submit": "Buat Flash Sale",
+        "submitting": "Membuat..."
+      },
+      "edit": {
+        "title": "Ubah Flash Sale",
+        "description": "Perbarui detail kampanye",
+        "notFound": "Flash sale tidak ditemukan",
+        "backToList": "Kembali ke daftar",
+        "createNew": "Buat Baru",
+        "currentStatus": "Status Saat Ini",
+        "itemId": "ID: {id}",
+        "submit": "Simpan Perubahan (Membuat Baru)"
+      },
+      "form": {
+        "details": "Detail Kampanye",
+        "name": "Nama",
+        "namePlaceholder": "Flash Sale Musim Panas",
+        "slug": "Slug",
+        "slugPlaceholder": "flash-sale-musim-panas",
+        "selectStatus": "Pilih status",
+        "startsAt": "Tanggal & Waktu Mulai",
+        "endsAt": "Tanggal & Waktu Selesai",
+        "items": "Item Flash Sale",
+        "addProduct": "Tambah Produk",
+        "noProducts": "Belum ada produk. Buat produk terlebih dahulu.",
+        "noItems": "Belum ada item. Klik \"Tambah Produk\" untuk memulai.",
+        "item": "Item {index}",
+        "removeItem": "Hapus item {index}",
+        "product": "Produk",
+        "selectProduct": "Pilih produk",
+        "selectProductOption": "Pilih produk...",
+        "productOption": "{title} ({price})",
+        "salePrice": "Harga Promo (Rp)",
+        "salePricePlaceholder": "mis. 1500000",
+        "stockLimit": "Batas Stok (opsional)",
+        "stockLimitPlaceholder": "Kosongkan jika tanpa batas",
+        "stockLimitHint": "Kosong = pakai stok katalog",
+        "errors": {
+          "nameRequired": "Nama wajib diisi",
+          "datesRequired": "Tanggal mulai dan selesai wajib diisi",
+          "endBeforeStart": "Tanggal selesai harus setelah tanggal mulai",
+          "productRequired": "Minimal satu produk wajib dipilih",
+          "salePrice": "Harga promo harus lebih dari 0 untuk semua item",
+          "createFailed": "Gagal membuat flash sale",
+          "updateFailed": "Gagal memperbarui flash sale",
+          "statusFailed": "Gagal memperbarui status"
+        }
+      }
+    }
+  }
 }
