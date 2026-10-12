@@ -1,7 +1,7 @@
 # Toko Storefront
 
 [![CI](https://github.com/noah-isme/toko/actions/workflows/ci.yml/badge.svg)](https://github.com/noah-isme/toko/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 [![Node.js](https://img.shields.io/badge/node-22.13.x-green.svg)](.nvmrc)
 [![pnpm](https://img.shields.io/badge/pnpm-10.5.2-orange.svg)](package.json)
 
@@ -52,10 +52,12 @@ The development server runs at [http://localhost:3000](http://localhost:3000). M
 | `pnpm dev`                 | Start the Next.js development server with MSW mocks              |
 | `pnpm build`               | Create an optimized production build                             |
 | `pnpm start`               | Run the production server                                        |
-| `pnpm lint`                | Lint the project with ESLint                                     |
+| `pnpm lint`                | Lint the project with ESLint and check i18n catalog parity       |
+| `pnpm lint:docs`           | Check that relative Markdown links resolve (skips docs/archive)  |
 | `pnpm typecheck`           | Run TypeScript type checking (no emit)                           |
 | `pnpm test`                | Execute Vitest test suites once                                  |
 | `pnpm test:ci`             | Execute Vitest in CI-friendly two-worker forked mode             |
+| `pnpm test:coverage`       | Run Vitest with coverage (fails below the coverage thresholds)   |
 | `pnpm test:watch`          | Run Vitest in watch mode                                         |
 | `pnpm e2e`                 | Run Playwright end-to-end tests                                  |
 | `pnpm e2e:prod`            | Run the service-worker E2E on a mock production build            |
@@ -68,8 +70,10 @@ The development server runs at [http://localhost:3000](http://localhost:3000). M
 ```
 toko/
 ├── .github/               # CI workflows, PR and issue templates
-├── docs/                   # Detailed guides, API contracts, ADRs
+├── docs/                   # Status, deployment, API contracts, ADRs
+│   ├── STATUS.md           # Living implementation status
 │   ├── adr/                # Architecture Decision Records
+│   ├── archive/            # Historical docs (not maintained)
 │   └── contracts/          # Frontend API contract documentation
 ├── public/                 # Static assets, manifest, service workers
 ├── src/
@@ -113,18 +117,40 @@ The repository enforces quality through multiple layers:
 - **Playwright** — end-to-end tests for critical user flows in `tests/e2e/`
 - **TypeScript** — strict mode with `noEmit` type checking
 - **API contract conformance** — `pnpm api:check` verifies generated types match the OpenAPI spec
+- **Coverage thresholds** — `pnpm test:ci --coverage` (the CI test step) fails when coverage drops below `coverage.thresholds` in `vitest.config.ts`
+- **Docs links** — `pnpm lint:docs` fails on relative Markdown links that do not resolve (`docs/archive/` is excluded)
 
 Run the full quality gate locally before opening a PR:
 
 ```bash
-pnpm lint && pnpm typecheck && pnpm test && pnpm build
+pnpm lint && pnpm lint:docs && pnpm typecheck && pnpm test:ci --coverage && pnpm build
 ```
+
+### Coverage ratchet
+
+Vitest coverage (v8, `src/**` minus generated types, mocks, the mock route, the service worker
+and `loading.tsx` files) is enforced by `coverage.thresholds` in `vitest.config.ts`. The baseline
+was set on 2026-10-12 to each measured metric minus 2 points, floored:
+
+| Metric     | Measured | Threshold |
+| ---------- | -------- | --------- |
+| Statements | 53.89%   | 51%       |
+| Branches   | 72.50%   | 70%       |
+| Functions  | 62.59%   | 60%       |
+| Lines      | 53.89%   | 51%       |
+
+Rules:
+
+- Thresholds only move up.
+- When a PR lifts a metric by 2 points or more, raise that threshold in the same PR (new
+  measurement minus 2, floored).
+- Never lower a threshold without an ADR note in `docs/adr/` explaining why.
 
 ## Continuous Integration
 
 GitHub Actions workflows run on every push and pull request to `main`:
 
-- [**CI**](.github/workflows/ci.yml) — install → lint → api:check → typecheck → test → build → e2e, plus a **lighthouse** job (after `build`)
+- [**CI**](.github/workflows/ci.yml) — install → lint (ESLint, i18n parity, docs links) → api:check → typecheck → test with coverage thresholds (lcov uploaded) → build → e2e, plus a **lighthouse** job (after `build`)
 - [**Production Validation**](.github/workflows/production-validation.yml) — builds with production-shaped variables (no real API credentials required)
 
 ### Lighthouse CI
@@ -179,17 +205,17 @@ Manual checks in Chrome (DevTools > Application) after `pnpm build:mock && pnpm 
 | [DESIGN.md](DESIGN.md)             | Design system, component library, and interaction patterns         |
 | [ROADMAP.md](ROADMAP.md)           | Planned milestones, future work, and technical debt                |
 | [AGENTS.md](AGENTS.md)             | Guidelines for AI coding agents working in this repo               |
-| [docs/adr/](docs/adr/)             | Architecture Decision Records (8 ADRs)                             |
+| [docs/adr/](docs/adr/README.md)    | Architecture Decision Records (10 ADRs)                            |
 
 ### Detailed Guides
 
-| Document                                             | Purpose                                        |
-| ---------------------------------------------------- | ---------------------------------------------- |
-| [Implementation Status](docs/STATUS_IMPLEMENTASI.md) | Current state of feature integrations          |
-| [Integration Guide](docs/GUIDE_INTEGRASI.md)         | Technical instructions for API consumption     |
-| [API Contract Index](docs/contracts/README.md)       | Frontend-facing API modules and adapters       |
-| [Active Backlog](docs/BACKLOG_AKTIF.md)              | UX gaps, P2/P3 backlogs, and remaining work    |
-| [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md)       | Deployment setup and environment configuration |
+| Document                                       | Purpose                                                  |
+| ---------------------------------------------- | -------------------------------------------------------- |
+| [Implementation Status](docs/STATUS.md)        | Current state of features, pending checks and known gaps |
+| [API Contract Index](docs/contracts/README.md) | Frontend-facing API modules and adapters                 |
+| [API Client Layer](src/lib/api/README.md)      | `apiClient`, services, mappers and where hooks live      |
+| [Vercel Deployment](docs/VERCEL_DEPLOYMENT.md) | Deployment setup and environment configuration           |
+| [Archive](docs/archive/README.md)              | Historical status reports and guides (not maintained)    |
 
 ## Contributing
 
@@ -203,4 +229,4 @@ See [AGENTS.md](AGENTS.md) for coding style, naming conventions, and testing gui
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License (see `license` in [package.json](package.json)).

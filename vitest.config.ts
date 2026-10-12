@@ -43,7 +43,15 @@ export default defineConfig({
         '**/*.d.ts',
         'src/app/**/loading.tsx',
       ],
-      // Thresholds arrive in Phase G (measured baseline minus 2, ratchet only).
+      // Ratchet: measured baseline minus 2, floored (2026-10-12: statements/lines 53.89,
+      // branches 72.5, functions 62.59). Thresholds only move up; raise them in the PR that lifts
+      // coverage by >= 2 points and never lower them without an ADR note (see README).
+      thresholds: {
+        statements: 51,
+        branches: 70,
+        functions: 60,
+        lines: 51,
+      },
     },
   },
 });

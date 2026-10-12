@@ -22,7 +22,7 @@ NEXT_PUBLIC_API_MOCKING=true
 
 ### Inisialisasi Guest Cart
 
-_Inisialisasi guest cart dikontrol secara terpusat oleh root layout melalui [AppInitializer](file:///home/noah/project/toko-app/toko/src/components/providers/AppInitializer.tsx). Komponen lokal dilarang memicu `initGuestCart()` secara langsung._
+_Inisialisasi guest cart dikontrol secara terpusat oleh root layout melalui [AppInitializer](../../src/components/providers/AppInitializer.tsx). Komponen lokal dilarang memicu `initGuestCart()` secara langsung._
 
 #### Pola Penggunaan Cart di Komponen (Menggunakan Guard):
 

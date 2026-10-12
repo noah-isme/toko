@@ -29,7 +29,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        # ESLint + i18n catalog parity, then relative Markdown links (docs/archive excluded).
+        run: pnpm lint && pnpm lint:docs
 
       - name: Verify generated API types are current
         # schema.d.ts is generated from openapi.yaml. Regenerating must be a
@@ -43,7 +44,7 @@ jobs:
         run: pnpm typecheck
 
       - name: Test (with coverage)
-        # Collects coverage only; thresholds are enforced from Phase G on.
+        # Fails when coverage drops below vitest.config.ts `coverage.thresholds` (ratchet, see README).
         run: pnpm test:ci --coverage
 
       - name: Upload coverage report

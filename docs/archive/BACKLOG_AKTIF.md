@@ -79,7 +79,7 @@ Dokumen ini mencantumkan backlog aktif, rencana pengembangan, dan kesenjangan (U
 - **Lokalisasi**: prefix locale (`/id`, `/en`, `/zh`, `/ja`, `/ko`) dipertahankan middleware.
 - **API**: analytics overview dan penghapusan review tidak lagi mengembalikan `501 Not Implemented`.
 
-Detail endpoint dan migration ada di kontrak [frontend](contracts/README.md) dan [backend](../../toko-api/docs/contracts/README.md).
+Detail endpoint dan migration ada di kontrak [frontend](../contracts/README.md) dan [backend](../../../toko-api/docs/contracts/README.md).
 
 ### 11. PWA / Service Worker (Offline Support)
 

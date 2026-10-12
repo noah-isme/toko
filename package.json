@@ -13,6 +13,7 @@
     "start:mock": "NEXT_PUBLIC_API_URL=mock NEXT_PUBLIC_API_MOCKING=false next start",
     "lint": "eslint . && node scripts/i18n/check-messages.mjs",
     "i18n:check": "node scripts/i18n/check-messages.mjs",
+    "lint:docs": "node scripts/docs/check-links.mjs",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.worker.json",
     "api:sync": "cp ../toko-api/openapi.yaml openapi.yaml",
     "api:generate": "openapi-typescript openapi.yaml -o src/lib/api/generated/schema.d.ts",
