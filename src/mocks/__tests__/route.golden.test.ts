@@ -257,11 +257,8 @@ describe('mock API route golden responses', () => {
       expect(
         await call('PATCH', 'users/me/addresses/address-2', { body: { city: 'Bogor' } }),
       ).toMatchSnapshot();
-      // Pre-existing behaviour: the resolver returns `{ status: 204 }` and
-      // NextResponse.json() rejects a 204 status, so the handler throws (500 in Next).
-      await expect(call('DELETE', 'users/me/addresses/address-2')).rejects.toThrow(
-        'Invalid response status code 204',
-      );
+      // The resolver returns `{ status: 204 }`; the route answers with an empty 204.
+      expect(await call('DELETE', 'users/me/addresses/address-2')).toMatchSnapshot();
     });
   });
 

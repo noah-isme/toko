@@ -17,6 +17,8 @@ function buildResponse(result: MockResult | null): NextResponse {
   if (!result) return NextResponse.json({ message: 'Not Found' }, { status: 404 });
   if (!Array.isArray(result) && typeof result.status === 'number') {
     const { status, ...rest } = result;
+    // 204 No Content must not carry a body (NextResponse.json throws for it).
+    if (status === 204) return new NextResponse(null, { status });
     return NextResponse.json(rest, { status });
   }
   return NextResponse.json(result);

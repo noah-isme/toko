@@ -152,6 +152,15 @@ exports[`mock API route golden responses > addresses > address CRUD 5`] = `
 }
 `;
 
+exports[`mock API route golden responses > addresses > address CRUD 6`] = `
+{
+  "body": null,
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 204,
+}
+`;
+
 exports[`mock API route golden responses > auth > auth routes 1`] = `
 {
   "body": {
