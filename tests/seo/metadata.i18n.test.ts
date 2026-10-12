@@ -53,13 +53,13 @@ describe('storefront metadata in the default locale (id)', () => {
     const { layout, cart, featured, products } = await loadPages();
 
     const root = await layout.generateMetadata();
-    expect(root.description).toBe('Modern modular storefront for the toko e-commerce experience.');
+    expect(root.description).toBe('Etalase modular modern untuk pengalaman belanja online toko.');
     expect(root.openGraph?.images).toEqual([
       {
         url: 'https://example.com/api/og',
         width: 1200,
         height: 630,
-        alt: 'toko default preview image',
+        alt: 'Gambar pratinjau default toko',
       },
     ]);
     expect(root.alternates).toBeUndefined();
@@ -77,10 +77,10 @@ describe('storefront metadata in the default locale (id)', () => {
     );
 
     const productsMeta = await products.generateMetadata();
-    expect(productsMeta.title).toBe('Products');
+    expect(productsMeta.title).toBe('Produk');
     expect(productsMeta.alternates?.canonical).toBe('https://example.com/products');
     expect(productsMeta.openGraph?.images).toEqual([
-      { url: 'https://example.com/api/og?title=Products' },
+      { url: 'https://example.com/api/og?title=Produk' },
     ]);
   }, 15_000);
 });

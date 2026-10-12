@@ -113,16 +113,16 @@ describe('FlashSalesPage', () => {
 
     await waitFor(
       () => {
-        expect(screen.getByRole('heading', { name: /flash sales/i })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 1, name: 'Flash Sale' })).toBeInTheDocument();
       },
       { timeout: 10000 },
     );
 
     expect(screen.getByText(/diskon hingga/i)).toBeInTheDocument();
     expect(screen.getByText('Flash Sale Berlangsung')).toBeInTheDocument();
-    // Multiple elements for Jam/Min/Det (current and next sale)
+    // Multiple elements for Jam/Mnt/Det (current and next sale)
     expect(screen.getAllByText(/Jam/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Min/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Mnt/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Det/i).length).toBeGreaterThanOrEqual(1);
   });
 
@@ -148,7 +148,7 @@ describe('FlashSalesPage', () => {
       () => {
         expect(screen.getByRole('button', { name: /semua/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /elektronik/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /fashion/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /fesyen/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /rumah tangga/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /kesehatan/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /olahraga/i })).toBeInTheDocument();

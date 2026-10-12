@@ -231,7 +231,7 @@ describe('checkout step in Indonesian (default)', () => {
       </>,
     );
     expect(screen.getByText('Langkah 1 dari 3:')).toBeInTheDocument();
-    expect(screen.getByText('Tax')).toBeInTheDocument();
+    expect(screen.getByText('Pajak')).toBeInTheDocument();
     expect(screen.getByText('Transfer Bank')).toBeInTheDocument();
     expect(screen.getByText('Transfer manual ke rekening bank')).toBeInTheDocument();
   });

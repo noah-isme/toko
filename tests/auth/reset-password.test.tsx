@@ -63,7 +63,7 @@ describe('ResetPasswordPage', () => {
     mockToken = 'valid-token';
     renderWithClient(<ResetPasswordPage />);
 
-    expect(screen.getByRole('heading', { name: /Reset password/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Atur ulang password' })).toBeInTheDocument();
     expect(screen.getByLabelText(/Password baru/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Konfirmasi password/i)).toBeInTheDocument();
   });

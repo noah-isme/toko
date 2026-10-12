@@ -2,8 +2,8 @@
   "common": {
     "skipToContent": "Lewati ke konten utama",
     "offline": {
-      "restored": "Connection restored",
-      "offline": "You are currently offline. Some features may be unavailable."
+      "restored": "Koneksi tersambung kembali",
+      "offline": "Anda sedang offline. Beberapa fitur mungkin tidak tersedia."
     },
     "idleTimeout": {
       "title": "Sesi akan berakhir",
@@ -13,34 +13,34 @@
       "processing": "Memproses..."
     },
     "cookieConsent": {
-      "openPreferences": "Cookie preferences",
-      "bannerTitle": "We value your privacy",
-      "bannerDescription": "We use cookies to enhance your experience, analyze traffic, and personalize content.",
-      "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service",
-      "acceptAll": "Accept All",
-      "rejectAll": "Reject All",
-      "customize": "Customize",
-      "savePreferences": "Save Preferences",
-      "dialogTitle": "Cookie Preferences",
-      "dialogDescription": "Customize which cookies and tracking technologies you allow us to use.",
-      "footnote": "You can change your preferences at any time by clicking the cookie icon.",
+      "openPreferences": "Preferensi cookie",
+      "bannerTitle": "Kami menghargai privasi Anda",
+      "bannerDescription": "Kami menggunakan cookie untuk meningkatkan pengalaman Anda, menganalisis lalu lintas, dan mempersonalisasi konten.",
+      "privacyPolicy": "Kebijakan Privasi",
+      "termsOfService": "Ketentuan Layanan",
+      "acceptAll": "Terima Semua",
+      "rejectAll": "Tolak Semua",
+      "customize": "Sesuaikan",
+      "savePreferences": "Simpan Preferensi",
+      "dialogTitle": "Preferensi Cookie",
+      "dialogDescription": "Atur cookie dan teknologi pelacakan yang boleh kami gunakan.",
+      "footnote": "Anda dapat mengubah preferensi kapan saja dengan mengklik ikon cookie.",
       "necessary": {
-        "label": "Necessary cookies",
-        "description": "Required for the website to function properly. Cannot be disabled.",
-        "switchLabel": "Necessary cookies (always enabled)"
+        "label": "Cookie wajib",
+        "description": "Diperlukan agar situs berfungsi dengan baik. Tidak dapat dinonaktifkan.",
+        "switchLabel": "Cookie wajib (selalu aktif)"
       },
       "analytics": {
-        "label": "Analytics cookies",
-        "description": "Help us understand how visitors interact with our website."
+        "label": "Cookie analitik",
+        "description": "Membantu kami memahami cara pengunjung berinteraksi dengan situs kami."
       },
       "marketing": {
-        "label": "Marketing cookies",
-        "description": "Used to deliver personalized advertisements and track ad performance."
+        "label": "Cookie pemasaran",
+        "description": "Digunakan untuk menampilkan iklan yang dipersonalisasi dan mengukur performa iklan."
       },
       "preferences": {
-        "label": "Preference cookies",
-        "description": "Remember your preferences like language, theme, and region."
+        "label": "Cookie preferensi",
+        "description": "Mengingat preferensi Anda seperti bahasa, tema, dan wilayah."
       }
     },
     "loading": "Memuat...",
@@ -102,7 +102,7 @@
         "register": "Daftar Akun Gratis",
         "login": "Sudah Punya Akun",
         "newsletterTitle": "Langganan Newsletter",
-        "newsletterDescription": "Update promo diskon langsung ke email Anda"
+        "newsletterDescription": "Info promo diskon langsung ke email Anda"
       },
       "features": {
         "title": "Keunggulan Layanan Toko",
@@ -150,11 +150,11 @@
         "items": {
           "alya": {
             "quote": "Landing page toko bikin kampanye musiman kami terasa sinematik tanpa perlu tim dev tambahan. Modul hero mereka tinggal plug-in.",
-            "role": "Creative Director, Kinara Atelier"
+            "role": "Direktur Kreatif, Kinara Atelier"
           },
           "bagus": {
             "quote": "Performance tetap tinggi walau kami taruh video, carousel, dan rekomendasi dinamis sekaligus. Conversion naik 21% yoy.",
-            "role": "Head of Digital, Kolektif"
+            "role": "Kepala Digital, Kolektif"
           },
           "mita": {
             "quote": "Toko memberi bahasa visual yang konsisten untuk semua brand di marketplace kami dan mengurangi waktu live kampanye hingga setengahnya.",
@@ -167,22 +167,22 @@
         "viewAll": "Lihat Semua"
       },
       "featured": {
-        "eyebrow": "The edit",
+        "eyebrow": "Pilihan kami",
         "title": "Pilihan yang pantas untuk disimpan.",
         "description": "Koleksi produk favorit dengan kualitas, fungsi, dan detail yang menonjol.",
         "browse": "Jelajahi semua produk",
-        "curatedEyebrow": "Curated for you",
+        "curatedEyebrow": "Dikurasi untuk Anda",
         "curatedTitle": "Produk unggulan",
         "curatedDescription": "Pilihan ini diurutkan dari produk dengan apresiasi pelanggan terbaik.",
         "empty": "Koleksi pilihan segera hadir."
       },
       "brands": {
-        "title": "Shop by Brand",
-        "description": "Discover products from your favorite brands"
+        "title": "Belanja per Merek",
+        "description": "Temukan produk dari merek favorit Anda"
       },
       "categories": {
-        "title": "Shop by Category",
-        "description": "Explore our curated collection of products by category"
+        "title": "Belanja per Kategori",
+        "description": "Jelajahi koleksi produk pilihan kami per kategori"
       },
       "userHome": {
         "fallbackName": "Pengguna",
@@ -208,25 +208,25 @@
       }
     },
     "theme": {
-      "toggle": "Toggle theme",
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System",
-      "contrastToggle": "Toggle high contrast",
+      "toggle": "Ganti tema",
+      "light": "Terang",
+      "dark": "Gelap",
+      "system": "Sistem",
+      "contrastToggle": "Ganti kontras tinggi",
       "normal": "Normal",
-      "highContrast": "High Contrast",
-      "highContrastAaa": "High Contrast (WCAG AAA)"
+      "highContrast": "Kontras Tinggi",
+      "highContrastAaa": "Kontras Tinggi (WCAG AAA)"
     },
     "offlinePage": {
-      "title": "You''re offline",
-      "description": "No internet connection detected. Some features may be unavailable.",
-      "whatYouCanDo": "What you can do:",
-      "browse": "Browse previously loaded products",
-      "cached": "View cached pages",
-      "autoRefresh": "Page will auto-refresh when back online",
-      "retry": "Try again",
-      "home": "Go to homepage",
-      "footnote": "The service worker will cache pages for offline access."
+      "title": "Anda sedang offline",
+      "description": "Tidak ada koneksi internet. Beberapa fitur mungkin tidak tersedia.",
+      "whatYouCanDo": "Yang dapat Anda lakukan:",
+      "browse": "Lihat produk yang sudah dimuat sebelumnya",
+      "cached": "Buka halaman yang tersimpan",
+      "autoRefresh": "Halaman akan dimuat ulang otomatis saat kembali online",
+      "retry": "Coba lagi",
+      "home": "Ke beranda",
+      "footnote": "Service worker menyimpan halaman agar dapat diakses saat offline."
     },
     "legal": {
       "helpCenter": "Pusat Bantuan",
@@ -260,15 +260,15 @@
       }
     },
     "health": {
-      "title": "Health check",
-      "mock": "Mock API is active. Connectivity assumed healthy.",
-      "failed": "Failed to reach backend.",
-      "healthy": "Backend connectivity is healthy."
+      "title": "Pemeriksaan kesehatan",
+      "mock": "Mock API aktif. Konektivitas dianggap sehat.",
+      "failed": "Gagal menghubungi backend.",
+      "healthy": "Konektivitas backend sehat."
     },
     "ui": {
-      "close": "Close",
+      "close": "Tutup",
       "panel": "Panel",
-      "breadcrumb": "Breadcrumb",
+      "breadcrumb": "Jejak navigasi",
       "backToTop": "Kembali ke atas",
       "dismiss": "Tutup",
       "loading": "Memuat…"
@@ -289,39 +289,39 @@
       }
     },
     "links": {
-      "home": "Home",
-      "products": "Products",
-      "featured": "Featured",
-      "cart": "Cart",
-      "orders": "Orders"
+      "home": "Beranda",
+      "products": "Produk",
+      "featured": "Pilihan",
+      "cart": "Keranjang",
+      "orders": "Pesanan"
     },
     "account": {
-      "account": "Account",
-      "profile": "Profile",
-      "orders": "Orders",
-      "notifications": "Notifications",
-      "addresses": "Addresses",
-      "favorites": "Favorites",
-      "logout": "Logout",
-      "signIn": "Sign in"
+      "account": "Akun",
+      "profile": "Profil",
+      "orders": "Pesanan",
+      "notifications": "Notifikasi",
+      "addresses": "Alamat",
+      "favorites": "Favorit",
+      "logout": "Keluar",
+      "signIn": "Masuk"
     },
     "mobile": {
-      "home": "Home",
+      "home": "Beranda",
       "products": "Produk",
-      "cart": "Cart",
+      "cart": "Keranjang",
       "favorites": "Favorit",
       "account": "Akun"
     },
     "search": {
-      "label": "Search products",
-      "placeholder": "Search products...",
-      "products": "Products",
-      "viewAll": "View all {count} results",
-      "noResults": "No products found",
+      "label": "Cari produk",
+      "placeholder": "Cari produk...",
+      "products": "Produk",
+      "viewAll": "Lihat semua {count} hasil",
+      "noResults": "Produk tidak ditemukan",
       "recent": "Pencarian Terakhir",
       "clearRecent": "Hapus semua",
       "removeRecent": "Hapus {term} dari riwayat pencarian",
-      "popular": "Popular Searches"
+      "popular": "Pencarian Populer"
     },
     "shortcuts": {
       "title": "Pintasan Keyboard",
@@ -344,41 +344,41 @@
   },
   "footer": {
     "quickLinks": {
-      "title": "Quick Links",
-      "products": "Products",
-      "about": "About Us",
-      "contact": "Contact",
-      "faq": "FAQ"
+      "title": "Tautan Cepat",
+      "products": "Produk",
+      "about": "Tentang Kami",
+      "contact": "Kontak",
+      "faq": "Tanya Jawab"
     },
     "legal": {
       "title": "Legal",
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service",
-      "shipping": "Shipping Policy",
-      "returns": "Returns"
+      "privacy": "Kebijakan Privasi",
+      "terms": "Ketentuan Layanan",
+      "shipping": "Kebijakan Pengiriman",
+      "returns": "Pengembalian"
     },
-    "copyright": "© {year} toko. All rights reserved.",
-    "privacy": "Privacy",
-    "terms": "Terms",
+    "copyright": "© {year} toko. Hak cipta dilindungi.",
+    "privacy": "Privasi",
+    "terms": "Ketentuan",
     "newsletter": {
-      "title": "Subscribe to our newsletter",
-      "description": "Get the latest updates on new products and upcoming sales",
-      "placeholder": "Enter your email",
-      "placeholderDisabled": "Subscription temporarily disabled",
-      "emailLabel": "Email address",
-      "submit": "Subscribe",
-      "submitting": "Subscribing...",
-      "subscribed": "Subscribed",
+      "title": "Berlangganan newsletter kami",
+      "description": "Dapatkan kabar terbaru tentang produk baru dan promo mendatang",
+      "placeholder": "Masukkan email Anda",
+      "placeholderDisabled": "Langganan sementara dinonaktifkan",
+      "emailLabel": "Alamat email",
+      "submit": "Berlangganan",
+      "submitting": "Mendaftarkan...",
+      "subscribed": "Terdaftar",
       "invalidEmail": "Silakan masukkan alamat email yang valid.",
       "success": "Terima kasih telah berlangganan buletin kami!",
       "error": "Terjadi kesalahan. Silakan coba lagi.",
-      "unavailable": "Newsletter subscription is currently unavailable.",
-      "consent": "By subscribing, you agree to our Privacy Policy and consent to receive updates from our company."
+      "unavailable": "Langganan newsletter sedang tidak tersedia.",
+      "consent": "Dengan berlangganan, Anda menyetujui Kebijakan Privasi kami dan bersedia menerima kabar terbaru dari kami."
     }
   },
   "catalog": {
     "page": {
-      "eyebrow": "The collection",
+      "eyebrow": "Koleksi",
       "title": "Temukan pilihan Anda.",
       "description": "Jelajahi produk pilihan untuk ruang, rutinitas, dan momen keseharian Anda."
     },
@@ -428,7 +428,7 @@
       "categories": "Kategori",
       "brands": "Merek",
       "price": "Harga",
-      "ratingStars": "{rating}+ stars",
+      "ratingStars": "{rating}+ bintang",
       "allRatings": "Semua rating",
       "heading": "Filter",
       "sheetTitle": "Filter Produk",
@@ -465,7 +465,7 @@
     "favorite": {
       "add": "Tambahkan ke favorit",
       "remove": "Hapus dari favorit",
-      "placeholderName": "Loading...",
+      "placeholderName": "Memuat...",
       "toast": {
         "added": "Ditambahkan ke favorit",
         "addFailed": "Gagal menambahkan ke favorit",
@@ -474,34 +474,34 @@
       }
     },
     "productSort": {
-      "label": "Sort products",
-      "placeholder": "Sort by...",
+      "label": "Urutkan produk",
+      "placeholder": "Urutkan...",
       "options": {
-        "nameAsc": "Name: A to Z",
-        "nameDesc": "Name: Z to A",
-        "priceAsc": "Price: Low to High",
-        "priceDesc": "Price: High to Low",
-        "newest": "Newest First",
-        "rating": "Highest Rated"
+        "nameAsc": "Nama: A ke Z",
+        "nameDesc": "Nama: Z ke A",
+        "priceAsc": "Harga: Terendah ke Tertinggi",
+        "priceDesc": "Harga: Tertinggi ke Terendah",
+        "newest": "Terbaru",
+        "rating": "Rating Tertinggi"
       }
     },
     "pagination": {
-      "label": "Pagination",
-      "previous": "Previous",
-      "previousLabel": "Previous page",
-      "next": "Next",
-      "nextLabel": "Next page",
-      "page": "Page {page}"
+      "label": "Navigasi halaman",
+      "previous": "Sebelumnya",
+      "previousLabel": "Halaman sebelumnya",
+      "next": "Berikutnya",
+      "nextLabel": "Halaman berikutnya",
+      "page": "Halaman {page}"
     },
     "listing": {
       "title": "Semua Produk",
       "available": "{count} produk tersedia",
       "pageOf": " — Halaman {page} dari {total}",
-      "clearAll": "Clear all",
-      "loadErrorTitle": "Failed to load products",
-      "loadErrorDescription": "Please try again later",
-      "retry": "Retry",
-      "resetFilters": "Reset filters",
+      "clearAll": "Hapus semua",
+      "loadErrorTitle": "Gagal memuat produk",
+      "loadErrorDescription": "Silakan coba lagi nanti",
+      "retry": "Coba lagi",
+      "resetFilters": "Atur ulang filter",
       "chips": {
         "search": "Pencarian: {query}",
         "rating": "Rating {rating}+ bintang",
@@ -511,25 +511,25 @@
       }
     },
     "sidebar": {
-      "title": "Filters",
-      "priceRange": "Price Range",
-      "ratingAvailability": "Rating & Availability",
+      "title": "Filter",
+      "priceRange": "Rentang Harga",
+      "ratingAvailability": "Rating & Ketersediaan",
       "andUp": "ke atas",
       "inStockOnly": "Stok tersedia saja",
       "discountOnly": "Promo saja",
-      "categories": "Categories",
-      "brands": "Brands",
-      "clearAll": "Clear all",
-      "showResults": "Show Results"
+      "categories": "Kategori",
+      "brands": "Merek",
+      "clearAll": "Hapus semua",
+      "showResults": "Tampilkan Hasil"
     },
     "priceRange": {
-      "label": "Price Range",
-      "min": "Min Price",
-      "max": "Max Price",
-      "apply": "Apply Filter"
+      "label": "Rentang Harga",
+      "min": "Harga Minimum",
+      "max": "Harga Maksimum",
+      "apply": "Terapkan Filter"
     },
     "vouchers": {
-      "percentOff": "{percent}% OFF",
+      "percentOff": "DISKON {percent}%",
       "minSpend": "Min. belanja {amount}",
       "remaining": "{count} kali tersisa",
       "perUser": "Maks {limit}x per pelanggan",
@@ -559,7 +559,7 @@
       "rows": {
         "price": "Harga",
         "rating": "Rating",
-        "brand": "Brand",
+        "brand": "Merek",
         "category": "Kategori",
         "stock": "Stok",
         "description": "Deskripsi"
@@ -590,7 +590,7 @@
     },
     "flashSale": {
       "loadFailed": "Gagal memuat flash sale.",
-      "title": "Flash Sales",
+      "title": "Flash Sale",
       "retry": "Coba Lagi",
       "description": "Harga dan waktu promo berasal dari campaign aktif.",
       "endsIn": "Berakhir dalam · Diskon hingga 20%",
@@ -601,7 +601,7 @@
       "categories": {
         "all": "Semua",
         "electronics": "Elektronik",
-        "fashion": "Fashion",
+        "fashion": "Fesyen",
         "home": "Rumah Tangga",
         "health": "Kesehatan",
         "sports": "Olahraga"
@@ -620,7 +620,7 @@
       "timer": {
         "days": "Hari",
         "hours": "Jam",
-        "minutes": "Min",
+        "minutes": "Mnt",
         "seconds": "Det"
       },
       "stockLeft": "Sisa {count} unit",
@@ -631,7 +631,7 @@
       "noCampaign": "Belum ada campaign aktif.",
       "section": {
         "title": "Flash Sale Hari Ini",
-        "hot": "HOT",
+        "hot": "TERLARIS",
         "description": "Diskon spesial berakhir dalam waktu terbatas",
         "endsIn": "Berakhir dalam:",
         "viewAll": "Lihat Semua Flash Sale"
@@ -661,90 +661,90 @@
         "label": "Pilih varian",
         "available": "{count} tersedia",
         "soldOut": "Habis",
-        "selectColor": "Select {name} color"
+        "selectColor": "Pilih warna {name}"
       },
       "adding": "Menambahkan…",
-      "addToCart": "Add to cart",
-      "outOfStock": "Out of stock"
+      "addToCart": "Tambah ke keranjang",
+      "outOfStock": "Stok habis"
     },
     "gallery": {
-      "noImage": "No image available",
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "imageAlt": "{name} - Image {index}",
-      "thumbnailAlt": "{name} thumbnail {index}",
-      "viewImage": "View image {index}",
-      "previousLabel": "Previous image",
-      "previous": "← Previous",
-      "nextLabel": "Next image",
-      "next": "Next →",
-      "hintZoomIn": "Click image to zoom in",
-      "hintZoomOut": "Click to zoom out"
+      "noImage": "Gambar tidak tersedia",
+      "zoomIn": "Perbesar",
+      "zoomOut": "Perkecil",
+      "imageAlt": "{name} - Gambar {index}",
+      "thumbnailAlt": "Thumbnail {name} {index}",
+      "viewImage": "Lihat gambar {index}",
+      "previousLabel": "Gambar sebelumnya",
+      "previous": "← Sebelumnya",
+      "nextLabel": "Gambar berikutnya",
+      "next": "Berikutnya →",
+      "hintZoomIn": "Klik gambar untuk memperbesar",
+      "hintZoomOut": "Klik untuk memperkecil"
     },
     "share": {
-      "button": "Share",
-      "native": "Native Share",
+      "button": "Bagikan",
+      "native": "Bagikan via Perangkat",
       "platforms": {
         "twitter": "Twitter",
         "facebook": "Facebook",
-        "message": "Message",
-        "copy": "Copy Link"
+        "message": "Pesan",
+        "copy": "Salin Tautan"
       },
       "copied": {
-        "title": "Link copied",
-        "description": "Product link copied to clipboard"
+        "title": "Tautan disalin",
+        "description": "Tautan produk disalin ke clipboard"
       },
       "copyFailed": {
-        "title": "Failed to copy",
-        "description": "Please try manually"
+        "title": "Gagal menyalin",
+        "description": "Silakan salin secara manual"
       },
       "inline": {
-        "copyLink": "Copy link",
-        "twitter": "Share on Twitter",
-        "facebook": "Share on Facebook",
-        "message": "Share via Message",
-        "native": "Native share"
+        "copyLink": "Salin tautan",
+        "twitter": "Bagikan ke Twitter",
+        "facebook": "Bagikan ke Facebook",
+        "message": "Bagikan lewat Pesan",
+        "native": "Bagikan via perangkat"
       }
     },
     "quickView": {
-      "loading": "Loading product details",
-      "noImage": "No image",
-      "inStock": "In Stock ({count} available)",
-      "outOfStock": "Out of Stock",
-      "noDescription": "No description available",
-      "quantity": "Quantity:",
-      "adding": "Adding...",
-      "addToCart": "Add to Cart",
-      "viewDetails": "View full details →",
-      "notFound": "Product not found",
+      "loading": "Memuat detail produk",
+      "noImage": "Tidak ada gambar",
+      "inStock": "Tersedia ({count} stok)",
+      "outOfStock": "Stok Habis",
+      "noDescription": "Deskripsi tidak tersedia",
+      "quantity": "Jumlah:",
+      "adding": "Menambahkan...",
+      "addToCart": "Tambah ke Keranjang",
+      "viewDetails": "Lihat detail lengkap →",
+      "notFound": "Produk tidak ditemukan",
       "cartNotReady": {
-        "title": "Error",
+        "title": "Terjadi kesalahan",
         "description": "Keranjang belanja belum siap."
       }
     },
     "recommendations": {
-      "emptyDefault": "No recommendations available",
+      "emptyDefault": "Belum ada rekomendasi",
       "related": {
-        "title": "You might also like"
+        "title": "Mungkin Anda juga suka"
       },
       "frequentlyBoughtTogether": {
-        "title": "Frequently Bought Together",
-        "empty": "No frequently bought together items"
+        "title": "Sering Dibeli Bersamaan",
+        "empty": "Belum ada produk yang sering dibeli bersamaan"
       },
       "customersAlsoViewed": {
-        "title": "Customers Also Viewed",
-        "empty": "No recently viewed items"
+        "title": "Pelanggan Juga Melihat",
+        "empty": "Belum ada produk yang baru dilihat"
       },
       "personalized": {
-        "title": "Recommended for You",
-        "empty": "No personalized recommendations yet"
+        "title": "Rekomendasi untuk Anda",
+        "empty": "Belum ada rekomendasi personal"
       },
       "forYou": {
-        "title": "Recommended For You"
+        "title": "Rekomendasi untuk Anda"
       },
       "trending": {
-        "title": "Trending Now",
-        "empty": "No trending products"
+        "title": "Sedang Tren",
+        "empty": "Belum ada produk yang sedang tren"
       }
     },
     "reviews": {
@@ -851,7 +851,7 @@
       "section": {
         "ask": "Ajukan Pertanyaan",
         "closeForm": "Tutup formulir",
-        "signInPrompt": "<login>Masuk</login> atau<register>daftar</register> untuk mengajukan pertanyaan."
+        "signInPrompt": "<login>Masuk</login> atau <register>daftar</register> untuk mengajukan pertanyaan."
       },
       "form": {
         "title": "Tanyakan tentang produk ini",
@@ -900,7 +900,7 @@
         "emptyTitle": "Belum ada pertanyaan untuk produk ini.",
         "emptyDescription": "Jadilah yang pertama bertanya!",
         "listLabel": "Daftar pertanyaan",
-        "paginationLabel": "Pagination",
+        "paginationLabel": "Navigasi halaman",
         "page": "Halaman {page} dari {total}"
       },
       "toast": {
@@ -921,17 +921,17 @@
   },
   "cart": {
     "drawer": {
-      "triggerLabel": "{count, plural, =0 {Open cart} =1 {Open cart with {count} item} other {Open cart with {count} items}}",
-      "trigger": "Cart",
-      "title": "Your cart",
-      "description": "Review the items in your shopping cart before checkout.",
+      "triggerLabel": "{count, plural, =0 {Buka keranjang} other {Buka keranjang berisi {count} barang}}",
+      "trigger": "Keranjang",
+      "title": "Keranjang Anda",
+      "description": "Tinjau barang di keranjang belanja Anda sebelum checkout.",
       "close": "Tutup",
-      "quantity": "Qty: {quantity}",
+      "quantity": "Jml: {quantity}",
       "subtotal": "Subtotal",
-      "checkout": "Go to checkout"
+      "checkout": "Lanjut ke checkout"
     },
     "view": {
-      "eyebrow": "Your bag",
+      "eyebrow": "Tas belanja Anda",
       "title": "Keranjang Belanja",
       "subtitle": "Tinjau produk sebelum melanjutkan ke pembayaran",
       "savingChanges": "Menyimpan perubahan keranjang…",
@@ -958,8 +958,8 @@
       "remove": "Hapus"
     },
     "quantityPicker": {
-      "decrease": "Decrease quantity",
-      "increase": "Increase quantity"
+      "decrease": "Kurangi jumlah",
+      "increase": "Tambah jumlah"
     },
     "toast": {
       "added": "Ditambahkan ke keranjang",
@@ -1005,7 +1005,7 @@
       "breadcrumbCart": "Keranjang",
       "breadcrumbCheckout": "Checkout",
       "title": "Checkout",
-      "subtitle": "Enter your shipping details to see available delivery options."
+      "subtitle": "Masukkan detail pengiriman untuk melihat opsi pengiriman yang tersedia."
     },
     "stepper": {
       "label": "Progres checkout",
@@ -1034,20 +1034,20 @@
       "deleteDisabled": "Alamat ini sedang digunakan saat checkout."
     },
     "shipping": {
-      "title": "Shipping Options",
-      "description": "Choose the delivery service that suits you best.",
+      "title": "Opsi Pengiriman",
+      "description": "Pilih layanan pengiriman yang paling sesuai untuk Anda.",
       "refreshing": "Memperbarui...",
       "refresh": "Perbarui ongkir",
       "recalculating": "Menghitung ulang ongkir...",
       "lastQuote": "Ongkir terakhir {time}",
       "updatedQuote": "Ongkir diperbarui {time}",
       "autoUpdate": "Ongkir diperbarui otomatis saat alamat atau keranjang berubah.",
-      "empty": "No shipping options available.",
+      "empty": "Tidak ada opsi pengiriman yang tersedia.",
       "eta": "Estimasi tiba {range}"
     },
     "payment": {
-      "title": "Payment Method",
-      "description": "Select how you want to pay for your order.",
+      "title": "Metode Pembayaran",
+      "description": "Pilih cara Anda membayar pesanan.",
       "selected": "Dipilih",
       "methods": {
         "bank_transfer": {
@@ -1098,19 +1098,19 @@
       },
       "payNow": {
         "processing": "Pembayaran sedang diproses…",
-        "missingOrderId": "Order ID tidak ditemukan. Periksa ulang tautan Anda.",
+        "missingOrderId": "ID pesanan tidak ditemukan. Periksa ulang tautan Anda.",
         "missingOrderDraft": "Draft pesanan tidak tersedia. Kembali ke langkah sebelumnya.",
         "fallback": "Lengkapi data yang diperlukan."
       }
     },
     "summary": {
-      "title": "Order Summary",
-      "description": "Review the total cost before proceeding to payment.",
+      "title": "Ringkasan Pesanan",
+      "description": "Tinjau total biaya sebelum melanjutkan ke pembayaran.",
       "subtotal": "Subtotal",
-      "discount": "Discount",
-      "tax": "Tax",
-      "taxRate": "Tax ({rate}%)",
-      "shipping": "Shipping",
+      "discount": "Diskon",
+      "tax": "Pajak",
+      "taxRate": "Pajak ({rate}%)",
+      "shipping": "Ongkos kirim",
       "total": "Total"
     },
     "mobileBar": {
@@ -1122,9 +1122,9 @@
       "paymentTitle": "Metode Pembayaran"
     },
     "review": {
-      "title": "Review Pesanan",
+      "title": "Tinjau Pesanan",
       "description": "Pastikan detail pesanan Anda sudah benar sebelum melanjutkan ke pembayaran.",
-      "orderId": "Order ID: {orderId}",
+      "orderId": "ID Pesanan: {orderId}",
       "addressTitle": "Alamat Pengiriman",
       "supportSubject": "Bantuan pembayaran {orderId}",
       "missingOrder": {
@@ -1228,7 +1228,7 @@
       "processing": "Memproses pesanan...",
       "processingDescription": "Mohon tunggu sebentar.",
       "success": "Pesanan berhasil dibuat!",
-      "successDescription": "Order ID: {orderNumber}",
+      "successDescription": "ID Pesanan: {orderNumber}",
       "error": "Gagal memproses pesanan"
     },
     "paymentToast": {
@@ -1261,7 +1261,7 @@
           "submit": "Simpan alamat"
         },
         "edit": {
-          "title": "Edit alamat",
+          "title": "Ubah alamat",
           "description": "Perbarui detail alamat Anda.",
           "submit": "Perbarui alamat"
         },
@@ -1274,7 +1274,7 @@
         }
       },
       "card": {
-        "default": "Default",
+        "default": "Utama",
         "selected": "Dipilih",
         "select": "Pilih",
         "alreadySelected": "Alamat sudah dipilih",
@@ -1283,8 +1283,8 @@
         "isDefaultLabel": "Alamat default",
         "makeDefaultLabel": "Jadikan alamat default",
         "makeDefault": "Jadikan default",
-        "editLabel": "Edit alamat {name}",
-        "edit": "Edit",
+        "editLabel": "Ubah alamat {name}",
+        "edit": "Ubah",
         "deleteDisabledLabel": "Menghapus alamat dinonaktifkan",
         "deleteLabel": "Hapus alamat {name}",
         "delete": "Hapus"
@@ -1378,16 +1378,16 @@
   "auth": {
     "shell": {
       "tagline": "Belanja yang terasa personal",
-      "headline": "Objects chosen with intention.",
+      "headline": "Barang yang dipilih dengan sepenuh hati.",
       "description": "Temukan koleksi pilihan, pengiriman yang dapat diandalkan, dan pengalaman belanja yang tenang.",
       "securePayment": "Produk pilihan & pembayaran aman",
       "shipping": "Pengiriman ke seluruh Indonesia"
     },
     "fields": {
-      "name": "Name",
+      "name": "Nama",
       "email": "Email",
       "password": "Password",
-      "confirmPassword": "Confirm Password",
+      "confirmPassword": "Konfirmasi Password",
       "newPassword": "Password baru",
       "confirmNewPassword": "Konfirmasi password"
     },
@@ -1405,30 +1405,30 @@
       "passwordMismatch": "Password tidak cocok"
     },
     "social": {
-      "divider": "or continue with",
-      "or": "or",
-      "signInWith": "Sign in with {provider}",
-      "google": "Continue with Google",
-      "github": "Continue with GitHub",
-      "apple": "Continue with Apple"
+      "divider": "atau lanjutkan dengan",
+      "or": "atau",
+      "signInWith": "Masuk dengan {provider}",
+      "google": "Lanjutkan dengan Google",
+      "github": "Lanjutkan dengan GitHub",
+      "apple": "Lanjutkan dengan Apple"
     },
     "login": {
       "eyebrow": "Kembali ke toko",
-      "title": "Welcome back",
-      "description": "Sign in to continue to your account and curated collection.",
-      "forgotPassword": "Forgot password?",
-      "submit": "Sign in",
-      "submitting": "Signing in...",
-      "noAccount": "Don''t have an account? <register>Register</register>"
+      "title": "Selamat datang kembali",
+      "description": "Masuk untuk melanjutkan ke akun dan koleksi pilihan Anda.",
+      "forgotPassword": "Lupa password?",
+      "submit": "Masuk",
+      "submitting": "Sedang masuk...",
+      "noAccount": "Belum punya akun? <register>Daftar</register>"
     },
     "register": {
       "eyebrow": "Mulai koleksi Anda",
-      "title": "Create an account",
-      "description": "Start shopping with toko today, with a more personal experience.",
-      "terms": "I agree to the <terms>Terms and Conditions</terms> and <privacy>Privacy Policy</privacy>",
-      "submit": "Register",
-      "submitting": "Creating account...",
-      "hasAccount": "Already have an account? <login>Sign in</login>"
+      "title": "Buat akun",
+      "description": "Mulai belanja di toko hari ini dengan pengalaman yang lebih personal.",
+      "terms": "Saya menyetujui <terms>Syarat dan Ketentuan</terms> serta <privacy>Kebijakan Privasi</privacy>",
+      "submit": "Daftar",
+      "submitting": "Membuat akun...",
+      "hasAccount": "Sudah punya akun? <login>Masuk</login>"
     },
     "forgot": {
       "title": "Lupa password?",
@@ -1449,7 +1449,7 @@
       "successTitle": "Password berhasil diubah",
       "successDescription": "Silakan login dengan password baru Anda.",
       "backToLogin": "Kembali ke login",
-      "title": "Reset password",
+      "title": "Atur ulang password",
       "description": "Buat password baru untuk akun Anda.",
       "submit": "Simpan password baru",
       "submitting": "Memperbarui password..."
@@ -1469,28 +1469,28 @@
       "submitting": "Mengirim ulang..."
     },
     "passwordStrength": {
-      "label": "Password strength: {level}",
+      "label": "Kekuatan password: {level}",
       "levels": {
-        "weak": "weak",
-        "fair": "fair",
-        "good": "good",
-        "strong": "strong"
+        "weak": "lemah",
+        "fair": "cukup",
+        "good": "baik",
+        "strong": "kuat"
       },
-      "feedback": "Add {items} for a stronger password",
-      "great": "Great! Your password is strong",
+      "feedback": "Tambahkan {items} agar password lebih kuat",
+      "great": "Bagus! Password Anda kuat",
       "missing": {
-        "length": "at least 8 characters",
-        "uppercase": "an uppercase letter",
-        "lowercase": "a lowercase letter",
-        "number": "a number",
-        "special": "a special character"
+        "length": "minimal 8 karakter",
+        "uppercase": "huruf besar",
+        "lowercase": "huruf kecil",
+        "number": "angka",
+        "special": "karakter khusus"
       },
       "requirements": {
-        "length": "At least 8 characters",
-        "uppercase": "One uppercase letter",
-        "lowercase": "One lowercase letter",
-        "number": "One number",
-        "special": "One special character"
+        "length": "Minimal 8 karakter",
+        "uppercase": "Satu huruf besar",
+        "lowercase": "Satu huruf kecil",
+        "number": "Satu angka",
+        "special": "Satu karakter khusus"
       }
     },
     "guard": {
@@ -1510,23 +1510,23 @@
     "backToAccount": "Kembali ke akun",
     "login": "Login",
     "dashboard": {
-      "logoutFailed": "Failed to logout",
-      "guestTitle": "Account",
-      "guestDescription": "Please sign in to access your account.",
-      "signIn": "Sign in",
-      "createAccount": "Create account",
-      "welcome": "Welcome, {name}",
+      "logoutFailed": "Gagal keluar",
+      "guestTitle": "Akun",
+      "guestDescription": "Silakan masuk untuk mengakses akun Anda.",
+      "signIn": "Masuk",
+      "createAccount": "Buat akun",
+      "welcome": "Selamat datang, {name}",
       "unverified": "Email Anda belum terverifikasi.",
       "verifyNow": "Verifikasi sekarang",
       "links": {
-        "profile": "Profile",
-        "orders": "View Orders",
-        "addresses": "Manage Addresses",
-        "favorites": "Favorites",
+        "profile": "Profil",
+        "orders": "Lihat Pesanan",
+        "addresses": "Kelola Alamat",
+        "favorites": "Favorit",
         "searches": "Riwayat Pencarian",
         "loyalty": "Loyalitas",
         "push": "Notifikasi Push",
-        "logout": "Logout"
+        "logout": "Keluar"
       }
     },
     "addresses": {
@@ -1558,7 +1558,7 @@
           "special": "Khusus"
         },
         "exclusive": "Khusus {audience}",
-        "member": "Member",
+        "member": "Anggota",
         "redeeming": "Menukarkan...",
         "redeem": "Tukar",
         "notEnough": "Poin tidak cukup",
@@ -1611,7 +1611,7 @@
         "earlyAccess": "Akses produk baru lebih awal",
         "prioritySupport": "Support prioritas",
         "expressShipping": "Gratis ongkir + pengiriman ekspres",
-        "personalShopper": "Personal shopper",
+        "personalShopper": "Asisten belanja pribadi",
         "birthdayGift": "Hadiah ulang tahun",
         "exclusiveEvents": "Undangan event eksklusif"
       },
@@ -1696,7 +1696,7 @@
       "downloadInvoice": "Unduh invoice",
       "cancelOrder": "Batalkan pesanan",
       "items": "Produk dalam pesanan",
-      "qtyPrice": "Qty {qty} - {price}",
+      "qtyPrice": "Jml {qty} - {price}",
       "subtotal": "Subtotal",
       "statusTitle": "Status pesanan",
       "paymentSummary": "Ringkasan pembayaran",
@@ -1722,7 +1722,7 @@
       }
     },
     "invoice": {
-      "title": "Invoice #{number}",
+      "title": "Faktur #{number}",
       "date": "Tanggal: {date}",
       "customer": "Pelanggan: {name}",
       "email": "Email: {email}",
@@ -1772,9 +1772,9 @@
         "marketing": "Email Pemasaran & Promo",
         "marketingDescription": "Dapatkan info diskon, produk baru, dan penawaran eksklusif.",
         "marketingLabel": "Email pemasaran",
-        "orders": "Update Pesanan & Pengiriman",
+        "orders": "Pembaruan Pesanan & Pengiriman",
         "ordersDescription": "Notifikasi status pesanan, pengiriman, dan pengembalian.",
-        "ordersLabel": "Update pesanan",
+        "ordersLabel": "Pembaruan pesanan",
         "security": "Peringatan Keamanan",
         "securityDescription": "Notifikasi login mencurigakan, perubahan password, dll.",
         "securityLabel": "Peringatan keamanan"
@@ -1784,11 +1784,11 @@
         "description": "Atur siapa yang bisa melihat informasi profil Anda.",
         "question": "Siapa yang bisa melihat profil Anda?",
         "public": "Publik",
-        "publicDescription": "Semua orang bisa melihat nama, avatar, dan riwayat review Anda.",
+        "publicDescription": "Semua orang bisa melihat nama, avatar, dan riwayat ulasan Anda.",
         "friends": "Hanya Teman",
         "friendsDescription": "Hanya pengguna yang Anda ikuti yang bisa melihat profil lengkap.",
         "private": "Pribadi",
-        "privateDescription": "Hanya Anda yang bisa melihat profil Anda. Nama tetap terlihat di review."
+        "privateDescription": "Hanya Anda yang bisa melihat profil Anda. Nama tetap terlihat di ulasan."
       },
       "data": {
         "title": "Pengolahan Data",
@@ -1910,7 +1910,7 @@
       "banner": {
         "close": "Tutup",
         "title": "Aktifkan Notifikasi Push",
-        "description": "Terima update pesanan, promo flash sale, dan penurunan harga secara real-time",
+        "description": "Terima pembaruan pesanan, promo flash sale, dan penurunan harga secara real-time",
         "enable": "Aktifkan"
       },
       "card": {
@@ -1973,13 +1973,13 @@
       "replyFailed": "Gagal mengirim balasan.",
       "newTicket": "Tiket baru",
       "subject": "Subjek",
-      "orderNumber": "Nomor order (opsional)",
+      "orderNumber": "Nomor pesanan (opsional)",
       "message": "Jelaskan kendala Anda",
       "sending": "Mengirim...",
       "create": "Buat tiket",
       "empty": "Belum ada tiket.",
       "createdAt": "Dibuat {date}",
-      "order": "Order {orderId}",
+      "order": "Pesanan {orderId}",
       "conversation": "Percakapan tiket {subject}",
       "noMessages": "Belum ada pesan.",
       "you": "Anda",
@@ -1988,12 +1988,12 @@
       "send": "Kirim"
     },
     "recentOrders": {
-      "title": "Recent Orders",
-      "empty": "No orders yet",
-      "startShopping": "Start shopping",
-      "viewAll": "View all →",
-      "orderNumber": "Order #{number}",
-      "itemCount": "{count, plural, =1 {# item} other {# items}}"
+      "title": "Pesanan Terbaru",
+      "empty": "Belum ada pesanan",
+      "startShopping": "Mulai belanja",
+      "viewAll": "Lihat semua →",
+      "orderNumber": "Pesanan #{number}",
+      "itemCount": "{count, plural, other {# barang}}"
     },
     "confirmation": {
       "status": {
@@ -2036,7 +2036,7 @@
       "viewMyOrders": "Lihat Pesanan Saya",
       "continueShopping": "Lanjut Belanja",
       "createdTitle": "Pesanan Dibuat",
-      "orderId": "Order ID: <mono>{orderId}</mono>",
+      "orderId": "ID Pesanan: <mono>{orderId}</mono>",
       "processing": "Detail pesanan sedang diproses. Silakan cek riwayat pesanan Anda.",
       "orderNumber": "Nomor Pesanan",
       "totalPayment": "Total Pembayaran",
@@ -2064,7 +2064,7 @@
       "itemsDescription": "Tambahkan lagi produk yang pernah dibeli.",
       "reordering": "Menambahkan...",
       "reorder": "Beli lagi",
-      "qtyPrice": "Qty {qty} - {price}",
+      "qtyPrice": "Jml {qty} - {price}",
       "viewProduct": "Lihat produk",
       "review": "Beri ulasan",
       "cancelOrder": "Batalkan pesanan",
@@ -2079,7 +2079,7 @@
       "mapResolving": "Memuat peta pelacakan dan koordinat lokasi...",
       "mapEmpty": "Data lokasi pengiriman belum tersedia atau tidak dapat ter-geocode.",
       "notFoundTitle": "Tracking tidak ditemukan",
-      "notFoundDescription": "Order ID tidak tersedia. Periksa kembali tautan Anda.",
+      "notFoundDescription": "ID pesanan tidak tersedia. Periksa kembali tautan Anda.",
       "backToOrder": "Kembali ke pesanan",
       "loadFailedTitle": "Gagal memuat tracking",
       "loadFailedDescription": "Kami belum bisa mengambil informasi pengiriman. Coba lagi nanti.",
@@ -2117,8 +2117,8 @@
       "guestDescription": "Silakan login untuk melihat dan mengajukan pengembalian.",
       "description": "Ajukan dan pantau proses pengembalian dari satu tempat.",
       "formTitle": "Ajukan pengembalian",
-      "orderNumber": "Nomor order",
-      "orderPlaceholder": "UUID order",
+      "orderNumber": "Nomor pesanan",
+      "orderPlaceholder": "UUID pesanan",
       "reason": "Alasan",
       "reasonPlaceholder": "Produk rusak, salah ukuran, ...",
       "notes": "Catatan tambahan",
@@ -2126,7 +2126,7 @@
       "submit": "Kirim permintaan",
       "listTitle": "Permintaan saya",
       "empty": "Belum ada permintaan pengembalian.",
-      "order": "Order {orderId}"
+      "order": "Pesanan {orderId}"
     }
   },
   "errors": {
@@ -2165,23 +2165,23 @@
   },
   "seo": {
     "site": {
-      "description": "Modern modular storefront for the toko e-commerce experience.",
-      "ogImageAlt": "toko default preview image"
+      "description": "Etalase modular modern untuk pengalaman belanja online toko.",
+      "ogImageAlt": "Gambar pratinjau default toko"
     },
     "og": {
-      "tagline": "Modern modular storefront components"
+      "tagline": "Komponen etalase modular modern"
     },
     "breadcrumb": {
-      "home": "Home"
+      "home": "Beranda"
     },
     "products": {
-      "title": "Products",
-      "description": "Explore curated products from toko for your next purchase."
+      "title": "Produk",
+      "description": "Jelajahi produk pilihan dari toko untuk belanja Anda berikutnya."
     },
     "product": {
-      "fallbackTitle": "Product",
-      "fallbackDescription": "Discover the latest products available on toko.",
-      "imageAlt": "{title} image {index}"
+      "fallbackTitle": "Produk",
+      "fallbackDescription": "Temukan produk terbaru yang tersedia di toko.",
+      "imageAlt": "Gambar {title} {index}"
     },
     "featured": {
       "title": "Koleksi Pilihan",

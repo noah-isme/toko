@@ -217,7 +217,7 @@ describe('product recommendations', () => {
     state.isAuthenticated = true;
     renderWithIntl(<PersonalizedRecommendations />);
 
-    expect(screen.getByRole('heading', { name: 'Recommended For You' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Rekomendasi untuk Anda' })).toBeInTheDocument();
   });
 });
 

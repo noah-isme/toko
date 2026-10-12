@@ -32,7 +32,7 @@ describe('search autocomplete history', () => {
     const user = userEvent.setup();
     render(<SearchAutocomplete />, { wrapper });
 
-    const input = screen.getByLabelText('Search products');
+    const input = screen.getByLabelText('Cari produk');
     await user.type(input, 'kamera{Enter}');
 
     expect(useSearchStore.getState().recentSearches).toEqual(['kamera']);
@@ -44,7 +44,7 @@ describe('search autocomplete history', () => {
     useSearchStore.setState({ recentSearches: ['laptop'] });
 
     render(<SearchAutocomplete />, { wrapper });
-    await user.click(screen.getByLabelText('Search products'));
+    await user.click(screen.getByLabelText('Cari produk'));
 
     expect(screen.getByText('Pencarian Terakhir')).toBeInTheDocument();
     expect(screen.getByText('laptop')).toBeInTheDocument();
@@ -54,11 +54,11 @@ describe('search autocomplete history', () => {
     const user = userEvent.setup();
     render(<SearchAutocomplete />, { wrapper });
 
-    await user.click(screen.getByLabelText('Search products'));
+    await user.click(screen.getByLabelText('Cari produk'));
 
     expect(screen.queryByText('Pencarian Terakhir')).not.toBeInTheDocument();
     // Popular searches remain as the fallback suggestion list.
-    expect(screen.getByText('Popular Searches')).toBeInTheDocument();
+    expect(screen.getByText('Pencarian Populer')).toBeInTheDocument();
   });
 
   it('re-runs a stored search when clicked', async () => {
@@ -66,7 +66,7 @@ describe('search autocomplete history', () => {
     useSearchStore.setState({ recentSearches: ['headphone'] });
 
     render(<SearchAutocomplete />, { wrapper });
-    await user.click(screen.getByLabelText('Search products'));
+    await user.click(screen.getByLabelText('Cari produk'));
     await user.click(screen.getByText('headphone'));
 
     expect(push).toHaveBeenCalledWith('/products?q=headphone');
@@ -77,7 +77,7 @@ describe('search autocomplete history', () => {
     useSearchStore.setState({ recentSearches: ['laptop', 'kamera'] });
 
     render(<SearchAutocomplete />, { wrapper });
-    await user.click(screen.getByLabelText('Search products'));
+    await user.click(screen.getByLabelText('Cari produk'));
     await user.click(screen.getByLabelText('Hapus laptop dari riwayat pencarian'));
 
     expect(useSearchStore.getState().recentSearches).toEqual(['kamera']);
@@ -88,7 +88,7 @@ describe('search autocomplete history', () => {
     useSearchStore.setState({ recentSearches: ['laptop', 'kamera'] });
 
     render(<SearchAutocomplete />, { wrapper });
-    await user.click(screen.getByLabelText('Search products'));
+    await user.click(screen.getByLabelText('Cari produk'));
     await user.click(screen.getByRole('button', { name: 'Hapus semua' }));
 
     expect(useSearchStore.getState().recentSearches).toEqual([]);

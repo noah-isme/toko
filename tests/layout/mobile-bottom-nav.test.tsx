@@ -60,9 +60,9 @@ describe('MobileBottomNav Component', () => {
   it('renders all main navigation items', () => {
     renderComponent();
 
-    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Beranda')).toBeInTheDocument();
     expect(screen.getByText('Produk')).toBeInTheDocument();
-    expect(screen.getByText('Cart')).toBeInTheDocument();
+    expect(screen.getByText('Keranjang')).toBeInTheDocument();
     expect(screen.getByText('Favorit')).toBeInTheDocument();
     expect(screen.getByText('Akun')).toBeInTheDocument();
   });
@@ -74,7 +74,7 @@ describe('MobileBottomNav Component', () => {
     const produkLink = screen.getByRole('link', { name: /produk/i });
     expect(produkLink).toHaveAttribute('aria-current', 'page');
 
-    const homeLink = screen.getByRole('link', { name: /home/i });
+    const homeLink = screen.getByRole('link', { name: /beranda/i });
     expect(homeLink).not.toHaveAttribute('aria-current');
   });
 

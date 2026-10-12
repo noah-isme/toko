@@ -14,7 +14,7 @@ export async function seedCartFromHome(page: Page, count = 1) {
   await page.goto('/cart');
   // Dismiss cookie dialog if present
   try {
-    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Terima Semua' }).click({ timeout: 5000 });
   } catch {
     // Cookie dialog not present
   }
@@ -27,7 +27,7 @@ export async function seedCartFromHome(page: Page, count = 1) {
  */
 export async function navigateToCheckout(page: Page) {
   if (!/\/cart$/.test(new URL(page.url()).pathname)) {
-    const cartLink = page.getByRole('link', { name: 'Cart' });
+    const cartLink = page.getByRole('link', { name: 'Keranjang', exact: true });
     await cartLink.click();
     await expect(page).toHaveURL(/\/cart$/);
   }
@@ -48,7 +48,7 @@ export async function openCheckout(page: Page) {
   await page.goto('/checkout');
   // Dismiss cookie dialog if present
   try {
-    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Terima Semua' }).click({ timeout: 5000 });
   } catch {
     // Cookie dialog not present
   }
@@ -107,7 +107,7 @@ export async function openAddressDialog(page: Page) {
  * @returns The label of the selected shipping option
  */
 export async function selectShipping(page: Page, index = 0): Promise<string> {
-  const shippingSection = page.getByRole('heading', { name: 'Shipping Options' });
+  const shippingSection = page.getByRole('heading', { name: 'Opsi Pengiriman' });
   await shippingSection.waitFor();
 
   const shippingRadios = page.locator('input[name="shipping-option"]');
@@ -179,7 +179,7 @@ export async function goToOrderHistory(page: Page, options?: { expectEmpty?: boo
   await page.goto(options?.expectEmpty ? '/account/orders?empty=true' : '/account/orders');
   // Dismiss cookie dialog if present
   try {
-    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Terima Semua' }).click({ timeout: 5000 });
   } catch {
     // Cookie dialog not present
   }
@@ -198,7 +198,7 @@ export async function goToOrderConfirmation(page: Page, orderId: string) {
   await page.waitForLoadState('networkidle');
   // Dismiss cookie dialog if present
   try {
-    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Terima Semua' }).click({ timeout: 5000 });
   } catch {
     // Cookie dialog not present
   }

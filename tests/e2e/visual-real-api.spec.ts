@@ -208,7 +208,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await takeScreenshot(page, '04-login-page');
 
       await expect(
-        page.getByRole('heading', { name: /welcome back|sign in|login/i }),
+        page.getByRole('heading', { name: /welcome back|selamat datang kembali|sign in|login/i }),
       ).toBeVisible();
     });
 
@@ -218,7 +218,7 @@ test.describe('Visual E2E Tests with Real Toko API', () => {
       await takeScreenshot(page, '05-register-page');
 
       await expect(
-        page.getByRole('heading', { name: /create an account|register|daftar/i }),
+        page.getByRole('heading', { name: /create an account|buat akun|register|daftar/i }),
       ).toBeVisible();
     });
 

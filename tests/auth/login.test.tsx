@@ -63,14 +63,14 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Welcome back/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Selamat datang kembali' })).toBeInTheDocument();
     });
 
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument();
     expect(screen.getByTestId('login-submit')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Forgot password\?/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Register/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Lupa password?' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Daftar' })).toBeInTheDocument();
   });
 
   it('validates email format', async () => {
@@ -78,7 +78,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Welcome back/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Selamat datang kembali' })).toBeInTheDocument();
     });
 
     const emailInput = screen.getByLabelText(/Email/i);
@@ -95,7 +95,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Welcome back/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Selamat datang kembali' })).toBeInTheDocument();
     });
 
     const submitButton = screen.getByTestId('login-submit');
@@ -122,7 +122,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Welcome back/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Selamat datang kembali' })).toBeInTheDocument();
     });
 
     const emailInput = screen.getByLabelText(/Email/i);
@@ -150,7 +150,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Welcome back/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Selamat datang kembali' })).toBeInTheDocument();
     });
 
     const emailInput = screen.getByLabelText(/Email/i);
@@ -176,7 +176,7 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Welcome back/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Selamat datang kembali' })).toBeInTheDocument();
     });
 
     const emailInput = screen.getByLabelText(/Email/i);
@@ -188,7 +188,7 @@ describe('LoginPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Signing in\.\.\./i)).toBeInTheDocument();
+      expect(screen.getByText('Sedang masuk...')).toBeInTheDocument();
     });
 
     resolveLogin!({

@@ -101,7 +101,7 @@ describe('paid flow redirects to orders', () => {
     render(<CheckoutReviewPage />, { wrapper: Wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText(/Review Pesanan/i)).toBeInTheDocument();
+      expect(screen.getByText(/Tinjau Pesanan/i)).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('button', { name: /bayar sekarang/i }));

@@ -17,7 +17,7 @@ test.describe('Authentication', () => {
     await page.evaluate(() => document.querySelector('form')?.setAttribute('novalidate', 'true'));
 
     // Explicitly target the login form's sign-in submit button
-    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await page.getByTestId('login-submit').click();
 
     await expect(page.locator('#email-error')).toBeVisible();
     await expect(page.locator('#password-error')).toBeVisible();
@@ -29,7 +29,7 @@ test.describe('Authentication', () => {
     await page.goto('/login');
     await page.fill('input[name="email"]', 'wrong@example.com');
     await page.fill('input[name="password"]', 'wrongpassword');
-    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await page.getByTestId('login-submit').click();
 
     await expect(page.locator('form [role="alert"]')).toBeVisible();
   });
@@ -46,7 +46,7 @@ test.describe('Authentication', () => {
 
     await page.check('input[name="acceptTerms"]');
 
-    await page.getByRole('button', { name: 'Register', exact: true }).click();
+    await page.getByRole('button', { name: 'Daftar', exact: true }).click();
 
     await expect(page).toHaveURL('/');
 
@@ -63,7 +63,7 @@ test.describe('Authentication', () => {
     await page.fill('input[name="password"]', user.password);
     await page.fill('input[name="confirmPassword"]', user.password);
     await page.check('input[name="acceptTerms"]');
-    await page.getByRole('button', { name: 'Register', exact: true }).click();
+    await page.getByRole('button', { name: 'Daftar', exact: true }).click();
     await expect(page).toHaveURL('/');
 
     await page.reload();
@@ -80,7 +80,7 @@ test.describe('Authentication', () => {
     await page.check('input[name="acceptTerms"]');
 
     // Submit form to trigger validation errors
-    await page.getByRole('button', { name: 'Register', exact: true }).click();
+    await page.getByRole('button', { name: 'Daftar', exact: true }).click();
 
     await expect(page.locator('#confirm-password-error')).toContainText(/cocok|match/i);
   });

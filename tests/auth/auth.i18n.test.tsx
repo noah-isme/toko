@@ -180,8 +180,8 @@ describe('auth widgets', () => {
   it('renders password strength with the id catalog by default', () => {
     renderWithIntl(<PasswordStrength password="Abcdefgh1234!" />);
 
-    expect(screen.getByText('Password strength: strong')).toBeInTheDocument();
-    expect(screen.getByText('Great! Your password is strong')).toBeInTheDocument();
+    expect(screen.getByText('Kekuatan password: kuat')).toBeInTheDocument();
+    expect(screen.getByText('Bagus! Password Anda kuat')).toBeInTheDocument();
   });
 
   it('renders the customer guard prompt in both locales', async () => {

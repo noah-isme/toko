@@ -154,12 +154,14 @@ describe('cart drawer', () => {
 
     state.cart = buildCart({ itemCount: 1 });
     const second = renderWithIntl(<CartDrawer />);
-    expect(screen.getByRole('button', { name: 'Open cart with 1 item' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Buka keranjang berisi 1 barang' }),
+    ).toBeInTheDocument();
     second.unmount();
 
     state.cart = buildCart({ items: [], itemCount: 0 });
     renderWithIntl(<CartDrawer />);
-    expect(screen.getByRole('button', { name: 'Open cart' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Buka keranjang' })).toBeInTheDocument();
   });
 
   it('translates the sheet contents', async () => {

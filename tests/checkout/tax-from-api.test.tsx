@@ -86,16 +86,16 @@ describe('Checkout tax comes from the API, not a hardcoded 11%', () => {
     });
 
     // Order Summary renders once the cart (with items) loads.
-    await screen.findByText('Order Summary', {}, { timeout: 5000 });
+    await screen.findByText('Ringkasan Pesanan', {}, { timeout: 5000 });
 
     // tax 30000 on a taxable base of 200000 == 15%, so the label is derived as
-    // "Tax (15%)" — itself proof the rate is not the hardcoded 11% fallback.
-    const taxRow = screen.getByText('Tax (15%)').closest('div')!;
+    // "Pajak (15%)" — itself proof the rate is not the hardcoded 11% fallback.
+    const taxRow = screen.getByText('Pajak (15%)').closest('div')!;
     expect(within(taxRow).getByText(money(30000))).toBeInTheDocument();
     // The 11% fallback (Rp 22.000) must not appear anywhere.
     expect(screen.queryByText(money(22000))).not.toBeInTheDocument();
     // The old hardcoded label must be gone.
-    expect(screen.queryByText('Tax (11%)')).not.toBeInTheDocument();
+    expect(screen.queryByText('Pajak (11%)')).not.toBeInTheDocument();
 
     // Sanity: the subtotal row reflects the same payload.
     const subtotalRow = screen.getByText('Subtotal').closest('div')!;

@@ -73,7 +73,7 @@ describe('VouchersPage', () => {
         const welcome10 = screen.getAllByText(/WELCOME10/i);
         expect(welcome10.length).toBeGreaterThan(0);
 
-        const percentOff = screen.getAllByText(/10% OFF/i);
+        const percentOff = screen.getAllByText(/DISKON 10%/i);
         expect(percentOff.length).toBeGreaterThan(0);
 
         // Check for fixed amount vouchers

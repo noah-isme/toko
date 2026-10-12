@@ -11,7 +11,7 @@ export async function loginWithRealApi(page: Page, email: string, password: stri
 
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await page.getByTestId('login-submit').click();
 
   await page.waitForURL('/', { timeout: 30_000 });
 
@@ -38,7 +38,7 @@ export async function registerWithRealApi(
   await page.fill('input[name="password"]', userData.password);
   await page.fill('input[name="confirmPassword"]', userData.password);
   await page.check('input[name="acceptTerms"]');
-  await page.getByRole('button', { name: 'Register', exact: true }).click();
+  await page.getByRole('button', { name: 'Daftar', exact: true }).click();
 
   await page.waitForURL('/', { timeout: 30_000 });
 
