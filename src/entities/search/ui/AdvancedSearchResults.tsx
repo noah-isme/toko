@@ -24,9 +24,13 @@ import {
   useSearchUrl,
   useActiveFilterCount,
   SORT_OPTIONS,
-  parseSearchStateFromUrl,
   buildSearchUrl,
 } from '@/entities/search/hooks';
+import {
+  PRODUCTS_PAGE_SIZE,
+  parseSearchStateFromUrl,
+  toProductApiParams,
+} from '@/entities/search/lib/apiParams';
 import type { SearchFilters, SortOption } from '@/entities/search/types';
 import { AdvancedFilterSidebar as AdvancedFilterSidebarComponent } from '@/entities/search/ui/AdvancedFilterSidebar';
 import { formatCurrency } from '@/lib/api/utils';
@@ -34,7 +38,7 @@ import { cn } from '@/lib/utils';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = PRODUCTS_PAGE_SIZE;
 
 export function AdvancedSearchResults() {
   const router = useRouter();
@@ -105,31 +109,11 @@ export function AdvancedSearchResults() {
     router.push('/products' as Route, { scroll: false });
   }, [router]);
 
-  // Build API params from filters
-  const apiParams = useMemo(() => {
-    const sortMap: Record<
-      string,
-      'price:asc' | 'price:desc' | 'name:asc' | 'name:desc' | undefined
-    > = {
-      'price-asc': 'price:asc',
-      'price-desc': 'price:desc',
-      'name-asc': 'name:asc',
-      'name-desc': 'name:desc',
-    };
-    return {
-      q: filters.query,
-      categories: filters.categories?.join(','),
-      brands: filters.brands?.join(','),
-      price_min: filters.priceRange?.[0],
-      price_max: filters.priceRange?.[1],
-      rating_min: filters.rating,
-      in_stock: filters.inStockOnly,
-      on_sale: filters.discountOnly,
-      sort: sortBy ? sortMap[sortBy] : undefined,
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-    };
-  }, [filters, sortBy, currentPage]);
+  // Build API params from filters (shared with the /products Server Component prefetch)
+  const apiParams = useMemo(
+    () => toProductApiParams(filters, sortBy, currentPage),
+    [filters, sortBy, currentPage],
+  );
 
   // Fetch products
   const {

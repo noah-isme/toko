@@ -1,5 +1,5 @@
 import type { MockProduct } from '../factories/product';
-import { products } from '../fixtures';
+import { brands, categories, products } from '../fixtures';
 
 import { resolveQa } from './qa';
 import type { MockResolver, MockResult } from './types';
@@ -80,9 +80,12 @@ const REVIEW_STATS = {
   count_5_star: 0,
 };
 
-/** Product list, detail, related, reviews and Q&A. */
+/** Taxonomy, product list, detail, related, reviews and Q&A. */
 export const resolveCatalog: MockResolver = (req): MockResult | undefined => {
   const { path, method } = req;
+  // Same payloads as the MSW handlers; the filter sidebar needs both.
+  if (path === 'categories' && method === 'GET') return { data: categories };
+  if (path === 'brands' && method === 'GET') return { data: brands };
   if (path === 'products' && method === 'GET') return listProducts(req.searchParams);
 
   const isProductGet = path.startsWith('products/') && method === 'GET';

@@ -10,7 +10,6 @@ import { SocialShare } from '@/components/social-share';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useProduct } from '@/entities/catalog/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
-import { ProductQASection } from '@/entities/qa/ui/ProductQASection';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { ProductDetailSkeleton } from '@/shared/ui/skeletons/ProductDetailSkeleton';
@@ -96,7 +95,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
           />
           <div className="flex gap-2 text-sm text-muted-foreground">
             {data.categoryName && (
-              <span className="rounded-full bg-muted px-3 py-1 capitalize">
+              <span className="rounded-full bg-muted px-3 py-1 capitalize text-foreground">
                 {data.categoryName}
               </span>
             )}
@@ -184,9 +183,6 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       </div>
       <Suspense fallback={<div className="h-48 animate-pulse rounded-xl bg-muted" />}>
         <ProductRecommendations productId={data.id} />
-      </Suspense>
-      <Suspense fallback={<div className="h-48 animate-pulse rounded-xl bg-muted" />}>
-        <ProductQASection productId={data.id} />
       </Suspense>
     </>
   );

@@ -57,14 +57,15 @@ export function ReviewStats({ productId, className }: ReviewStatsProps) {
           return (
             <div key={rating} className="flex items-center gap-2">
               <dt className="w-4 text-xs font-semibold">{rating}</dt>
-              <div className="h-2 flex-1 rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-yellow-400 transition-all"
-                  style={{ width: `${percent}%` }}
-                  aria-hidden="true"
-                />
-              </div>
-              <dd className="w-10 text-right text-xs text-muted-foreground">{percent}%</dd>
+              <dd className="flex flex-1 items-center gap-2">
+                <span className="h-2 flex-1 rounded-full bg-muted" aria-hidden="true">
+                  <span
+                    className="block h-full rounded-full bg-yellow-400 transition-all"
+                    style={{ width: `${percent}%` }}
+                  />
+                </span>
+                <span className="w-10 text-right text-xs text-muted-foreground">{percent}%</span>
+              </dd>
             </div>
           );
         })}

@@ -362,7 +362,7 @@ export function AdvancedFilterSidebar({
         style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-semibold">Filter</h3>
+          <h2 className="font-semibold">Filter</h2>
           {hasActiveFilters && onClearFilters && (
             <Button variant="ghost" size="sm" onClick={onClearFilters}>
               <X className="h-3.5 w-3.5" />

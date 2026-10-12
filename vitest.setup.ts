@@ -4,6 +4,10 @@ import { cleanup } from '@testing-library/react';
 import { server } from './src/mocks/server';
 import { isMock } from './src/shared/config/isMock';
 
+// `server-only` throws when imported outside a React Server environment; tests
+// exercise server modules (e.g. src/lib/api/server.ts) directly.
+vi.mock('server-only', () => ({}));
+
 // Unmount any rendered React trees after every test. Without this, a component
 // rendered by one test lingers in the shared jsdom document and its text can be
 // matched by a later test — a subtle, order-dependent source of failures.

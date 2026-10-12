@@ -93,12 +93,12 @@ export function LandingHero() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500 text-white">
               <Flame className="h-4 w-4" />
             </div>
-            <span className="rounded bg-rose-500 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
+            <span className="rounded bg-rose-700 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
               s.d 50%
             </span>
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Diskon Musim Ini</h3>
+            <h2 className="text-sm font-bold text-foreground">Diskon Musim Ini</h2>
             <p className="text-xs text-muted-foreground">Cek promo terpanas & flash deals</p>
           </div>
         </Link>
@@ -115,7 +115,7 @@ export function LandingHero() {
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Gadget & Elektronik</h3>
+            <h2 className="text-sm font-bold text-foreground">Gadget & Elektronik</h2>
             <p className="text-xs text-muted-foreground">Laptop, Smartphone, & Aksesori</p>
           </div>
         </Link>
@@ -132,7 +132,7 @@ export function LandingHero() {
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Fashion & Gaya</h3>
+            <h2 className="text-sm font-bold text-foreground">Fashion & Gaya</h2>
             <p className="text-xs text-muted-foreground">Pakaian Pria & Wanita Terbaru</p>
           </div>
         </Link>
@@ -149,7 +149,7 @@ export function LandingHero() {
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Produk Terbaru</h3>
+            <h2 className="text-sm font-bold text-foreground">Produk Terbaru</h2>
             <p className="text-xs text-muted-foreground">Koleksi minggu ini</p>
           </div>
         </Link>

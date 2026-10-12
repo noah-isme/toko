@@ -10,7 +10,7 @@ export function LandingCTA() {
       <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
         {/* Left: Voucher Promo */}
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-md border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-600 dark:text-rose-400">
+          <div className="inline-flex items-center gap-2 rounded-md border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-700 dark:text-rose-400">
             <Gift className="h-3.5 w-3.5" />
             <span>Bonus Pengguna Baru</span>
           </div>

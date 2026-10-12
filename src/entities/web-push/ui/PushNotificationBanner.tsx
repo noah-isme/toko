@@ -76,7 +76,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
     <Card className={cn('border-primary/20 bg-primary/5 relative overflow-hidden', className)}>
       <button
         onClick={handleDismiss}
-        className="absolute right-2 top-2 rounded p-1 transition-colors hover:bg-muted"
+        className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded transition-colors hover:bg-muted"
         aria-label="Tutup"
       >
         <span className="text-muted-foreground">×</span>

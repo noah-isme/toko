@@ -1,7 +1,15 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { catalogKeys } from '@/entities/catalog/keys';
+import {
+  productApiParamsFromSearchParams,
+  toUrlSearchParams,
+} from '@/entities/search/lib/apiParams';
 import { AdvancedSearchResults } from '@/entities/search/ui/AdvancedSearchResults';
+import { serverCatalogApi } from '@/lib/api/server-catalog';
+import { getQueryClient } from '@/lib/query/get-query-client';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { breadcrumbJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical, localeAlternates } from '@/shared/seo/seo';
@@ -34,7 +42,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ProductsPage() {
+interface ProductsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  // Prefetch the exact request the AdvancedSearchResults island makes on first
+  // render, so the product grid is in the HTML and the island does not refetch.
+  // prefetchQuery never throws; a failed fetch is simply not dehydrated and the
+  // island falls back to fetching on the client.
+  const apiParams = productApiParamsFromSearchParams(toUrlSearchParams(await searchParams));
+  const queryClient = getQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: catalogKeys.products(apiParams),
+    queryFn: () => serverCatalogApi.getProducts(apiParams),
+  });
+  if (process.env.NODE_ENV !== 'production') {
+    const error = queryClient.getQueryState(catalogKeys.products(apiParams))?.error;
+    if (error) console.warn('[products] server prefetch failed', error);
+  }
+
   const breadcrumb = breadcrumbJsonLd([
     { name: 'Home', item: '/' },
     { name: pageTitle, item: '/products' },
@@ -63,7 +90,9 @@ export default function ProductsPage() {
             </div>
           }
         >
-          <AdvancedSearchResults />
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <AdvancedSearchResults />
+          </HydrationBoundary>
         </Suspense>
       </div>
     </>

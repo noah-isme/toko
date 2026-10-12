@@ -47,12 +47,13 @@
 
 ### 🔲 M5 — Performance & Reliability
 
-- [ ] Migrate from Webpack to Turbopack (blocked by `@ducanh2912/next-pwa` compatibility)
-- [ ] Server Components adoption for data-heavy pages (catalog, product detail)
+- [x] Migrate from Webpack to Turbopack (next-pwa replaced by `@serwist/turbopack`, ADR-009)
+- [x] Server Components adoption for data-heavy pages (catalog, product detail): server prefetch + React Query hydration, also in mock mode
 - [ ] Streaming SSR for above-the-fold content
 - [ ] Image optimization audit (WebP/AVIF adoption, lazy loading tuning)
 - [ ] Bundle size audit and tree-shaking improvements
-- [ ] Lighthouse CI integration in GitHub Actions
+- [x] Lighthouse CI integration in GitHub Actions (`lighthouse` job, `lighthouserc.json`)
+- [ ] Ratchet Lighthouse thresholds up: a11y/SEO hard gates start at min(target, baseline − 0.02); promote performance (baseline 0.80–0.97) and best-practices (`/` at 0.74: third-party cookies, console errors) from warn to error once they hold the 0.8/0.9 targets, and bring script size under the 400 KB budget (currently ~580–640 KB)
 
 ### 🔲 M6 — Full Internationalization
 

@@ -19,7 +19,12 @@ export interface UseCompareProductsResult {
  */
 export function useCompareProducts(): UseCompareProductsResult {
   const productIds = useCompareStore((state) => state.productIds);
-  const { data: rawProductsData, isLoading } = useProducts();
+  // The compare bar is mounted on every storefront page: only fetch the
+  // catalogue once something is selected, so pages do not pay for it (and
+  // server-hydrated pages like /products make no extra product request).
+  const { data: rawProductsData, isLoading } = useProducts(undefined, {
+    enabled: productIds.length > 0,
+  });
   const catalogue = rawProductsData?.data;
 
   const products = useMemo(() => {

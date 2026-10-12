@@ -1,3 +1,4 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache, Suspense } from 'react';
@@ -7,14 +8,15 @@ import { FrequentlyBoughtTogether } from '@/components/frequently-bought-togethe
 import { ProductDetail } from '@/components/product-detail';
 import { RelatedProductList } from '@/components/related-product-list';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { catalogKeys } from '@/entities/catalog/keys';
 import { ProductQASection } from '@/entities/qa/ui/ProductQASection';
 import { ReviewForm } from '@/entities/reviews/ui/ReviewForm';
 import { ReviewList } from '@/entities/reviews/ui/ReviewList';
 import { ReviewStats } from '@/entities/reviews/ui/ReviewStats';
-import { mapApiProductToProduct } from '@/lib/api/mappers/product';
-import { productSchema } from '@/lib/api/schemas';
-import type { ApiProduct, ApiResponse } from '@/lib/api/types';
-import { getPublicEnv } from '@/shared/config/env';
+import { ApiClientError } from '@/lib/api/apiClient';
+import { serverCatalogApi } from '@/lib/api/server-catalog';
+import type { ProductDetail as ProductDetailData } from '@/lib/api/types';
+import { getQueryClient } from '@/lib/query/get-query-client';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
 import { abs, getCanonical, localeAlternates } from '@/shared/seo/seo';
@@ -62,44 +64,24 @@ interface ProductPageProps {
 }
 
 type FetchedProduct =
-  | { status: 'ok'; product: ReturnType<typeof mapApiProductToProduct> }
+  | { status: 'ok'; product: ProductDetailData }
   | { status: 'missing' }
   | { status: 'unavailable' };
 
-// Cached per request so generateMetadata and the page share one fetch (and one 404 decision).
+// Cached per request so generateMetadata and the page share one fetch (and one
+// 404 decision). Goes through the same catalogApi functions as the client
+// `useProduct` hook, so the hydrated query data has the hook's exact shape.
+// Works in mock mode too (in-process mock, see src/lib/api/server.ts).
 const fetchProduct = cache(async (slug: string): Promise<FetchedProduct> => {
-  const { apiUrl, apiMocking, tenantId } = getPublicEnv();
-  if (!apiUrl || apiUrl === 'mock' || apiMocking) {
-    return { status: 'unavailable' };
-  }
-
   try {
-    const endpoint = `${apiUrl.replace(/\/$/, '')}/products/${slug}`;
-    const headers = new Headers({ Accept: 'application/json' });
-    if (tenantId) {
-      headers.set('X-Tenant-ID', tenantId);
-    }
-
-    const response = await fetch(endpoint, {
-      headers,
-      cache: 'no-store',
-    });
-
-    if (response.status === 404) {
+    return { status: 'ok', product: await serverCatalogApi.getProduct(slug) };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 404) {
       return { status: 'missing' };
     }
-
-    if (!response.ok) {
-      return { status: 'unavailable' };
-    }
-
-    const json = (await response.json()) as ApiResponse<ApiProduct>;
-    return { status: 'ok', product: mapApiProductToProduct(json.data) };
-  } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn('Failed to fetch product metadata', error);
     }
-
     return { status: 'unavailable' };
   }
 });
@@ -189,6 +171,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = await loadProduct(slug);
 
+  // Hydrate the ProductDetail/RelatedProductList islands: the product comes
+  // from the cached fetch above, related products are prefetched here. Failed
+  // queries are not dehydrated, so those islands fall back to client fetching.
+  const queryClient = getQueryClient();
+  if (product) {
+    queryClient.setQueryData(catalogKeys.product(slug), product);
+  }
+  await queryClient.prefetchQuery({
+    queryKey: catalogKeys.relatedProducts(slug),
+    queryFn: () => serverCatalogApi.getRelatedProducts(slug),
+  });
+
   const structuredData = productJsonLd(product ?? null);
   const resolvedProductId = product?.id ?? slug;
   const productLabel = product?.title ?? humanizeSlug(slug) ?? 'Produk';
@@ -204,8 +198,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
             { label: productLabel },
           ]}
         />
-        <ProductDetail slug={slug} />
-        <RelatedProductList slug={slug} />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <ProductDetail slug={slug} />
+          <RelatedProductList slug={slug} />
+        </HydrationBoundary>
         <Suspense
           fallback={
             <div className="space-y-6">

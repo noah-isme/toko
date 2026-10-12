@@ -124,8 +124,31 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm build
 
 GitHub Actions workflows run on every push and pull request to `main`:
 
-- [**CI**](.github/workflows/ci.yml) — install → lint → api:check → typecheck → test → build → e2e
+- [**CI**](.github/workflows/ci.yml) — install → lint → api:check → typecheck → test → build → e2e, plus a **lighthouse** job (after `build`)
 - [**Production Validation**](.github/workflows/production-validation.yml) — builds with production-shaped variables (no real API credentials required)
+
+### Lighthouse CI
+
+The `lighthouse` job builds the app with `pnpm build:mock` and audits `/`, `/products` and
+`/products/macbook-pro-14-m3` (a seeded product) with [Lighthouse CI](lighthouserc.json): desktop
+preset, 3 runs per URL, server started with `pnpm start:mock` (in-process mock API, no MSW). Reports
+go to temporary public storage and are uploaded as workflow artifacts.
+
+| Assertion                      | Level | Threshold |
+| ------------------------------ | ----- | --------- |
+| `categories:accessibility`     | error | ≥ 0.95    |
+| `categories:seo`               | error | ≥ 0.90    |
+| `categories:performance`       | warn  | ≥ 0.80    |
+| `categories:best-practices`    | warn  | ≥ 0.90    |
+| `resource-summary:script:size` | warn  | ≤ 400 KB  |
+| `total-byte-weight`            | warn  | ≤ 1.5 MB  |
+
+Hard thresholds are `min(target, measured baseline − 0.02)` and only ever move up (see ROADMAP).
+Run it locally (needs Chrome; set `CHROME_PATH` to use Playwright's Chromium):
+
+```bash
+pnpm build:mock && pnpm dlx @lhci/cli@0.15.1 autorun
+```
 
 ## PWA / Offline Support
 

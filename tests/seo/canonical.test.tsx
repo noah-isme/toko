@@ -22,9 +22,9 @@ describe('canonical metadata', () => {
     ]);
 
     const metadata = await generateMetadata({
-      params: Promise.resolve({ slug: 'awesome-product' }),
+      params: Promise.resolve({ slug: 'macbook-pro-14-m3' }),
     });
-    expect(metadata.alternates?.canonical).toBe(getCanonical('/products/awesome-product'));
+    expect(metadata.alternates?.canonical).toBe(getCanonical('/products/macbook-pro-14-m3'));
   }, 10_000);
 });
 
@@ -48,12 +48,12 @@ describe('localeAlternates', () => {
     const { generateMetadata } = await import('@/app/(storefront)/products/[slug]/page');
 
     const metadata = await generateMetadata({
-      params: Promise.resolve({ slug: 'awesome-product' }),
+      params: Promise.resolve({ slug: 'macbook-pro-14-m3' }),
     });
     expect(metadata.alternates?.languages).toEqual({
-      id: 'https://example.com/products/awesome-product',
-      en: 'https://example.com/en/products/awesome-product',
-      'x-default': 'https://example.com/products/awesome-product',
+      id: 'https://example.com/products/macbook-pro-14-m3',
+      en: 'https://example.com/en/products/macbook-pro-14-m3',
+      'x-default': 'https://example.com/products/macbook-pro-14-m3',
     });
   }, 10_000);
 });

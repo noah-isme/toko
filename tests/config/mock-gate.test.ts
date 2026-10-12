@@ -146,6 +146,7 @@ describe('mock gate', () => {
     expect(gated).toEqual([
       'src/app/api/v1/[[...path]]/route.ts',
       'src/components/providers/service-worker-provider.tsx',
+      'src/lib/api/server.ts',
     ]);
   });
 

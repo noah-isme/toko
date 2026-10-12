@@ -81,4 +81,14 @@ describe('MSW and route parity', () => {
     );
     expect(msw).toEqual(handleMockRequest('products/iphone-15-pro', 'GET', null, 'parity'));
   });
+
+  // Regression: the route (used without MSW, e.g. build:mock + start:mock and
+  // Playwright) had no taxonomy endpoints, so the /products filter sidebar
+  // showed "Filter kategori dan merek belum tersedia".
+  it.each(['categories', 'brands'])('serve the same /%s taxonomy', async (path) => {
+    const msw = await fetch(`http://localhost/api/v1/${path}`).then((res) => res.json());
+    const route = handleMockRequest(path, 'GET', null, 'parity') as { data: unknown[] };
+    expect(route.data.length).toBeGreaterThan(0);
+    expect(msw).toEqual(route);
+  });
 });

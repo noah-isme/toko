@@ -114,7 +114,7 @@ export function QuestionList({
         </h2>
         <div className="flex items-center gap-3">
           <Select value={params.sort} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px]" aria-label="Urutkan pertanyaan">
               <SelectValue placeholder="Urutkan" />
             </SelectTrigger>
             <SelectContent>
@@ -143,7 +143,9 @@ export function QuestionList({
       ) : (
         <div className="space-y-4" role="list" aria-label="Daftar pertanyaan">
           {questions.map((question) => (
-            <QuestionItem key={question.id} question={question} canAnswer={canAnswer} />
+            <div key={question.id} role="listitem">
+              <QuestionItem question={question} canAnswer={canAnswer} />
+            </div>
           ))}
         </div>
       )}

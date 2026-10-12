@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { searchApi } from './api';
+import { parseSearchStateFromUrl } from './lib/apiParams';
 import type {
   SearchFilters,
   SearchFacet,
@@ -16,7 +17,7 @@ import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 import { captureSentryException } from '@/shared/telemetry/sentry';
 import { useToast } from '@/shared/ui/toast';
 
-export { SORT_OPTIONS };
+export { SORT_OPTIONS, parseSearchStateFromUrl };
 
 const SEARCH_KEYS_BASE = ['search'] as const;
 
@@ -267,30 +268,6 @@ export function useSearchStateFromUrl(searchParams: URLSearchParams): SearchFilt
   const searchKey = searchParams.toString();
   // Keyed on the serialized params so a new-but-equal URLSearchParams instance is a cache hit.
   return useMemo(() => parseSearchStateFromUrl(new URLSearchParams(searchKey)), [searchKey]);
-}
-
-/**
- * Plain function version of search state parser for use outside React hooks context
- * (e.g., inside useEffect callbacks)
- */
-export function parseSearchStateFromUrl(searchParams: URLSearchParams): SearchFilters {
-  return {
-    query: searchParams.get('q') || undefined,
-    categories: searchParams.get('categories')?.split(',').filter(Boolean) || [],
-    brands: searchParams.get('brands')?.split(',').filter(Boolean) || [],
-    priceRange: searchParams.get('price')?.split(',').map(Number) as [number, number] | undefined,
-    rating: searchParams.get('rating') ? Number(searchParams.get('rating')) : null,
-    inStockOnly: searchParams.get('inStock') === 'true',
-    discountOnly: searchParams.get('discount') === 'true',
-    sortBy: (searchParams.get('sort') as SearchFilters['sortBy']) || 'relevance',
-    page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
-    pageSize: searchParams.get('limit') ? Number(searchParams.get('limit')) : 12,
-    attributes: Object.fromEntries(
-      Array.from(searchParams.entries())
-        .filter(([key]) => key.startsWith('attr_'))
-        .map(([key, value]) => [key.replace('attr_', ''), value.split(',').filter(Boolean)]),
-    ),
-  };
 }
 
 export function useActiveFilterCount(filters: SearchFilters) {
