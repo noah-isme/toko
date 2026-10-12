@@ -43,6 +43,19 @@ export interface AdminFlashSaleInput {
   items: AdminFlashSaleItemInput[];
 }
 
+/**
+ * PATCH /admin/flash-sales/{id} body (docs/contracts/admin.md §6.4). Every field
+ * is optional; `items` replaces the campaign's items, keeping those sent with `id`.
+ */
+export interface AdminFlashSaleUpdateInput {
+  name?: string;
+  slug?: string;
+  status?: AdminFlashSaleStatus;
+  startsAt?: string;
+  endsAt?: string;
+  items?: Array<AdminFlashSaleItemInput & { id?: string }>;
+}
+
 export interface AdminFlashSaleListParams {
   page?: number;
   limit?: number;

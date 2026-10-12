@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { adminApi } from '../api';
 import { adminKeys } from '../keys';
-import type { AdminFlashSaleInput, AdminFlashSaleListParams, AdminFlashSaleStatus } from '../types';
+import type {
+  AdminFlashSaleInput,
+  AdminFlashSaleListParams,
+  AdminFlashSaleStatus,
+  AdminFlashSaleUpdateInput,
+} from '../types';
 
 import { ADMIN_STALE_TIME as STALE_TIME } from './shared';
 
@@ -29,6 +34,18 @@ export function useCreateAdminFlashSale() {
     mutationFn: (data: AdminFlashSaleInput) => adminApi.createFlashSale(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin', 'flash-sales'] });
+    },
+  });
+}
+
+export function useUpdateAdminFlashSale() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AdminFlashSaleUpdateInput }) =>
+      adminApi.updateFlashSale(id, data),
+    onSuccess: (_result, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'flash-sales'] });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.flashSale(id) });
     },
   });
 }

@@ -2809,7 +2809,7 @@
         "error": "Error",
         "created": "Flash sale created",
         "createFailed": "Could not create flash sale",
-        "duplicated": "Flash sale created (duplicate)",
+        "updated": "Flash sale updated",
         "updateFailed": "Could not update flash sale"
       },
       "new": {
@@ -2826,7 +2826,7 @@
         "createNew": "Create New",
         "currentStatus": "Current Status",
         "itemId": "ID: {id}",
-        "submit": "Save Changes (Creates New)"
+        "submit": "Save Changes"
       },
       "form": {
         "details": "Campaign Details",

@@ -4,6 +4,7 @@ import type {
   AdminFlashSaleListParams,
   AdminFlashSaleStatus,
   AdminFlashSaleStatusUpdate,
+  AdminFlashSaleUpdateInput,
 } from '../types';
 
 import { buildQuery } from './query';
@@ -30,6 +31,15 @@ export const adminFlashSalesApi = {
   async createFlashSale(data: AdminFlashSaleInput): Promise<{ id: string }> {
     const response = await apiClient<ApiResponse<{ id: string }>>('/admin/flash-sales', {
       method: 'POST',
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+    return response.data;
+  },
+
+  async updateFlashSale(id: string, data: AdminFlashSaleUpdateInput): Promise<AdminFlashSale> {
+    const response = await apiClient<ApiResponse<AdminFlashSale>>(`/admin/flash-sales/${id}`, {
+      method: 'PATCH',
       body: JSON.stringify(data),
       requiresAuth: true,
     });

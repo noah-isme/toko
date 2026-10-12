@@ -21,10 +21,14 @@ import {
 import { useAdminProducts } from '@/entities/admin/hooks';
 import {
   useAdminFlashSale,
+  useUpdateAdminFlashSale,
   useUpdateAdminFlashSaleStatus,
-  useCreateAdminFlashSale,
 } from '@/entities/admin/hooks';
-import type { AdminFlashSale, AdminFlashSaleStatus } from '@/entities/admin/types';
+import type {
+  AdminFlashSale,
+  AdminFlashSaleStatus,
+  AdminFlashSaleUpdateInput,
+} from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { ApiClientError } from '@/lib/api/apiClient';
 import { cn } from '@/lib/utils';
@@ -81,10 +85,12 @@ function flashSaleToFormValues(fs: AdminFlashSale): FlashSaleFormValues {
   };
 }
 
-function formValuesToInput(values: FlashSaleFormValues) {
+function formValuesToInput(values: FlashSaleFormValues): AdminFlashSaleUpdateInput {
   const items = values.items
     .filter((item) => item.productId !== NONE)
     .map((item) => ({
+      // Existing items keep their id so the backend updates them in place.
+      ...(item.id ? { id: item.id } : {}),
       productId: item.productId,
       salePrice: Math.max(0, Math.round(item.salePrice)),
       stockLimit:
@@ -117,7 +123,7 @@ export default function FlashSaleEditPage() {
 
   const productsQuery = useAdminProducts({ limit: 1000 });
   const flashSaleQuery = useAdminFlashSale(flashSaleId);
-  const createMutation = useCreateAdminFlashSale();
+  const updateMutation = useUpdateAdminFlashSale();
   const updateStatusMutation = useUpdateAdminFlashSaleStatus();
 
   const update = <K extends keyof FlashSaleFormValues>(key: K, value: FlashSaleFormValues[K]) => {
@@ -216,10 +222,8 @@ export default function FlashSaleEditPage() {
     }
 
     try {
-      const input = formValuesToInput(values);
-      const result = await createMutation.mutateAsync(input);
-      toast({ title: t('toast.duplicated'), variant: 'success' });
-      router.push(`/admin/flash-sales/${result.id}/edit`);
+      await updateMutation.mutateAsync({ id: flashSaleId, data: formValuesToInput(values) });
+      toast({ title: t('toast.updated'), variant: 'success' });
     } catch (err) {
       const message = err instanceof Error ? err.message : t('form.errors.updateFailed');
       setError(message);
@@ -508,8 +512,8 @@ export default function FlashSaleEditPage() {
         </Card>
 
         <div className="flex gap-2">
-          <Button type="submit" disabled={createMutation.isPending}>
-            {createMutation.isPending ? (
+          <Button type="submit" disabled={updateMutation.isPending}>
+            {updateMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                 {tCommon('saving')}
@@ -525,7 +529,7 @@ export default function FlashSaleEditPage() {
             type="button"
             variant="outline"
             onClick={() => router.push('/admin/flash-sales')}
-            disabled={createMutation.isPending}
+            disabled={updateMutation.isPending}
           >
             {tCommon('cancel')}
           </Button>

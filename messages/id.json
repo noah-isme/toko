@@ -2809,7 +2809,7 @@
         "error": "Kesalahan",
         "created": "Flash sale dibuat",
         "createFailed": "Gagal membuat flash sale",
-        "duplicated": "Flash sale dibuat (duplikat)",
+        "updated": "Flash sale diperbarui",
         "updateFailed": "Gagal memperbarui flash sale"
       },
       "new": {
@@ -2826,7 +2826,7 @@
         "createNew": "Buat Baru",
         "currentStatus": "Status Saat Ini",
         "itemId": "ID: {id}",
-        "submit": "Simpan Perubahan (Membuat Baru)"
+        "submit": "Simpan Perubahan"
       },
       "form": {
         "details": "Detail Kampanye",
