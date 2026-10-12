@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -122,6 +123,7 @@ function ColorVariants({
   selectedId?: string;
   onSelect: (id: string) => void;
 }) {
+  const t = useTranslations('product.detail.variants');
   return (
     <div className="flex flex-wrap gap-2">
       {variants.map((variant) => {
@@ -144,7 +146,7 @@ function ColorVariants({
             )}
             style={{ backgroundColor: colorValue }}
             aria-pressed={isSelected}
-            aria-label={`Select ${variant.name} color`}
+            aria-label={t('selectColor', { name: variant.name })}
             title={variant.name}
           >
             {isDisabled && (

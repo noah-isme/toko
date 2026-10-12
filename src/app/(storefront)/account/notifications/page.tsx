@@ -3,6 +3,7 @@
 import { Bell, CheckCheck } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { LazyWrapper, LazyPushPreferencesCard } from '@/components/lazy-components';
@@ -26,6 +27,7 @@ function notificationHref(notification: Notification): string {
 }
 
 export default function NotificationsPage() {
+  const t = useTranslations('account.notifications');
   const [page, setPage] = useState(1);
   const router = useRouter();
   const { data, isLoading, error } = useNotifications(page, PAGE_SIZE);
@@ -50,7 +52,7 @@ export default function NotificationsPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Notifikasi</h1>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
         <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="rounded-lg border p-4">
@@ -66,7 +68,7 @@ export default function NotificationsPage() {
   if (error) {
     return (
       <div className="py-12 text-center text-destructive">
-        <p>Gagal memuat notifikasi.</p>
+        <p>{t('loadFailed')}</p>
         <p className="text-sm">{error.message}</p>
       </div>
     );
@@ -77,8 +79,8 @@ export default function NotificationsPage() {
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <EmptyState
           icon={<Bell aria-hidden="true" />}
-          title="Belum ada notifikasi"
-          description="Notifikasi tentang status pesanan dan pengiriman Anda akan muncul di sini."
+          title={t('emptyTitle')}
+          description={t('emptyDescription')}
         />
       </div>
     );
@@ -92,8 +94,8 @@ export default function NotificationsPage() {
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Notifikasi</h1>
-          <p className="text-muted-foreground">Pembaruan pesanan dan akun Anda.</p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('description')}</p>
         </div>
         {hasUnread && (
           <Button
@@ -104,7 +106,7 @@ export default function NotificationsPage() {
             className="flex items-center gap-1.5"
           >
             <CheckCheck aria-hidden="true" className="h-4 w-4" />
-            Tandai semua dibaca
+            {t('markAllRead')}
           </Button>
         )}
       </div>
@@ -150,10 +152,10 @@ export default function NotificationsPage() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
           >
-            Sebelumnya
+            {t('previous')}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Halaman {page} dari {totalPages}
+            {t('pageOf', { page, total: totalPages })}
           </span>
           <Button
             variant="outline"
@@ -161,7 +163,7 @@ export default function NotificationsPage() {
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
           >
-            Berikutnya
+            {t('next')}
           </Button>
         </div>
       )}

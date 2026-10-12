@@ -24,6 +24,7 @@ function VerifyEmailContent() {
   const { user, isAuthenticated, refreshUser } = useAuth();
   const t = useTranslations('auth.verify');
   const tf = useTranslations('auth.fields');
+  const tErrors = useTranslations('errors');
   const errorText = useAuthErrorMessage();
   const searchParams = useSearchParams();
   const token = useMemo(() => searchParams.get('token') ?? '', [searchParams]);
@@ -67,13 +68,13 @@ function VerifyEmailContent() {
       .catch((error) => {
         if (!active) return;
         setStatus('error');
-        setStatusMessage(getErrorMessage(error));
+        setStatusMessage(getErrorMessage(error, tErrors));
       });
 
     return () => {
       active = false;
     };
-  }, [isAuthenticated, token, refreshUser]);
+  }, [isAuthenticated, token, refreshUser, tErrors]);
 
   const onResend = async (values: ResendVerificationInput) => {
     setIsResending(true);
@@ -81,7 +82,7 @@ function VerifyEmailContent() {
       const response = await authApi.resendVerification(values);
       setResendMessage(response.message ?? t('resendSuccess'));
     } catch (error) {
-      setError('root', { message: getErrorMessage(error) });
+      setError('root', { message: getErrorMessage(error, tErrors) });
     } finally {
       setIsResending(false);
     }

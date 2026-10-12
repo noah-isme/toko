@@ -1,6 +1,7 @@
 'use client';
 
 import { Sun, Moon, Contrast, Monitor } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -135,29 +136,30 @@ export function useTheme() {
 
 // Theme toggle component
 export function ThemeToggle() {
+  const t = useTranslations('common.theme');
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Toggle theme">
+        <Button variant="ghost" size="icon" aria-label={t('toggle')}>
           {resolvedTheme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme('light')}>
           <Sun className="mr-2 h-4 w-4" />
-          Light
+          {t('light')}
           {theme === 'light' && ' ✓'}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('dark')}>
           <Moon className="mr-2 h-4 w-4" />
-          Dark
+          {t('dark')}
           {theme === 'dark' && ' ✓'}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('system')}>
           <Monitor className="mr-2 h-4 w-4" />
-          System
+          {t('system')}
           {theme === 'system' && ' ✓'}
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -167,22 +169,23 @@ export function ThemeToggle() {
 
 // Contrast toggle component
 export function ContrastToggle() {
+  const t = useTranslations('common.theme');
   const { contrastMode, setContrastMode } = useTheme();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Toggle high contrast">
+        <Button variant="ghost" size="icon" aria-label={t('contrastToggle')}>
           <Contrast className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setContrastMode('normal')}>
-          Normal
+          {t('normal')}
           {contrastMode === 'normal' && ' ✓'}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setContrastMode('high')}>
-          High Contrast
+          {t('highContrast')}
           {contrastMode === 'high' && ' ✓'}
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -192,6 +195,7 @@ export function ContrastToggle() {
 
 // Combined theme and contrast selector
 export function ThemeSelector() {
+  const t = useTranslations('common.theme');
   const { theme, setTheme, contrastMode, setContrastMode, resolvedTheme } = useTheme();
 
   return (
@@ -202,17 +206,17 @@ export function ThemeSelector() {
             {resolvedTheme === 'dark' ? (
               <>
                 {' '}
-                <Moon className="h-4 w-4" /> Dark{' '}
+                <Moon className="h-4 w-4" /> {t('dark')}{' '}
               </>
             ) : theme === 'system' ? (
               <>
                 {' '}
-                <Monitor className="h-4 w-4" /> System{' '}
+                <Monitor className="h-4 w-4" /> {t('system')}{' '}
               </>
             ) : (
               <>
                 {' '}
-                <Sun className="h-4 w-4" /> Light{' '}
+                <Sun className="h-4 w-4" /> {t('light')}{' '}
               </>
             )}
           </Button>
@@ -220,17 +224,17 @@ export function ThemeSelector() {
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setTheme('light')}>
             <Sun className="mr-2 h-4 w-4" />
-            Light
+            {t('light')}
             {theme === 'light' && ' ✓'}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setTheme('dark')}>
             <Moon className="mr-2 h-4 w-4" />
-            Dark
+            {t('dark')}
             {theme === 'dark' && ' ✓'}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setTheme('system')}>
             <Monitor className="mr-2 h-4 w-4" />
-            System
+            {t('system')}
             {theme === 'system' && ' ✓'}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -245,16 +249,16 @@ export function ThemeSelector() {
             aria-pressed={contrastMode === 'high'}
           >
             <Contrast className="h-4 w-4" />
-            {contrastMode === 'high' ? 'High Contrast' : 'Normal'}
+            {contrastMode === 'high' ? t('highContrast') : t('normal')}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setContrastMode('normal')}>
-            Normal
+            {t('normal')}
             {contrastMode === 'normal' && ' ✓'}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setContrastMode('high')}>
-            High Contrast (WCAG AAA)
+            {t('highContrastAaa')}
             {contrastMode === 'high' && ' ✓'}
           </DropdownMenuItem>
         </DropdownMenuContent>

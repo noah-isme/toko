@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -9,6 +10,7 @@ import { getGuestAddressOwnerId } from '@/entities/address/storage';
 import { AddressBook } from '@/entities/address/ui/AddressBook';
 
 export default function AccountAddressesPage() {
+  const t = useTranslations('account');
   const { user } = useAuth();
   const [ownerId, setOwnerId] = useState<string | null>(null);
 
@@ -31,13 +33,11 @@ export default function AccountAddressesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Buku alamat</h1>
-          <p className="text-sm text-muted-foreground">
-            Tambahkan atau ubah alamat pengiriman agar checkout lebih cepat.
-          </p>
+          <h1 className="text-2xl font-bold">{t('addresses.title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('addresses.description')}</p>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link href="/account">Kembali ke akun</Link>
+          <Link href="/account">{t('backToAccount')}</Link>
         </Button>
       </div>
       <AddressBook userIdOrGuestId={ownerId} context="account" />

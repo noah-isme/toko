@@ -1,18 +1,15 @@
+import { useTranslations } from 'next-intl';
+
 export default function ShippingPolicyPage() {
+  const t = useTranslations('common.legal.shipping');
   return (
     <article className="prose prose-slate dark:prose-invert max-w-3xl">
-      <h1>Kebijakan Pengiriman</h1>
-      <p>
-        Opsi kurir, biaya, dan estimasi ditampilkan saat checkout berdasarkan alamat tujuan dan
-        layanan yang tersedia.
-      </p>
-      <h2>Pelacakan</h2>
-      <p>Nomor resi dan status pengiriman muncul di detail pesanan setelah paket diproses.</p>
-      <h2>Kendala pengiriman</h2>
-      <p>
-        Jika paket terlambat atau rusak, simpan dokumentasi dan hubungi{' '}
-        <a href="/account/support">Pusat Bantuan</a>.
-      </p>
+      <h1>{t('title')}</h1>
+      <p>{t('intro')}</p>
+      <h2>{t('trackingTitle')}</h2>
+      <p>{t('tracking')}</p>
+      <h2>{t('issuesTitle')}</h2>
+      <p>{t.rich('issues', { link: (chunks) => <a href="/account/support">{chunks}</a> })}</p>
     </article>
   );
 }

@@ -28,6 +28,7 @@ export default function LoginPage() {
   const t = useTranslations('auth.login');
   const tf = useTranslations('auth.fields');
   const ts = useTranslations('auth.social');
+  const tErrors = useTranslations('errors');
   const errorText = useAuthErrorMessage();
   const { login, isLoading: authLoading } = useAuth();
   const { register, handleSubmit, formState, setError } = useForm<LoginInput>({
@@ -45,7 +46,7 @@ export default function LoginPage() {
       await login(values);
       router.push('/');
     } catch (error) {
-      const message = getErrorMessage(error);
+      const message = getErrorMessage(error, tErrors);
       setError('root', { message });
     }
   };

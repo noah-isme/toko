@@ -1,6 +1,7 @@
 'use client';
 
 import type { LatLngTuple } from 'leaflet';
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet';
 
@@ -44,6 +45,7 @@ interface TrackingMapProps {
 }
 
 export default function TrackingMap({ tracking, className }: TrackingMapProps) {
+  const t = useTranslations('account.tracking');
   const [points, setPoints] = useState<(TrackingEvent & { coords: LatLngTuple })[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -97,7 +99,7 @@ export default function TrackingMap({ tracking, className }: TrackingMapProps) {
   if (loading) {
     return (
       <div className="mt-4 flex h-64 w-full animate-pulse items-center justify-center rounded-lg border bg-muted/30 text-sm text-muted-foreground">
-        Memuat peta pelacakan dan koordinat lokasi...
+        {t('mapResolving')}
       </div>
     );
   }
@@ -105,7 +107,7 @@ export default function TrackingMap({ tracking, className }: TrackingMapProps) {
   if (points.length === 0) {
     return (
       <div className="mt-4 flex h-48 items-center justify-center rounded-lg border border-dashed bg-muted/30 text-sm text-muted-foreground">
-        Data lokasi pengiriman belum tersedia atau tidak dapat ter-geocode.
+        {t('mapEmpty')}
       </div>
     );
   }

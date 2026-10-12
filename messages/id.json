@@ -93,6 +93,185 @@
       "busy": "Mencoba lagi…",
       "errorTitle": "Masih gagal",
       "errorDescription": "Tidak dapat menyelesaikan permintaan. Silakan coba lagi nanti."
+    },
+    "landing": {
+      "cta": {
+        "badge": "Bonus Pengguna Baru",
+        "title": "Daftar Sekarang, Klaim Voucher Rp50.000",
+        "description": "Buat akun gratis hari ini untuk mendapatkan promo eksklusif, notifikasi produk favorit, dan harga khusus member.",
+        "register": "Daftar Akun Gratis",
+        "login": "Sudah Punya Akun",
+        "newsletterTitle": "Langganan Newsletter",
+        "newsletterDescription": "Update promo diskon langsung ke email Anda"
+      },
+      "features": {
+        "title": "Keunggulan Layanan Toko",
+        "description": "Komitmen kami untuk memberikan pengalaman belanja terbaik untuk Anda",
+        "shipping": {
+          "title": "Gratis Ongkir Rp100rb+",
+          "description": "Belanja minimal Rp100.000 gratis pengiriman ke seluruh daerah."
+        },
+        "original": {
+          "title": "Garansi 100% Original",
+          "description": "Semua barang terjamin keasliannya langsung dari brand resmi."
+        },
+        "payment": {
+          "title": "Pembayaran Lengkap",
+          "description": "Transfer bank, e-wallet, kartu kredit, hingga COD tanpa ribet."
+        },
+        "returns": {
+          "title": "Pengembalian 7 Hari",
+          "description": "Proses klaim retur cepat & mudah jika produk tidak sesuai."
+        }
+      },
+      "hero": {
+        "badge": "Platform Belanja Resmi",
+        "headline": "Pilihan untuk hidup yang <em>lebih indah.</em>",
+        "description": "Temukan produk pilihan dengan kualitas yang terasa, layanan yang dapat diandalkan, dan detail yang diperhatikan.",
+        "browse": "Lihat koleksi pilihan",
+        "register": "Daftar Akun Gratis",
+        "freeShipping": "Gratis Ongkir",
+        "guarantee": "Garansi 100%",
+        "securePayment": "Bayar Aman",
+        "dealsBadge": "s.d 50%",
+        "dealsTitle": "Diskon Musim Ini",
+        "dealsDescription": "Cek promo terpanas & flash deals",
+        "electronicsTitle": "Gadget & Elektronik",
+        "electronicsDescription": "Laptop, Smartphone, & Aksesori",
+        "fashionTitle": "Fashion & Gaya",
+        "fashionDescription": "Pakaian Pria & Wanita Terbaru",
+        "newTitle": "Produk Terbaru",
+        "newDescription": "Koleksi minggu ini"
+      },
+      "testimonials": {
+        "eyebrow": "Cerita partner",
+        "title": "Brand yang tumbuh bersama toko",
+        "description": "Pemilik brand independen sampai retailer enterprise memakai landing page toko untuk merilis koleksi baru tanpa drama.",
+        "items": {
+          "alya": {
+            "quote": "Landing page toko bikin kampanye musiman kami terasa sinematik tanpa perlu tim dev tambahan. Modul hero mereka tinggal plug-in.",
+            "role": "Creative Director, Kinara Atelier"
+          },
+          "bagus": {
+            "quote": "Performance tetap tinggi walau kami taruh video, carousel, dan rekomendasi dinamis sekaligus. Conversion naik 21% yoy.",
+            "role": "Head of Digital, Kolektif"
+          },
+          "mita": {
+            "quote": "Toko memberi bahasa visual yang konsisten untuk semua brand di marketplace kami dan mengurangi waktu live kampanye hingga setengahnya.",
+            "role": "VP Merchandising, Orbit Supply"
+          }
+        }
+      },
+      "quickNav": {
+        "title": "Kategori Pilihan",
+        "viewAll": "Lihat Semua"
+      },
+      "featured": {
+        "eyebrow": "The edit",
+        "title": "Pilihan yang pantas untuk disimpan.",
+        "description": "Koleksi produk favorit dengan kualitas, fungsi, dan detail yang menonjol.",
+        "browse": "Jelajahi semua produk",
+        "curatedEyebrow": "Curated for you",
+        "curatedTitle": "Produk unggulan",
+        "curatedDescription": "Pilihan ini diurutkan dari produk dengan apresiasi pelanggan terbaik.",
+        "empty": "Koleksi pilihan segera hadir."
+      },
+      "brands": {
+        "title": "Shop by Brand",
+        "description": "Discover products from your favorite brands"
+      },
+      "categories": {
+        "title": "Shop by Category",
+        "description": "Explore our curated collection of products by category"
+      },
+      "userHome": {
+        "fallbackName": "Pengguna",
+        "verified": "Akun Terverifikasi",
+        "welcome": "Selamat datang kembali, {name}!",
+        "description": "Temukan penawaran terbaik dan cek status belanjaan Anda hari ini.",
+        "lastOrder": "Pesanan Terakhir",
+        "lastOrderStatus": "Dalam proses pengiriman kurir",
+        "trackOrder": "Lacak Pesanan",
+        "favorites": "Favorit",
+        "favoritesCount": "{count} Produk",
+        "cart": "Keranjang",
+        "cartCount": "{count} Barang",
+        "history": "Riwayat",
+        "allOrders": "Lihat Semua Pesanan",
+        "catalogTitle": "Katalog Rekomendasi",
+        "catalogDescription": "Produk disesuaikan dengan minat dan histori aktivitas Anda",
+        "tabs": {
+          "recommended": "Untuk Anda",
+          "popular": "Terlaris",
+          "deals": "Diskon"
+        }
+      }
+    },
+    "theme": {
+      "toggle": "Toggle theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "contrastToggle": "Toggle high contrast",
+      "normal": "Normal",
+      "highContrast": "High Contrast",
+      "highContrastAaa": "High Contrast (WCAG AAA)"
+    },
+    "offlinePage": {
+      "title": "You''re offline",
+      "description": "No internet connection detected. Some features may be unavailable.",
+      "whatYouCanDo": "What you can do:",
+      "browse": "Browse previously loaded products",
+      "cached": "View cached pages",
+      "autoRefresh": "Page will auto-refresh when back online",
+      "retry": "Try again",
+      "home": "Go to homepage",
+      "footnote": "The service worker will cache pages for offline access."
+    },
+    "legal": {
+      "helpCenter": "Pusat Bantuan",
+      "privacy": {
+        "title": "Kebijakan Privasi",
+        "intro": "Kami menggunakan data akun, alamat, dan pesanan untuk menyediakan layanan toko, pembayaran, pengiriman, dukungan, dan keamanan.",
+        "storedTitle": "Data yang kami simpan",
+        "stored": "Data akun, transaksi, komunikasi dukungan, dan preferensi privasi disimpan selama diperlukan untuk tujuan tersebut dan kewajiban hukum.",
+        "controlTitle": "Kontrol Anda",
+        "control": "Anda dapat mengatur preferensi komunikasi di halaman privasi akun, mengunduh ekspor data, atau menghapus akun. Penghapusan akun menganonimkan data pesanan yang harus dipertahankan untuk pencatatan.",
+        "contactTitle": "Hubungi kami",
+        "contact": "Untuk pertanyaan privasi, buka <link>Pusat Bantuan</link>."
+      },
+      "terms": {
+        "title": "Syarat dan Ketentuan",
+        "intro": "Dengan menggunakan toko, Anda menyetujui ketentuan pemesanan, pembayaran, pengiriman, pengembalian, dan penggunaan akun yang berlaku.",
+        "ordersTitle": "Pesanan dan pembayaran",
+        "orders": "Harga, ketersediaan, promo, dan batas pembayaran dapat berubah sampai pesanan dikonfirmasi. Pesanan yang belum dibayar dapat kedaluwarsa.",
+        "returnsTitle": "Pengembalian",
+        "returns": "Ajukan pengembalian melalui halaman <link>Pengembalian Pesanan</link>. Setiap permintaan diperiksa berdasarkan status pesanan dan kebijakan produk.",
+        "supportTitle": "Dukungan",
+        "support": "Gunakan <link>Pusat Bantuan</link> untuk pertanyaan atau kendala transaksi."
+      },
+      "shipping": {
+        "title": "Kebijakan Pengiriman",
+        "intro": "Opsi kurir, biaya, dan estimasi ditampilkan saat checkout berdasarkan alamat tujuan dan layanan yang tersedia.",
+        "trackingTitle": "Pelacakan",
+        "tracking": "Nomor resi dan status pengiriman muncul di detail pesanan setelah paket diproses.",
+        "issuesTitle": "Kendala pengiriman",
+        "issues": "Jika paket terlambat atau rusak, simpan dokumentasi dan hubungi <link>Pusat Bantuan</link>."
+      }
+    },
+    "health": {
+      "title": "Health check",
+      "mock": "Mock API is active. Connectivity assumed healthy.",
+      "failed": "Failed to reach backend.",
+      "healthy": "Backend connectivity is healthy."
+    },
+    "ui": {
+      "close": "Close",
+      "panel": "Panel",
+      "breadcrumb": "Breadcrumb",
+      "backToTop": "Kembali ke atas",
+      "dismiss": "Tutup",
+      "loading": "Memuat…"
     }
   },
   "nav": {
@@ -126,6 +305,35 @@
       "cart": "Cart",
       "favorites": "Favorit",
       "account": "Akun"
+    },
+    "search": {
+      "label": "Search products",
+      "placeholder": "Search products...",
+      "products": "Products",
+      "viewAll": "View all {count} results",
+      "noResults": "No products found",
+      "recent": "Pencarian Terakhir",
+      "clearRecent": "Hapus semua",
+      "removeRecent": "Hapus {term} dari riwayat pencarian",
+      "popular": "Popular Searches"
+    },
+    "shortcuts": {
+      "title": "Pintasan Keyboard",
+      "description": "Gunakan pintasan berikut untuk berpindah dengan cepat.",
+      "groups": {
+        "navigation": "Navigasi",
+        "general": "Umum"
+      },
+      "chord": "G lalu {key}",
+      "items": {
+        "home": "Ke Beranda",
+        "cart": "Ke Keranjang",
+        "orders": "Ke Pesanan",
+        "account": "Ke Akun",
+        "search": "Fokus pencarian",
+        "help": "Tampilkan pintasan keyboard",
+        "close": "Tutup dialog"
+      }
     }
   },
   "footer": {
@@ -250,7 +458,14 @@
     },
     "favorite": {
       "add": "Tambahkan ke favorit",
-      "remove": "Hapus dari favorit"
+      "remove": "Hapus dari favorit",
+      "placeholderName": "Loading...",
+      "toast": {
+        "added": "Ditambahkan ke favorit",
+        "addFailed": "Gagal menambahkan ke favorit",
+        "removed": "Dihapus dari favorit",
+        "removeFailed": "Gagal menghapus dari favorit"
+      }
     },
     "productSort": {
       "label": "Sort products",
@@ -306,6 +521,115 @@
       "min": "Min Price",
       "max": "Max Price",
       "apply": "Apply Filter"
+    },
+    "vouchers": {
+      "percentOff": "{percent}% OFF",
+      "minSpend": "Min. belanja {amount}",
+      "remaining": "{count} kali tersisa",
+      "perUser": "Maks {limit}x per pelanggan",
+      "loadFailed": "Gagal memuat daftar voucher.",
+      "copied": "Kode {code} disalin.",
+      "title": "Voucher & Promo",
+      "retry": "Coba Lagi",
+      "description": "Temukan dan gunakan voucher diskon untuk berhemat lebih banyak. Promo aktif diperbarui langsung dari server.",
+      "howToTitle": "Cara menggunakan voucher",
+      "howTo": "Voucher dapat digunakan saat checkout. Beberapa voucher tidak dapat digabungkan; syarat dan ketentuan berlaku. Salin kode lalu masukkan di kolom Kode Promo. Kelayakan akhir mengikuti isi keranjang dan batas penggunaan.",
+      "emptyTitle": "Belum ada voucher tersedia",
+      "emptyDescription": "Silakan cek kembali nanti.",
+      "percent": "Persentase",
+      "fixed": "Nominal",
+      "copyCode": "Salin kode {code}",
+      "termsApply": "Syarat dan ketentuan berlaku.",
+      "valid": "Berlaku",
+      "validUntil": "Berlaku sampai {date}",
+      "noExpiry": "Tidak ada tanggal kedaluwarsa",
+      "combinable": "Dapat digabung",
+      "shopNow": "Belanja Sekarang",
+      "helpTitle": "Butuh bantuan?",
+      "helpDescription": "Voucher tidak berfungsi? Hubungi dukungan kami.",
+      "contactSupport": "Hubungi Dukungan"
+    },
+    "comparePage": {
+      "rows": {
+        "price": "Harga",
+        "rating": "Rating",
+        "brand": "Brand",
+        "category": "Kategori",
+        "stock": "Stok",
+        "description": "Deskripsi"
+      },
+      "inStock": "Tersedia ({count})",
+      "outOfStock": "Habis",
+      "noDescription": "Tidak ada deskripsi.",
+      "emptyTitle": "Belum ada produk untuk dibandingkan",
+      "emptyDescription": "Pilih hingga 3 produk dari katalog untuk melihat perbandingan berdampingan.",
+      "browse": "Jelajahi produk",
+      "title": "Perbandingan Produk",
+      "loading": "Memuat produk…",
+      "comparing": "Membandingkan {count} produk berdampingan.",
+      "clear": "Kosongkan perbandingan",
+      "caption": "Tabel perbandingan produk",
+      "product": "Produk",
+      "remove": "Hapus {title} dari perbandingan"
+    },
+    "compareBar": {
+      "label": "Bandingkan <strong>{count}/{max}</strong>",
+      "clearAll": "Hapus semua",
+      "minHint": "Pilih minimal 2 produk untuk dibandingkan",
+      "compare": "Bandingkan"
+    },
+    "favoritesPage": {
+      "title": "Favorit Saya",
+      "count": "{count} produk"
+    },
+    "flashSale": {
+      "loadFailed": "Gagal memuat flash sale.",
+      "title": "Flash Sales",
+      "retry": "Coba Lagi",
+      "description": "Harga dan waktu promo berasal dari campaign aktif.",
+      "endsIn": "Berakhir dalam · Diskon hingga 20%",
+      "nextTitle": "Flash Sale Berikutnya",
+      "setReminder": "Setel Pengingat",
+      "startsIn": "Mulai dalam",
+      "categoriesLabel": "Kategori flash sale",
+      "categories": {
+        "all": "Semua",
+        "electronics": "Elektronik",
+        "fashion": "Fashion",
+        "home": "Rumah Tangga",
+        "health": "Kesehatan",
+        "sports": "Olahraga"
+      },
+      "emptyTitle": "Belum ada Flash Sale aktif",
+      "emptyDescription": "Cek kembali setelah campaign berikutnya dimulai.",
+      "perks": {
+        "discountTitle": "Diskon Eksklusif",
+        "discount": "Harga campaign dihitung server.",
+        "timeTitle": "Waktu Terbatas",
+        "time": "Pantau penghitung waktu promo.",
+        "stockTitle": "Stok Terbatas",
+        "stock": "Stok terbaru ditampilkan real-time."
+      },
+      "viewAllProducts": "Lihat semua produk",
+      "timer": {
+        "days": "Hari",
+        "hours": "Jam",
+        "minutes": "Min",
+        "seconds": "Det"
+      },
+      "stockLeft": "Sisa {count} unit",
+      "soldOut": "Habis",
+      "adding": "Menambahkan...",
+      "buyNow": "Beli Sekarang",
+      "campaignEmpty": "Campaign aktif belum memiliki produk.",
+      "noCampaign": "Belum ada campaign aktif.",
+      "section": {
+        "title": "Flash Sale Hari Ini",
+        "hot": "HOT",
+        "description": "Diskon spesial berakhir dalam waktu terbatas",
+        "endsIn": "Berakhir dalam:",
+        "viewAll": "Lihat Semua Flash Sale"
+      }
     }
   },
   "product": {
@@ -330,7 +654,8 @@
       "variants": {
         "label": "Pilih varian",
         "available": "{count} tersedia",
-        "soldOut": "Habis"
+        "soldOut": "Habis",
+        "selectColor": "Select {name} color"
       },
       "adding": "Menambahkan…",
       "addToCart": "Add to cart",
@@ -1035,6 +1360,12 @@
         "defaultUpdated": "Alamat utama diperbarui",
         "defaultFailed": "Gagal mengatur alamat utama",
         "notFound": "Alamat tidak ditemukan"
+      },
+      "map": {
+        "permissionDenied": "Izin lokasi ditolak. Harap izinkan akses lokasi di browser Anda.",
+        "searchPlaceholder": "Cari kota/lokasi...",
+        "notFound": "Lokasi tidak ditemukan",
+        "clickHint": "Klik peta untuk pin poin"
       }
     }
   },
@@ -1161,7 +1492,637 @@
       "description": "Mohon tunggu sebentar."
     }
   },
-  "account": {},
+  "account": {
+    "breadcrumb": {
+      "home": "Beranda",
+      "account": "Akun",
+      "orders": "Pesanan",
+      "loyalty": "Loyalitas",
+      "pushSettings": "Notifikasi Push",
+      "searches": "Riwayat Pencarian"
+    },
+    "backToAccount": "Kembali ke akun",
+    "login": "Login",
+    "dashboard": {
+      "logoutFailed": "Failed to logout",
+      "guestTitle": "Account",
+      "guestDescription": "Please sign in to access your account.",
+      "signIn": "Sign in",
+      "createAccount": "Create account",
+      "welcome": "Welcome, {name}",
+      "unverified": "Email Anda belum terverifikasi.",
+      "verifyNow": "Verifikasi sekarang",
+      "links": {
+        "profile": "Profile",
+        "orders": "View Orders",
+        "addresses": "Manage Addresses",
+        "favorites": "Favorites",
+        "searches": "Riwayat Pencarian",
+        "loyalty": "Loyalitas",
+        "push": "Notifikasi Push",
+        "logout": "Logout"
+      }
+    },
+    "addresses": {
+      "title": "Buku alamat",
+      "description": "Tambahkan atau ubah alamat pengiriman agar checkout lebih cepat."
+    },
+    "loyalty": {
+      "title": "Program Loyalitas",
+      "description": "Kelola poin, tier, dan klaim hadiah Anda",
+      "table": {
+        "date": "Tanggal",
+        "type": "Jenis",
+        "description": "Deskripsi",
+        "points": "Poin",
+        "balance": "Saldo"
+      },
+      "loadFailed": "Gagal memuat profil loyalitas.",
+      "retry": "Coba lagi",
+      "rewardsTab": "Katalog Hadiah",
+      "historyTab": "Riwayat Poin",
+      "rewards": {
+        "title": "Katalog Hadiah",
+        "notEnoughTitle": "Poin tidak cukup",
+        "notEnoughDescription": "Anda butuh {points} poin lagi untuk hadiah ini.",
+        "signIn": "<link>Masuk</link> untuk menukarkan hadiah",
+        "types": {
+          "voucher": "Voucher",
+          "shipping": "Ongkir",
+          "special": "Khusus"
+        },
+        "exclusive": "Khusus {audience}",
+        "member": "Member",
+        "redeeming": "Menukarkan...",
+        "redeem": "Tukar",
+        "notEnough": "Poin tidak cukup",
+        "empty": "Belum ada hadiah tersedia.",
+        "redeemed": "Hadiah berhasil diklaim",
+        "redeemFailed": "Gagal menukarkan hadiah",
+        "items": {
+          "voucher10k": {
+            "name": "Voucher Rp10.000",
+            "description": "Potongan Rp10.000 untuk pembelian minimal Rp50.000"
+          },
+          "voucher25k": {
+            "name": "Voucher Rp25.000",
+            "description": "Potongan Rp25.000 untuk pembelian minimal Rp100.000"
+          },
+          "voucher50k": {
+            "name": "Voucher Rp50.000",
+            "description": "Potongan Rp50.000 untuk pembelian minimal Rp200.000"
+          },
+          "freeShipping": {
+            "name": "Gratis Ongkir",
+            "description": "Gratis biaya pengiriman untuk 1 pesanan"
+          },
+          "birthdayGift": {
+            "name": "Hadiah Ulang Tahun",
+            "description": "Voucher khusus ulang tahun (hanya untuk tier Gold+)"
+          }
+        }
+      },
+      "tier": {
+        "yours": "Tier Anda",
+        "next": "Tier Berikutnya",
+        "points": "Poin",
+        "lifetime": "Total seumur hidup: {points}",
+        "progressTo": "Kemajuan ke {tier}",
+        "pointsToNext": "Butuh {points} poin lagi untuk {tier}",
+        "top": "🎉 Anda sudah di tier tertinggi!",
+        "benefitsTitle": "Keuntungan tier ini:",
+        "moreBenefits": "+{count} keuntungan lainnya"
+      },
+      "benefits": {
+        "points1x": "1 poin per Rp1.000 belanja",
+        "points125x": "1.25 poin per Rp1.000 belanja",
+        "points15x": "1.5 poin per Rp1.000 belanja",
+        "points2x": "2 poin per Rp1.000 belanja",
+        "basicPromos": "Akses promosi dasar",
+        "freeShippingMin": "Gratis ongkir minimal belanja",
+        "flashSaleAccess": "Akses flash sale eksklusif",
+        "freeShippingNoMin": "Gratis ongkir tanpa minimum",
+        "earlyAccess": "Akses produk baru lebih awal",
+        "prioritySupport": "Support prioritas",
+        "expressShipping": "Gratis ongkir + pengiriman ekspres",
+        "personalShopper": "Personal shopper",
+        "birthdayGift": "Hadiah ulang tahun",
+        "exclusiveEvents": "Undangan event eksklusif"
+      },
+      "history": {
+        "types": {
+          "all": "Semua",
+          "earned": "Diperoleh",
+          "redeemed": "Ditukar",
+          "expired": "Kedaluwarsa",
+          "adjusted": "Disesuaikan",
+          "bonus": "Bonus"
+        },
+        "loadFailed": "Gagal memuat riwayat.",
+        "title": "Riwayat Poin",
+        "filter": "Filter",
+        "empty": "Belum ada aktivitas poin.",
+        "reference": "Ref: {type} #{id}",
+        "showing": "Menampilkan {from} - {to} dari {total}",
+        "pageOf": "Halaman {page} dari {total}"
+      }
+    },
+    "notifications": {
+      "title": "Notifikasi",
+      "description": "Pembaruan pesanan dan akun Anda.",
+      "loadFailed": "Gagal memuat notifikasi.",
+      "emptyTitle": "Belum ada notifikasi",
+      "emptyDescription": "Notifikasi tentang status pesanan dan pengiriman Anda akan muncul di sini.",
+      "markAllRead": "Tandai semua dibaca",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "pageOf": "Halaman {page} dari {total}",
+      "bell": {
+        "label": "Notifikasi",
+        "labelUnread": "Notifikasi, {count} belum dibaca",
+        "empty": "Belum ada notifikasi.",
+        "loading": "Memuat…",
+        "viewAll": "Lihat semua"
+      }
+    },
+    "orderStatus": {
+      "all": "Semua Status",
+      "pending_payment": "Menunggu Pembayaran",
+      "paid": "Dibayar",
+      "packed": "Dikemas",
+      "shipped": "Dikirim",
+      "out_for_delivery": "Dalam Pengiriman",
+      "delivered": "Selesai",
+      "cancelled": "Dibatalkan",
+      "failed": "Gagal"
+    },
+    "shipmentStatus": {
+      "pending": "Menunggu Pengiriman",
+      "picked_up": "Diambil Kurir",
+      "in_transit": "Dalam Perjalanan",
+      "on_delivery": "Sedang Diantar",
+      "delivered": "Terkirim",
+      "failed": "Gagal Dikirim"
+    },
+    "orders": {
+      "title": "Pesanan Saya",
+      "description": "Riwayat transaksi belanja Anda.",
+      "filterStatus": "Filter status",
+      "loadFailed": "Gagal memuat riwayat pesanan",
+      "retry": "Coba Lagi",
+      "loadMore": "Muat Lebih Banyak",
+      "itemCount": "{count} Barang",
+      "totalSpent": "Total Belanja",
+      "pay": "Bayar",
+      "detail": "Detail"
+    },
+    "orderDetail": {
+      "notFoundTitle": "Pesanan tidak ditemukan",
+      "notFoundDescription": "ID pesanan tidak tersedia. Silakan kembali ke daftar pesanan.",
+      "viewMyOrders": "Lihat pesanan saya",
+      "unavailableTitle": "Detail pesanan belum tersedia",
+      "unavailableDescription": "Kami belum dapat memuat detail pesanan ini. Coba lagi nanti.",
+      "backToOrders": "Kembali ke pesanan",
+      "orderNumber": "Nomor pesanan",
+      "createdAt": "Dibuat {date}",
+      "payNow": "Bayar sekarang",
+      "trackShipment": "Lacak pengiriman",
+      "downloadInvoice": "Unduh invoice",
+      "cancelOrder": "Batalkan pesanan",
+      "items": "Produk dalam pesanan",
+      "qtyPrice": "Qty {qty} - {price}",
+      "subtotal": "Subtotal",
+      "statusTitle": "Status pesanan",
+      "paymentSummary": "Ringkasan pembayaran",
+      "status": "Status",
+      "method": "Metode",
+      "paymentStatus": "Status bayar",
+      "paymentPending": "Informasi pembayaran akan muncul setelah pesanan diproses.",
+      "shippingAddress": "Alamat pengiriman",
+      "costBreakdown": "Rincian biaya",
+      "discount": "Diskon",
+      "tax": "Pajak",
+      "shippingFee": "Ongkir",
+      "total": "Total",
+      "shipping": "Pengiriman",
+      "trackingNumber": "Resi: {number}",
+      "trackingPending": "Nomor resi akan tersedia setelah pesanan diproses.",
+      "eta": "Estimasi tiba {date}",
+      "shippingPending": "Informasi pengiriman akan muncul setelah pesanan diproses.",
+      "toast": {
+        "cancelled": "Pesanan dibatalkan",
+        "cancelledDescription": "Pesanan Anda sudah dibatalkan.",
+        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi."
+      }
+    },
+    "invoice": {
+      "title": "Invoice #{number}",
+      "date": "Tanggal: {date}",
+      "customer": "Pelanggan: {name}",
+      "email": "Email: {email}",
+      "address": "Alamat pengiriman:",
+      "products": "Produk:",
+      "subtotal": "Subtotal: {amount}",
+      "discount": "Diskon: {amount}",
+      "tax": "Pajak: {amount}",
+      "shipping": "Ongkir: {amount}",
+      "total": "Total: {amount}",
+      "courier": "Kurir: {courier} - {service}",
+      "trackingNumber": "Nomor resi: {number}",
+      "eta": "Estimasi tiba: {date}"
+    },
+    "cancelModal": {
+      "reasons": {
+        "changedMind": "Berubah pikiran",
+        "betterPrice": "Menemukan harga lebih baik",
+        "accidental": "Pesanan tidak sengaja dibuat",
+        "other": "Alasan lain"
+      },
+      "title": "Batalkan pesanan",
+      "description": "Pembatalan akan menghentikan proses pesanan. Jika pembayaran sudah dilakukan, dana akan dikembalikan sesuai kebijakan.",
+      "helper": "Tuliskan alasan pembatalan agar tim kami dapat membantu.",
+      "noteRequired": "Mohon jelaskan alasan pembatalan.",
+      "noteLabel": "Alasan pembatalan",
+      "notePlaceholder": "Contoh: Saya ingin mengganti warna produk.",
+      "cancel": "Batal",
+      "submitting": "Membatalkan...",
+      "confirm": "Konfirmasi batal"
+    },
+    "privacy": {
+      "title": "Pengaturan Privasi",
+      "guestDescription": "Silakan login untuk mengatur privasi Anda.",
+      "description": "Kelola data dan preferensi privasi akun Anda.",
+      "toast": {
+        "saved": "Preferensi privasi berhasil disimpan.",
+        "saveFailed": "Gagal menyimpan preferensi.",
+        "exported": "Ekspor data berhasil diunduh.",
+        "exportFailed": "Gagal mengekspor data.",
+        "deleted": "Akun berhasil dihapus.",
+        "deleteFailed": "Gagal menghapus akun."
+      },
+      "communication": {
+        "title": "Preferensi Komunikasi",
+        "description": "Kelola jenis email yang ingin Anda terima dari kami.",
+        "marketing": "Email Pemasaran & Promo",
+        "marketingDescription": "Dapatkan info diskon, produk baru, dan penawaran eksklusif.",
+        "marketingLabel": "Email pemasaran",
+        "orders": "Update Pesanan & Pengiriman",
+        "ordersDescription": "Notifikasi status pesanan, pengiriman, dan pengembalian.",
+        "ordersLabel": "Update pesanan",
+        "security": "Peringatan Keamanan",
+        "securityDescription": "Notifikasi login mencurigakan, perubahan password, dll.",
+        "securityLabel": "Peringatan keamanan"
+      },
+      "visibility": {
+        "title": "Visibilitas Profil",
+        "description": "Atur siapa yang bisa melihat informasi profil Anda.",
+        "question": "Siapa yang bisa melihat profil Anda?",
+        "public": "Publik",
+        "publicDescription": "Semua orang bisa melihat nama, avatar, dan riwayat review Anda.",
+        "friends": "Hanya Teman",
+        "friendsDescription": "Hanya pengguna yang Anda ikuti yang bisa melihat profil lengkap.",
+        "private": "Pribadi",
+        "privateDescription": "Hanya Anda yang bisa melihat profil Anda. Nama tetap terlihat di review."
+      },
+      "data": {
+        "title": "Pengolahan Data",
+        "description": "Kelola bagaimana data Anda diproses dan disimpan.",
+        "essential": "Pemrosesan Data Esensial",
+        "essentialDescription": "Diperlukan untuk menyediakan layanan inti (pesanan, pembayaran, pengiriman). Tidak dapat dinonaktifkan.",
+        "essentialLabel": "Data esensial",
+        "analytics": "Analitik & Peningkatan Layanan",
+        "analyticsDescription": "Bantu kami meningkatkan produk dengan data penggunaan anonim.",
+        "analyticsLabel": "Analitik",
+        "personalization": "Personalisasi & Rekomendasi",
+        "personalizationDescription": "Gunakan riwayat belanja untuk menampilkan produk yang relevan.",
+        "personalizationLabel": "Personalisasi"
+      },
+      "rights": {
+        "title": "Hak Data Anda",
+        "description": "Kelola data pribadi Anda sesuai regulasi perlindungan data.",
+        "export": "Unduh Data Saya",
+        "exportDescription": "Dapatkan salinan semua data akun Anda (JSON/CSV)",
+        "delete": "Hapus Akun",
+        "deleteDescription": "Hapus permanen akun dan semua data terkait",
+        "listTitle": "Hak Anda:",
+        "access": "Akses data pribadi yang kami simpan",
+        "rectify": "Minta koreksi data yang tidak akurat",
+        "erase": "Minta penghapusan data (hak dilupakan)",
+        "restrict": "Batasi atau tolak pemrosesan data tertentu",
+        "portability": "Portabilitas data - pindah ke layanan lain",
+        "complaint": "Keluhan ke otoritas perlindungan data"
+      },
+      "cookies": {
+        "title": "Cookie & Pelacakan",
+        "description": "Kelola preferensi cookie dan teknologi pelacakan.",
+        "essential": "Cookie Esensial",
+        "essentialDescription": "Diperlukan untuk fungsi situs (login, keranjang, keamanan). Selalu aktif.",
+        "functional": "Cookie Fungsional",
+        "functionalDescription": "Mengingat preferensi (bahasa, mata uang, tampilan).",
+        "analytics": "Cookie Analitik",
+        "analyticsDescription": "Mengukur performa situs dan perilaku pengguna anonim.",
+        "marketing": "Cookie Pemasaran",
+        "marketingDescription": "Menampilkan iklan relevan dan mengukur efektivitas kampanye.",
+        "manage": "Kelola Detail Cookie"
+      },
+      "saving": "Menyimpan...",
+      "save": "Simpan Perubahan",
+      "deleteDialog": {
+        "title": "Hapus Akun Permanen",
+        "description": "Tindakan ini tidak dapat dibatalkan. Semua data Anda termasuk riwayat pesanan, alamat, favorit, dan preferensi akan dihapus permanen dalam 30 hari.",
+        "cancel": "Batal",
+        "deleting": "Menghapus...",
+        "confirm": "Hapus Akun Saya"
+      }
+    },
+    "profile": {
+      "title": "Profil",
+      "guestDescription": "Silakan login untuk melihat profil.",
+      "description": "Kelola informasi akun Anda.",
+      "updated": "Profil berhasil diperbarui.",
+      "verificationSent": "Email verifikasi sudah dikirim.",
+      "emailVerified": "Email terverifikasi",
+      "emailUnverified": "Email belum terverifikasi",
+      "verifiedDescription": "Terima kasih, email Anda sudah aktif.",
+      "unverifiedDescription": "Verifikasi email untuk memastikan akun Anda aman.",
+      "resendVerification": "Kirim ulang verifikasi",
+      "openVerification": "Buka halaman verifikasi",
+      "fields": {
+        "name": "Nama lengkap",
+        "email": "Email",
+        "phone": "Nomor telepon",
+        "phonePlaceholder": "Contoh: 081234567890"
+      },
+      "validation": {
+        "nameRequired": "Nama wajib diisi",
+        "phoneInvalid": "Nomor telepon tidak valid"
+      },
+      "changePassword": "Ubah password",
+      "saving": "Menyimpan...",
+      "save": "Simpan perubahan",
+      "security": {
+        "title": "Keamanan Akun",
+        "description": "Kelola sesi aktif dan keluarkan perangkat lain.",
+        "processing": "Memproses...",
+        "logoutAll": "Logout semua perangkat",
+        "loggedOutAll": "Semua sesi telah keluar.",
+        "loadFailed": "Gagal memuat sesi aktif.",
+        "empty": "Belum ada sesi aktif.",
+        "thisDevice": "Perangkat ini",
+        "ip": "IP: {ip}",
+        "lastActive": "Terakhir aktif: {date}"
+      }
+    },
+    "push": {
+      "guestTitle": "Masuk untuk mengelola notifikasi",
+      "guestDescription": "Anda perlu masuk untuk mengakses pengaturan notifikasi push.",
+      "signIn": "Masuk",
+      "register": "Daftar",
+      "title": "Notifikasi Push",
+      "description": "Kelola preferensi notifikasi real-time untuk pembaruan pesanan, promo, dan lainnya.",
+      "settingsTitle": "Pengaturan Notifikasi",
+      "settingsDescription": "Terima notifikasi real-time tanpa perlu membuka aplikasi",
+      "aboutTitle": "Tentang Notifikasi Push",
+      "aboutIntro": "Notifikasi push memungkinkan Anda menerima pembaruan instan tentang:",
+      "aboutOrders": "Status pesanan dan pengiriman",
+      "aboutPromos": "Promo flash sale & penurunan harga favorit",
+      "aboutReviews": "Ulasan baru & pertanyaan produk Anda",
+      "aboutLoyalty": "Hadiah loyalitas & poin tersedia",
+      "aboutNews": "Pengumuman & berita penting",
+      "aboutFootnote": "Anda dapat menonaktifkan notifikasi kapan saja. Data preferensi disimpan di server dan disinkronkan di semua perangkat Anda.",
+      "backToAccount": "← Kembali ke Akun",
+      "toast": {
+        "subscribed": "Notifikasi push diaktifkan",
+        "subscribeFailed": "Gagal mengaktifkan notifikasi push",
+        "unsubscribed": "Notifikasi push dinonaktifkan",
+        "unsubscribeFailed": "Gagal menonaktifkan notifikasi push",
+        "preferencesUpdated": "Preferensi notifikasi diperbarui",
+        "preferencesFailed": "Gagal memperbarui preferensi",
+        "testSent": "Notifikasi tes dikirim",
+        "testFailed": "Gagal mengirim notifikasi tes"
+      },
+      "banner": {
+        "close": "Tutup",
+        "title": "Aktifkan Notifikasi Push",
+        "description": "Terima update pesanan, promo flash sale, dan penurunan harga secara real-time",
+        "enable": "Aktifkan"
+      },
+      "card": {
+        "enableLabel": "Aktifkan notifikasi push",
+        "enableType": "Aktifkan notifikasi {label}",
+        "status": "Status",
+        "registered": "Terdaftar",
+        "notRegistered": "Belum terdaftar",
+        "sendTest": "Kirim Tes",
+        "endpoint": "Endpoint: {endpoint}...",
+        "types": {
+          "order_update": {
+            "label": "Pembaruan Pesanan",
+            "description": "Status pengiriman, pengiriman, dll."
+          },
+          "price_drop": {
+            "label": "Penurunan Harga",
+            "description": "Produk favorit Anda murah."
+          },
+          "flash_sale": {
+            "label": "Flash Sale",
+            "description": "Promo terbatas dan event spesial."
+          },
+          "new_review": {
+            "label": "Ulasan Baru",
+            "description": "Ulasan pada produk yang Anda beli."
+          },
+          "qa_answered": {
+            "label": "Pertanyaan Dijawab",
+            "description": "Jawaban pertanyaan produk Anda."
+          },
+          "loyalty_reward": {
+            "label": "Hadiah Loyalitas",
+            "description": "Poin dan hadiah tersedia."
+          },
+          "general": {
+            "label": "Umum",
+            "description": "Pengumuman dan berita penting."
+          }
+        }
+      }
+    },
+    "searches": {
+      "title": "Riwayat Pencarian",
+      "description": "Pencarian tersimpan di perangkat ini saja dan tidak dikirim ke server.",
+      "clearAll": "Hapus semua",
+      "emptyTitle": "Belum ada riwayat pencarian",
+      "emptyDescription": "Istilah yang Anda cari akan muncul di sini agar mudah diulang.",
+      "browse": "Jelajahi produk",
+      "remove": "Hapus {term} dari riwayat pencarian"
+    },
+    "support": {
+      "title": "Pusat Bantuan",
+      "guestDescription": "Silakan login untuk membuat dan melihat tiket.",
+      "description": "Buat tiket dan lanjutkan percakapan dengan tim kami.",
+      "loadFailed": "Gagal memuat tiket dukungan.",
+      "created": "Tiket berhasil dibuat.",
+      "createFailed": "Gagal membuat tiket.",
+      "replySent": "Balasan terkirim.",
+      "replyFailed": "Gagal mengirim balasan.",
+      "newTicket": "Tiket baru",
+      "subject": "Subjek",
+      "orderNumber": "Nomor order (opsional)",
+      "message": "Jelaskan kendala Anda",
+      "sending": "Mengirim...",
+      "create": "Buat tiket",
+      "empty": "Belum ada tiket.",
+      "createdAt": "Dibuat {date}",
+      "order": "Order {orderId}",
+      "conversation": "Percakapan tiket {subject}",
+      "noMessages": "Belum ada pesan.",
+      "you": "Anda",
+      "team": "Tim dukungan",
+      "replyPlaceholder": "Tulis balasan",
+      "send": "Kirim"
+    },
+    "recentOrders": {
+      "title": "Recent Orders",
+      "empty": "No orders yet",
+      "startShopping": "Start shopping",
+      "viewAll": "View all →",
+      "orderNumber": "Order #{number}",
+      "itemCount": "{count, plural, =1 {# item} other {# items}}"
+    },
+    "confirmation": {
+      "status": {
+        "pending_payment": {
+          "label": "Menunggu Pembayaran",
+          "message": "Silakan selesaikan pembayaran untuk memproses pesanan Anda."
+        },
+        "paid": {
+          "label": "Pembayaran Berhasil",
+          "message": "Pembayaran Anda telah diterima. Pesanan sedang diproses."
+        },
+        "packed": {
+          "label": "Sedang Dikemas",
+          "message": "Pesanan Anda sedang dikemas oleh tim kami."
+        },
+        "shipped": {
+          "label": "Dalam Pengiriman",
+          "message": "Pesanan Anda sedang dalam perjalanan."
+        },
+        "out_for_delivery": {
+          "label": "Sedang Diantar",
+          "message": "Pesanan Anda sedang diantar ke alamat tujuan."
+        },
+        "delivered": {
+          "label": "Selesai",
+          "message": "Pesanan Anda telah selesai. Terima kasih!"
+        },
+        "cancelled": {
+          "label": "Dibatalkan",
+          "message": "Pesanan ini telah dibatalkan."
+        },
+        "fallbackMessage": "Status pesanan Anda."
+      },
+      "cartNotReady": "Keranjang belanja belum siap.",
+      "reorderSuccess": "Produk ditambahkan ke keranjang",
+      "reorderSuccessDescription": "Silakan lanjutkan ke checkout untuk memesan ulang.",
+      "reorderFailed": "Gagal menambahkan ulang produk ke keranjang. Coba lagi.",
+      "notFoundTitle": "Pesanan tidak ditemukan",
+      "notFoundDescription": "Kami tidak menemukan ID pesanan. Anda akan diarahkan ke halaman 404.",
+      "viewMyOrders": "Lihat Pesanan Saya",
+      "continueShopping": "Lanjut Belanja",
+      "createdTitle": "Pesanan Dibuat",
+      "orderId": "Order ID: <mono>{orderId}</mono>",
+      "processing": "Detail pesanan sedang diproses. Silakan cek riwayat pesanan Anda.",
+      "orderNumber": "Nomor Pesanan",
+      "totalPayment": "Total Pembayaran",
+      "completePayment": "Selesaikan pembayaran",
+      "timeLeft": "Sisa waktu pembayaran: <strong>{countdown}</strong>",
+      "expired": "Waktu pembayaran telah berakhir. Silakan buat ulang pembayaran.",
+      "payPrompt": "Segera selesaikan pembayaran agar pesanan diproses.",
+      "validUntil": "Berlaku sampai {date}.",
+      "autoCancel": "Jika pembayaran tertunda, pesanan akan otomatis dibatalkan.",
+      "payNow": "Bayar Sekarang",
+      "noPaymentLink": "Link pembayaran belum tersedia. Anda bisa membuat ulang pembayaran.",
+      "retryPayment": "Coba bayar lagi",
+      "contactSupport": "Hubungi CS",
+      "supportSubject": "Bantuan pembayaran {orderNumber}",
+      "statusTitle": "Status pesanan",
+      "shippingTitle": "Pengiriman",
+      "courier": "Kurir: <strong>{courier}</strong>",
+      "service": "Layanan: <strong>{service}</strong>",
+      "trackingNumber": "Nomor resi: <strong>{number}</strong>",
+      "trackingPending": "Nomor resi akan tersedia setelah pesanan diproses.",
+      "eta": "Estimasi tiba: <strong>{date}</strong>",
+      "trackShipment": "Lacak pengiriman",
+      "shippingPending": "Informasi pengiriman akan muncul setelah pesanan diproses.",
+      "itemsTitle": "Produk dalam pesanan",
+      "itemsDescription": "Tambahkan lagi produk yang pernah dibeli.",
+      "reordering": "Menambahkan...",
+      "reorder": "Beli lagi",
+      "qtyPrice": "Qty {qty} - {price}",
+      "viewProduct": "Lihat produk",
+      "review": "Beri ulasan",
+      "cancelOrder": "Batalkan pesanan",
+      "toast": {
+        "cancelled": "Pesanan dibatalkan",
+        "cancelledDescription": "Pesanan Anda sudah dibatalkan. Tim kami akan memproses pengembalian dana jika diperlukan.",
+        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi."
+      }
+    },
+    "tracking": {
+      "mapLoading": "Memuat peta...",
+      "mapResolving": "Memuat peta pelacakan dan koordinat lokasi...",
+      "mapEmpty": "Data lokasi pengiriman belum tersedia atau tidak dapat ter-geocode.",
+      "notFoundTitle": "Tracking tidak ditemukan",
+      "notFoundDescription": "Order ID tidak tersedia. Periksa kembali tautan Anda.",
+      "backToOrder": "Kembali ke pesanan",
+      "loadFailedTitle": "Gagal memuat tracking",
+      "loadFailedDescription": "Kami belum bisa mengambil informasi pengiriman. Coba lagi nanti.",
+      "title": "Lacak Pengiriman",
+      "trackingNumber": "Nomor resi <strong>{number}</strong>",
+      "courier": "Kurir",
+      "currentStatus": "Status terkini",
+      "eta": "Estimasi tiba {date}",
+      "history": "Riwayat pengiriman",
+      "map": "Peta pengiriman",
+      "viewAllOrders": "Lihat semua pesanan",
+      "actions": {
+        "shareTitle": "Lacak Pengiriman",
+        "shareText": "Lacak pengiriman pesanan (resi {number})",
+        "copied": "Tautan disalin",
+        "copiedDescription": "Tautan pelacakan telah disalin ke clipboard.",
+        "copyFailed": "Gagal menyalin tautan",
+        "copyFailedDescription": "Salin URL dari bilah alamat browser Anda.",
+        "notifyOff": "Notifikasi dimatikan",
+        "notifyOffDescription": "Anda tidak akan menerima pembaruan pengiriman di perangkat ini.",
+        "notifyOn": "Notifikasi diaktifkan",
+        "notifyOnDescription": "Kami akan memberi tahu Anda saat status pengiriman berubah.",
+        "notifyDenied": "Izin notifikasi ditolak",
+        "notifyDeniedDescription": "Aktifkan notifikasi untuk situs ini di pengaturan browser Anda.",
+        "share": "Bagikan tautan pelacakan",
+        "notifyActive": "Notifikasi aktif",
+        "notifyMe": "Beritahu saya"
+      }
+    },
+    "returns": {
+      "loadFailed": "Gagal memuat permintaan pengembalian.",
+      "created": "Permintaan pengembalian berhasil dibuat.",
+      "createFailed": "Gagal membuat permintaan. Pastikan nomor pesanan eligible.",
+      "title": "Pengembalian Pesanan",
+      "guestDescription": "Silakan login untuk melihat dan mengajukan pengembalian.",
+      "description": "Ajukan dan pantau proses pengembalian dari satu tempat.",
+      "formTitle": "Ajukan pengembalian",
+      "orderNumber": "Nomor order",
+      "orderPlaceholder": "UUID order",
+      "reason": "Alasan",
+      "reasonPlaceholder": "Produk rusak, salah ukuran, ...",
+      "notes": "Catatan tambahan",
+      "sending": "Mengirim...",
+      "submit": "Kirim permintaan",
+      "listTitle": "Permintaan saya",
+      "empty": "Belum ada permintaan pengembalian.",
+      "order": "Order {orderId}"
+    }
+  },
   "errors": {
     "route": {
       "title": "Terjadi kesalahan",
@@ -1169,6 +2130,25 @@
       "adminDescription": "Halaman admin gagal dimuat. Coba lagi.",
       "digest": "Kode: {digest}",
       "retry": "Coba lagi"
+    },
+    "boundary": {
+      "reload": "Muat Ulang"
+    },
+    "unknown": "Terjadi kesalahan yang tidak diketahui",
+    "api": {
+      "UNAUTHORIZED": "Sesi Anda telah berakhir. Silakan login kembali.",
+      "FORBIDDEN": "Anda tidak memiliki akses ke resource ini.",
+      "NOT_FOUND": "Data yang Anda cari tidak ditemukan.",
+      "BAD_REQUEST": "Permintaan tidak valid. Periksa kembali data Anda.",
+      "VALIDATION_ERROR": "Data yang Anda masukkan tidak valid.",
+      "INTERNAL": "Terjadi kesalahan pada server. Silakan coba lagi nanti.",
+      "UNAVAILABLE": "Layanan sedang tidak tersedia. Silakan coba lagi nanti.",
+      "CART_EXPIRED": "Keranjang Anda telah kedaluwarsa. Silakan mulai belanja lagi.",
+      "OUT_OF_STOCK": "Maaf, produk tidak tersedia atau stok tidak mencukupi.",
+      "VOUCHER_INVALID": "Kode voucher tidak valid atau sudah kedaluwarsa.",
+      "VOUCHER_MIN_SPEND": "Belum memenuhi minimum pembelian untuk menggunakan voucher ini.",
+      "VOUCHER_ALREADY_USED": "Anda sudah menggunakan voucher ini sebelumnya.",
+      "RATE_LIMIT_EXCEEDED": "Terlalu banyak percobaan. Silakan tunggu sebentar."
     }
   },
   "notFound": {

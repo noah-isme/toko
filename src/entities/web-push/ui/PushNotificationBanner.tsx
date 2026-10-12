@@ -1,6 +1,7 @@
 'use client';
 
 import { Shield, Zap, Send, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo, useEffect, useState } from 'react';
 
 import { usePushPreferencesQuery, usePushSubscription } from '../hooks';
@@ -20,6 +21,7 @@ interface PushBannerProps {
 export const PushNotificationBanner = memo(function PushNotificationBanner({
   className,
 }: PushBannerProps) {
+  const t = useTranslations('account.push');
   const { data: preferences, isLoading, refetch } = usePushPreferencesQuery();
   const { subscribe, unsubscribe, isSubscribing, isUnsubscribing } = usePushSubscription();
   const { toast } = useToast();
@@ -77,7 +79,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
       <button
         onClick={handleDismiss}
         className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded transition-colors hover:bg-muted"
-        aria-label="Tutup"
+        aria-label={t('banner.close')}
       >
         <span className="text-muted-foreground">×</span>
       </button>
@@ -88,10 +90,8 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
               <Shield className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <CardTitle className="text-base font-semibold">Aktifkan Notifikasi Push</CardTitle>
-              <CardDescription className="text-sm">
-                Terima update pesanan, promo flash sale, dan penurunan harga secara real-time
-              </CardDescription>
+              <CardTitle className="text-base font-semibold">{t('banner.title')}</CardTitle>
+              <CardDescription className="text-sm">{t('banner.description')}</CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-3 sm:ml-auto">
@@ -99,7 +99,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
               checked={localEnabled}
               onCheckedChange={handleEnableChange}
               disabled={isPending}
-              aria-label="Aktifkan notifikasi push"
+              aria-label={t('card.enableLabel')}
             />
             <Button
               onClick={() => handleEnableChange(true)}
@@ -108,7 +108,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
               className="gap-1.5"
             >
               <Zap className="h-4 w-4" aria-hidden="true" />
-              Aktifkan
+              {t('banner.enable')}
             </Button>
           </div>
         </div>

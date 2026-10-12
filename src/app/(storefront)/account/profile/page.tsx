@@ -3,6 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, MailWarning } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -21,6 +22,9 @@ interface ProfileForm {
 }
 
 export default function ProfilePage() {
+  const t = useTranslations('account.profile');
+  const tAccount = useTranslations('account');
+  const tErrors = useTranslations('errors');
   const { user, isAuthenticated, isLoading, updateProfile } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,9 +61,9 @@ export default function ProfilePage() {
         name: values.name.trim(),
         phone: values.phone?.trim() || undefined,
       });
-      toast({ variant: 'success', description: 'Profil berhasil diperbarui.' });
+      toast({ variant: 'success', description: t('updated') });
     } catch (error) {
-      const message = getErrorMessage(error);
+      const message = getErrorMessage(error, tErrors);
       form.setError('root', { message });
     } finally {
       setIsSubmitting(false);
@@ -75,9 +79,9 @@ export default function ProfilePage() {
     setResendError(null);
     try {
       const response = await authApi.resendVerification({ email: user.email });
-      setResendSuccess(response.message ?? 'Email verifikasi sudah dikirim.');
+      setResendSuccess(response.message ?? t('verificationSent'));
     } catch (error) {
-      setResendError(getErrorMessage(error));
+      setResendError(getErrorMessage(error, tErrors));
     } finally {
       setIsSubmitting(false);
     }
@@ -105,10 +109,10 @@ export default function ProfilePage() {
     setSecurityError(null);
     try {
       const response = await authApi.logoutAllSessions();
-      setSecurityMessage(response?.message ?? 'Semua sesi telah keluar.');
+      setSecurityMessage(response?.message ?? t('security.loggedOutAll'));
       await queryClient.invalidateQueries({ queryKey: ['auth', 'sessions'] });
     } catch (error) {
-      setSecurityError(getErrorMessage(error));
+      setSecurityError(getErrorMessage(error, tErrors));
     } finally {
       setIsLoggingOutAll(false);
     }
@@ -134,11 +138,11 @@ export default function ProfilePage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Profil</h1>
-          <p className="text-sm text-muted-foreground">Silakan login untuk melihat profil.</p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('guestDescription')}</p>
         </div>
         <Button asChild>
-          <Link href="/login">Login</Link>
+          <Link href="/login">{tAccount('login')}</Link>
         </Button>
       </div>
     );
@@ -153,11 +157,11 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Profil</h1>
-          <p className="text-sm text-muted-foreground">Kelola informasi akun Anda.</p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('description')}</p>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link href="/account">Kembali ke akun</Link>
+          <Link href="/account">{tAccount('backToAccount')}</Link>
         </Button>
       </div>
 
@@ -170,22 +174,18 @@ export default function ProfilePage() {
           )}
           <div className="space-y-1">
             <p className="font-medium">
-              {user.emailVerified ? 'Email terverifikasi' : 'Email belum terverifikasi'}
+              {user.emailVerified ? t('emailVerified') : t('emailUnverified')}
             </p>
-            <p>
-              {user.emailVerified
-                ? 'Terima kasih, email Anda sudah aktif.'
-                : 'Verifikasi email untuk memastikan akun Anda aman.'}
-            </p>
+            <p>{user.emailVerified ? t('verifiedDescription') : t('unverifiedDescription')}</p>
           </div>
         </div>
         {!user.emailVerified ? (
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <Button size="sm" onClick={handleResendVerification} disabled={isSubmitting}>
-              Kirim ulang verifikasi
+              {t('resendVerification')}
             </Button>
             <Link href="/verify-email" className="text-sm font-medium underline">
-              Buka halaman verifikasi
+              {t('openVerification')}
             </Link>
           </div>
         ) : null}
@@ -216,10 +216,10 @@ export default function ProfilePage() {
         ) : null}
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="name">
-            Nama lengkap
+            {t('fields.name')}
           </label>
           <Input
-            {...form.register('name', { required: 'Nama wajib diisi' })}
+            {...form.register('name', { required: t('validation.nameRequired') })}
             {...fieldA11y('name', nameErrorId)}
             autoComplete="name"
             required
@@ -233,22 +233,22 @@ export default function ProfilePage() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="email">
-            Email
+            {t('fields.email')}
           </label>
           <Input value={user.email} disabled readOnly />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="phone">
-            Nomor telepon
+            {t('fields.phone')}
           </label>
           <Input
             {...form.register('phone', {
               validate: (value) =>
-                !value || isValidPhoneNumber(value) || 'Nomor telepon tidak valid',
+                !value || isValidPhoneNumber(value) || t('validation.phoneInvalid'),
             })}
             {...fieldA11y('phone', phoneErrorId)}
             autoComplete="tel"
-            placeholder="Contoh: 081234567890"
+            placeholder={t('fields.phonePlaceholder')}
             disabled={isSubmitting}
           />
           {phoneError ? (
@@ -259,10 +259,10 @@ export default function ProfilePage() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="ghost" size="sm">
-            <Link href="/forgot-password">Ubah password</Link>
+            <Link href="/forgot-password">{t('changePassword')}</Link>
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Menyimpan...' : 'Simpan perubahan'}
+            {isSubmitting ? t('saving') : t('save')}
           </Button>
         </div>
       </form>
@@ -270,10 +270,8 @@ export default function ProfilePage() {
       <section className="space-y-4 rounded-lg border p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold">Keamanan Akun</h2>
-            <p className="text-sm text-muted-foreground">
-              Kelola sesi aktif dan keluarkan perangkat lain.
-            </p>
+            <h2 className="text-lg font-semibold">{t('security.title')}</h2>
+            <p className="text-sm text-muted-foreground">{t('security.description')}</p>
           </div>
           <Button
             variant="outline"
@@ -281,7 +279,7 @@ export default function ProfilePage() {
             onClick={handleLogoutAllSessions}
             disabled={isLoggingOutAll}
           >
-            {isLoggingOutAll ? 'Memproses...' : 'Logout semua perangkat'}
+            {isLoggingOutAll ? t('security.processing') : t('security.logoutAll')}
           </Button>
         </div>
 
@@ -314,10 +312,10 @@ export default function ProfilePage() {
             className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
             role="alert"
           >
-            Gagal memuat sesi aktif.
+            {t('security.loadFailed')}
           </div>
         ) : sortedSessions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Belum ada sesi aktif.</p>
+          <p className="text-sm text-muted-foreground">{t('security.empty')}</p>
         ) : (
           <ul className="space-y-3">
             {sortedSessions.map((session) => (
@@ -328,16 +326,16 @@ export default function ProfilePage() {
                       {session.device}
                       {session.current ? (
                         <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                          Perangkat ini
+                          {t('security.thisDevice')}
                         </span>
                       ) : null}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      IP: {session.ipAddress}
+                      {t('security.ip', { ip: session.ipAddress })}
                       {session.location ? ` • ${session.location}` : ''}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Terakhir aktif: {formatDateTime(session.lastActive)}
+                      {t('security.lastActive', { date: formatDateTime(session.lastActive) })}
                     </p>
                   </div>
                 </div>

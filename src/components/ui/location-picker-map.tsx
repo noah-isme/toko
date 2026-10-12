@@ -5,6 +5,7 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import 'leaflet/dist/leaflet.css';
 import type { LatLngTuple } from 'leaflet';
 import { Locate, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 
@@ -45,6 +46,7 @@ function LocationMarker({
 }
 
 function LocateControl({ onLocate }: { onLocate: (pos: LatLngTuple) => void }) {
+  const t = useTranslations('checkout.address');
   const map = useMap();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,10 +74,10 @@ function LocateControl({ onLocate }: { onLocate: (pos: LatLngTuple) => void }) {
           message: e.message,
           type: e.type,
         });
-        let msg = 'Gagal mendeteksi lokasi otomatis.';
-        if (e.code === 1) msg = 'Izin lokasi ditolak. Harap izinkan akses lokasi di browser Anda.';
-        else if (e.code === 2) msg = 'Posisi tidak tersedia. Coba lagi nanti.';
-        else if (e.code === 3) msg = 'Waktu permintaan lokasi habis.';
+        let msg = t('form.toast.generic');
+        if (e.code === 1) msg = t('map.permissionDenied');
+        else if (e.code === 2) msg = t('form.toast.positionUnavailable');
+        else if (e.code === 3) msg = t('form.toast.timeout');
 
         setError(msg);
         setLoading(false);
@@ -97,7 +99,7 @@ function LocateControl({ onLocate }: { onLocate: (pos: LatLngTuple) => void }) {
           className="h-8 w-8 rounded-md border bg-background shadow-sm hover:bg-accent"
           onClick={handleLocate}
           disabled={loading}
-          title="Gunakan lokasi saya"
+          title={t('form.useLocation')}
         >
           <Locate className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </Button>
@@ -115,6 +117,7 @@ export default function LocationPickerMap({
   onPositionChange,
   className,
 }: LocationPickerMapProps) {
+  const t = useTranslations('checkout.address');
   // Default to Jakarta if no position
   const defaultPosition: LatLngTuple = [-6.2088, 106.8456];
   const [position, setPosition] = useState<LatLngTuple | null>(initialPosition || defaultPosition);
@@ -182,7 +185,7 @@ export default function LocationPickerMap({
                 handleSearch();
               }
             }}
-            placeholder="Cari kota/lokasi..."
+            placeholder={t('map.searchPlaceholder')}
             className="h-8 w-40 rounded border-none bg-transparent px-2 text-xs focus:outline-none focus:ring-0 sm:w-56"
           />
           <Button
@@ -198,11 +201,11 @@ export default function LocationPickerMap({
         </div>
         {noResult && (
           <div className="rounded-md bg-destructive/90 px-2 py-1 text-xs text-destructive-foreground shadow backdrop-blur-sm animate-in fade-in slide-in-from-top-1">
-            Lokasi tidak ditemukan
+            {t('map.notFound')}
           </div>
         )}
         <div className="rounded bg-background/50 px-2 py-1 text-[10px] font-medium text-muted-foreground shadow backdrop-blur-sm">
-          Klik peta untuk pin poin
+          {t('map.clickHint')}
         </div>
       </div>
 

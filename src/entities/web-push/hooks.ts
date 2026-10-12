@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
 import { webPushApi } from './api';
@@ -33,6 +34,7 @@ export function usePushPreferencesQuery() {
 }
 
 export function useSubscribePushMutation() {
+  const t = useTranslations('account.push.toast');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -48,7 +50,7 @@ export function useSubscribePushMutation() {
 
       toast({
         id: 'push-subscribe-success',
-        title: 'Notifikasi push diaktifkan',
+        title: t('subscribed'),
         description: data.message,
         variant: 'success',
       });
@@ -60,7 +62,7 @@ export function useSubscribePushMutation() {
 
       toast({
         id: 'push-subscribe-error',
-        title: 'Gagal mengaktifkan notifikasi push',
+        title: t('subscribeFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -69,6 +71,7 @@ export function useSubscribePushMutation() {
 }
 
 export function useUnsubscribePushMutation() {
+  const t = useTranslations('account.push.toast');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -84,7 +87,7 @@ export function useUnsubscribePushMutation() {
 
       toast({
         id: 'push-unsubscribe-success',
-        title: 'Notifikasi push dinonaktifkan',
+        title: t('unsubscribed'),
         description: data.message,
         variant: 'success',
       });
@@ -96,7 +99,7 @@ export function useUnsubscribePushMutation() {
 
       toast({
         id: 'push-unsubscribe-error',
-        title: 'Gagal menonaktifkan notifikasi push',
+        title: t('unsubscribeFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -105,6 +108,7 @@ export function useUnsubscribePushMutation() {
 }
 
 export function useUpdatePushPreferencesMutation() {
+  const t = useTranslations('account.push.toast');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -135,7 +139,7 @@ export function useUpdatePushPreferencesMutation() {
 
       toast({
         id: 'push-preferences-success',
-        title: 'Preferensi notifikasi diperbarui',
+        title: t('preferencesUpdated'),
         description: data.message,
         variant: 'success',
       });
@@ -151,7 +155,7 @@ export function useUpdatePushPreferencesMutation() {
 
       toast({
         id: 'push-preferences-error',
-        title: 'Gagal memperbarui preferensi',
+        title: t('preferencesFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -163,6 +167,7 @@ export function useUpdatePushPreferencesMutation() {
 }
 
 export function useSendTestPushMutation() {
+  const t = useTranslations('account.push.toast');
   const { toast } = useToast();
 
   return useMutation({
@@ -170,7 +175,7 @@ export function useSendTestPushMutation() {
     onSuccess: (data) => {
       toast({
         id: 'push-test-success',
-        title: 'Notifikasi tes dikirim',
+        title: t('testSent'),
         description: data.message,
         variant: 'success',
       });
@@ -178,7 +183,7 @@ export function useSendTestPushMutation() {
     onError: (error) => {
       toast({
         id: 'push-test-error',
-        title: 'Gagal mengirim notifikasi tes',
+        title: t('testFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

@@ -23,6 +23,7 @@ function ResetPasswordContent() {
   const router = useRouter();
   const t = useTranslations('auth.reset');
   const tf = useTranslations('auth.fields');
+  const tErrors = useTranslations('errors');
   const errorText = useAuthErrorMessage();
   const token = useMemo(() => searchParams.get('token') ?? '', [searchParams]);
   const [isComplete, setIsComplete] = useState(false);
@@ -51,7 +52,7 @@ function ResetPasswordContent() {
       setIsComplete(true);
       setTimeout(() => router.push('/login'), 1800);
     } catch (error) {
-      setError('root', { message: getErrorMessage(error) });
+      setError('root', { message: getErrorMessage(error, tErrors) });
     } finally {
       setIsSubmitting(false);
     }

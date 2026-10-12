@@ -3,6 +3,7 @@
 import { Bell, Clock, Heart, LogOut, MapPin, Package, UserCircle, Award } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import { LazyWrapper, LazyLoyaltyDashboard } from '@/components/lazy-components';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -13,6 +14,8 @@ import { AccountDashboardSkeleton } from '@/shared/ui/skeletons/AccountDashboard
 import { useToast } from '@/shared/ui/toast';
 
 export default function AccountPage() {
+  const t = useTranslations('account.dashboard');
+  const tCrumb = useTranslations('account.breadcrumb');
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -22,7 +25,7 @@ export default function AccountPage() {
       await logout();
       router.push('/');
     } catch (error) {
-      toast({ variant: 'destructive', description: 'Failed to logout' });
+      toast({ variant: 'destructive', description: t('logoutFailed') });
     }
   };
 
@@ -34,15 +37,15 @@ export default function AccountPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Account</h1>
-          <p className="text-sm text-muted-foreground">Please sign in to access your account.</p>
+          <h1 className="text-2xl font-bold">{t('guestTitle')}</h1>
+          <p className="text-sm text-muted-foreground">{t('guestDescription')}</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <Link href="/login">Sign in</Link>
+            <Link href="/login">{t('signIn')}</Link>
           </Button>
           <Button asChild size="lg" variant="secondary">
-            <Link href="/register">Create account</Link>
+            <Link href="/register">{t('createAccount')}</Link>
           </Button>
         </div>
       </div>
@@ -51,15 +54,15 @@ export default function AccountPage() {
 
   return (
     <div className="space-y-8">
-      <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Akun' }]} />
+      <Breadcrumbs items={[{ label: tCrumb('home'), href: '/' }, { label: tCrumb('account') }]} />
       <div>
-        <h1 className="text-2xl font-bold">Welcome, {user.name}</h1>
+        <h1 className="text-2xl font-bold">{t('welcome', { name: user.name })}</h1>
         <p className="text-sm text-muted-foreground">{user.email}</p>
         {user.emailVerified === false ? (
           <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-            Email Anda belum terverifikasi.{' '}
+            {t('unverified')}{' '}
             <Link href="/verify-email" className="font-medium text-amber-700 underline">
-              Verifikasi sekarang
+              {t('verifyNow')}
             </Link>
           </div>
         ) : null}
@@ -69,49 +72,49 @@ export default function AccountPage() {
         <Button asChild size="lg" className="h-auto py-6">
           <Link href="/account/profile" className="flex flex-col items-center gap-2">
             <UserCircle className="h-6 w-6" aria-hidden="true" />
-            <span>Profile</span>
+            <span>{t('links.profile')}</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="secondary" className="h-auto py-6">
           <Link href="/account/orders" className="flex flex-col items-center gap-2">
             <Package className="h-6 w-6" aria-hidden="true" />
-            <span>View Orders</span>
+            <span>{t('links.orders')}</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="outline" className="h-auto py-6">
           <Link href="/account/addresses" className="flex flex-col items-center gap-2">
             <MapPin className="h-6 w-6" aria-hidden="true" />
-            <span>Manage Addresses</span>
+            <span>{t('links.addresses')}</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="ghost" className="h-auto py-6">
           <Link href="/favorites" className="flex flex-col items-center gap-2">
             <Heart className="h-6 w-6" aria-hidden="true" />
-            <span>Favorites</span>
+            <span>{t('links.favorites')}</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="ghost" className="h-auto py-6">
           <Link href="/account/searches" className="flex flex-col items-center gap-2">
             <Clock className="h-6 w-6" aria-hidden="true" />
-            <span>Riwayat Pencarian</span>
+            <span>{t('links.searches')}</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="ghost" className="h-auto py-6">
           <Link href="/account/loyalty" className="flex flex-col items-center gap-2">
             <Award className="h-6 w-6" aria-hidden="true" />
-            <span>Loyalitas</span>
+            <span>{t('links.loyalty')}</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="ghost" className="h-auto py-6">
           <Link href="/account/push-settings" className="flex flex-col items-center gap-2">
             <Bell className="h-6 w-6" aria-hidden="true" />
-            <span>Notifikasi Push</span>
+            <span>{t('links.push')}</span>
           </Link>
         </Button>
         <Button size="lg" variant="ghost" onClick={handleLogout} className="h-auto py-6">
           <span className="flex flex-col items-center gap-2">
             <LogOut className="h-6 w-6" aria-hidden="true" />
-            <span>Logout</span>
+            <span>{t('links.logout')}</span>
           </span>
         </Button>
       </div>

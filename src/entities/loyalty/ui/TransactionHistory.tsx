@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUp, ArrowDown, Minus, Plus, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo, useState } from 'react';
 
 import { useLoyaltyTransactionsQuery } from '../hooks';
@@ -28,43 +29,31 @@ import { cn } from '@/lib/utils';
 
 const TRANSACTION_TYPE_STYLES: Record<
   LoyaltyTransaction['type'],
-  { color: string; icon: React.ReactNode; label: string }
+  { color: string; icon: React.ReactNode }
 > = {
   earned: {
     color: 'text-green-600 bg-green-50 border-green-100',
     icon: <ArrowUp className="h-3 w-3" />,
-    label: 'Diperoleh',
   },
   redeemed: {
     color: 'text-purple-600 bg-purple-50 border-purple-100',
     icon: <ArrowDown className="h-3 w-3" />,
-    label: 'Ditukar',
   },
   expired: {
     color: 'text-red-600 bg-red-50 border-red-100',
     icon: <Minus className="h-3 w-3" />,
-    label: 'Kedaluwarsa',
   },
   adjusted: {
     color: 'text-blue-600 bg-blue-50 border-blue-100',
     icon: <Plus className="h-3 w-3" />,
-    label: 'Disesuaikan',
   },
   bonus: {
     color: 'text-amber-600 bg-amber-50 border-amber-100',
     icon: <Plus className="h-3 w-3" />,
-    label: 'Bonus',
   },
 };
 
-const TYPE_OPTIONS = [
-  { value: '', label: 'Semua' },
-  { value: 'earned', label: 'Diperoleh' },
-  { value: 'redeemed', label: 'Ditukar' },
-  { value: 'expired', label: 'Kedaluwarsa' },
-  { value: 'adjusted', label: 'Disesuaikan' },
-  { value: 'bonus', label: 'Bonus' },
-];
+const TYPE_OPTIONS = ['', 'earned', 'redeemed', 'expired', 'adjusted', 'bonus'] as const;
 
 function formatTransactionDate(value: string) {
   try {
@@ -87,6 +76,7 @@ interface TransactionHistoryProps {
 export const TransactionHistory = memo(function TransactionHistory({
   className,
 }: TransactionHistoryProps) {
+  const t = useTranslations('account.loyalty');
   const [params, setParams] = useState({
     page: 1,
     pageSize: 10,
@@ -118,11 +108,11 @@ export const TransactionHistory = memo(function TransactionHistory({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">Tanggal</TableHead>
-              <TableHead>Jenis</TableHead>
-              <TableHead>Deskripsi</TableHead>
-              <TableHead className="w-[120px] text-right">Poin</TableHead>
-              <TableHead className="w-[120px] text-right">Saldo</TableHead>
+              <TableHead className="w-[200px]">{t('table.date')}</TableHead>
+              <TableHead>{t('table.type')}</TableHead>
+              <TableHead>{t('table.description')}</TableHead>
+              <TableHead className="w-[120px] text-right">{t('table.points')}</TableHead>
+              <TableHead className="w-[120px] text-right">{t('table.balance')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -159,9 +149,9 @@ export const TransactionHistory = memo(function TransactionHistory({
           className,
         )}
       >
-        Gagal memuat riwayat.{' '}
+        {t('history.loadFailed')}{' '}
         <Button variant="link" size="sm" onClick={handleRefresh} className="h-auto p-0">
-          Coba lagi
+          {t('retry')}
         </Button>
       </div>
     );
@@ -170,15 +160,15 @@ export const TransactionHistory = memo(function TransactionHistory({
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-lg font-semibold">Riwayat Poin</h3>
+        <h3 className="flex items-center gap-2 text-lg font-semibold">{t('history.title')}</h3>
         <Select value={params.type} onValueChange={handleTypeChange}>
           <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Filter" />
+            <SelectValue placeholder={t('history.filter')} />
           </SelectTrigger>
           <SelectContent>
             {TYPE_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
+              <SelectItem key={option} value={option}>
+                {t(`history.types.${option || 'all'}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -187,18 +177,18 @@ export const TransactionHistory = memo(function TransactionHistory({
 
       {transactions.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-muted-foreground">Belum ada aktivitas poin.</p>
+          <p className="text-muted-foreground">{t('history.empty')}</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border/60">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px]">Tanggal</TableHead>
-                <TableHead>Jenis</TableHead>
-                <TableHead>Deskripsi</TableHead>
-                <TableHead className="w-[120px] text-right">Poin</TableHead>
-                <TableHead className="w-[120px] text-right">Saldo</TableHead>
+                <TableHead className="w-[200px]">{t('table.date')}</TableHead>
+                <TableHead>{t('table.type')}</TableHead>
+                <TableHead>{t('table.description')}</TableHead>
+                <TableHead className="w-[120px] text-right">{t('table.points')}</TableHead>
+                <TableHead className="w-[120px] text-right">{t('table.balance')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -213,15 +203,17 @@ export const TransactionHistory = memo(function TransactionHistory({
                     <TableCell>
                       <Badge variant="outline" className={cn('gap-1', style.color)}>
                         {style.icon}
-                        {style.label}
+                        {t(`history.types.${transaction.type}`)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">
                       <p className="font-medium">{transaction.description}</p>
                       {transaction.referenceId && (
                         <p className="text-xs text-muted-foreground">
-                          Ref: {transaction.referenceType?.toUpperCase()} #
-                          {transaction.referenceId.slice(0, 8)}
+                          {t('history.reference', {
+                            type: transaction.referenceType?.toUpperCase() ?? '',
+                            id: transaction.referenceId.slice(0, 8),
+                          })}
                         </p>
                       )}
                     </TableCell>
@@ -246,8 +238,11 @@ export const TransactionHistory = memo(function TransactionHistory({
           {meta && meta.totalPages && meta.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border/50 p-4">
               <span className="text-sm text-muted-foreground">
-                Menampilkan {(params.page - 1) * params.pageSize + 1} -{' '}
-                {Math.min(params.page * params.pageSize, meta.total ?? 0)} dari {meta.total ?? 0}
+                {t('history.showing', {
+                  from: (params.page - 1) * params.pageSize + 1,
+                  to: Math.min(params.page * params.pageSize, meta.total ?? 0),
+                  total: meta.total ?? 0,
+                })}
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -259,7 +254,7 @@ export const TransactionHistory = memo(function TransactionHistory({
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <span className="px-3 text-sm text-muted-foreground">
-                  Halaman {params.page} dari {meta.totalPages}
+                  {t('history.pageOf', { page: params.page, total: meta.totalPages })}
                 </span>
                 <Button
                   variant="outline"

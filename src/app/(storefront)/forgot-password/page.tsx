@@ -19,6 +19,7 @@ import { fieldA11y } from '@/shared/ui/forms/accessibility';
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth.forgot');
   const tf = useTranslations('auth.fields');
+  const tErrors = useTranslations('errors');
   const errorText = useAuthErrorMessage();
   const [sentEmail, setSentEmail] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
@@ -37,8 +38,8 @@ export default function ForgotPasswordPage() {
       setSentEmail(values.email);
       setResendError(null);
     } catch (error) {
-      setError('root', { message: getErrorMessage(error) });
-      setResendError(getErrorMessage(error));
+      setError('root', { message: getErrorMessage(error, tErrors) });
+      setResendError(getErrorMessage(error, tErrors));
     } finally {
       setIsSubmitting(false);
     }

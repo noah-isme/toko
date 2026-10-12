@@ -3,31 +3,41 @@
 import { useEffect, useRef, useState } from 'react';
 
 export interface ShortcutDefinition {
-  /** Human-readable keys shown in the help modal, e.g. "G then H". */
-  keys: string;
-  description: string;
+  /**
+   * Keys shown in the help modal: a literal key combo (e.g. "Ctrl/⌘ K"), or `chord` for a
+   * "G then X" chord whose display text comes from the `nav.shortcuts.chord` message.
+   */
+  keys: string | { chord: string };
+  /** Key under `nav.shortcuts.items` in the message catalogs. */
+  descriptionKey: 'home' | 'cart' | 'orders' | 'account' | 'search' | 'help' | 'close';
 }
 
-/** Shortcuts surfaced in the help modal, grouped for display. */
-export const SHORTCUT_GROUPS: { title: string; shortcuts: ShortcutDefinition[] }[] = [
+/** Shortcuts surfaced in the help modal, grouped for display (titles: `nav.shortcuts.groups`). */
+export const SHORTCUT_GROUPS: {
+  titleKey: 'navigation' | 'general';
+  shortcuts: ShortcutDefinition[];
+}[] = [
   {
-    title: 'Navigasi',
+    titleKey: 'navigation',
     shortcuts: [
-      { keys: 'G lalu H', description: 'Ke Beranda' },
-      { keys: 'G lalu C', description: 'Ke Keranjang' },
-      { keys: 'G lalu O', description: 'Ke Pesanan' },
-      { keys: 'G lalu A', description: 'Ke Akun' },
+      { keys: { chord: 'H' }, descriptionKey: 'home' },
+      { keys: { chord: 'C' }, descriptionKey: 'cart' },
+      { keys: { chord: 'O' }, descriptionKey: 'orders' },
+      { keys: { chord: 'A' }, descriptionKey: 'account' },
     ],
   },
   {
-    title: 'Umum',
+    titleKey: 'general',
     shortcuts: [
-      { keys: 'Ctrl/⌘ K', description: 'Fokus pencarian' },
-      { keys: '?', description: 'Tampilkan pintasan keyboard' },
-      { keys: 'Esc', description: 'Tutup dialog' },
+      { keys: 'Ctrl/⌘ K', descriptionKey: 'search' },
+      { keys: '?', descriptionKey: 'help' },
+      { keys: 'Esc', descriptionKey: 'close' },
     ],
   },
 ];
+
+/** Attribute (`data-search-input`) on the storefront search inputs focused by `Ctrl/⌘ K`. */
+export const SEARCH_INPUT_ATTRIBUTE = 'data-search-input';
 
 const GO_ROUTES: Record<string, string> = {
   h: '/',

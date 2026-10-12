@@ -29,6 +29,7 @@ export default function RegisterPage() {
   const t = useTranslations('auth.register');
   const tf = useTranslations('auth.fields');
   const ts = useTranslations('auth.social');
+  const tErrors = useTranslations('errors');
   const errorText = useAuthErrorMessage();
   const { register: registerUser, isLoading: authLoading } = useAuth();
   const { register, handleSubmit, formState, setError, watch } = useForm<RegisterInput>({
@@ -56,7 +57,7 @@ export default function RegisterPage() {
       await registerUser(registerData);
       router.push('/');
     } catch (error) {
-      const message = getErrorMessage(error);
+      const message = getErrorMessage(error, tErrors);
       setError('root', { message });
     }
   };

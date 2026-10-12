@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -9,10 +10,11 @@ export interface OrdersTableSkeletonProps {
 }
 
 export function OrdersTableSkeleton({ rows = 8 }: OrdersTableSkeletonProps) {
+  const t = useTranslations('common');
   return (
     <React.Fragment>
       <div className="overflow-hidden rounded-lg border" role="status">
-        {srOnly('Memuat...')}
+        {srOnly(t('loading'))}
         <table className="min-w-full divide-y divide-border/60">
           <thead className="bg-muted/30">
             <tr>

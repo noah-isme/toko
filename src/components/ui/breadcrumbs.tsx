@@ -3,6 +3,7 @@
 import { ChevronRight } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Fragment } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -24,12 +25,13 @@ export interface BreadcrumbsProps {
  * provided, so the trail always communicates where the user is.
  */
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+  const t = useTranslations('common.ui');
   if (items.length === 0) {
     return null;
   }
 
   return (
-    <nav aria-label="Breadcrumb" className={cn('text-sm text-muted-foreground', className)}>
+    <nav aria-label={t('breadcrumb')} className={cn('text-sm text-muted-foreground', className)}>
       <ol className="flex flex-wrap items-center gap-1.5">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;

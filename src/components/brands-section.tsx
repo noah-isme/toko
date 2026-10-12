@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { Container } from '@/components/layout/container';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,6 +10,7 @@ import { useBrands } from '@/entities/catalog/hooks';
 import { cn } from '@/lib/utils';
 
 export function BrandsSection() {
+  const t = useTranslations('common.landing.brands');
   const { data: brands, isLoading, error } = useBrands();
 
   if (error) return null;
@@ -17,8 +19,8 @@ export function BrandsSection() {
     <section className="py-12">
       <Container>
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-bold">Shop by Brand</h2>
-          <p className="mt-2 text-muted-foreground">Discover products from your favorite brands</p>
+          <h2 className="text-3xl font-bold">{t('title')}</h2>
+          <p className="mt-2 text-muted-foreground">{t('description')}</p>
         </div>
 
         {isLoading ? (

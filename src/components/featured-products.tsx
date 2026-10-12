@@ -2,6 +2,7 @@
 
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { ProductCard } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { useProducts } from '@/entities/catalog/hooks';
 import { ProductCardSkeleton } from '@/shared/ui/skeletons/ProductCardSkeleton';
 
 export function FeaturedProducts() {
+  const t = useTranslations('common.landing.featured');
   const { data, isLoading } = useProducts({ limit: 12 });
   const products = [...(data?.data ?? [])]
     .sort(
@@ -22,17 +24,15 @@ export function FeaturedProducts() {
         <div className="absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_top_right,hsl(40_55%_64%_/_0.28),transparent_62%)]" />
         <div className="relative max-w-2xl space-y-5">
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[hsl(40_65%_77%)]">
-            <Sparkles className="h-4 w-4" /> The edit
+            <Sparkles className="h-4 w-4" /> {t('eyebrow')}
           </p>
-          <h1 className="font-display text-5xl leading-[0.92] sm:text-7xl">
-            Pilihan yang pantas untuk disimpan.
-          </h1>
+          <h1 className="font-display text-5xl leading-[0.92] sm:text-7xl">{t('title')}</h1>
           <p className="max-w-lg text-sm leading-7 text-white/75 sm:text-base">
-            Koleksi produk favorit dengan kualitas, fungsi, dan detail yang menonjol.
+            {t('description')}
           </p>
           <Button asChild variant="secondary" className="mt-2">
             <Link href="/products">
-              Jelajahi semua produk <ArrowRight className="h-4 w-4" />
+              {t('browse')} <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -41,11 +41,11 @@ export function FeaturedProducts() {
       <section className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="eyebrow">Curated for you</p>
-            <h2 className="font-display mt-2 text-4xl">Produk unggulan</h2>
+            <p className="eyebrow">{t('curatedEyebrow')}</p>
+            <h2 className="font-display mt-2 text-4xl">{t('curatedTitle')}</h2>
           </div>
           <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-            Pilihan ini diurutkan dari produk dengan apresiasi pelanggan terbaik.
+            {t('curatedDescription')}
           </p>
         </div>
         {isLoading ? (
@@ -60,7 +60,7 @@ export function FeaturedProducts() {
           </ul>
         ) : (
           <p className="premium-surface rounded-2xl p-8 text-sm text-muted-foreground">
-            Koleksi pilihan segera hadir.
+            {t('empty')}
           </p>
         )}
       </section>

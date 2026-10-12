@@ -1,6 +1,7 @@
 'use client';
 
 import { Bell, BellOff, Check, Share2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,7 @@ function resolveInitialNotifyState(orderId: string): NotifyState {
 }
 
 export function TrackingActions({ orderId, trackingNumber, shareUrl }: TrackingActionsProps) {
+  const t = useTranslations('account.tracking.actions');
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [notify, setNotify] = useState<NotifyState>('idle');
@@ -68,8 +70,8 @@ export function TrackingActions({ orderId, trackingNumber, shareUrl }: TrackingA
 
   const handleShare = useCallback(async () => {
     const shareData = {
-      title: 'Lacak Pengiriman',
-      text: `Lacak pengiriman pesanan (resi ${trackingNumber})`,
+      title: t('shareTitle'),
+      text: t('shareText', { number: trackingNumber }),
       url: shareUrl,
     };
 
@@ -95,17 +97,17 @@ export function TrackingActions({ orderId, trackingNumber, shareUrl }: TrackingA
       window.setTimeout(() => setCopied(false), 2000);
       toast({
         variant: 'success',
-        title: 'Tautan disalin',
-        description: 'Tautan pelacakan telah disalin ke clipboard.',
+        title: t('copied'),
+        description: t('copiedDescription'),
       });
     } catch {
       toast({
         variant: 'destructive',
-        title: 'Gagal menyalin tautan',
-        description: 'Salin URL dari bilah alamat browser Anda.',
+        title: t('copyFailed'),
+        description: t('copyFailedDescription'),
       });
     }
-  }, [orderId, shareUrl, toast, trackingNumber]);
+  }, [orderId, shareUrl, t, toast, trackingNumber]);
 
   const handleToggleNotify = useCallback(async () => {
     if (notify === 'enabled') {
@@ -113,8 +115,8 @@ export function TrackingActions({ orderId, trackingNumber, shareUrl }: TrackingA
       setNotify('idle');
       capturePosthogEvent('shipment_tracking_notify_disabled', { orderId });
       toast({
-        title: 'Notifikasi dimatikan',
-        description: 'Anda tidak akan menerima pembaruan pengiriman di perangkat ini.',
+        title: t('notifyOff'),
+        description: t('notifyOffDescription'),
       });
       return;
     }
@@ -130,18 +132,18 @@ export function TrackingActions({ orderId, trackingNumber, shareUrl }: TrackingA
       capturePosthogEvent('shipment_tracking_notify_enabled', { orderId });
       toast({
         variant: 'success',
-        title: 'Notifikasi diaktifkan',
-        description: 'Kami akan memberi tahu Anda saat status pengiriman berubah.',
+        title: t('notifyOn'),
+        description: t('notifyOnDescription'),
       });
     } else {
       setNotify('denied');
       toast({
         variant: 'destructive',
-        title: 'Izin notifikasi ditolak',
-        description: 'Aktifkan notifikasi untuk situs ini di pengaturan browser Anda.',
+        title: t('notifyDenied'),
+        description: t('notifyDeniedDescription'),
       });
     }
-  }, [notify, orderId, toast]);
+  }, [notify, orderId, t, toast]);
 
   return (
     <div className="flex flex-wrap gap-3">
@@ -151,7 +153,7 @@ export function TrackingActions({ orderId, trackingNumber, shareUrl }: TrackingA
         ) : (
           <Share2 className="h-4 w-4" aria-hidden="true" />
         )}
-        Bagikan tautan pelacakan
+        {t('share')}
       </Button>
 
       {notify !== 'unsupported' ? (
@@ -167,7 +169,7 @@ export function TrackingActions({ orderId, trackingNumber, shareUrl }: TrackingA
           ) : (
             <BellOff className="h-4 w-4" aria-hidden="true" />
           )}
-          {notify === 'enabled' ? 'Notifikasi aktif' : 'Beritahu saya'}
+          {notify === 'enabled' ? t('notifyActive') : t('notifyMe')}
         </Button>
       ) : null}
     </div>

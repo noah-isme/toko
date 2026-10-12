@@ -4,6 +4,7 @@ import { Clock, Search, TrendingUp, X } from 'lucide-react';
 import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState, useRef } from 'react';
 
 import { Input } from '@/components/ui/input';
@@ -17,10 +18,8 @@ interface SearchAutocompleteProps {
   placeholder?: string;
 }
 
-export function SearchAutocomplete({
-  className,
-  placeholder = 'Search products...',
-}: SearchAutocompleteProps) {
+export function SearchAutocomplete({ className, placeholder }: SearchAutocompleteProps) {
+  const t = useTranslations('nav.search');
   const router = useRouter();
   const params = useSearchParams();
   const paramsString = params.toString();
@@ -90,9 +89,10 @@ export function SearchAutocomplete({
       <div className="relative flex items-center">
         <Search aria-hidden="true" className="absolute left-3 h-4 w-4 text-muted-foreground" />
         <Input
-          aria-label="Search products"
+          aria-label={t('label')}
+          data-search-input=""
           className="pl-10"
-          placeholder={placeholder}
+          placeholder={placeholder ?? t('placeholder')}
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
@@ -111,7 +111,9 @@ export function SearchAutocomplete({
         <div className="absolute z-50 mt-2 w-full rounded-lg border bg-popover shadow-lg">
           {debouncedValue.length >= 2 && searchResults?.data && searchResults.data.length > 0 ? (
             <div className="p-2">
-              <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Products</p>
+              <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+                {t('products')}
+              </p>
               <ul>
                 {searchResults.data.map((product) => (
                   <li key={product.id}>
@@ -144,12 +146,12 @@ export function SearchAutocomplete({
                   onClick={() => handleSearch(debouncedValue)}
                   className="mt-2 w-full rounded-md border-t py-2 text-center text-sm text-primary hover:bg-accent"
                 >
-                  View all {searchResults.pagination.totalItems} results
+                  {t('viewAll', { count: searchResults.pagination.totalItems })}
                 </button>
               )}
             </div>
           ) : debouncedValue.length >= 2 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">No products found</div>
+            <div className="p-4 text-center text-sm text-muted-foreground">{t('noResults')}</div>
           ) : (
             <div className="p-2">
               {recentSearches.length > 0 && (
@@ -157,13 +159,13 @@ export function SearchAutocomplete({
                   <div className="flex items-center justify-between px-3 py-2">
                     <p className="text-xs font-semibold text-muted-foreground">
                       <Clock className="mr-1 inline h-3 w-3" />
-                      Pencarian Terakhir
+                      {t('recent')}
                     </p>
                     <button
                       onClick={clearRecentSearches}
                       className="text-xs text-muted-foreground hover:text-foreground"
                     >
-                      Hapus semua
+                      {t('clearRecent')}
                     </button>
                   </div>
                   <ul>
@@ -182,7 +184,7 @@ export function SearchAutocomplete({
                           {search}
                         </button>
                         <button
-                          aria-label={`Hapus ${search} dari riwayat pencarian`}
+                          aria-label={t('removeRecent', { term: search })}
                           onClick={() => removeRecentSearch(search)}
                           className="mr-2 rounded p-1 text-muted-foreground hover:text-foreground"
                         >
@@ -195,7 +197,7 @@ export function SearchAutocomplete({
               )}
               <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">
                 <TrendingUp className="mr-1 inline h-3 w-3" />
-                Popular Searches
+                {t('popular')}
               </p>
               <ul>
                 {popularSearches.map((search) => (

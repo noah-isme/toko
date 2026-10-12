@@ -20,6 +20,7 @@ import {
   LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { useCategories } from '@/entities/catalog/hooks';
 import { cn } from '@/lib/utils';
@@ -45,6 +46,7 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
 };
 
 export function CategoryQuickNav() {
+  const t = useTranslations('common.landing.quickNav');
   const { data: categories, isLoading } = useCategories();
 
   if (isLoading) {
@@ -61,14 +63,14 @@ export function CategoryQuickNav() {
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Kategori Pilihan
+            {t('title')}
           </h2>
         </div>
         <Link
           href="/products"
           className="group inline-flex items-center text-xs font-semibold text-foreground transition-colors hover:text-primary"
         >
-          Lihat Semua{' '}
+          {t('viewAll')}{' '}
           <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
         </Link>
       </div>

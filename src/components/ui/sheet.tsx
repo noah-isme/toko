@@ -2,6 +2,7 @@
 
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -43,6 +44,12 @@ const sheetVariants = cva(
   },
 );
 
+/** Visually hidden fallback title so every sheet has an accessible name. */
+function SheetFallbackTitle() {
+  const t = useTranslations('common.ui');
+  return <DialogPrimitive.Title className="sr-only">{t('panel')}</DialogPrimitive.Title>;
+}
+
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
@@ -58,7 +65,7 @@ const SheetContent = React.forwardRef<
       {...props}
     >
       {/* Fallback title for accessibility - visually hidden with sr-only */}
-      <DialogPrimitive.Title className="sr-only">Panel</DialogPrimitive.Title>
+      <SheetFallbackTitle />
       {children}
     </DialogPrimitive.Content>
   </SheetPortal>

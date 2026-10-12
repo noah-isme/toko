@@ -4,19 +4,21 @@ import { Download } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
-import { ORDER_STATUS_LABELS } from '@/lib/api/constants';
 import { formatCurrency, formatDateTime } from '@/lib/api/utils';
+import { humanizeStatus, orderStatusLabel, type AccountTranslator } from '@/shared/i18n/status';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
 
 export default function OrderDetailPage() {
+  const t = useTranslations('account');
   const params = useParams();
   const orderId = typeof params?.orderId === 'string' ? params.orderId : '';
   const { data: order, isLoading, error } = useOrderQuery(orderId);
@@ -27,9 +29,9 @@ export default function OrderDetailPage() {
   if (!orderId) {
     return (
       <EmptyState
-        title="Pesanan tidak ditemukan"
-        description="ID pesanan tidak tersedia. Silakan kembali ke daftar pesanan."
-        cta={{ label: 'Lihat pesanan saya', href: '/account/orders' }}
+        title={t('orderDetail.notFoundTitle')}
+        description={t('orderDetail.notFoundDescription')}
+        cta={{ label: t('orderDetail.viewMyOrders'), href: '/account/orders' }}
       />
     );
   }
@@ -41,22 +43,22 @@ export default function OrderDetailPage() {
   if (error || !order) {
     return (
       <EmptyState
-        title="Detail pesanan belum tersedia"
-        description="Kami belum dapat memuat detail pesanan ini. Coba lagi nanti."
-        cta={{ label: 'Kembali ke pesanan', href: '/account/orders' }}
+        title={t('orderDetail.unavailableTitle')}
+        description={t('orderDetail.unavailableDescription')}
+        cta={{ label: t('orderDetail.backToOrders'), href: '/account/orders' }}
       />
     );
   }
 
   const currency = order.currency || 'IDR';
-  const statusLabel = getStatusLabel(order.status, order.statusLabel);
+  const statusLabel = getStatusLabel(t, order.status, order.statusLabel);
   const statusClass = getStatusColor(order.status);
   const isPendingPayment = order.status.toLowerCase().includes('pending');
   const canCancel = order.status.toLowerCase() === 'pending_payment';
   const timeline = buildStatusTimeline(order);
 
   const handleDownloadInvoice = () => {
-    const invoiceText = buildInvoiceText(order);
+    const invoiceText = buildInvoiceText(t, order);
     const blob = new Blob([invoiceText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -72,17 +74,19 @@ export default function OrderDetailPage() {
     <div className="mx-auto w-full max-w-5xl space-y-7">
       <Breadcrumbs
         items={[
-          { label: 'Beranda', href: '/' },
-          { label: 'Akun', href: '/account' },
-          { label: 'Pesanan', href: '/account/orders' },
+          { label: t('breadcrumb.home'), href: '/' },
+          { label: t('breadcrumb.account'), href: '/account' },
+          { label: t('breadcrumb.orders'), href: '/account/orders' },
           { label: order.orderNumber },
         ]}
       />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">Nomor pesanan</p>
+          <p className="text-sm text-muted-foreground">{t('orderDetail.orderNumber')}</p>
           <h1 className="font-display text-4xl leading-none">{order.orderNumber}</h1>
-          <p className="text-sm text-muted-foreground">Dibuat {formatDateTime(order.createdAt)}</p>
+          <p className="text-sm text-muted-foreground">
+            {t('orderDetail.createdAt', { date: formatDateTime(order.createdAt) })}
+          </p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass}`}>
           {statusLabel}
@@ -92,21 +96,21 @@ export default function OrderDetailPage() {
       <div className="flex flex-wrap gap-2">
         {isPendingPayment ? (
           <Button asChild>
-            <Link href={`/order/confirmation/${order.id}`}>Bayar sekarang</Link>
+            <Link href={`/order/confirmation/${order.id}`}>{t('orderDetail.payNow')}</Link>
           </Button>
         ) : null}
         {order.shipping?.trackingNumber ? (
           <Button asChild variant="outline">
-            <Link href={`/order/tracking/${order.id}`}>Lacak pengiriman</Link>
+            <Link href={`/order/tracking/${order.id}`}>{t('orderDetail.trackShipment')}</Link>
           </Button>
         ) : null}
         <Button type="button" variant="outline" onClick={handleDownloadInvoice} className="gap-2">
           <Download className="h-4 w-4" />
-          Unduh invoice
+          {t('orderDetail.downloadInvoice')}
         </Button>
         {canCancel ? (
           <Button type="button" variant="destructive" onClick={() => setCancelOpen(true)}>
-            Batalkan pesanan
+            {t('orderDetail.cancelOrder')}
           </Button>
         ) : null}
       </div>
@@ -114,7 +118,7 @@ export default function OrderDetailPage() {
       <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-4">
           <section className="premium-surface rounded-2xl p-6">
-            <h2 className="text-lg font-semibold">Produk dalam pesanan</h2>
+            <h2 className="text-lg font-semibold">{t('orderDetail.items')}</h2>
             <ul className="mt-4 space-y-4">
               {order.items.map((item) => (
                 <li key={item.id} className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row">
@@ -137,11 +141,14 @@ export default function OrderDetailPage() {
                       <p className="text-xs text-muted-foreground">{item.variantName}</p>
                     ) : null}
                     <p className="text-xs text-muted-foreground">
-                      Qty {item.qty} - {formatCurrency(Number(item.unitPrice) || 0, currency)}
+                      {t('orderDetail.qtyPrice', {
+                        qty: item.qty,
+                        price: formatCurrency(Number(item.unitPrice) || 0, currency),
+                      })}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Subtotal</p>
+                    <p className="text-xs text-muted-foreground">{t('orderDetail.subtotal')}</p>
                     <p className="font-semibold">
                       {formatCurrency(Number(item.subtotal) || 0, currency)}
                     </p>
@@ -152,7 +159,7 @@ export default function OrderDetailPage() {
           </section>
 
           <section className="rounded-lg border bg-card p-6">
-            <h2 className="text-lg font-semibold">Status pesanan</h2>
+            <h2 className="text-lg font-semibold">{t('orderDetail.statusTitle')}</h2>
             <ol className="mt-4 space-y-4">
               {timeline.map((entry, index) => {
                 const isLast = index === timeline.length - 1;
@@ -170,7 +177,7 @@ export default function OrderDetailPage() {
                     ) : null}
                     <div className="space-y-1">
                       <p className="text-sm font-semibold">
-                        {getStatusLabel(entry.status, entry.label)}
+                        {getStatusLabel(t, entry.status, entry.label)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {formatDateTime(entry.timestamp)}
@@ -186,35 +193,33 @@ export default function OrderDetailPage() {
         <div className="space-y-4">
           <section className="rounded-lg border bg-card p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Ringkasan pembayaran
+              {t('orderDetail.paymentSummary')}
             </h2>
             <div className="mt-3 space-y-2 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Status</span>
+                <span className="text-muted-foreground">{t('orderDetail.status')}</span>
                 <span className="font-medium">{statusLabel}</span>
               </div>
               {order.payment ? (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Metode</span>
+                    <span className="text-muted-foreground">{t('orderDetail.method')}</span>
                     <span className="font-medium">{order.payment.method}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Status bayar</span>
+                    <span className="text-muted-foreground">{t('orderDetail.paymentStatus')}</span>
                     <span className="font-medium">{order.payment.status}</span>
                   </div>
                 </>
               ) : (
-                <p className="text-xs text-muted-foreground">
-                  Informasi pembayaran akan muncul setelah pesanan diproses.
-                </p>
+                <p className="text-xs text-muted-foreground">{t('orderDetail.paymentPending')}</p>
               )}
             </div>
           </section>
 
           <section className="rounded-lg border bg-card p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Alamat pengiriman
+              {t('orderDetail.shippingAddress')}
             </h2>
             <div className="mt-3 space-y-1 text-sm">
               <p className="font-medium">{order.shippingAddress.receiverName}</p>
@@ -232,18 +237,18 @@ export default function OrderDetailPage() {
 
           <section className="rounded-lg border bg-card p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Rincian biaya
+              {t('orderDetail.costBreakdown')}
             </h2>
             <div className="mt-3 space-y-2 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t('orderDetail.subtotal')}</span>
                 <span className="font-medium">
                   {formatCurrency(order.pricing.subtotal, currency)}
                 </span>
               </div>
               {order.pricing.discount ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Diskon</span>
+                  <span className="text-muted-foreground">{t('orderDetail.discount')}</span>
                   <span className="font-medium">
                     -{formatCurrency(order.pricing.discount, currency)}
                   </span>
@@ -251,18 +256,18 @@ export default function OrderDetailPage() {
               ) : null}
               {order.pricing.tax ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Pajak</span>
+                  <span className="text-muted-foreground">{t('orderDetail.tax')}</span>
                   <span className="font-medium">{formatCurrency(order.pricing.tax, currency)}</span>
                 </div>
               ) : null}
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Ongkir</span>
+                <span className="text-muted-foreground">{t('orderDetail.shippingFee')}</span>
                 <span className="font-medium">
                   {formatCurrency(order.pricing.shipping, currency)}
                 </span>
               </div>
               <div className="flex items-center justify-between border-t pt-2 font-semibold">
-                <span>Total</span>
+                <span>{t('orderDetail.total')}</span>
                 <span>{formatCurrency(order.pricing.total, currency)}</span>
               </div>
             </div>
@@ -270,7 +275,7 @@ export default function OrderDetailPage() {
 
           <section className="rounded-lg border bg-card p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Pengiriman
+              {t('orderDetail.shipping')}
             </h2>
             <div className="mt-3 space-y-2 text-sm">
               {order.shipping ? (
@@ -279,22 +284,22 @@ export default function OrderDetailPage() {
                     {order.shipping.courier} - {order.shipping.service}
                   </p>
                   {order.shipping.trackingNumber ? (
-                    <p className="text-muted-foreground">Resi: {order.shipping.trackingNumber}</p>
-                  ) : (
                     <p className="text-muted-foreground">
-                      Nomor resi akan tersedia setelah pesanan diproses.
+                      {t('orderDetail.trackingNumber', { number: order.shipping.trackingNumber })}
                     </p>
+                  ) : (
+                    <p className="text-muted-foreground">{t('orderDetail.trackingPending')}</p>
                   )}
                   {order.shipping.estimatedDelivery ? (
                     <p className="text-muted-foreground">
-                      Estimasi tiba {formatDateTime(order.shipping.estimatedDelivery)}
+                      {t('orderDetail.eta', {
+                        date: formatDateTime(order.shipping.estimatedDelivery),
+                      })}
                     </p>
                   ) : null}
                 </>
               ) : (
-                <p className="text-muted-foreground">
-                  Informasi pengiriman akan muncul setelah pesanan diproses.
-                </p>
+                <p className="text-muted-foreground">{t('orderDetail.shippingPending')}</p>
               )}
             </div>
           </section>
@@ -309,14 +314,14 @@ export default function OrderDetailPage() {
             await cancelMutation.mutateAsync();
             toast({
               variant: 'success',
-              title: 'Pesanan dibatalkan',
-              description: 'Pesanan Anda sudah dibatalkan.',
+              title: t('orderDetail.toast.cancelled'),
+              description: t('orderDetail.toast.cancelledDescription'),
             });
             setCancelOpen(false);
           } catch (error) {
             toast({
               variant: 'destructive',
-              description: 'Gagal membatalkan pesanan. Silakan coba lagi.',
+              description: t('orderDetail.toast.cancelFailed'),
             });
           }
         }}
@@ -348,9 +353,8 @@ function buildStatusTimeline(order: {
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 }
 
-function getStatusLabel(status: string, fallback?: string | null) {
-  const label = ORDER_STATUS_LABELS[status as keyof typeof ORDER_STATUS_LABELS]?.label;
-  return fallback || label || status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+function getStatusLabel(t: AccountTranslator, status: string, fallback?: string | null) {
+  return fallback || orderStatusLabel(t, status) || humanizeStatus(status);
 }
 
 function getStatusColor(status: string) {
@@ -373,43 +377,46 @@ function getStatusColor(status: string) {
   return 'bg-slate-100 text-slate-700';
 }
 
-function buildInvoiceText(order: {
-  id: string;
-  orderNumber: string;
-  createdAt: string;
-  currency: string;
-  user: { name: string; email: string };
-  shippingAddress: {
-    receiverName: string;
-    phone: string;
-    addressLine1: string;
-    addressLine2?: string | null;
-    city: string;
-    province: string;
-    postalCode: string;
-    country: string;
-  };
-  items: Array<{
-    productTitle: string;
-    variantName?: string | null;
-    qty: number;
-    unitPrice: number;
-    subtotal: number;
-  }>;
-  pricing: {
-    subtotal: number;
-    discount: number;
-    tax: number;
-    shipping: number;
-    total: number;
-  };
-  shipping?: {
-    courier: string;
-    service: string;
-    trackingNumber?: string | null;
-    estimatedDelivery?: string | null;
-  } | null;
-}) {
+function buildInvoiceText(
+  t: AccountTranslator,
+  order: {
+    id: string;
+    orderNumber: string;
+    createdAt: string;
+    currency: string;
+    user: { name: string; email: string };
+    shippingAddress: {
+      receiverName: string;
+      phone: string;
+      addressLine1: string;
+      addressLine2?: string | null;
+      city: string;
+      province: string;
+      postalCode: string;
+      country: string;
+    };
+    items: Array<{
+      productTitle: string;
+      variantName?: string | null;
+      qty: number;
+      unitPrice: number;
+      subtotal: number;
+    }>;
+    pricing: {
+      subtotal: number;
+      discount: number;
+      tax: number;
+      shipping: number;
+      total: number;
+    };
+    shipping?: {
+      courier: string;
+      service: string;
+      trackingNumber?: string | null;
+      estimatedDelivery?: string | null;
+    } | null;
+  },
+) {
   const currency = order.currency || 'IDR';
   const address = [
     order.shippingAddress.addressLine1,
@@ -423,17 +430,17 @@ function buildInvoiceText(order: {
     .join(', ');
 
   const lines = [
-    `Invoice #${order.orderNumber || order.id}`,
-    `Tanggal: ${formatDateTime(order.createdAt)}`,
+    t('invoice.title', { number: order.orderNumber || order.id }),
+    t('invoice.date', { date: formatDateTime(order.createdAt) }),
     '',
-    `Pelanggan: ${order.user.name}`,
-    `Email: ${order.user.email}`,
+    t('invoice.customer', { name: order.user.name }),
+    t('invoice.email', { email: order.user.email }),
     '',
-    'Alamat pengiriman:',
+    t('invoice.address'),
     `${order.shippingAddress.receiverName} (${order.shippingAddress.phone})`,
     address,
     '',
-    'Produk:',
+    t('invoice.products'),
     ...order.items.map((item) => {
       const variant = item.variantName ? ` (${item.variantName})` : '';
       return `- ${item.productTitle}${variant} x${item.qty} @ ${formatCurrency(
@@ -442,21 +449,23 @@ function buildInvoiceText(order: {
       )} = ${formatCurrency(Number(item.subtotal) || 0, currency)}`;
     }),
     '',
-    `Subtotal: ${formatCurrency(order.pricing.subtotal, currency)}`,
-    `Diskon: ${formatCurrency(order.pricing.discount, currency)}`,
-    `Pajak: ${formatCurrency(order.pricing.tax, currency)}`,
-    `Ongkir: ${formatCurrency(order.pricing.shipping, currency)}`,
-    `Total: ${formatCurrency(order.pricing.total, currency)}`,
+    t('invoice.subtotal', { amount: formatCurrency(order.pricing.subtotal, currency) }),
+    t('invoice.discount', { amount: formatCurrency(order.pricing.discount, currency) }),
+    t('invoice.tax', { amount: formatCurrency(order.pricing.tax, currency) }),
+    t('invoice.shipping', { amount: formatCurrency(order.pricing.shipping, currency) }),
+    t('invoice.total', { amount: formatCurrency(order.pricing.total, currency) }),
   ];
 
   if (order.shipping) {
     lines.push('');
-    lines.push(`Kurir: ${order.shipping.courier} - ${order.shipping.service}`);
+    lines.push(
+      t('invoice.courier', { courier: order.shipping.courier, service: order.shipping.service }),
+    );
     if (order.shipping.trackingNumber) {
-      lines.push(`Nomor resi: ${order.shipping.trackingNumber}`);
+      lines.push(t('invoice.trackingNumber', { number: order.shipping.trackingNumber }));
     }
     if (order.shipping.estimatedDelivery) {
-      lines.push(`Estimasi tiba: ${formatDateTime(order.shipping.estimatedDelivery)}`);
+      lines.push(t('invoice.eta', { date: formatDateTime(order.shipping.estimatedDelivery) }));
     }
   }
 
