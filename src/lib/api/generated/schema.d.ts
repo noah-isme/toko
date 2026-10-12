@@ -4261,6 +4261,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/newsletter/subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Subscribe to the store newsletter */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Subscribed successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                message?: string;
+                                email?: string;
+                                status?: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Invalid email format or missing body */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/newsletter/subscribers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List newsletter subscribers */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description List of subscribers */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/flash-sales": {
         parameters: {
             query?: never;
@@ -4326,7 +4419,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update flash-sale campaign status */
+        /**
+         * Update a flash-sale campaign (full or partial)
+         * @description Partial update: absent fields are left unchanged, and a bare `{"status": "..."}` body remains valid. The whole update runs in one transaction scoped to the caller's tenant. Always returns the full campaign. `SCHEDULED` and `ACTIVE` require the resulting `endsAt` to be in the future.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -4338,16 +4434,47 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["StatusRequest"];
+                    "application/json": components["schemas"]["FlashSaleCampaignUpdateRequest"];
                 };
             };
             responses: {
-                /** @description Campaign status updated */
+                /** @description Campaign updated; returns the full campaign (`items` may be empty) */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["FlashSaleCampaign"];
+                        };
+                    };
+                };
+                /** @description Invalid payload (`BAD_REQUEST`): no updatable fields, empty or unknown status, `endsAt` not after `startsAt`, `SCHEDULED`/`ACTIVE` with `endsAt` in the past, `items: []`, duplicate `productId` or item `id`, item `id` not in this campaign, product missing or not in this tenant, `salePrice` not lower than the product price, `stockLimit` below 1 or below `soldCount`, changing the product of an item that has sales, swapping products between existing items in one request, or timestamps that are not RFC 3339 with a timezone. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Campaign not found for this tenant (`NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Conflict (`CONFLICT`): slug already used in this tenant, product already in this campaign, removing an item that has sales or active reservations (`details.itemId`), or the campaign is busy (lock timeout or deadlock) and the request can be retried. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
             };
         };
@@ -7029,6 +7156,66 @@ export interface components {
         ReturnRequest: {
             reason: string;
             notes?: string;
+        };
+        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
+        FlashSaleCampaignUpdateRequest: {
+            name?: string;
+            slug?: string;
+            /** @enum {string} */
+            status?: "DRAFT" | "SCHEDULED" | "ACTIVE" | "ENDED";
+            /** Format: date-time */
+            startsAt?: string;
+            /** Format: date-time */
+            endsAt?: string;
+            items?: {
+                /**
+                 * Format: uuid
+                 * @description Existing item id; omit to add a new item
+                 */
+                id?: string;
+                /** Format: uuid */
+                productId: string;
+                /** @description Must be lower than the product price */
+                salePrice: number;
+                /** @description null or absent means unlimited */
+                stockLimit?: number | null;
+            }[];
+        };
+        FlashSaleItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            productId: string;
+            title: string;
+            slug: string;
+            /** Format: int64 */
+            originalPrice: number;
+            /** Format: int64 */
+            salePrice: number;
+            /** @description Discount in basis points */
+            discountBps: number;
+            /** @description stockLimit minus soldCount, or catalog stock when unlimited */
+            stock: number;
+            stockLimit?: number | null;
+            soldCount: number;
+            thumbnail?: string | null;
+        };
+        FlashSaleCampaign: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            slug: string;
+            /** @enum {string} */
+            status: "DRAFT" | "SCHEDULED" | "ACTIVE" | "ENDED";
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            items: components["schemas"]["FlashSaleItem"][];
         };
         StatusRequest: {
             status: string;
