@@ -2691,7 +2691,7 @@
         "name": "Nama",
         "url": "URL",
         "topics": "Topik",
-        "secret": "Secret",
+        "secret": "Kunci rahasia",
         "endpoint": "Endpoint",
         "attempt": "Percobaan",
         "response": "Respons",
@@ -2752,7 +2752,7 @@
         "id": "ID",
         "actor": "Aktor",
         "action": "Aksi",
-        "resource": "Resource",
+        "resource": "Sumber daya",
         "method": "Metode",
         "ip": "IP",
         "created": "Dibuat"
