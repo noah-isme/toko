@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -5,9 +6,10 @@ import { srOnly } from '../a11y';
 import { BaseSkeleton } from './BaseSkeleton';
 
 export function AuthFormSkeleton() {
+  const t = useTranslations('common');
   return (
     <div className="mx-auto w-full max-w-md space-y-6" role="status">
-      {srOnly('Memuat...')}
+      {srOnly(t('loading'))}
       <div className="space-y-2 text-center">
         <BaseSkeleton className="mx-auto h-7 w-40" />
         <BaseSkeleton className="mx-auto h-4 w-56" />

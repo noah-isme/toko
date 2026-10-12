@@ -1,4 +1,5 @@
 import { ShieldCheck, Sparkles, Truck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
 interface AuthShellProps {
@@ -9,6 +10,7 @@ interface AuthShellProps {
 }
 
 export function AuthShell({ eyebrow, title, description, children }: AuthShellProps) {
+  const t = useTranslations('auth.shell');
   return (
     <section className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-[1.75rem] border border-border/80 bg-card shadow-[0_24px_70px_-42px_rgba(43,32,22,0.55)] lg:grid-cols-[0.9fr_1.1fr]">
       <aside className="relative hidden min-h-[610px] overflow-hidden bg-primary p-10 text-primary-foreground lg:flex lg:flex-col">
@@ -22,21 +24,17 @@ export function AuthShell({ eyebrow, title, description, children }: AuthShellPr
         </div>
         <div className="relative my-auto max-w-sm space-y-5">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-[hsl(40_65%_77%)]">
-            Belanja yang terasa personal
+            {t('tagline')}
           </p>
-          <h2 className="font-display text-5xl leading-[0.95]">Objects chosen with intention.</h2>
-          <p className="text-white/72 text-sm leading-7">
-            Temukan koleksi pilihan, pengiriman yang dapat diandalkan, dan pengalaman belanja yang
-            tenang.
-          </p>
+          <h2 className="font-display text-5xl leading-[0.95]">{t('headline')}</h2>
+          <p className="text-white/72 text-sm leading-7">{t('description')}</p>
         </div>
         <div className="text-white/78 relative space-y-4 border-t border-white/15 pt-6 text-sm">
           <p className="flex items-center gap-3">
-            <ShieldCheck className="h-4 w-4 text-[hsl(40_65%_77%)]" /> Produk pilihan & pembayaran
-            aman
+            <ShieldCheck className="h-4 w-4 text-[hsl(40_65%_77%)]" /> {t('securePayment')}
           </p>
           <p className="flex items-center gap-3">
-            <Truck className="h-4 w-4 text-[hsl(40_65%_77%)]" /> Pengiriman ke seluruh Indonesia
+            <Truck className="h-4 w-4 text-[hsl(40_65%_77%)]" /> {t('shipping')}
           </p>
         </div>
       </aside>

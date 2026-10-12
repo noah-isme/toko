@@ -4,12 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle2, MailCheck, MailWarning } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuthErrorMessage } from '@/entities/auth/hooks';
 import type { ResendVerificationInput } from '@/entities/auth/schemas';
 import { resendVerificationInputSchema } from '@/entities/auth/schemas';
 import { authApi } from '@/lib/api/services';
@@ -20,6 +22,9 @@ type VerificationStatus = 'idle' | 'verifying' | 'success' | 'error';
 
 function VerifyEmailContent() {
   const { user, isAuthenticated, refreshUser } = useAuth();
+  const t = useTranslations('auth.verify');
+  const tf = useTranslations('auth.fields');
+  const errorText = useAuthErrorMessage();
   const searchParams = useSearchParams();
   const token = useMemo(() => searchParams.get('token') ?? '', [searchParams]);
   const emailParam = useMemo(() => searchParams.get('email') ?? '', [searchParams]);
@@ -53,7 +58,8 @@ function VerifyEmailContent() {
       .then((response) => {
         if (!active) return;
         setStatus('success');
-        setStatusMessage(response.message ?? 'Email berhasil diverifikasi.');
+        // `null` renders the localized `auth.verify.verified` fallback.
+        setStatusMessage(response.message ?? null);
         if (isAuthenticated) {
           void refreshUser();
         }
@@ -73,7 +79,7 @@ function VerifyEmailContent() {
     setIsResending(true);
     try {
       const response = await authApi.resendVerification(values);
-      setResendMessage(response.message ?? 'Email verifikasi berhasil dikirim.');
+      setResendMessage(response.message ?? t('resendSuccess'));
     } catch (error) {
       setError('root', { message: getErrorMessage(error) });
     } finally {
@@ -81,7 +87,7 @@ function VerifyEmailContent() {
     }
   };
 
-  const emailError = formState.errors.email?.message;
+  const emailError = errorText(formState.errors.email?.message);
   const emailErrorId = emailError ? 'verify-email-error' : undefined;
 
   if (status === 'verifying') {
@@ -97,8 +103,8 @@ function VerifyEmailContent() {
           </div>
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Memverifikasi email...</h1>
-          <p className="text-sm text-muted-foreground">Harap tunggu sebentar.</p>
+          <h1 className="text-2xl font-bold">{t('verifyingTitle')}</h1>
+          <p className="text-sm text-muted-foreground">{t('verifyingDescription')}</p>
         </div>
       </div>
     );
@@ -117,14 +123,12 @@ function VerifyEmailContent() {
           </div>
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Email terverifikasi</h1>
-          <p className="text-sm text-muted-foreground">
-            {statusMessage ?? 'Terima kasih, email Anda sudah aktif.'}
-          </p>
+          <h1 className="text-2xl font-bold">{t('successTitle')}</h1>
+          <p className="text-sm text-muted-foreground">{statusMessage ?? t('verified')}</p>
         </div>
         <Button asChild className="w-full">
           <Link href={isAuthenticated ? '/account' : '/login'}>
-            {isAuthenticated ? 'Pergi ke akun' : 'Kembali ke login'}
+            {isAuthenticated ? t('goToAccount') : t('backToLogin')}
           </Link>
         </Button>
       </div>
@@ -134,16 +138,14 @@ function VerifyEmailContent() {
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Verifikasi email</h1>
-        <p className="text-sm text-muted-foreground">
-          Masukkan email untuk mengirim ulang tautan verifikasi.
-        </p>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
       </div>
       <div className="space-y-3">
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           <div className="flex items-start gap-3">
             <MailWarning className="mt-0.5 h-5 w-5 text-amber-600" aria-hidden="true" />
-            <p>{statusMessage ?? 'Tautan verifikasi tidak valid atau sudah kedaluwarsa.'}</p>
+            <p>{statusMessage ?? t('invalidLink')}</p>
           </div>
         </div>
         {resendMessage ? (
@@ -167,7 +169,7 @@ function VerifyEmailContent() {
         ) : null}
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="email">
-            Email
+            {tf('email')}
           </label>
           <Input
             {...register('email')}
@@ -183,10 +185,10 @@ function VerifyEmailContent() {
           ) : null}
         </div>
         <Button className="w-full" disabled={isResending} type="submit">
-          {isResending ? 'Mengirim ulang...' : 'Kirim ulang verifikasi'}
+          {isResending ? t('submitting') : t('submit')}
         </Button>
         <Button asChild variant="outline" className="w-full">
-          <Link href="/login">Kembali ke login</Link>
+          <Link href="/login">{t('backToLogin')}</Link>
         </Button>
       </form>
     </div>
@@ -194,11 +196,12 @@ function VerifyEmailContent() {
 }
 
 export default function VerifyEmailPage() {
+  const t = useTranslations('common');
   return (
     <Suspense
       fallback={
         <div className="mx-auto w-full max-w-md space-y-6 text-center">
-          <h1 className="text-2xl font-bold">Memuat...</h1>
+          <h1 className="text-2xl font-bold">{t('loading')}</h1>
         </div>
       }
     >

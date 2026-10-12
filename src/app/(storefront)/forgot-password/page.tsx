@@ -3,11 +3,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MailCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuthErrorMessage } from '@/entities/auth/hooks';
 import type { ForgotPasswordInput } from '@/entities/auth/schemas';
 import { forgotPasswordInputSchema } from '@/entities/auth/schemas';
 import { authApi } from '@/lib/api/services';
@@ -15,6 +17,9 @@ import { getErrorMessage } from '@/lib/api/utils';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations('auth.forgot');
+  const tf = useTranslations('auth.fields');
+  const errorText = useAuthErrorMessage();
   const [sentEmail, setSentEmail] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,16 +44,14 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  const emailError = formState.errors.email?.message;
+  const emailError = errorText(formState.errors.email?.message);
   const emailErrorId = emailError ? 'forgot-email-error' : undefined;
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Lupa password?</h1>
-        <p className="text-sm text-muted-foreground">
-          Masukkan email Anda dan kami akan mengirim tautan reset password.
-        </p>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
       </div>
       {sentEmail ? (
         <div
@@ -59,16 +62,18 @@ export default function ForgotPasswordPage() {
           <div className="flex items-start gap-3">
             <MailCheck className="mt-0.5 h-5 w-5 text-emerald-600" aria-hidden="true" />
             <div className="space-y-1">
-              <p className="font-medium">Email terkirim</p>
+              <p className="font-medium">{t('sentTitle')}</p>
               <p>
-                Kami sudah mengirim tautan reset password ke <strong>{sentEmail}</strong>. Cek inbox
-                atau spam folder Anda.
+                {t.rich('sentDescription', {
+                  email: sentEmail,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </p>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <Button asChild variant="outline" size="sm">
-              <Link href="/login">Kembali ke login</Link>
+              <Link href="/login">{t('backToLogin')}</Link>
             </Button>
             <Button
               type="button"
@@ -79,7 +84,7 @@ export default function ForgotPasswordPage() {
               }}
               disabled={isSubmitting}
             >
-              Kirim ulang email
+              {t('resend')}
             </Button>
           </div>
           {resendError ? (
@@ -104,7 +109,7 @@ export default function ForgotPasswordPage() {
           ) : null}
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="email">
-              Email
+              {tf('email')}
             </label>
             <Input
               {...register('email')}
@@ -120,15 +125,18 @@ export default function ForgotPasswordPage() {
             ) : null}
           </div>
           <Button className="w-full" disabled={isSubmitting} type="submit">
-            {isSubmitting ? 'Mengirim email...' : 'Kirim tautan reset'}
+            {isSubmitting ? t('submitting') : t('submit')}
           </Button>
         </form>
       )}
       <p className="text-center text-sm text-muted-foreground">
-        Ingat password?{' '}
-        <Link className="text-primary" href="/login">
-          Login di sini
-        </Link>
+        {t.rich('remember', {
+          login: (chunks) => (
+            <Link className="text-primary" href="/login">
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
     </div>
   );

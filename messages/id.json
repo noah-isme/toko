@@ -1038,7 +1038,129 @@
       }
     }
   },
-  "auth": {},
+  "auth": {
+    "shell": {
+      "tagline": "Belanja yang terasa personal",
+      "headline": "Objects chosen with intention.",
+      "description": "Temukan koleksi pilihan, pengiriman yang dapat diandalkan, dan pengalaman belanja yang tenang.",
+      "securePayment": "Produk pilihan & pembayaran aman",
+      "shipping": "Pengiriman ke seluruh Indonesia"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "newPassword": "Password baru",
+      "confirmNewPassword": "Konfirmasi password"
+    },
+    "validation": {
+      "emailRequired": "Email wajib diisi",
+      "emailInvalid": "Format email tidak valid",
+      "passwordRequired": "Password wajib diisi",
+      "passwordTooShort": "Password minimal 8 karakter",
+      "passwordNeedsLetter": "Password harus mengandung huruf",
+      "passwordNeedsNumber": "Password harus mengandung angka",
+      "nameRequired": "Nama wajib diisi",
+      "nameTooLong": "Nama terlalu panjang",
+      "confirmPasswordRequired": "Konfirmasi password wajib diisi",
+      "termsRequired": "Anda harus menyetujui syarat dan ketentuan",
+      "passwordMismatch": "Password tidak cocok"
+    },
+    "social": {
+      "divider": "or continue with",
+      "or": "or",
+      "signInWith": "Sign in with {provider}",
+      "google": "Continue with Google",
+      "github": "Continue with GitHub",
+      "apple": "Continue with Apple"
+    },
+    "login": {
+      "eyebrow": "Kembali ke toko",
+      "title": "Welcome back",
+      "description": "Sign in to continue to your account and curated collection.",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don''t have an account? <register>Register</register>"
+    },
+    "register": {
+      "eyebrow": "Mulai koleksi Anda",
+      "title": "Create an account",
+      "description": "Start shopping with toko today, with a more personal experience.",
+      "terms": "I agree to the <terms>Terms and Conditions</terms> and <privacy>Privacy Policy</privacy>",
+      "submit": "Register",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account? <login>Sign in</login>"
+    },
+    "forgot": {
+      "title": "Lupa password?",
+      "description": "Masukkan email Anda dan kami akan mengirim tautan reset password.",
+      "sentTitle": "Email terkirim",
+      "sentDescription": "Kami sudah mengirim tautan reset password ke <strong>{email}</strong>. Cek inbox atau spam folder Anda.",
+      "backToLogin": "Kembali ke login",
+      "resend": "Kirim ulang email",
+      "submit": "Kirim tautan reset",
+      "submitting": "Mengirim email...",
+      "remember": "Ingat password? <login>Login di sini</login>"
+    },
+    "reset": {
+      "invalidTitle": "Tautan reset tidak valid",
+      "invalidDescription": "Token reset password tidak ditemukan. Minta tautan baru untuk melanjutkan.",
+      "requestLink": "Minta tautan reset",
+      "tokenMissing": "Token reset password tidak ditemukan.",
+      "successTitle": "Password berhasil diubah",
+      "successDescription": "Silakan login dengan password baru Anda.",
+      "backToLogin": "Kembali ke login",
+      "title": "Reset password",
+      "description": "Buat password baru untuk akun Anda.",
+      "submit": "Simpan password baru",
+      "submitting": "Memperbarui password..."
+    },
+    "verify": {
+      "verifyingTitle": "Memverifikasi email...",
+      "verifyingDescription": "Harap tunggu sebentar.",
+      "successTitle": "Email terverifikasi",
+      "verified": "Email berhasil diverifikasi.",
+      "goToAccount": "Pergi ke akun",
+      "backToLogin": "Kembali ke login",
+      "title": "Verifikasi email",
+      "description": "Masukkan email untuk mengirim ulang tautan verifikasi.",
+      "invalidLink": "Tautan verifikasi tidak valid atau sudah kedaluwarsa.",
+      "resendSuccess": "Email verifikasi berhasil dikirim.",
+      "submit": "Kirim ulang verifikasi",
+      "submitting": "Mengirim ulang..."
+    },
+    "passwordStrength": {
+      "label": "Password strength: {level}",
+      "levels": {
+        "weak": "weak",
+        "fair": "fair",
+        "good": "good",
+        "strong": "strong"
+      },
+      "feedback": "Add {items} for a stronger password",
+      "great": "Great! Your password is strong",
+      "missing": {
+        "length": "at least 8 characters",
+        "uppercase": "an uppercase letter",
+        "lowercase": "a lowercase letter",
+        "number": "a number",
+        "special": "a special character"
+      },
+      "requirements": {
+        "length": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "lowercase": "One lowercase letter",
+        "number": "One number",
+        "special": "One special character"
+      }
+    },
+    "guard": {
+      "title": "Menyiapkan akun Anda",
+      "description": "Mohon tunggu sebentar."
+    }
+  },
   "account": {},
   "errors": {
     "route": {

@@ -1038,7 +1038,129 @@
       }
     }
   },
-  "auth": {},
+  "auth": {
+    "shell": {
+      "tagline": "Shopping that feels personal",
+      "headline": "Objects chosen with intention.",
+      "description": "Discover curated collections, reliable delivery, and a calm shopping experience.",
+      "securePayment": "Curated products & secure payment",
+      "shipping": "Delivery across Indonesia"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm password"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordNeedsLetter": "Password must contain a letter",
+      "passwordNeedsNumber": "Password must contain a number",
+      "nameRequired": "Name is required",
+      "nameTooLong": "Name is too long",
+      "confirmPasswordRequired": "Password confirmation is required",
+      "termsRequired": "You must accept the terms and conditions",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "social": {
+      "divider": "or continue with",
+      "or": "or",
+      "signInWith": "Sign in with {provider}",
+      "google": "Continue with Google",
+      "github": "Continue with GitHub",
+      "apple": "Continue with Apple"
+    },
+    "login": {
+      "eyebrow": "Back to the store",
+      "title": "Welcome back",
+      "description": "Sign in to continue to your account and curated collection.",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don''t have an account? <register>Register</register>"
+    },
+    "register": {
+      "eyebrow": "Start your collection",
+      "title": "Create an account",
+      "description": "Start shopping with toko today, with a more personal experience.",
+      "terms": "I agree to the <terms>Terms and Conditions</terms> and <privacy>Privacy Policy</privacy>",
+      "submit": "Register",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account? <login>Sign in</login>"
+    },
+    "forgot": {
+      "title": "Forgot password?",
+      "description": "Enter your email and we will send you a password reset link.",
+      "sentTitle": "Email sent",
+      "sentDescription": "We sent a password reset link to <strong>{email}</strong>. Check your inbox or spam folder.",
+      "backToLogin": "Back to login",
+      "resend": "Resend email",
+      "submit": "Send reset link",
+      "submitting": "Sending email...",
+      "remember": "Remember your password? <login>Log in here</login>"
+    },
+    "reset": {
+      "invalidTitle": "Invalid reset link",
+      "invalidDescription": "The password reset token was not found. Request a new link to continue.",
+      "requestLink": "Request reset link",
+      "tokenMissing": "The password reset token was not found.",
+      "successTitle": "Password changed successfully",
+      "successDescription": "Please log in with your new password.",
+      "backToLogin": "Back to login",
+      "title": "Reset password",
+      "description": "Create a new password for your account.",
+      "submit": "Save new password",
+      "submitting": "Updating password..."
+    },
+    "verify": {
+      "verifyingTitle": "Verifying email...",
+      "verifyingDescription": "Please wait a moment.",
+      "successTitle": "Email verified",
+      "verified": "Email verified successfully.",
+      "goToAccount": "Go to account",
+      "backToLogin": "Back to login",
+      "title": "Verify email",
+      "description": "Enter your email to resend the verification link.",
+      "invalidLink": "The verification link is invalid or has expired.",
+      "resendSuccess": "Verification email sent.",
+      "submit": "Resend verification",
+      "submitting": "Resending..."
+    },
+    "passwordStrength": {
+      "label": "Password strength: {level}",
+      "levels": {
+        "weak": "weak",
+        "fair": "fair",
+        "good": "good",
+        "strong": "strong"
+      },
+      "feedback": "Add {items} for a stronger password",
+      "great": "Great! Your password is strong",
+      "missing": {
+        "length": "at least 8 characters",
+        "uppercase": "an uppercase letter",
+        "lowercase": "a lowercase letter",
+        "number": "a number",
+        "special": "a special character"
+      },
+      "requirements": {
+        "length": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "lowercase": "One lowercase letter",
+        "number": "One number",
+        "special": "One special character"
+      }
+    },
+    "guard": {
+      "title": "Preparing your account",
+      "description": "Please wait a moment."
+    }
+  },
   "account": {},
   "errors": {
     "route": {

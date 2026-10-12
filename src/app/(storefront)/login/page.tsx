@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 
 import { AuthShell } from '@/components/auth-shell';
@@ -14,6 +15,7 @@ import {
   startOAuthLogin,
 } from '@/components/social-login';
 import { Input } from '@/components/ui/input';
+import { useAuthErrorMessage } from '@/entities/auth/hooks';
 import type { LoginInput } from '@/entities/auth/schemas';
 import { loginInputSchema } from '@/entities/auth/schemas';
 import { getErrorMessage } from '@/lib/api/utils';
@@ -23,6 +25,10 @@ import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations('auth.login');
+  const tf = useTranslations('auth.fields');
+  const ts = useTranslations('auth.social');
+  const errorText = useAuthErrorMessage();
   const { login, isLoading: authLoading } = useAuth();
   const { register, handleSubmit, formState, setError } = useForm<LoginInput>({
     resolver: zodResolver(loginInputSchema),
@@ -44,9 +50,9 @@ export default function LoginPage() {
     }
   };
 
-  const emailError = formState.errors.email?.message;
+  const emailError = errorText(formState.errors.email?.message);
   const emailErrorId = emailError ? 'email-error' : undefined;
-  const passwordError = formState.errors.password?.message;
+  const passwordError = errorText(formState.errors.password?.message);
   const passwordErrorId = passwordError ? 'password-error' : undefined;
   const showLoadingState = authLoading && !formState.isSubmitting;
 
@@ -55,11 +61,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthShell
-      eyebrow="Kembali ke toko"
-      title="Welcome back"
-      description="Sign in to continue to your account and curated collection."
-    >
+    <AuthShell eyebrow={t('eyebrow')} title={t('title')} description={t('description')}>
       <form
         className="space-y-5"
         onSubmit={handleSubmit(onSubmit)}
@@ -76,7 +78,7 @@ export default function LoginPage() {
         ) : null}
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="email">
-            Email
+            {tf('email')}
           </label>
           <Input
             {...register('email')}
@@ -94,10 +96,10 @@ export default function LoginPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium" htmlFor="password">
-              Password
+              {tf('password')}
             </label>
             <Link href="/forgot-password" className="text-xs text-primary hover:underline">
-              Forgot password?
+              {t('forgotPassword')}
             </Link>
           </div>
           <Input
@@ -118,31 +120,34 @@ export default function LoginPage() {
           className="w-full shadow-[0_12px_24px_-16px_rgba(43,32,22,0.9)]"
           type="submit"
           isLoading={formState.isSubmitting || authLoading}
-          loadingLabel="Signing in..."
+          loadingLabel={t('submitting')}
         >
-          Sign in
+          {t('submit')}
         </GuardedButton>
       </form>
-      <SocialLoginDivider label="or continue with" />
+      <SocialLoginDivider label={ts('divider')} />
       <SocialLoginGroup>
         <SocialLoginButton provider="google" onClick={() => startOAuthLogin('google')}>
-          Continue with Google
+          {ts('google')}
         </SocialLoginButton>
         <SocialLoginButton provider="github" onClick={() => startOAuthLogin('github')}>
-          Continue with GitHub
+          {ts('github')}
         </SocialLoginButton>
         <SocialLoginButton provider="apple" onClick={() => startOAuthLogin('apple')}>
-          Continue with Apple
+          {ts('apple')}
         </SocialLoginButton>
       </SocialLoginGroup>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{' '}
-        <Link
-          className="font-semibold text-primary underline-offset-4 hover:underline"
-          href="/register"
-        >
-          Register
-        </Link>
+        {t.rich('noAccount', {
+          register: (chunks) => (
+            <Link
+              className="font-semibold text-primary underline-offset-4 hover:underline"
+              href="/register"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
     </AuthShell>
   );
