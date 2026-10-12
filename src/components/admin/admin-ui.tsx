@@ -93,7 +93,12 @@ const ORDER_STATUS_CLASSES: Record<AdminOrderStatus, string> = {
 
 export function OrderStatusBadge({ status }: { status: AdminOrderStatus }) {
   return (
-    <Badge variant="outline" className={cn('font-medium', ORDER_STATUS_CLASSES[status])}>
+    <Badge
+      variant="outline"
+      className={cn('font-medium', ORDER_STATUS_CLASSES[status])}
+      data-testid="order-status-badge"
+      data-status={status}
+    >
       {orderStatusLabel(status)}
     </Badge>
   );

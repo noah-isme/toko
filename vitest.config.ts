@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 
-import { defineConfig } from 'vitest/config';
+import { coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 // Node 25+ enables the experimental Web Storage API by default; its global `localStorage`
 // shadows jsdom's implementation and breaks tests that touch storage. The flag exists since
@@ -30,6 +30,20 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
+      include: ['src/**'],
+      exclude: [
+        ...coverageConfigDefaults.exclude,
+        'src/**/*.test.{ts,tsx}',
+        'src/**/__tests__/**',
+        'src/lib/api/generated/**',
+        'src/mocks/**',
+        'src/app/api/v1/**',
+        'src/app/serwist/**',
+        'src/app/sw*.ts',
+        '**/*.d.ts',
+        'src/app/**/loading.tsx',
+      ],
+      // Thresholds arrive in Phase G (measured baseline minus 2, ratchet only).
     },
   },
 });

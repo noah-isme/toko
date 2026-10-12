@@ -101,7 +101,7 @@ export default function ProductsPage() {
         description="Manage your product catalog"
         actions={
           <Button asChild>
-            <Link href="/admin/products/new">
+            <Link href="/admin/products/new" data-testid="admin-product-new">
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
               Add Product
             </Link>
@@ -161,7 +161,11 @@ export default function ProductsPage() {
                   </TableHeader>
                   <TableBody>
                     {products.map((product) => (
-                      <TableRow key={product.id}>
+                      <TableRow
+                        key={product.id}
+                        data-testid="admin-product-row"
+                        data-product-id={product.id}
+                      >
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
@@ -179,6 +183,7 @@ export default function ProductsPage() {
                               <Link
                                 href={`/admin/products/${product.id}/edit` as never}
                                 className="font-medium hover:underline"
+                                data-testid="admin-product-title"
                               >
                                 {product.title}
                               </Link>
@@ -236,6 +241,7 @@ export default function ProductsPage() {
                               <Link
                                 href={`/admin/products/${product.id}/edit` as never}
                                 aria-label={`Edit ${product.title}`}
+                                data-testid="admin-product-edit"
                               >
                                 <Edit className="h-4 w-4" />
                               </Link>
@@ -245,6 +251,7 @@ export default function ProductsPage() {
                               size="icon"
                               className="text-red-600"
                               aria-label={`Delete ${product.title}`}
+                              data-testid="admin-product-delete"
                               onClick={() => setDeleteTarget(product)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -351,7 +358,12 @@ export default function ProductsPage() {
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleteProduct.isPending}>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteProduct.isPending}
+              data-testid="admin-product-delete-confirm"
+            >
               {deleteProduct.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>

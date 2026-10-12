@@ -301,7 +301,11 @@ export default function OrdersPage() {
                     {orders.map((order) => {
                       const targets = allowedTargets(order.status);
                       return (
-                        <TableRow key={order.id}>
+                        <TableRow
+                          key={order.id}
+                          data-testid="admin-order-row"
+                          data-order-id={order.id}
+                        >
                           <TableCell className="font-mono font-medium">
                             {order.orderNumber ?? order.id.slice(0, 8)}
                             <p className="font-sans text-xs font-normal text-muted-foreground">
@@ -339,6 +343,7 @@ export default function OrdersPage() {
                                   disabled={updateStatus.isPending}
                                 >
                                   <SelectTrigger
+                                    data-testid="admin-order-status-select"
                                     className="h-7 w-36 text-xs"
                                     aria-label={`Change status for order ${order.orderNumber ?? order.id}`}
                                   >
@@ -346,7 +351,11 @@ export default function OrdersPage() {
                                   </SelectTrigger>
                                   <SelectContent>
                                     {targets.map((target) => (
-                                      <SelectItem key={target} value={target}>
+                                      <SelectItem
+                                        key={target}
+                                        value={target}
+                                        data-testid={`admin-order-status-option-${target}`}
+                                      >
                                         {orderStatusLabel(target)}
                                       </SelectItem>
                                     ))}

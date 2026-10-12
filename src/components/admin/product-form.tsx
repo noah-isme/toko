@@ -205,7 +205,7 @@ export function ProductForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" data-testid="product-form">
       <Card>
         <CardHeader>
           <CardTitle>Basics</CardTitle>
@@ -216,6 +216,7 @@ export function ProductForm({
               <Label htmlFor="product-title">Title</Label>
               <Input
                 id="product-title"
+                data-testid="product-form-title"
                 value={values.title}
                 onChange={(event) => {
                   const title = event.target.value;
@@ -233,6 +234,7 @@ export function ProductForm({
               <Label htmlFor="product-slug">Slug</Label>
               <Input
                 id="product-slug"
+                data-testid="product-form-slug"
                 value={values.slug}
                 onChange={(event) => {
                   setSlugTouched(true);
@@ -245,6 +247,7 @@ export function ProductForm({
               <Label htmlFor="product-price">Price (Rp)</Label>
               <Input
                 id="product-price"
+                data-testid="product-form-price"
                 type="number"
                 min={0}
                 value={values.price}
@@ -256,6 +259,7 @@ export function ProductForm({
               <Label htmlFor="product-compare-at">Compare-at price (Rp)</Label>
               <Input
                 id="product-compare-at"
+                data-testid="product-form-compare-at"
                 type="number"
                 min={0}
                 value={values.compareAt}
@@ -272,7 +276,7 @@ export function ProductForm({
                 value={values.categoryId}
                 onValueChange={(value) => update('categoryId', value)}
               >
-                <SelectTrigger id="product-category">
+                <SelectTrigger id="product-category" data-testid="product-form-category">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -288,7 +292,7 @@ export function ProductForm({
             <div className="space-y-2">
               <Label htmlFor="product-brand">Brand</Label>
               <Select value={values.brandId} onValueChange={(value) => update('brandId', value)}>
-                <SelectTrigger id="product-brand">
+                <SelectTrigger id="product-brand" data-testid="product-form-brand">
                   <SelectValue placeholder="Select brand" />
                 </SelectTrigger>
                 <SelectContent>
@@ -305,6 +309,7 @@ export function ProductForm({
               <Label htmlFor="product-thumbnail">Thumbnail URL</Label>
               <Input
                 id="product-thumbnail"
+                data-testid="product-form-thumbnail"
                 value={values.thumbnail}
                 onChange={(event) => update('thumbnail', event.target.value)}
                 placeholder="https://..."
@@ -314,6 +319,7 @@ export function ProductForm({
               <Label htmlFor="product-badges">Badges</Label>
               <Input
                 id="product-badges"
+                data-testid="product-form-badges"
                 value={values.badges}
                 onChange={(event) => update('badges', event.target.value)}
                 placeholder="new, bestseller"
@@ -325,6 +331,7 @@ export function ProductForm({
           <div className="flex items-center gap-3">
             <Switch
               id="product-in-stock"
+              data-testid="product-form-in-stock"
               checked={values.inStock}
               onCheckedChange={(checked) => update('inStock', checked)}
             />
@@ -335,6 +342,7 @@ export function ProductForm({
             <Label htmlFor="product-description">Description</Label>
             <Textarea
               id="product-description"
+              data-testid="product-form-description"
               value={values.description}
               onChange={(event) => update('description', event.target.value)}
               rows={5}
@@ -559,7 +567,7 @@ export function ProductForm({
       </Card>
 
       <div className="flex gap-2">
-        <Button type="submit" disabled={saving}>
+        <Button type="submit" disabled={saving} data-testid="product-form-submit">
           {saving ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
           ) : (

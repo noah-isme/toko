@@ -19,6 +19,7 @@
     "deployment:validate": "node scripts/validate-deployment-env.mjs",
     "test": "vitest run",
     "test:ci": "vitest run --reporter=dot --pool=forks --maxWorkers=2",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "e2e": "NEXT_PUBLIC_API_MOCKING=true NEXT_PUBLIC_API_URL=mock playwright test --project=chromium --reporter=line",
     "e2e:prod": "playwright test -c playwright.prod.config.ts --reporter=line",
