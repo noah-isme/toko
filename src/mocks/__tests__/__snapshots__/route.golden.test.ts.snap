@@ -5934,6 +5934,336 @@ exports[`mock API route golden responses > orders > GET orders/order-status-ship
 }
 `;
 
+exports[`mock API route golden responses > payment instructions, notifications and push > GET payments/:orderId/instructions 1`] = `
+{
+  "body": {
+    "data": {
+      "bank": {
+        "accountName": "Toko Demo",
+        "accountNumber": "1234567890",
+        "name": "Bank Mock",
+      },
+      "channel": "bank_transfer",
+      "orderId": "order-success-id",
+      "provider": "mock",
+      "qrUrl": null,
+      "steps": [
+        "Transfer sesuai total pesanan.",
+        "Simpan bukti pembayaran.",
+        "Unggah bukti pembayaran.",
+      ],
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "body": "Pesanan Anda telah sampai di tujuan.",
+        "createdAt": "2026-07-22T10:00:00Z",
+        "data": {
+          "orderId": "order-1001",
+          "topic": "shipment.delivered",
+        },
+        "id": "11111111-1111-1111-1111-111111111111",
+        "read": false,
+        "readAt": null,
+        "title": "Pesanan tiba",
+        "type": "shipment_delivered",
+      },
+      {
+        "body": "Pembayaran pesanan Anda telah kami terima.",
+        "createdAt": "2026-07-21T08:30:00Z",
+        "data": {
+          "orderId": "order-1001",
+          "topic": "order.paid",
+        },
+        "id": "22222222-2222-2222-2222-222222222222",
+        "read": false,
+        "readAt": null,
+        "title": "Pembayaran diterima",
+        "type": "order_paid",
+      },
+      {
+        "body": "Pesanan Anda telah dibatalkan.",
+        "createdAt": "2026-07-20T11:45:00Z",
+        "data": {
+          "orderId": "order-0999",
+          "topic": "order.canceled",
+        },
+        "id": "33333333-3333-3333-3333-333333333333",
+        "read": true,
+        "readAt": "2026-07-20T12:00:00Z",
+        "title": "Pesanan dibatalkan",
+        "type": "order_canceled",
+      },
+    ],
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 3,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 2`] = `
+{
+  "body": {
+    "data": [
+      {
+        "body": "Pesanan Anda telah dibatalkan.",
+        "createdAt": "2026-07-20T11:45:00Z",
+        "data": {
+          "orderId": "order-0999",
+          "topic": "order.canceled",
+        },
+        "id": "33333333-3333-3333-3333-333333333333",
+        "read": true,
+        "readAt": "2026-07-20T12:00:00Z",
+        "title": "Pesanan dibatalkan",
+        "type": "order_canceled",
+      },
+    ],
+    "pagination": {
+      "page": 2,
+      "perPage": 2,
+      "totalItems": 3,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 3`] = `
+{
+  "body": {
+    "unread": 2,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 4`] = `
+{
+  "body": {
+    "read": true,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 5`] = `
+{
+  "body": {
+    "read": true,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 6`] = `
+{
+  "body": {
+    "unread": 1,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 7`] = `
+{
+  "body": null,
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 204,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 8`] = `
+{
+  "body": {
+    "unread": 0,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > notifications list, unread count and mark read 9`] = `
+{
+  "body": {
+    "unread": 2,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 1`] = `
+{
+  "body": {
+    "publicKey": "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U",
+    "public_key": "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U",
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 2`] = `
+{
+  "body": {
+    "enabled": false,
+    "types": {
+      "order_update": true,
+      "promo_updates": false,
+      "stock_updates": false,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 3`] = `
+{
+  "body": {
+    "enabled": false,
+    "message": "Preferensi notifikasi disimpan",
+    "success": true,
+    "types": {
+      "order_update": true,
+      "promo_updates": true,
+      "stock_updates": false,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 4`] = `
+{
+  "body": {
+    "error": {
+      "code": "MISSING_FIELDS",
+      "message": "no push subscription for this user",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 5`] = `
+{
+  "body": {
+    "error": {
+      "code": "MISSING_FIELDS",
+      "message": "endpoint and keys are required",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 6`] = `
+{
+  "body": {
+    "message": "Notifikasi push diaktifkan",
+    "success": true,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 7`] = `
+{
+  "body": {
+    "enabled": true,
+    "endpoint": "https://push.example.com/sub-1",
+    "types": {
+      "order_update": true,
+      "promo_updates": true,
+      "stock_updates": false,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 8`] = `
+{
+  "body": {
+    "message": "Notifikasi uji dikirim",
+    "success": true,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 9`] = `
+{
+  "body": {
+    "message": "Notifikasi push dinonaktifkan",
+    "success": true,
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > payment instructions, notifications and push > push vapid key, preferences and subscription 10`] = `
+{
+  "body": {
+    "enabled": false,
+    "types": {
+      "order_update": true,
+      "promo_updates": true,
+      "stock_updates": false,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
 exports[`mock API route golden responses > session and fallbacks > returns 404 for unknown routes and methods 1`] = `
 {
   "body": {

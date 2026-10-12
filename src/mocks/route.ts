@@ -9,9 +9,15 @@ import { resolveAuth } from './resolvers/auth';
 import { resolveCartRead, resolveCartWrite } from './resolvers/cart';
 import { resolveCatalog } from './resolvers/catalog';
 import { resolveCheckout } from './resolvers/checkout';
+import { resolveNotifications } from './resolvers/notifications';
 import { resolveOrders } from './resolvers/orders';
-import { resolvePaymentIntent, resolvePaymentStatus } from './resolvers/payments';
+import {
+  resolvePaymentInstructions,
+  resolvePaymentIntent,
+  resolvePaymentStatus,
+} from './resolvers/payments';
 import { resolveCartPromo, resolveVoucher } from './resolvers/promo';
+import { resolvePush } from './resolvers/push';
 import type { MockRequest, MockResolver, MockResult } from './resolvers/types';
 
 export { MOCK_ADMIN_TOKEN, MOCK_SESSION_COOKIE } from './fixtures';
@@ -25,6 +31,9 @@ export type { MockResult } from './resolvers/types';
 const RESOLVERS: MockResolver[] = [
   resolveAdmin,
   resolvePaymentStatus,
+  resolvePaymentInstructions,
+  resolveNotifications,
+  resolvePush,
   resolveCatalog,
   resolveAddress,
   resolveCartRead,

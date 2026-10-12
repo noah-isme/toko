@@ -296,6 +296,64 @@ describe('mock API route golden responses', () => {
     });
   });
 
+  describe('payment instructions, notifications and push', () => {
+    it('GET payments/:orderId/instructions', async () => {
+      expect(await call('GET', 'payments/order-success-id/instructions')).toMatchSnapshot();
+    });
+
+    it('notifications list, unread count and mark read', async () => {
+      const cookie = 'mockSessionId=golden-notifications; X-CSRF-Token=golden-csrf';
+      expect(await call('GET', 'notifications', { cookie })).toMatchSnapshot();
+      expect(
+        await call('GET', 'notifications', { query: { page: '2', limit: '2' }, cookie }),
+      ).toMatchSnapshot();
+      expect(await call('GET', 'notifications/unread-count', { cookie })).toMatchSnapshot();
+      expect(
+        await call('POST', 'notifications/11111111-1111-1111-1111-111111111111/read', { cookie }),
+      ).toMatchSnapshot();
+      expect(await call('POST', 'notifications/unknown-id/read', { cookie })).toMatchSnapshot();
+      expect(await call('GET', 'notifications/unread-count', { cookie })).toMatchSnapshot();
+      expect(await call('POST', 'notifications/read-all', { cookie })).toMatchSnapshot();
+      expect(await call('GET', 'notifications/unread-count', { cookie })).toMatchSnapshot();
+      // Another session still sees its own unread seed.
+      expect(await call('GET', 'notifications/unread-count')).toMatchSnapshot();
+    });
+
+    it('push vapid key, preferences and subscription', async () => {
+      const cookie = 'mockSessionId=golden-push; X-CSRF-Token=golden-csrf';
+      expect(await call('GET', 'push/vapid-key', { cookie })).toMatchSnapshot();
+      expect(await call('GET', 'push/preferences', { cookie })).toMatchSnapshot();
+      expect(
+        await call('PATCH', 'push/preferences', {
+          body: { types: { promo_updates: true, unknown_type: true } },
+          cookie,
+        }),
+      ).toMatchSnapshot();
+      expect(await call('POST', 'push/send-test', { cookie })).toMatchSnapshot();
+      expect(await call('POST', 'push/subscription', { body: {}, cookie })).toMatchSnapshot();
+      expect(
+        await call('POST', 'push/subscription', {
+          body: {
+            subscription: {
+              endpoint: 'https://push.example.com/sub-1',
+              keys: { p256dh: 'p256dh-key', auth: 'auth-key' },
+            },
+          },
+          cookie,
+        }),
+      ).toMatchSnapshot();
+      expect(await call('GET', 'push/preferences', { cookie })).toMatchSnapshot();
+      expect(await call('POST', 'push/send-test', { cookie })).toMatchSnapshot();
+      expect(
+        await call('DELETE', 'push/subscription', {
+          query: { endpoint: 'https://push.example.com/sub-1' },
+          cookie,
+        }),
+      ).toMatchSnapshot();
+      expect(await call('GET', 'push/preferences', { cookie })).toMatchSnapshot();
+    });
+  });
+
   describe('session and fallbacks', () => {
     it('sets session and CSRF cookies for a new visitor', async () => {
       expect(await call('GET', 'products/macbook-pro-14-m3', { cookie: null })).toMatchSnapshot();

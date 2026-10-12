@@ -10,6 +10,8 @@ export type AdminStore = {
 type MockState = {
   paidOrdersBySession: Map<string, Set<string>>;
   adminBySession: Map<string, AdminStore>;
+  /** Other per-session values, keyed by bucket name (see `sessionValue`). */
+  buckets: Map<string, Map<string, unknown>>;
 };
 
 const store = globalThis as typeof globalThis & { __tokoMockState?: MockState };
@@ -21,8 +23,29 @@ const store = globalThis as typeof globalThis & { __tokoMockState?: MockState };
  * each get their own state instead of fighting over one process-wide value.
  */
 export function mockState(): MockState {
-  store.__tokoMockState ??= { paidOrdersBySession: new Map(), adminBySession: new Map() };
+  store.__tokoMockState ??= {
+    paidOrdersBySession: new Map(),
+    adminBySession: new Map(),
+    buckets: new Map(),
+  };
+  // A dev-server reload can keep state created by an older shape of this module.
+  store.__tokoMockState.buckets ??= new Map();
   return store.__tokoMockState;
+}
+
+/**
+ * The session's value in `bucket`, created with `seed()` on first use. Callers
+ * mutate the returned value in place, so `seed` must return a fresh object.
+ */
+export function sessionValue<T>(bucket: string, sessionId: string, seed: () => T): T {
+  const { buckets } = mockState();
+  let values = buckets.get(bucket);
+  if (!values) {
+    values = new Map();
+    buckets.set(bucket, values);
+  }
+  if (!values.has(sessionId)) values.set(sessionId, seed());
+  return values.get(sessionId) as T;
 }
 
 export function paidOrders(sessionId: string): Set<string> {

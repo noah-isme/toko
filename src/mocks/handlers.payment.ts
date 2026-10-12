@@ -1,6 +1,7 @@
 import { HttpResponse, http } from 'msw';
 import { z } from 'zod';
 
+import { paymentInstructions } from './resolvers/payments';
 import { apiPath } from './utils';
 
 import {
@@ -31,20 +32,7 @@ function nextStatus(orderId: string) {
 
 export const paymentHandlers = [
   http.get(apiPath('/payments/:orderId/instructions'), ({ params }) =>
-    HttpResponse.json({
-      data: {
-        orderId: String(params.orderId),
-        provider: 'mock',
-        channel: 'bank_transfer',
-        steps: [
-          'Transfer sesuai total pesanan.',
-          'Simpan bukti pembayaran.',
-          'Unggah bukti pembayaran.',
-        ],
-        bank: { name: 'Bank Mock', accountName: 'Toko Demo', accountNumber: '1234567890' },
-        qrUrl: null,
-      },
-    }),
+    HttpResponse.json(paymentInstructions(String(params.orderId))),
   ),
   http.post(apiPath('/payments/:orderId/proof'), async ({ params, request }) => {
     let filename = 'payment-proof';

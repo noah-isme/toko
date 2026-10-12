@@ -11,6 +11,7 @@ import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
 import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
+import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
 import { getProduct, listProducts } from './resolvers/catalog';
@@ -465,6 +466,7 @@ export const handlers = [
   ...customerOperationsHandlers,
   ...favoritesHandlers,
   ...notificationsHandlers,
+  ...pushHandlers,
   ...promoHandlers,
   ...reviewsHandlers,
   ...qaHandlers,
