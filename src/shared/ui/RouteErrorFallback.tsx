@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
 import { captureSentryException } from '@/shared/telemetry/sentry';
@@ -14,6 +15,8 @@ const reported = new WeakSet<object>();
 
 /** Segment-level error fallback; reports each error to Sentry once. */
 export function RouteErrorFallback({ error, retry, variant }: RouteErrorFallbackProps) {
+  const t = useTranslations('errors.route');
+
   useEffect(() => {
     if (reported.has(error)) return;
     reported.add(error);
@@ -27,14 +30,12 @@ export function RouteErrorFallback({ error, retry, variant }: RouteErrorFallback
       className="flex flex-col items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-sm text-foreground"
     >
       <div className="space-y-1">
-        <h2 className="text-base font-semibold text-destructive">Terjadi kesalahan</h2>
+        <h2 className="text-base font-semibold text-destructive">{t('title')}</h2>
         <p className="text-muted-foreground">
-          {variant === 'admin'
-            ? 'Halaman admin gagal dimuat. Coba lagi.'
-            : 'Terjadi kesalahan. Coba lagi.'}
+          {variant === 'admin' ? t('adminDescription') : t('description')}
         </p>
         {error.digest ? (
-          <p className="text-xs text-muted-foreground">Kode: {error.digest}</p>
+          <p className="text-xs text-muted-foreground">{t('digest', { digest: error.digest })}</p>
         ) : null}
       </div>
       <button
@@ -42,7 +43,7 @@ export function RouteErrorFallback({ error, retry, variant }: RouteErrorFallback
         onClick={() => retry()}
         className="inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground shadow transition-colors hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
       >
-        Coba lagi
+        {t('retry')}
       </button>
     </div>
   );

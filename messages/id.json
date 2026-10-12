@@ -1,5 +1,49 @@
 {
-  "common": {},
+  "common": {
+    "skipToContent": "Lewati ke konten utama",
+    "offline": {
+      "restored": "Connection restored",
+      "offline": "You are currently offline. Some features may be unavailable."
+    },
+    "idleTimeout": {
+      "title": "Sesi akan berakhir",
+      "description": "Anda tidak aktif selama beberapa menit. Sesi Anda akan berakhir dalam <strong>{countdown}</strong>. Klik “Lanjutkan” untuk tetap masuk.",
+      "logout": "Keluar",
+      "extend": "Lanjutkan",
+      "processing": "Memproses..."
+    },
+    "cookieConsent": {
+      "openPreferences": "Cookie preferences",
+      "bannerTitle": "We value your privacy",
+      "bannerDescription": "We use cookies to enhance your experience, analyze traffic, and personalize content.",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "acceptAll": "Accept All",
+      "rejectAll": "Reject All",
+      "customize": "Customize",
+      "savePreferences": "Save Preferences",
+      "dialogTitle": "Cookie Preferences",
+      "dialogDescription": "Customize which cookies and tracking technologies you allow us to use.",
+      "footnote": "You can change your preferences at any time by clicking the cookie icon.",
+      "necessary": {
+        "label": "Necessary cookies",
+        "description": "Required for the website to function properly. Cannot be disabled.",
+        "switchLabel": "Necessary cookies (always enabled)"
+      },
+      "analytics": {
+        "label": "Analytics cookies",
+        "description": "Help us understand how visitors interact with our website."
+      },
+      "marketing": {
+        "label": "Marketing cookies",
+        "description": "Used to deliver personalized advertisements and track ad performance."
+      },
+      "preferences": {
+        "label": "Preference cookies",
+        "description": "Remember your preferences like language, theme, and region."
+      }
+    }
+  },
   "nav": {
     "language": {
       "label": "Pilih bahasa",
@@ -7,17 +51,87 @@
         "id": "Bahasa Indonesia",
         "en": "English"
       }
+    },
+    "links": {
+      "home": "Home",
+      "products": "Products",
+      "featured": "Featured",
+      "cart": "Cart",
+      "orders": "Orders"
+    },
+    "account": {
+      "account": "Account",
+      "profile": "Profile",
+      "orders": "Orders",
+      "notifications": "Notifications",
+      "addresses": "Addresses",
+      "favorites": "Favorites",
+      "logout": "Logout",
+      "signIn": "Sign in"
+    },
+    "mobile": {
+      "home": "Home",
+      "products": "Produk",
+      "cart": "Cart",
+      "favorites": "Favorit",
+      "account": "Akun"
     }
   },
-  "footer": {},
+  "footer": {
+    "quickLinks": {
+      "title": "Quick Links",
+      "products": "Products",
+      "about": "About Us",
+      "contact": "Contact",
+      "faq": "FAQ"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "shipping": "Shipping Policy",
+      "returns": "Returns"
+    },
+    "copyright": "© {year} toko. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "newsletter": {
+      "title": "Subscribe to our newsletter",
+      "description": "Get the latest updates on new products and upcoming sales",
+      "placeholder": "Enter your email",
+      "placeholderDisabled": "Subscription temporarily disabled",
+      "emailLabel": "Email address",
+      "submit": "Subscribe",
+      "submitting": "Subscribing...",
+      "subscribed": "Subscribed",
+      "invalidEmail": "Silakan masukkan alamat email yang valid.",
+      "success": "Terima kasih telah berlangganan buletin kami!",
+      "error": "Terjadi kesalahan. Silakan coba lagi.",
+      "unavailable": "Newsletter subscription is currently unavailable.",
+      "consent": "By subscribing, you agree to our Privacy Policy and consent to receive updates from our company."
+    }
+  },
   "catalog": {},
   "product": {},
   "cart": {},
   "checkout": {},
   "auth": {},
   "account": {},
-  "errors": {},
-  "notFound": {},
+  "errors": {
+    "route": {
+      "title": "Terjadi kesalahan",
+      "description": "Terjadi kesalahan. Coba lagi.",
+      "adminDescription": "Halaman admin gagal dimuat. Coba lagi.",
+      "digest": "Kode: {digest}",
+      "retry": "Coba lagi"
+    }
+  },
+  "notFound": {
+    "title": "Halaman tidak ditemukan",
+    "description": "Halaman yang Anda cari tidak ada atau sudah dipindahkan.",
+    "home": "Kembali ke beranda",
+    "allProducts": "Lihat semua produk"
+  },
   "seo": {},
   "admin": {}
 }

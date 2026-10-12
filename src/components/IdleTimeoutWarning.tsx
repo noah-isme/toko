@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -33,6 +34,7 @@ export function IdleTimeoutWarning({
   onExtendSession,
   onAutoLogout,
 }: IdleTimeoutWarningProps) {
+  const t = useTranslations('common.idleTimeout');
   const { isAuthenticated, refreshUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -163,10 +165,12 @@ export function IdleTimeoutWarning({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <AlertCircle className="mx-auto h-12 w-12 text-amber-500" aria-hidden="true" />
-          <DialogTitle className="text-center">Sesi akan berakhir</DialogTitle>
+          <DialogTitle className="text-center">{t('title')}</DialogTitle>
           <DialogDescription className="text-center">
-            Anda tidak aktif selama beberapa menit. Sesi Anda akan berakhir dalam{' '}
-            <strong>{countdownText}</strong>. Klik &ldquo;Lanjutkan&rdquo; untuk tetap masuk.
+            {t.rich('description', {
+              countdown: countdownText,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </DialogDescription>
         </DialogHeader>
         <div className="mt-6 flex gap-3">
@@ -176,14 +180,14 @@ export function IdleTimeoutWarning({
             onClick={handleLogout}
             disabled={isExtendingRef.current}
           >
-            Keluar
+            {t('logout')}
           </Button>
           <Button
             className="flex-1 bg-primary"
             onClick={handleExtend}
             disabled={isExtendingRef.current}
           >
-            {isExtendingRef.current ? 'Memproses...' : 'Lanjutkan'}
+            {isExtendingRef.current ? t('processing') : t('extend')}
           </Button>
         </div>
       </DialogContent>
