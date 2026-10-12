@@ -33,7 +33,8 @@ export function NewsletterSignup() {
 
     try {
       const res = await newsletterApi.subscribe(cleanEmail);
-      capturePosthogEvent('newsletter_subscribed', { email: cleanEmail });
+      // Never send the address itself: analytics events must stay free of PII.
+      capturePosthogEvent('newsletter_subscribed', { success: true });
 
       setStatus('success');
       setMessage(res?.message || t('success'));
