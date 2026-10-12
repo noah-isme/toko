@@ -1,6 +1,7 @@
 'use client';
 
 import { Share2, Twitter, Facebook, MessageCircle, Link2, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState, useCallback } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -21,33 +22,37 @@ interface SocialShareProps {
   className?: string;
 }
 
+/** Keys under `product.share.platforms` in the message catalogs. */
+type PlatformLabelKey = 'twitter' | 'facebook' | 'message' | 'copy';
+
 const SOCIAL_PLATFORMS = {
   twitter: {
-    name: 'Twitter',
+    labelKey: 'twitter',
     icon: Twitter,
     href: (url: string, title: string) =>
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
   },
   facebook: {
-    name: 'Facebook',
+    labelKey: 'facebook',
     icon: Facebook,
     href: (url: string) =>
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
   },
   message: {
-    name: 'Message',
+    labelKey: 'message',
     icon: MessageCircle,
     href: (url: string, title: string) =>
       `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`,
   },
   copy: {
-    name: 'Copy Link',
+    labelKey: 'copy',
     icon: Link2,
     href: null,
   },
-};
+} satisfies Record<PlatformLabelKey, { labelKey: PlatformLabelKey; [key: string]: unknown }>;
 
 export function SocialShare({ url, title, description, image, className = '' }: SocialShareProps) {
+  const t = useTranslations('product.share');
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
@@ -56,18 +61,18 @@ export function SocialShare({ url, title, description, image, className = '' }: 
       await navigator.clipboard.writeText(url);
       setCopied(true);
       toast({
-        title: 'Link copied',
-        description: 'Product link copied to clipboard',
+        title: t('copied.title'),
+        description: t('copied.description'),
       });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy',
-        description: 'Please try manually',
+        title: t('copyFailed.title'),
+        description: t('copyFailed.description'),
       });
     }
-  }, [url, toast]);
+  }, [url, toast, t]);
 
   const handleNativeShare = useCallback(async () => {
     if (navigator.share) {
@@ -89,13 +94,13 @@ export function SocialShare({ url, title, description, image, className = '' }: 
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="w-full gap-2 sm:w-auto">
             <Share2 className="h-4 w-4" />
-            Share
+            {t('button')}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-[180px]">
           <DropdownMenuItem onClick={handleNativeShare} className="gap-2">
             <Share2 className="h-4 w-4" />
-            Native Share
+            {t('native')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {Object.entries(SOCIAL_PLATFORMS).map(([key, platform]) => (
@@ -111,7 +116,7 @@ export function SocialShare({ url, title, description, image, className = '' }: 
               className="flex items-center gap-2"
             >
               <platform.icon className="h-4 w-4" />
-              {platform.name}
+              {t(`platforms.${platform.labelKey}`)}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -122,6 +127,7 @@ export function SocialShare({ url, title, description, image, className = '' }: 
 
 // Inline share buttons variant
 export function SocialShareInline({ url, title, description, className = '' }: SocialShareProps) {
+  const t = useTranslations('product.share');
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
@@ -130,29 +136,29 @@ export function SocialShareInline({ url, title, description, className = '' }: S
       await navigator.clipboard.writeText(url);
       setCopied(true);
       toast({
-        title: 'Link copied',
-        description: 'Product link copied to clipboard',
+        title: t('copied.title'),
+        description: t('copied.description'),
       });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast({
         variant: 'destructive',
-        title: 'Failed to copy',
-        description: 'Please try manually',
+        title: t('copyFailed.title'),
+        description: t('copyFailed.description'),
       });
     }
-  }, [url, toast]);
+  }, [url, toast, t]);
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Button variant="ghost" size="icon" onClick={handleCopy} aria-label="Copy link">
+      <Button variant="ghost" size="icon" onClick={handleCopy} aria-label={t('inline.copyLink')}>
         {copied ? <Check className="h-4 w-4 text-green-500" /> : <Link2 className="h-4 w-4" />}
       </Button>
       <Button
         variant="ghost"
         size="icon"
         onClick={() => window.open(SOCIAL_PLATFORMS.twitter.href(url, title), '_blank')}
-        aria-label="Share on Twitter"
+        aria-label={t('inline.twitter')}
       >
         <Twitter className="h-4 w-4 text-blue-500" />
       </Button>
@@ -160,7 +166,7 @@ export function SocialShareInline({ url, title, description, className = '' }: S
         variant="ghost"
         size="icon"
         onClick={() => window.open(SOCIAL_PLATFORMS.facebook.href(url), '_blank')}
-        aria-label="Share on Facebook"
+        aria-label={t('inline.facebook')}
       >
         <Facebook className="h-4 w-4 text-blue-700" />
       </Button>
@@ -168,7 +174,7 @@ export function SocialShareInline({ url, title, description, className = '' }: S
         variant="ghost"
         size="icon"
         onClick={() => window.open(SOCIAL_PLATFORMS.message.href(url, title), '_blank')}
-        aria-label="Share via Message"
+        aria-label={t('inline.message')}
       >
         <MessageCircle className="h-4 w-4 text-green-500" />
       </Button>
@@ -182,7 +188,7 @@ export function SocialShareInline({ url, title, description, className = '' }: S
             handleCopy();
           }
         }}
-        aria-label="Native share"
+        aria-label={t('inline.native')}
       >
         <Share2 className="h-4 w-4" />
       </Button>

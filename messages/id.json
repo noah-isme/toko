@@ -302,7 +302,286 @@
       "apply": "Apply Filter"
     }
   },
-  "product": {},
+  "product": {
+    "breadcrumb": {
+      "home": "Beranda",
+      "products": "Produk",
+      "fallback": "Produk"
+    },
+    "detail": {
+      "loadErrorTitle": "Gagal memuat produk",
+      "notFound": "Produk tidak ditemukan",
+      "cartNotReady": {
+        "title": "Gagal",
+        "description": "Keranjang belanja belum siap."
+      },
+      "highlights": {
+        "shippingTitle": "Pengiriman terlindungi",
+        "shippingDescription": "Diproses dengan teliti",
+        "paymentTitle": "Belanja aman",
+        "paymentDescription": "Pembayaran terverifikasi"
+      },
+      "variants": {
+        "label": "Pilih varian",
+        "available": "{count} tersedia",
+        "soldOut": "Habis"
+      },
+      "adding": "Menambahkan…",
+      "addToCart": "Add to cart",
+      "outOfStock": "Out of stock"
+    },
+    "gallery": {
+      "noImage": "No image available",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "imageAlt": "{name} - Image {index}",
+      "thumbnailAlt": "{name} thumbnail {index}",
+      "viewImage": "View image {index}",
+      "previousLabel": "Previous image",
+      "previous": "← Previous",
+      "nextLabel": "Next image",
+      "next": "Next →",
+      "hintZoomIn": "Click image to zoom in",
+      "hintZoomOut": "Click to zoom out"
+    },
+    "share": {
+      "button": "Share",
+      "native": "Native Share",
+      "platforms": {
+        "twitter": "Twitter",
+        "facebook": "Facebook",
+        "message": "Message",
+        "copy": "Copy Link"
+      },
+      "copied": {
+        "title": "Link copied",
+        "description": "Product link copied to clipboard"
+      },
+      "copyFailed": {
+        "title": "Failed to copy",
+        "description": "Please try manually"
+      },
+      "inline": {
+        "copyLink": "Copy link",
+        "twitter": "Share on Twitter",
+        "facebook": "Share on Facebook",
+        "message": "Share via Message",
+        "native": "Native share"
+      }
+    },
+    "quickView": {
+      "loading": "Loading product details",
+      "noImage": "No image",
+      "inStock": "In Stock ({count} available)",
+      "outOfStock": "Out of Stock",
+      "noDescription": "No description available",
+      "quantity": "Quantity:",
+      "adding": "Adding...",
+      "addToCart": "Add to Cart",
+      "viewDetails": "View full details →",
+      "notFound": "Product not found",
+      "cartNotReady": {
+        "title": "Error",
+        "description": "Keranjang belanja belum siap."
+      }
+    },
+    "recommendations": {
+      "emptyDefault": "No recommendations available",
+      "related": {
+        "title": "You might also like"
+      },
+      "frequentlyBoughtTogether": {
+        "title": "Frequently Bought Together",
+        "empty": "No frequently bought together items"
+      },
+      "customersAlsoViewed": {
+        "title": "Customers Also Viewed",
+        "empty": "No recently viewed items"
+      },
+      "personalized": {
+        "title": "Recommended for You",
+        "empty": "No personalized recommendations yet"
+      },
+      "forYou": {
+        "title": "Recommended For You"
+      },
+      "trending": {
+        "title": "Trending Now",
+        "empty": "No trending products"
+      }
+    },
+    "reviews": {
+      "form": {
+        "title": "Tulis ulasan Anda",
+        "subtitle": "Bagikan pengalaman Anda untuk membantu pembeli lain.",
+        "rating": "Rating",
+        "body": "Cerita Anda",
+        "placeholder": "Bagikan detail mengenai kualitas produk, pengiriman, atau pengalaman lainnya.",
+        "remaining": "{count} karakter tersisa",
+        "photos": "Foto (opsional)",
+        "photosHint": "Tambahkan hingga 5 foto untuk menunjukkan produk secara nyata. Format: JPEG, PNG, WebP, GIF (max 5MB per file).",
+        "submitting": "Mengirim ulasan…",
+        "submit": "Kirim ulasan",
+        "moderationNote": "Ulasan Anda akan melalui proses moderasi sebelum ditayangkan."
+      },
+      "validation": {
+        "ratingRequired": "Pilih rating",
+        "ratingInvalid": "Rating tidak valid",
+        "ratingMin": "Rating minimal 1 bintang",
+        "ratingMax": "Rating maksimal 5 bintang",
+        "bodyRequired": "Tulis ulasan Anda",
+        "bodyMin": "Minimal 10 karakter",
+        "bodyMax": "Maksimum 1000 karakter",
+        "photosMax": "Maksimal 5 foto"
+      },
+      "stars": {
+        "label": "{count} bintang"
+      },
+      "item": {
+        "anonymous": "Anonim",
+        "label": "Ulasan oleh {author}",
+        "status": {
+          "pending": "Menunggu moderasi",
+          "rejected": "Ditolak"
+        },
+        "deleteConfirm": "Hapus ulasan ini? Tindakan ini tidak dapat dibatalkan.",
+        "deleteLabel": "Hapus ulasan ini",
+        "delete": "Hapus",
+        "ratingOutOf": "{rating}/5",
+        "markHelpful": "Tandai ulasan ini bermanfaat",
+        "helpful": "Bermanfaat"
+      },
+      "list": {
+        "label": "Daftar ulasan produk",
+        "title": "Ulasan pelanggan",
+        "subtitle": "Baca pengalaman pembeli lainnya.",
+        "sortLabel": "Urutkan",
+        "sort": {
+          "recent": "Terbaru",
+          "ratingHigh": "Rating tertinggi"
+        },
+        "pageStatus": "Menampilkan halaman {page} dari {total}",
+        "loadError": "Gagal memuat ulasan: {message}",
+        "emptyTitle": "Belum ada ulasan",
+        "emptyDescription": "Jadilah yang pertama membagikan pengalaman Anda dengan produk ini.",
+        "previousLabel": "Halaman sebelumnya",
+        "previous": "Sebelumnya",
+        "page": "Halaman {page} dari {total}",
+        "nextLabel": "Halaman berikutnya",
+        "next": "Selanjutnya",
+        "refreshing": "Memperbarui ulasan…"
+      },
+      "stats": {
+        "loadError": "Gagal memuat statistik ulasan: {message}",
+        "title": "Penilaian produk",
+        "subtitle": "Rata-rata dari pelanggan toko.",
+        "count": "{count} ulasan",
+        "distribution": "Distribusi rating",
+        "empty": "Belum ada ulasan yang dipublikasikan untuk produk ini."
+      },
+      "toast": {
+        "you": "Anda",
+        "created": {
+          "title": "Ulasan dikirim",
+          "description": "Menunggu moderasi sebelum ditampilkan."
+        },
+        "createFailed": "Gagal mengirim ulasan",
+        "voteFailed": "Gagal memperbarui vote",
+        "deleteFailed": "Gagal menghapus ulasan",
+        "deleted": {
+          "title": "Ulasan dihapus",
+          "description": "Ulasan Anda telah dihapus."
+        }
+      },
+      "upload": {
+        "unsupported": "Format file tidak didukung. Gunakan JPEG, PNG, WebP, atau GIF.",
+        "tooLarge": "Ukuran file melebihi {max}MB.",
+        "readFailed": "Gagal membaca file",
+        "maxReached": "Maksimal file tercapai",
+        "maxReachedDescription": "Anda hanya bisa mengunggah maksimal {max} gambar.",
+        "invalid": "File tidak valid",
+        "disabled": "Upload dinonaktifkan",
+        "dropzoneLabel": "Klik atau tarik gambar ke sini untuk mengunggah",
+        "inputLabel": "Pilih gambar untuk diunggah",
+        "dropzone": "Klik atau tarik gambar ke sini",
+        "limits": "Maksimal {maxFiles} file, {maxSize}MB per file (JPEG, PNG, WebP, GIF)",
+        "previewAlt": "Pratinjau gambar {index}",
+        "removeLabel": "Hapus gambar {index}",
+        "reviewImageAlt": "Gambar ulasan"
+      }
+    },
+    "qa": {
+      "section": {
+        "ask": "Ajukan Pertanyaan",
+        "closeForm": "Tutup formulir",
+        "signInPrompt": "<login>Masuk</login> atau<register>daftar</register> untuk mengajukan pertanyaan."
+      },
+      "form": {
+        "title": "Tanyakan tentang produk ini",
+        "subtitle": "Pertanyaan Anda akan dijawab oleh tim kami atau pembeli lain.",
+        "label": "Pertanyaan Anda",
+        "placeholder": "Contoh: Apakah produk ini cocok untuk kulit sensitif?",
+        "submitting": "Mengirim...",
+        "submit": "Ajukan Pertanyaan"
+      },
+      "validation": {
+        "questionRequired": "Tulis pertanyaan Anda",
+        "questionMin": "Minimal 10 karakter",
+        "questionMax": "Maksimum 500 karakter",
+        "answerRequired": "Tulis jawaban Anda",
+        "answerMin": "Minimal 10 karakter",
+        "answerMax": "Maksimum 1000 karakter"
+      },
+      "item": {
+        "anonymous": "Anonim",
+        "status": {
+          "answered": "Terjawab",
+          "pending": "Menunggu jawaban",
+          "rejected": "Ditolak"
+        },
+        "answeredBy": "Jawaban dari {name}",
+        "admin": "Admin",
+        "answerThis": "Jawab pertanyaan ini",
+        "answerPlaceholder": "Tulis jawaban Anda...",
+        "submitting": "Mengirim...",
+        "submitAnswer": "Kirim Jawaban",
+        "cancel": "Batal",
+        "helpful": "Bermanfaat",
+        "answer": "Jawab"
+      },
+      "list": {
+        "loadError": "Gagal memuat pertanyaan.",
+        "retry": "Coba lagi",
+        "title": "Pertanyaan & Jawaban",
+        "sortLabel": "Urutkan pertanyaan",
+        "sortPlaceholder": "Urutkan",
+        "sort": {
+          "recent": "Terbaru",
+          "popular": "Populer",
+          "unanswered": "Belum Terjawab"
+        },
+        "emptyTitle": "Belum ada pertanyaan untuk produk ini.",
+        "emptyDescription": "Jadilah yang pertama bertanya!",
+        "listLabel": "Daftar pertanyaan",
+        "paginationLabel": "Pagination",
+        "page": "Halaman {page} dari {total}"
+      },
+      "toast": {
+        "you": "Anda",
+        "questionSent": {
+          "title": "Pertanyaan dikirim",
+          "description": "Pertanyaan Anda akan ditinjau dan dijawab segera."
+        },
+        "questionFailed": "Gagal mengirim pertanyaan",
+        "answerSent": {
+          "title": "Jawaban dikirim",
+          "description": "Jawaban Anda telah dipublikasikan."
+        },
+        "answerFailed": "Gagal mengirim jawaban",
+        "voteFailed": "Gagal voting"
+      }
+    }
+  },
   "cart": {},
   "checkout": {},
   "auth": {},

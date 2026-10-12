@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 
 import { useReviewListQuery } from '../hooks';
@@ -13,9 +14,12 @@ import { cn } from '@/lib/utils';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
-const SORT_OPTIONS: { value: ReviewSort; label: string }[] = [
-  { value: 'recent', label: 'Terbaru' },
-  { value: 'rating-high', label: 'Rating tertinggi' },
+/** Keys under `product.reviews.list.sort` in the message catalogs. */
+type ReviewSortLabelKey = 'recent' | 'ratingHigh';
+
+const SORT_OPTIONS: { value: ReviewSort; labelKey: ReviewSortLabelKey }[] = [
+  { value: 'recent', labelKey: 'recent' },
+  { value: 'rating-high', labelKey: 'ratingHigh' },
 ];
 
 export interface ReviewListProps {
@@ -25,6 +29,7 @@ export interface ReviewListProps {
 }
 
 export function ReviewList({ productId, pageSize = 5, className }: ReviewListProps) {
+  const t = useTranslations('product.reviews.list');
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<ReviewSort>('recent');
   const { user } = useAuth();
@@ -58,15 +63,15 @@ export function ReviewList({ productId, pageSize = 5, className }: ReviewListPro
   };
 
   return (
-    <section className={cn('space-y-4', className)} aria-label="Daftar ulasan produk">
+    <section className={cn('space-y-4', className)} aria-label={t('label')}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold">Ulasan pelanggan</h2>
-          <p className="text-sm text-muted-foreground">Baca pengalaman pembeli lainnya.</p>
+          <h2 className="text-2xl font-semibold">{t('title')}</h2>
+          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <label htmlFor="review-sort" className="text-muted-foreground">
-            Urutkan
+            {t('sortLabel')}
           </label>
           <select
             id="review-sort"
@@ -76,20 +81,20 @@ export function ReviewList({ productId, pageSize = 5, className }: ReviewListPro
           >
             {SORT_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {t(`sort.${option.labelKey}`)}
               </option>
             ))}
           </select>
         </div>
       </div>
       <span aria-live="polite" className="sr-only">
-        Menampilkan halaman {data?.meta.page ?? page} dari {totalPages}
+        {t('pageStatus', { page: data?.meta.page ?? page, total: totalPages })}
       </span>
       {isLoading ? (
         <ReviewListSkeleton count={pageSize} />
       ) : error ? (
         <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          Gagal memuat ulasan: {(error as Error).message}
+          {t('loadError', { message: (error as Error).message })}
         </p>
       ) : data && data.data.length > 0 ? (
         <div className="space-y-3" aria-busy={isFetching ? 'true' : undefined}>
@@ -103,10 +108,7 @@ export function ReviewList({ productId, pageSize = 5, className }: ReviewListPro
           ))}
         </div>
       ) : (
-        <EmptyState
-          title="Belum ada ulasan"
-          description="Jadilah yang pertama membagikan pengalaman Anda dengan produk ini."
-        />
+        <EmptyState title={t('emptyTitle')} description={t('emptyDescription')} />
       )}
       <div className="flex items-center justify-between rounded-lg border border-border/60 bg-background/60 px-3 py-2 text-sm">
         <button
@@ -114,27 +116,27 @@ export function ReviewList({ productId, pageSize = 5, className }: ReviewListPro
           onClick={handlePrev}
           disabled={!hasPrev || isFetching}
           className="rounded-md px-3 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          aria-label="Halaman sebelumnya"
+          aria-label={t('previousLabel')}
         >
-          Sebelumnya
+          {t('previous')}
         </button>
         <p className="text-muted-foreground">
-          Halaman {data?.meta.page ?? page} dari {Math.max(totalPages, 1)}
+          {t('page', { page: data?.meta.page ?? page, total: Math.max(totalPages, 1) })}
         </p>
         <button
           type="button"
           onClick={handleNext}
           disabled={!hasNext || isFetching}
           className="rounded-md px-3 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          aria-label="Halaman berikutnya"
+          aria-label={t('nextLabel')}
         >
-          Selanjutnya
+          {t('next')}
         </button>
       </div>
       {isFetching ? (
         <div className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
           <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-          Memperbarui ulasan…
+          {t('refreshing')}
         </div>
       ) : null}
     </section>

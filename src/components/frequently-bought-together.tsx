@@ -1,16 +1,19 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { ProductCard } from '@/components/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFrequentlyBoughtTogether } from '@/entities/catalog/hooks';
 
 export function FrequentlyBoughtTogether({ productId }: { productId: string }) {
+  const t = useTranslations('product.recommendations.frequentlyBoughtTogether');
   const { data, isLoading } = useFrequentlyBoughtTogether(productId);
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight">Frequently Bought Together</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
@@ -30,7 +33,7 @@ export function FrequentlyBoughtTogether({ productId }: { productId: string }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight">Frequently Bought Together</h2>
+      <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
         {data.map((product) => (
           <ProductCard key={product.id} product={product} />

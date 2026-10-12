@@ -1,6 +1,7 @@
 'use client';
 
 import { MessageSquare, MessageSquareMore, ThumbsUp, Check, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo, useState } from 'react';
 
 import { useVoteQuestionHelpfulMutation, useAnswerQuestionMutation } from '../hooks';
@@ -32,17 +33,18 @@ function formatQADate(value: string) {
   }
 }
 
-function renderStatus(status: Question['status']) {
+function QuestionStatusBadge({ status }: { status: Question['status'] }) {
+  const t = useTranslations('product.qa.item.status');
   if (status === 'answered') {
     return (
       <span className="inline-flex items-center rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
         <Check className="mr-1 h-3 w-3" />
-        Terjawab
+        {t('answered')}
       </span>
     );
   }
 
-  const label = status === 'pending' ? 'Menunggu jawaban' : 'Ditolak';
+  const label = status === 'pending' ? t('pending') : t('rejected');
   const styles =
     status === 'pending'
       ? 'border-amber-200 bg-amber-50 text-amber-700'
@@ -65,6 +67,8 @@ export const QuestionItem = memo(function QuestionItem({
   onAnswer,
   canAnswer = false,
 }: QuestionItemProps) {
+  const t = useTranslations('product.qa.item');
+  const tToast = useTranslations('product.qa.toast');
   const { mutate, isPending, isInFlight } = useVoteQuestionHelpfulMutation(question.id);
   const { mutate: answerMutate, isPending: answerPending } = useAnswerQuestionMutation(question.id);
   const helpfulActive = question.myVote === 'up';
@@ -87,11 +91,11 @@ export const QuestionItem = memo(function QuestionItem({
         onSuccess: () => {
           setShowAnswerForm(false);
           setAnswerText('');
-          toast({ title: 'Jawaban dikirim', variant: 'success' });
+          toast({ title: tToast('answerSent.title'), variant: 'success' });
         },
         onError: (error) => {
           toast({
-            title: 'Gagal mengirim jawaban',
+            title: tToast('answerFailed'),
             description: error.message,
             variant: 'destructive',
           });
@@ -107,10 +111,12 @@ export const QuestionItem = memo(function QuestionItem({
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-foreground">{question.author ?? 'Anonim'}</p>
+          <p className="text-sm font-semibold text-foreground">
+            {question.author ?? t('anonymous')}
+          </p>
           <p className="text-xs text-muted-foreground">{formatQADate(question.createdAt)}</p>
         </div>
-        {renderStatus(question.status)}
+        <QuestionStatusBadge status={question.status} />
       </header>
 
       <div className="flex items-start gap-3">
@@ -125,7 +131,7 @@ export const QuestionItem = memo(function QuestionItem({
         <div className="space-y-2 rounded-lg border border-primary/10 bg-primary/5 p-4">
           <div className="flex items-center gap-2 text-xs text-primary">
             <Check className="h-3 w-3" />
-            <span>Jawaban dari {question.answeredBy ?? 'Admin'}</span>
+            <span>{t('answeredBy', { name: question.answeredBy ?? t('admin') })}</span>
             {question.answeredAt && (
               <>
                 <span>•</span>
@@ -147,14 +153,14 @@ export const QuestionItem = memo(function QuestionItem({
               className="w-full justify-start gap-2"
             >
               <MessageSquareMore className="h-4 w-4" />
-              Jawab pertanyaan ini
+              {t('answerThis')}
             </Button>
           ) : (
             <div className="space-y-2">
               <Textarea
                 value={answerText}
                 onChange={(e) => setAnswerText(e.target.value)}
-                placeholder="Tulis jawaban Anda..."
+                placeholder={t('answerPlaceholder')}
                 rows={3}
                 className="min-h-[80px]"
               />
@@ -163,9 +169,9 @@ export const QuestionItem = memo(function QuestionItem({
                   size="sm"
                   onClick={handleAnswer}
                   isLoading={isPending || isInFlight()}
-                  loadingLabel="Mengirim..."
+                  loadingLabel={t('submitting')}
                 >
-                  Kirim Jawaban
+                  {t('submitAnswer')}
                 </GuardedButton>
                 <Button
                   variant="ghost"
@@ -175,7 +181,7 @@ export const QuestionItem = memo(function QuestionItem({
                     setAnswerText('');
                   }}
                 >
-                  Batal
+                  {t('cancel')}
                 </Button>
               </div>
             </div>
@@ -196,7 +202,7 @@ export const QuestionItem = memo(function QuestionItem({
           aria-pressed={helpfulActive}
         >
           <ThumbsUp className={cn('h-4 w-4', helpfulActive && 'fill-current')} />
-          Bermanfaat
+          {t('helpful')}
           <span className="text-xs text-muted-foreground">({question.helpfulCount})</span>
         </Button>
 
@@ -208,7 +214,7 @@ export const QuestionItem = memo(function QuestionItem({
             className="gap-1.5"
           >
             <MessageSquareMore className="h-4 w-4" />
-            Jawab
+            {t('answer')}
           </Button>
         )}
       </div>

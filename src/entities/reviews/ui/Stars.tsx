@@ -1,6 +1,7 @@
 'use client';
 
 import { Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Fragment } from 'react';
 
 import type { ReviewRating } from '../types';
@@ -34,6 +35,7 @@ export function Stars({
   'aria-labelledby': ariaLabelledBy,
   'aria-required': ariaRequired,
 }: StarsProps) {
+  const t = useTranslations('product.reviews.stars');
   return (
     <div
       role="radiogroup"
@@ -81,7 +83,7 @@ export function Stars({
                   )}
                 />
               </span>
-              <span className="sr-only">{starValue} bintang</span>
+              <span className="sr-only">{t('label', { count: starValue })}</span>
             </label>
           </Fragment>
         );

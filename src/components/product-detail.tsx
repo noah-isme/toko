@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -22,6 +23,7 @@ interface ProductDetailProps {
 }
 
 function ProductDetailContent({ slug }: ProductDetailProps) {
+  const t = useTranslations('product.detail');
   const { toast: pushToast } = useToast();
   const { data, isLoading, isFetching, error } = useProduct(slug);
   const { mutate, isProductInFlight } = useAddToCartMutation();
@@ -35,10 +37,10 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
 
     pushToast({
       variant: 'destructive',
-      title: 'Gagal memuat produk',
+      title: t('loadErrorTitle'),
       description: normalizeError(error),
     });
-  }, [error, pushToast]);
+  }, [error, pushToast, t]);
 
   if (isLoading || (!data && isFetching)) {
     return <ProductDetailSkeleton />;
@@ -49,7 +51,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   }
 
   if (!data) {
-    throw new Error('Produk tidak ditemukan');
+    throw new Error(t('notFound'));
   }
 
   const variants = data.variants ?? [];
@@ -67,8 +69,8 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
     if (!cartId) {
       pushToast({
         variant: 'destructive',
-        title: 'Gagal',
-        description: 'Keranjang belanja belum siap.',
+        title: t('cartNotReady.title'),
+        description: t('cartNotReady.description'),
       });
       return;
     }
@@ -123,12 +125,16 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
           <p className="leading-7 text-muted-foreground">{data.description}</p>
           <div className="grid grid-cols-2 gap-3 border-y border-border/80 py-4 text-xs">
             <p>
-              <span className="block font-semibold text-foreground">Pengiriman terlindungi</span>
-              <span className="text-muted-foreground">Diproses dengan teliti</span>
+              <span className="block font-semibold text-foreground">
+                {t('highlights.shippingTitle')}
+              </span>
+              <span className="text-muted-foreground">{t('highlights.shippingDescription')}</span>
             </p>
             <p>
-              <span className="block font-semibold text-foreground">Belanja aman</span>
-              <span className="text-muted-foreground">Pembayaran terverifikasi</span>
+              <span className="block font-semibold text-foreground">
+                {t('highlights.paymentTitle')}
+              </span>
+              <span className="text-muted-foreground">{t('highlights.paymentDescription')}</span>
             </p>
           </div>
           <SocialShare
@@ -138,8 +144,8 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             image={data.imageUrl || (data.images && data.images[0])}
           />
           {variants.length > 0 && (
-            <div className="space-y-2" aria-label="Pilih varian">
-              <p className="text-sm font-semibold">Pilih varian</p>
+            <div className="space-y-2" aria-label={t('variants.label')}>
+              <p className="text-sm font-semibold">{t('variants.label')}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {variants.map((variant) => {
                   const label =
@@ -158,7 +164,9 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
                     >
                       <span className="block font-medium">{label}</span>
                       <span className="text-xs text-muted-foreground">
-                        {variant.stock > 0 ? `${variant.stock} tersedia` : 'Habis'}
+                        {variant.stock > 0
+                          ? t('variants.available', { count: variant.stock })
+                          : t('variants.soldOut')}
                       </span>
                     </button>
                   );
@@ -173,10 +181,10 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
               onClick={handleAddToCart}
               disabled={isOutOfStock}
               isLoading={isProductInFlight(data.id, activeVariantId)}
-              loadingLabel="Menambahkan…"
+              loadingLabel={t('adding')}
               className="w-full"
             >
-              {isOutOfStock ? 'Out of stock' : 'Add to cart'}
+              {isOutOfStock ? t('outOfStock') : t('addToCart')}
             </GuardedButton>
           </div>
         </div>

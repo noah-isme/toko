@@ -1,10 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 
 import { useCreateQuestionMutation } from '../hooks';
-import { questionCreateInputSchema, type QuestionCreateInput } from '../types';
+import { isQAValidationKey, questionCreateInputSchema, type QuestionCreateInput } from '../types';
 
 import { cn } from '@/lib/utils';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
@@ -16,6 +17,10 @@ export interface QuestionFormProps {
 }
 
 export function QuestionForm({ productId, className }: QuestionFormProps) {
+  const t = useTranslations('product.qa.form');
+  const tv = useTranslations('product.qa.validation');
+  // Schema errors are catalog keys; anything else (e.g. a server message) is shown as is.
+  const errorText = (message?: string) => (isQAValidationKey(message) ? tv(message) : message);
   const form = useForm<QuestionCreateInput>({
     resolver: zodResolver(questionCreateInputSchema),
     defaultValues: {
@@ -26,9 +31,9 @@ export function QuestionForm({ productId, className }: QuestionFormProps) {
   const { mutate, isPending, isProductInFlight } = useCreateQuestionMutation(productId);
   const { toast } = useToast();
 
-  const questionError = form.formState.errors.question?.message;
+  const questionError = errorText(form.formState.errors.question?.message);
   const questionErrorId = questionError ? 'question-error' : undefined;
-  const rootError = form.formState.errors.root?.message;
+  const rootError = errorText(form.formState.errors.root?.message);
 
   const isSubmitting = isPending || isProductInFlight();
 
@@ -43,10 +48,8 @@ export function QuestionForm({ productId, className }: QuestionFormProps) {
   return (
     <form onSubmit={handleSubmit} className={cn('space-y-4', className)} noValidate>
       <div>
-        <h3 className="text-lg font-semibold">Tanyakan tentang produk ini</h3>
-        <p className="text-sm text-muted-foreground">
-          Pertanyaan Anda akan dijawab oleh tim kami atau pembeli lain.
-        </p>
+        <h3 className="text-lg font-semibold">{t('title')}</h3>
+        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
       {rootError ? (
         <div
@@ -58,7 +61,7 @@ export function QuestionForm({ productId, className }: QuestionFormProps) {
       ) : null}
       <div className="space-y-2">
         <label htmlFor="question" className="text-sm font-medium">
-          Pertanyaan Anda
+          {t('label')}
         </label>
         <Controller
           control={form.control}
@@ -73,7 +76,7 @@ export function QuestionForm({ productId, className }: QuestionFormProps) {
               rows={3}
               disabled={isSubmitting}
               className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-              placeholder="Contoh: Apakah produk ini cocok untuk kulit sensitif?"
+              placeholder={t('placeholder')}
             />
           )}
         />
@@ -88,10 +91,10 @@ export function QuestionForm({ productId, className }: QuestionFormProps) {
         size="lg"
         isLoading={isSubmitting}
         disabled={isSubmitting}
-        loadingLabel="Mengirim..."
+        loadingLabel={t('submitting')}
         className="w-full"
       >
-        Ajukan Pertanyaan
+        {t('submit')}
       </GuardedButton>
     </form>
   );

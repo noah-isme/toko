@@ -1,6 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { cache, Suspense } from 'react';
 
 import { CustomersAlsoViewed } from '@/components/customers-also-viewed';
@@ -170,6 +171,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = await loadProduct(slug);
+  const t = await getTranslations('product');
 
   // Hydrate the ProductDetail/RelatedProductList islands: the product comes
   // from the cached fetch above, related products are prefetched here. Failed
@@ -185,7 +187,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const structuredData = productJsonLd(product ?? null);
   const resolvedProductId = product?.id ?? slug;
-  const productLabel = product?.title ?? humanizeSlug(slug) ?? 'Produk';
+  const productLabel = product?.title ?? humanizeSlug(slug) ?? t('breadcrumb.fallback');
 
   return (
     <>
@@ -193,8 +195,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <div className="space-y-12">
         <Breadcrumbs
           items={[
-            { label: 'Beranda', href: '/' },
-            { label: 'Produk', href: '/products' },
+            { label: t('breadcrumb.home'), href: '/' },
+            { label: t('breadcrumb.products'), href: '/products' },
             { label: productLabel },
           ]}
         />
@@ -205,7 +207,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <Suspense
           fallback={
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold tracking-tight">Frequently Bought Together</h2>
+              <h2 className="text-2xl font-bold tracking-tight">
+                {t('recommendations.frequentlyBoughtTogether.title')}
+              </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="flex flex-col space-y-3">
@@ -225,7 +229,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <Suspense
           fallback={
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold tracking-tight">Customers Also Viewed</h2>
+              <h2 className="text-2xl font-bold tracking-tight">
+                {t('recommendations.customersAlsoViewed.title')}
+              </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="flex flex-col space-y-3">

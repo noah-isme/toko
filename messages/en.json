@@ -302,7 +302,286 @@
       "apply": "Apply Filter"
     }
   },
-  "product": {},
+  "product": {
+    "breadcrumb": {
+      "home": "Home",
+      "products": "Products",
+      "fallback": "Product"
+    },
+    "detail": {
+      "loadErrorTitle": "Failed to load product",
+      "notFound": "Product not found",
+      "cartNotReady": {
+        "title": "Failed",
+        "description": "The shopping cart is not ready yet."
+      },
+      "highlights": {
+        "shippingTitle": "Protected shipping",
+        "shippingDescription": "Handled with care",
+        "paymentTitle": "Secure shopping",
+        "paymentDescription": "Verified payment"
+      },
+      "variants": {
+        "label": "Choose a variant",
+        "available": "{count} available",
+        "soldOut": "Sold out"
+      },
+      "adding": "Adding…",
+      "addToCart": "Add to cart",
+      "outOfStock": "Out of stock"
+    },
+    "gallery": {
+      "noImage": "No image available",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "imageAlt": "{name} - Image {index}",
+      "thumbnailAlt": "{name} thumbnail {index}",
+      "viewImage": "View image {index}",
+      "previousLabel": "Previous image",
+      "previous": "← Previous",
+      "nextLabel": "Next image",
+      "next": "Next →",
+      "hintZoomIn": "Click image to zoom in",
+      "hintZoomOut": "Click to zoom out"
+    },
+    "share": {
+      "button": "Share",
+      "native": "Native Share",
+      "platforms": {
+        "twitter": "Twitter",
+        "facebook": "Facebook",
+        "message": "Message",
+        "copy": "Copy Link"
+      },
+      "copied": {
+        "title": "Link copied",
+        "description": "Product link copied to clipboard"
+      },
+      "copyFailed": {
+        "title": "Failed to copy",
+        "description": "Please try manually"
+      },
+      "inline": {
+        "copyLink": "Copy link",
+        "twitter": "Share on Twitter",
+        "facebook": "Share on Facebook",
+        "message": "Share via Message",
+        "native": "Native share"
+      }
+    },
+    "quickView": {
+      "loading": "Loading product details",
+      "noImage": "No image",
+      "inStock": "In Stock ({count} available)",
+      "outOfStock": "Out of Stock",
+      "noDescription": "No description available",
+      "quantity": "Quantity:",
+      "adding": "Adding...",
+      "addToCart": "Add to Cart",
+      "viewDetails": "View full details →",
+      "notFound": "Product not found",
+      "cartNotReady": {
+        "title": "Error",
+        "description": "The shopping cart is not ready yet."
+      }
+    },
+    "recommendations": {
+      "emptyDefault": "No recommendations available",
+      "related": {
+        "title": "You might also like"
+      },
+      "frequentlyBoughtTogether": {
+        "title": "Frequently Bought Together",
+        "empty": "No frequently bought together items"
+      },
+      "customersAlsoViewed": {
+        "title": "Customers Also Viewed",
+        "empty": "No recently viewed items"
+      },
+      "personalized": {
+        "title": "Recommended for You",
+        "empty": "No personalized recommendations yet"
+      },
+      "forYou": {
+        "title": "Recommended for You"
+      },
+      "trending": {
+        "title": "Trending Now",
+        "empty": "No trending products"
+      }
+    },
+    "reviews": {
+      "form": {
+        "title": "Write your review",
+        "subtitle": "Share your experience to help other shoppers.",
+        "rating": "Rating",
+        "body": "Your story",
+        "placeholder": "Share details about product quality, shipping, or anything else you experienced.",
+        "remaining": "{count} characters left",
+        "photos": "Photos (optional)",
+        "photosHint": "Add up to 5 photos to show the product as it really is. Formats: JPEG, PNG, WebP, GIF (max 5MB per file).",
+        "submitting": "Submitting review…",
+        "submit": "Submit review",
+        "moderationNote": "Your review will be moderated before it is published."
+      },
+      "validation": {
+        "ratingRequired": "Choose a rating",
+        "ratingInvalid": "Invalid rating",
+        "ratingMin": "Rating must be at least 1 star",
+        "ratingMax": "Rating can be at most 5 stars",
+        "bodyRequired": "Write your review",
+        "bodyMin": "At least 10 characters",
+        "bodyMax": "At most 1000 characters",
+        "photosMax": "At most 5 photos"
+      },
+      "stars": {
+        "label": "{count, plural, one {# star} other {# stars}}"
+      },
+      "item": {
+        "anonymous": "Anonymous",
+        "label": "Review by {author}",
+        "status": {
+          "pending": "Awaiting moderation",
+          "rejected": "Rejected"
+        },
+        "deleteConfirm": "Delete this review? This action cannot be undone.",
+        "deleteLabel": "Delete this review",
+        "delete": "Delete",
+        "ratingOutOf": "{rating}/5",
+        "markHelpful": "Mark this review as helpful",
+        "helpful": "Helpful"
+      },
+      "list": {
+        "label": "Product review list",
+        "title": "Customer reviews",
+        "subtitle": "Read what other shoppers experienced.",
+        "sortLabel": "Sort",
+        "sort": {
+          "recent": "Newest",
+          "ratingHigh": "Highest rating"
+        },
+        "pageStatus": "Showing page {page} of {total}",
+        "loadError": "Failed to load reviews: {message}",
+        "emptyTitle": "No reviews yet",
+        "emptyDescription": "Be the first to share your experience with this product.",
+        "previousLabel": "Previous page",
+        "previous": "Previous",
+        "page": "Page {page} of {total}",
+        "nextLabel": "Next page",
+        "next": "Next",
+        "refreshing": "Updating reviews…"
+      },
+      "stats": {
+        "loadError": "Failed to load review statistics: {message}",
+        "title": "Product rating",
+        "subtitle": "Average from toko customers.",
+        "count": "{count, plural, one {# review} other {# reviews}}",
+        "distribution": "Rating distribution",
+        "empty": "No reviews have been published for this product yet."
+      },
+      "toast": {
+        "you": "You",
+        "created": {
+          "title": "Review submitted",
+          "description": "Awaiting moderation before it is shown."
+        },
+        "createFailed": "Failed to submit review",
+        "voteFailed": "Failed to update vote",
+        "deleteFailed": "Failed to delete review",
+        "deleted": {
+          "title": "Review deleted",
+          "description": "Your review has been deleted."
+        }
+      },
+      "upload": {
+        "unsupported": "Unsupported file format. Use JPEG, PNG, WebP, or GIF.",
+        "tooLarge": "File size exceeds {max}MB.",
+        "readFailed": "Failed to read file",
+        "maxReached": "Maximum number of files reached",
+        "maxReachedDescription": "You can upload at most {max} images.",
+        "invalid": "Invalid file",
+        "disabled": "Upload disabled",
+        "dropzoneLabel": "Click or drag images here to upload",
+        "inputLabel": "Choose images to upload",
+        "dropzone": "Click or drag images here",
+        "limits": "Up to {maxFiles} files, {maxSize}MB per file (JPEG, PNG, WebP, GIF)",
+        "previewAlt": "Image preview {index}",
+        "removeLabel": "Remove image {index}",
+        "reviewImageAlt": "Review image"
+      }
+    },
+    "qa": {
+      "section": {
+        "ask": "Ask a Question",
+        "closeForm": "Close form",
+        "signInPrompt": "<login>Sign in</login> or <register>register</register> to ask a question."
+      },
+      "form": {
+        "title": "Ask about this product",
+        "subtitle": "Your question will be answered by our team or other shoppers.",
+        "label": "Your question",
+        "placeholder": "Example: Is this product suitable for sensitive skin?",
+        "submitting": "Sending...",
+        "submit": "Ask a Question"
+      },
+      "validation": {
+        "questionRequired": "Write your question",
+        "questionMin": "At least 10 characters",
+        "questionMax": "At most 500 characters",
+        "answerRequired": "Write your answer",
+        "answerMin": "At least 10 characters",
+        "answerMax": "At most 1000 characters"
+      },
+      "item": {
+        "anonymous": "Anonymous",
+        "status": {
+          "answered": "Answered",
+          "pending": "Awaiting answer",
+          "rejected": "Rejected"
+        },
+        "answeredBy": "Answer from {name}",
+        "admin": "Admin",
+        "answerThis": "Answer this question",
+        "answerPlaceholder": "Write your answer...",
+        "submitting": "Sending...",
+        "submitAnswer": "Send Answer",
+        "cancel": "Cancel",
+        "helpful": "Helpful",
+        "answer": "Answer"
+      },
+      "list": {
+        "loadError": "Failed to load questions.",
+        "retry": "Try again",
+        "title": "Questions & Answers",
+        "sortLabel": "Sort questions",
+        "sortPlaceholder": "Sort",
+        "sort": {
+          "recent": "Newest",
+          "popular": "Popular",
+          "unanswered": "Unanswered"
+        },
+        "emptyTitle": "No questions for this product yet.",
+        "emptyDescription": "Be the first to ask!",
+        "listLabel": "Question list",
+        "paginationLabel": "Pagination",
+        "page": "Page {page} of {total}"
+      },
+      "toast": {
+        "you": "You",
+        "questionSent": {
+          "title": "Question sent",
+          "description": "Your question will be reviewed and answered soon."
+        },
+        "questionFailed": "Failed to send question",
+        "answerSent": {
+          "title": "Answer sent",
+          "description": "Your answer has been published."
+        },
+        "answerFailed": "Failed to send answer",
+        "voteFailed": "Failed to vote"
+      }
+    }
+  },
   "cart": {},
   "checkout": {},
   "auth": {},

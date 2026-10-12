@@ -37,14 +37,35 @@ export interface QuestionListResponse {
   meta: QuestionListMeta;
 }
 
+/**
+ * Keys under `product.qa.validation` in the message catalogs. The schemas carry these keys as
+ * their error messages; the Q&A forms translate them for display.
+ */
+export const QA_VALIDATION_KEYS = [
+  'questionRequired',
+  'questionMin',
+  'questionMax',
+  'answerRequired',
+  'answerMin',
+  'answerMax',
+] as const;
+
+export type QAValidationKey = (typeof QA_VALIDATION_KEYS)[number];
+
+export function isQAValidationKey(value: unknown): value is QAValidationKey {
+  return (QA_VALIDATION_KEYS as readonly unknown[]).includes(value);
+}
+
+const qaMessage = (key: QAValidationKey) => key;
+
 export const questionCreateInputSchema = z.object({
   question: z
     .string({
-      message: 'Tulis pertanyaan Anda',
+      message: qaMessage('questionRequired'),
     })
     .trim()
-    .min(10, 'Minimal 10 karakter')
-    .max(500, 'Maksimum 500 karakter'),
+    .min(10, qaMessage('questionMin'))
+    .max(500, qaMessage('questionMax')),
 });
 
 export type QuestionCreateInput = z.infer<typeof questionCreateInputSchema>;
@@ -52,11 +73,11 @@ export type QuestionCreateInput = z.infer<typeof questionCreateInputSchema>;
 export const answerCreateInputSchema = z.object({
   answer: z
     .string({
-      message: 'Tulis jawaban Anda',
+      message: qaMessage('answerRequired'),
     })
     .trim()
-    .min(10, 'Minimal 10 karakter')
-    .max(1000, 'Maksimum 1000 karakter'),
+    .min(10, qaMessage('answerMin'))
+    .max(1000, qaMessage('answerMax')),
 });
 
 export type AnswerCreateInput = z.infer<typeof answerCreateInputSchema>;

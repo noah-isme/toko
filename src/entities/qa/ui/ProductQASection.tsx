@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { QuestionForm } from './QuestionForm';
@@ -14,6 +15,7 @@ interface ProductQASectionProps {
 }
 
 export function ProductQASection({ productId, className }: ProductQASectionProps) {
+  const t = useTranslations('product.qa');
   const { isAuthenticated } = useAuth();
   const [showForm, setShowForm] = useState(false);
 
@@ -37,18 +39,18 @@ export function ProductQASection({ productId, className }: ProductQASectionProps
                       d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                     />
                   </svg>
-                  Ajukan Pertanyaan
+                  {t('section.ask')}
                 </button>
               )}
               {showForm && (
                 <div className="space-y-4 rounded-lg border border-border/60 bg-background/30 p-4 sm:p-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Tanyakan tentang produk ini</h3>
+                    <h3 className="text-lg font-semibold">{t('form.title')}</h3>
                     <button
                       type="button"
                       onClick={() => setShowForm(false)}
                       className="text-muted-foreground hover:text-foreground"
-                      aria-label="Tutup formulir"
+                      aria-label={t('section.closeForm')}
                     >
                       <svg
                         className="h-5 w-5"
@@ -72,17 +74,24 @@ export function ProductQASection({ productId, className }: ProductQASectionProps
           ) : (
             <div className="rounded-lg border border-border/60 bg-background/30 p-4 text-center sm:p-6">
               <p className="text-muted-foreground">
-                <a href="/login" className="font-medium text-primary underline hover:no-underline">
-                  Masuk
-                </a>{' '}
-                atau
-                <a
-                  href="/register"
-                  className="font-medium text-primary underline hover:no-underline"
-                >
-                  daftar
-                </a>{' '}
-                untuk mengajukan pertanyaan.
+                {t.rich('section.signInPrompt', {
+                  login: (chunks) => (
+                    <a
+                      href="/login"
+                      className="font-medium text-primary underline hover:no-underline"
+                    >
+                      {chunks}
+                    </a>
+                  ),
+                  register: (chunks) => (
+                    <a
+                      href="/register"
+                      className="font-medium text-primary underline hover:no-underline"
+                    >
+                      {chunks}
+                    </a>
+                  ),
+                })}
               </p>
             </div>
           )}

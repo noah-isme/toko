@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -18,6 +19,7 @@ interface ProductImageGalleryProps {
 }
 
 function ProductImageGalleryInner({ images, productName, className }: ProductImageGalleryProps) {
+  const t = useTranslations('product.gallery');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -63,7 +65,7 @@ function ProductImageGalleryInner({ images, productName, className }: ProductIma
         )}
       >
         <div className="flex h-full items-center justify-center text-muted-foreground">
-          No image available
+          {t('noImage')}
         </div>
       </div>
     );
@@ -90,11 +92,11 @@ function ProductImageGalleryInner({ images, productName, className }: ProductIma
             setIsZoomed(!isZoomed);
           }
         }}
-        aria-label={isZoomed ? 'Zoom out' : 'Zoom in'}
+        aria-label={isZoomed ? t('zoomOut') : t('zoomIn')}
       >
         <Image
           src={currentImage}
-          alt={`${productName} - Image ${selectedIndex + 1}`}
+          alt={t('imageAlt', { name: productName, index: selectedIndex + 1 })}
           fill
           className={cn(
             'object-cover transition-transform duration-500 ease-out motion-reduce:transition-none',
@@ -130,12 +132,12 @@ function ProductImageGalleryInner({ images, productName, className }: ProductIma
                   : 'border-transparent hover:border-muted-foreground/50',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               )}
-              aria-label={`View image ${index + 1}`}
+              aria-label={t('viewImage', { index: index + 1 })}
               aria-current={selectedIndex === index}
             >
               <Image
                 src={image}
-                alt={`${productName} thumbnail ${index + 1}`}
+                alt={t('thumbnailAlt', { name: productName, index: index + 1 })}
                 fill
                 className="object-cover"
                 sizes="80px"
@@ -159,9 +161,9 @@ function ProductImageGalleryInner({ images, productName, className }: ProductIma
               'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'disabled:pointer-events-none disabled:opacity-50',
             )}
-            aria-label="Previous image"
+            aria-label={t('previousLabel')}
           >
-            ← Previous
+            {t('previous')}
           </button>
           <button
             type="button"
@@ -172,16 +174,16 @@ function ProductImageGalleryInner({ images, productName, className }: ProductIma
               'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'disabled:pointer-events-none disabled:opacity-50',
             )}
-            aria-label="Next image"
+            aria-label={t('nextLabel')}
           >
-            Next →
+            {t('next')}
           </button>
         </div>
       )}
 
       {/* Zoom Hint */}
       <p className="text-center text-xs text-muted-foreground">
-        {isZoomed ? 'Click to zoom out' : 'Click image to zoom in'}
+        {isZoomed ? t('hintZoomOut') : t('hintZoomIn')}
       </p>
     </div>
   );
