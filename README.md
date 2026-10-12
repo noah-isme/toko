@@ -186,13 +186,12 @@ The storefront is a Progressive Web App ([ADR-009](docs/adr/009-serwist-turbopac
 - **Push notifications**: handled by the same worker (`src/app/sw-push.ts`); see [docs/contracts/push.md](docs/contracts/push.md).
 - **Web App Manifest**: installable with `display: standalone`, SVG maskable icons.
 
-The worker is not registered under `pnpm dev`, so it never competes with MSW. Set `NEXT_PUBLIC_SW_DEV=true` to opt in locally. `pnpm e2e` runs on `pnpm dev` and never exercises the production worker; use `pnpm e2e:prod`, which runs `pnpm build:mock && pnpm start:mock` and checks `/serwist/sw.js` and its registration.
+The worker is not registered under `pnpm dev`, so it never competes with MSW. Set `NEXT_PUBLIC_SW_DEV=true` to opt in locally. `pnpm e2e` runs on `pnpm dev` and never exercises the production worker; use `pnpm e2e:prod`, which runs `pnpm build:mock && pnpm start:mock` and checks, in [`tests/e2e/pwa.spec.ts`](tests/e2e/pwa.spec.ts):
 
-Manual checks in Chrome (DevTools > Application) after `pnpm build:mock && pnpm start:mock`:
-
-1. Service workers shows one registration, scope `/`, script `/serwist/sw.js`.
-2. With Network set to Offline, navigating to an unvisited page shows `/offline`.
-3. The Push button on the worker shows a notification.
+1. `/serwist/sw.js` is served with the expected headers and `/offline` renders.
+2. There is exactly one registration, scope `/`, script `/serwist/sw.js`.
+3. When the network goes away, navigating to an unvisited page shows the offline fallback.
+4. A push message delivered over CDP shows a notification (runs on full Chromium, since the headless shell has no notification backend).
 
 ## Documentation
 

@@ -40,9 +40,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s · ${appName}`,
     },
     description,
+    // Only the SVG icons exist in public/; /favicon.ico and /apple-touch-icon.png were 404s.
     icons: {
-      icon: [{ url: '/favicon.ico' }],
-      apple: [{ url: '/apple-touch-icon.png' }],
+      icon: [{ url: '/icon-192.svg', type: 'image/svg+xml' }],
     },
     manifest: '/manifest.json',
     openGraph: {
