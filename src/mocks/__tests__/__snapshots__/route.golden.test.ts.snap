@@ -1059,6 +1059,270 @@ exports[`mock API route golden responses > cart > voucher validate and apply 6`]
 }
 `;
 
+exports[`mock API route golden responses > cart voucher persistence > keeps an applied voucher on the cart until removed or a new cart is created 1`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 4500000,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 40500000,
+      },
+      "voucher": "SAVE10",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart voucher persistence > keeps an applied voucher on the cart until removed or a new cart is created 2`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 4500000,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 40500000,
+      },
+      "voucher": "SAVE10",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart voucher persistence > keeps an applied voucher on the cart until removed or a new cart is created 3`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 3,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 2,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 15000,
+        "shipping": 0,
+        "subtotal": 70000000,
+        "tax": 0,
+        "total": 69985000,
+      },
+      "voucher": "SHIPFREE",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart voucher persistence > keeps an applied voucher on the cart until removed or a new cart is created 4`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart voucher persistence > keeps an applied voucher on the cart until removed or a new cart is created 5`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > cart voucher persistence > keeps an applied voucher on the cart until removed or a new cart is created 6`] = `
+{
+  "body": {
+    "data": {
+      "anonId": null,
+      "currency": "IDR",
+      "id": "cart-123",
+      "itemCount": 2,
+      "items": [
+        {
+          "id": "cart-item-1",
+          "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+          "maxQuantity": 20,
+          "productId": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "MacBook Pro 14 M3",
+          "unitPrice": 25000000,
+        },
+        {
+          "id": "cart-item-2",
+          "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+          "maxQuantity": 20,
+          "productId": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "qty": 1,
+          "title": "iPhone 15 Pro",
+          "unitPrice": 20000000,
+        },
+      ],
+      "pricing": {
+        "discount": 0,
+        "shipping": 0,
+        "subtotal": 45000000,
+        "tax": 0,
+        "total": 45000000,
+      },
+      "voucher": null,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
 exports[`mock API route golden responses > catalog > GET products (brand by id) 1`] = `
 {
   "body": {

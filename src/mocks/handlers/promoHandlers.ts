@@ -99,8 +99,9 @@ export const promoHandlers = [
       return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 200 });
     }
 
-    // Return the calculated discount without persisting.
-    // The frontend will update the cart cache on apply success via commitPromoResultToCart.
+    // Attach the voucher to the cart like the backend does, so the cart refetch the
+    // client runs after applying still carries it (see the route mock's resolvers/promo.ts).
+    persistCartDiscount(evaluation.discountValue, evaluation.promo);
     return HttpResponse.json({
       valid: true,
       promo: evaluation.promo,

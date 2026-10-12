@@ -1,3 +1,4 @@
+import { sessionValue } from './session';
 import type { MockResolver } from './types';
 
 type Promo = { code: string; discountType: string; value: number; label: string; message: string };
@@ -29,15 +30,46 @@ function lookup(code: unknown): Promo | undefined {
   ];
 }
 
+/**
+ * The voucher applied to this session's cart. Like the backend, applying a code
+ * attaches it to the cart until it is removed, so a cart refetch after
+ * apply-voucher still carries `voucher` and `pricing.discount`. (Without this
+ * the post-apply refetch wiped the promo in the checkout.)
+ */
+function sessionVoucher(sessionId: string) {
+  return sessionValue('cartVoucher', sessionId, () => ({ code: null as string | null }));
+}
+
+export function appliedVoucher(sessionId: string): string | null {
+  return sessionVoucher(sessionId).code;
+}
+
+/** A newly created cart starts without a voucher. */
+export function clearAppliedVoucher(sessionId: string): void {
+  sessionVoucher(sessionId).code = null;
+}
+
+/** Discount a voucher gives on `subtotal` (percent codes are rounded, capped at the subtotal). */
+export function voucherDiscount(code: string | null, subtotal: number): number {
+  const promo = lookup(code);
+  if (!promo) return 0;
+  const raw =
+    promo.discountType === 'percent' ? Math.round((promo.value / 100) * subtotal) : promo.value;
+  return Math.min(subtotal, Math.max(0, raw));
+}
+
 /** `POST carts/:id/apply-voucher` and `DELETE carts/:id/voucher` (unwrapped bodies). */
-export const resolveCartPromo: MockResolver = ({ path, method, body }) => {
+export const resolveCartPromo: MockResolver = ({ path, method, body, sessionId }) => {
   if (path.includes('/apply-voucher') && method === 'POST') {
     const promo = lookup(body?.code);
+    // An unknown code leaves any voucher already on the cart in place.
     if (!promo) return { valid: false, message: NOT_FOUND_MESSAGE };
+    sessionVoucher(sessionId).code = promo.code;
     const { message, ...rest } = promo;
     return { valid: true, promo: rest, message };
   }
   if (path.includes('/voucher') && method === 'DELETE') {
+    clearAppliedVoucher(sessionId);
     return { valid: false, promo: null };
   }
   return undefined;

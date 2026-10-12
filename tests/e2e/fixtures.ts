@@ -129,7 +129,9 @@ export async function applyPromo(page: Page, code: string) {
   const promoInput = page.getByLabel('Masukkan kode');
   await promoInput.fill(code);
   await page.getByRole('button', { name: 'Terapkan' }).click();
-  await page.getByText(new RegExp(`Kode ${code.toUpperCase()} aktif`, 'i')).waitFor();
+  // Exact match: the helper line ("Kode X aktif") and the applied panel ("Kode X aktif.")
+  // both show once the refetched cart carries the voucher.
+  await page.getByText(`Kode ${code.toUpperCase()} aktif.`, { exact: true }).waitFor();
 }
 
 // ============================================================================

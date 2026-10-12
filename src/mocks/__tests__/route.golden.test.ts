@@ -354,6 +354,31 @@ describe('mock API route golden responses', () => {
     });
   });
 
+  describe('cart voucher persistence', () => {
+    it('keeps an applied voucher on the cart until removed or a new cart is created', async () => {
+      const cookie = 'mockSessionId=golden-voucher; X-CSRF-Token=golden-csrf';
+      const getCart = () => call('GET', 'carts/cart-123', { cookie });
+      const apply = (code: string) =>
+        call('POST', 'carts/cart-123/apply-voucher', { body: { code }, cookie });
+      await apply('save10');
+      expect(await getCart()).toMatchSnapshot();
+      // An unknown code leaves the applied voucher in place.
+      await apply('NOPE');
+      expect(await getCart()).toMatchSnapshot();
+      await apply('SHIPFREE');
+      expect(
+        await call('PATCH', 'carts/cart-123/items/cart-item-1', { body: { qty: 2 }, cookie }),
+      ).toMatchSnapshot();
+      await call('DELETE', 'carts/cart-123/voucher', { cookie });
+      expect(await getCart()).toMatchSnapshot();
+      await apply('SAVE10');
+      await call('POST', 'carts', { cookie });
+      expect(await getCart()).toMatchSnapshot();
+      // Other sessions never see this session's voucher.
+      expect(await call('GET', 'carts/cart-123')).toMatchSnapshot();
+    });
+  });
+
   describe('newsletter', () => {
     it('subscribe, duplicate and validation errors', async () => {
       const cookie = 'mockSessionId=golden-newsletter; X-CSRF-Token=golden-csrf';
