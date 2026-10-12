@@ -78,10 +78,14 @@ test.describe('admin loading and error states', () => {
     test(`${path} shows loading, then error, and recovers on retry`, async ({ page }) => {
       const api = await expectLoadingThenError(page, path);
       api.state.failing = false;
-      for (const retry of await page.getByTestId('admin-error-retry').all()) {
-        await retry.click();
-      }
-      await expect(page.getByTestId('admin-error')).toHaveCount(0);
+      // Pages with several queries (e.g. the dashboard) can surface their
+      // errors at different times, so keep retrying until none remain.
+      await expect(async () => {
+        for (const retry of await page.getByTestId('admin-error-retry').all()) {
+          await retry.click({ timeout: 1_000 }).catch(() => {});
+        }
+        await expect(page.getByTestId('admin-error')).toHaveCount(0, { timeout: 2_000 });
+      }).toPass({ timeout: 30_000 });
     });
   }
 
