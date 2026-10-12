@@ -5345,6 +5345,92 @@ exports[`mock API route golden responses > checkout and payments > shipping quot
 }
 `;
 
+exports[`mock API route golden responses > newsletter > subscribe, duplicate and validation errors 1`] = `
+{
+  "body": {
+    "data": {
+      "email": "rina@example.com",
+      "message": "Thank you for subscribing to our newsletter!",
+      "status": "SUBSCRIBED",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > newsletter > subscribe, duplicate and validation errors 2`] = `
+{
+  "body": {
+    "data": {
+      "email": "rina@example.com",
+      "message": "Thank you for subscribing to our newsletter!",
+      "status": "SUBSCRIBED",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > newsletter > subscribe, duplicate and validation errors 3`] = `
+{
+  "body": {
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "invalid email address",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > newsletter > subscribe, duplicate and validation errors 4`] = `
+{
+  "body": {
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "email is required",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > newsletter > subscribe, duplicate and validation errors 5`] = `
+{
+  "body": {
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "email is required",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
+exports[`mock API route golden responses > newsletter > subscribe, duplicate and validation errors 6`] = `
+{
+  "body": {
+    "error": {
+      "code": "INVALID_BODY",
+      "message": "invalid request body",
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 400,
+}
+`;
+
 exports[`mock API route golden responses > orders > GET orders (default) 1`] = `
 {
   "body": {

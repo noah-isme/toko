@@ -9,6 +9,7 @@ import { promoHandlers } from './handlers/promoHandlers';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
+import { newsletterHandlers } from './handlers.newsletter';
 import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
 import { pushHandlers } from './handlers.push';
@@ -467,6 +468,7 @@ export const handlers = [
   ...favoritesHandlers,
   ...notificationsHandlers,
   ...pushHandlers,
+  ...newsletterHandlers,
   ...promoHandlers,
   ...reviewsHandlers,
   ...qaHandlers,

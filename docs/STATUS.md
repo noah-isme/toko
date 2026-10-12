@@ -90,8 +90,11 @@
 - Error boundaries: `src/app/global-error.tsx` (bilingual, outside providers),
   `(storefront)/error.tsx` and `(admin)/error.tsx` via `RouteErrorFallback` (reports to Sentry
   once per error), root and segment `not-found.tsx`.
-- Newsletter signup in the footer: the UI is enabled and calls `newsletterApi.subscribe`, but the
-  endpoint is not in `openapi.yaml` and has no mock (ROADMAP M9 keeps it open).
+- Newsletter signup in the footer: the UI is enabled and calls `POST /newsletter/subscribe`
+  (`newsletterApi.subscribe`). toko-api implements it (`internal/newsletter`), and both mock
+  layers now serve it from `src/mocks/resolvers/newsletter.ts` (idempotent re-subscribe, 400
+  `VALIDATION_ERROR` for a malformed address). The endpoint is still missing from the backend
+  `openapi.yaml` (ROADMAP M9 keeps it open).
 
 ## Admin dashboard
 
@@ -188,7 +191,8 @@
 - Manual service-worker checks in Chrome (scope, offline fallback, push) — see above.
 - Lighthouse: confirm the `lighthouse` job passes on two consecutive CI runs after push, then
   ratchet thresholds (ROADMAP M5).
-- Newsletter endpoint missing in the backend contract.
+- Newsletter endpoint (`POST /newsletter/subscribe`) still missing from the backend `openapi.yaml`;
+  it is implemented in toko-api and mocked in both mock layers.
 - Remaining Indonesian-only fallback strings outside the message catalogs.
 - Admin E2E covers product CRUD and order status only.
 

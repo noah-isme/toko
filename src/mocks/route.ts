@@ -9,6 +9,7 @@ import { resolveAuth } from './resolvers/auth';
 import { resolveCartRead, resolveCartWrite } from './resolvers/cart';
 import { resolveCatalog } from './resolvers/catalog';
 import { resolveCheckout } from './resolvers/checkout';
+import { resolveNewsletter } from './resolvers/newsletter';
 import { resolveNotifications } from './resolvers/notifications';
 import { resolveOrders } from './resolvers/orders';
 import {
@@ -34,6 +35,7 @@ const RESOLVERS: MockResolver[] = [
   resolvePaymentInstructions,
   resolveNotifications,
   resolvePush,
+  resolveNewsletter,
   resolveCatalog,
   resolveAddress,
   resolveCartRead,

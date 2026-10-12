@@ -354,6 +354,19 @@ describe('mock API route golden responses', () => {
     });
   });
 
+  describe('newsletter', () => {
+    it('subscribe, duplicate and validation errors', async () => {
+      const cookie = 'mockSessionId=golden-newsletter; X-CSRF-Token=golden-csrf';
+      const subscribe = (body: unknown) => call('POST', 'newsletter/subscribe', { body, cookie });
+      expect(await subscribe({ email: ' Rina@Example.com ' })).toMatchSnapshot();
+      expect(await subscribe({ email: 'rina@example.com' })).toMatchSnapshot();
+      expect(await subscribe({ email: 'rina@@example.com' })).toMatchSnapshot();
+      expect(await subscribe({ email: '   ' })).toMatchSnapshot();
+      expect(await subscribe({})).toMatchSnapshot();
+      expect(await call('POST', 'newsletter/subscribe', { cookie })).toMatchSnapshot();
+    });
+  });
+
   describe('session and fallbacks', () => {
     it('sets session and CSRF cookies for a new visitor', async () => {
       expect(await call('GET', 'products/macbook-pro-14-m3', { cookie: null })).toMatchSnapshot();

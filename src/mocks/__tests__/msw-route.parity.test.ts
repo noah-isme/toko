@@ -4,6 +4,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { resetMockNewsletter } from '../handlers.newsletter';
 import { resetMockNotifications } from '../handlers.notifications';
 import { resetMockPushState } from '../handlers.push';
 import { resetMockState } from '../resolvers/session';
@@ -49,12 +50,14 @@ async function expectSameSequence(steps: Step[]) {
 }
 
 beforeEach(() => {
+  resetMockNewsletter();
   resetMockNotifications();
   resetMockPushState();
   resetMockState();
 });
 
 afterEach(() => {
+  resetMockNewsletter();
   resetMockNotifications();
   resetMockPushState();
   resetMockState();
@@ -95,6 +98,16 @@ describe('MSW and route mocks agree', () => {
       { method: 'POST', path: 'push/send-test' },
       { method: 'DELETE', path: 'push/subscription' },
       { method: 'GET', path: 'push/preferences' },
+    ]);
+  });
+
+  it('subscribes to the newsletter idempotently and rejects bad emails alike', async () => {
+    await expectSameSequence([
+      { method: 'POST', path: 'newsletter/subscribe', body: { email: 'Budi@Example.com' } },
+      { method: 'POST', path: 'newsletter/subscribe', body: { email: 'budi@example.com' } },
+      { method: 'POST', path: 'newsletter/subscribe', body: { email: 'budi@@example.com' } },
+      { method: 'POST', path: 'newsletter/subscribe', body: { email: '' } },
+      { method: 'POST', path: 'newsletter/subscribe', body: [] },
     ]);
   });
 
