@@ -52,9 +52,16 @@ async function selectShipping(page: Page) {
 
 async function applyPromo(page: Page, code: string) {
   const promoInput = page.getByLabel('Masukkan kode');
-  await promoInput.fill(code);
-  await page.getByRole('button', { name: 'Terapkan' }).click();
-  await page.getByText(new RegExp(`Kode ${code.toUpperCase()} aktif`, 'i')).waitFor();
+  const active = page.getByText(new RegExp(`Kode ${code.toUpperCase()} aktif`, 'i'));
+  // The checkout re-renders while the shipping quote settles, which can occasionally reset the
+  // promo field between fill and click; re-enter the code until it is applied.
+  await expect(async () => {
+    if (await active.isVisible()) return;
+    await promoInput.fill(code);
+    await expect(promoInput).toHaveValue(code);
+    await page.getByRole('button', { name: 'Terapkan' }).click();
+    await expect(active).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
 }
 
 async function proceedToReview(page: Page) {

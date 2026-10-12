@@ -1,3 +1,5 @@
+import { File as NodeFile } from 'node:buffer';
+
 import { describe, expect, it } from 'vitest';
 
 import { customerOperationsApi, adminOperationsApi } from '@/lib/api/services/customerOperations';
@@ -46,7 +48,11 @@ describe('new storefront flow MSW parity', () => {
   });
 
   it('supports payment proof upload', async () => {
-    const file = new File(['mock proof'], 'proof.png', { type: 'image/png' });
+    // Use Node's native File: on Node 22, undici's fetch hangs while serialising a
+    // FormData that holds a jsdom File, so the request never reaches the MSW handler.
+    const file = new NodeFile(['mock proof'], 'proof.png', {
+      type: 'image/png',
+    }) as unknown as File;
     const response = await paymentApi.uploadProof('order-mock-001', file);
 
     expect(response.data.orderId).toBe('order-mock-001');
