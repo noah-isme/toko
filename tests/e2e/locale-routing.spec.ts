@@ -58,4 +58,49 @@ test.describe('locale routing proxy', () => {
     const cookies = await page.context().cookies();
     expect(cookies.find((cookie) => cookie.name === 'toko-locale')?.value).toBe('en');
   });
+
+  test('renders <html lang="en"> for /en/products on the first request (no cookie)', async ({
+    page,
+  }) => {
+    const response = await page.request.get('/en/products', { maxRedirects: 0 });
+
+    expect(response.status()).toBe(200);
+    expect(await response.text()).toContain('<html lang="en"');
+  });
+
+  test('renders <html lang="id"> for unprefixed paths without a cookie', async ({ page }) => {
+    const response = await page.request.get('/products', { maxRedirects: 0 });
+
+    expect(await response.text()).toContain('<html lang="id"');
+  });
+
+  test('renders <html lang="en"> for unprefixed paths with an en cookie', async ({ page }) => {
+    const response = await page.request.get('/products', {
+      headers: { cookie: 'toko-locale=en' },
+      maxRedirects: 0,
+    });
+
+    expect(await response.text()).toContain('<html lang="en"');
+  });
+
+  test('switching to English stores the cookie and reloads to the /en URL', async ({ page }) => {
+    await page.goto('/products');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'id');
+
+    await page.getByRole('button', { name: 'Pilih bahasa' }).first().click();
+    await page.getByRole('menuitemradio', { name: /english/i }).click();
+
+    await expect(page).toHaveURL(/\/en\/products$/);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.getByRole('button', { name: 'Choose language' }).first()).toBeVisible();
+    const cookies = await page.context().cookies();
+    expect(cookies.find((cookie) => cookie.name === 'toko-locale')?.value).toBe('en');
+
+    await page.getByRole('button', { name: 'Choose language' }).first().click();
+    await page.getByRole('menuitemradio', { name: /bahasa indonesia/i }).click();
+
+    await expect(page).toHaveURL(/\/products$/);
+    await expect(page).not.toHaveURL(/\/en\//);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'id');
+  });
 });

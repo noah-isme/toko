@@ -1,6 +1,7 @@
 'use client';
 
 import { Globe, ChevronDown, Check } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -11,11 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  DEFAULT_LOCALE,
-  isLocale,
   LOCALE_COOKIE,
   LOCALE_COOKIE_MAX_AGE,
-  LOCALE_PATH_RE,
+  LOCALES,
   localizedPath,
   type Locale,
 } from '@/i18n/config';
@@ -23,15 +22,30 @@ import { cn } from '@/lib/utils';
 
 interface Language {
   code: Locale;
-  name: string;
   nativeName: string;
   flag: string;
 }
 
-const LANGUAGES: Language[] = [
-  { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia', flag: '🇮🇩' },
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-];
+const FLAGS: Record<Locale, string> = { id: '🇮🇩', en: '🇺🇸' };
+
+/** Language options with labels from the `nav.language` catalog namespace. */
+function useLanguages() {
+  const t = useTranslations('nav.language');
+  const languages: Language[] = LOCALES.map((code) => ({
+    code,
+    nativeName: t(`options.${code}`),
+    flag: FLAGS[code],
+  }));
+  return { t, languages };
+}
+
+/** The selected option: starts at the request locale and follows the user's pick. */
+function useCurrentLanguage(languages: Language[]) {
+  const locale = useLocale();
+  const [selected, setSelected] = useState<Locale>(locale);
+  const currentLang = languages.find((language) => language.code === selected) ?? languages[0];
+  return [currentLang, (language: Language) => setSelected(language.code)] as const;
+}
 
 function switchLocale(locale: Locale) {
   document.cookie = `${LOCALE_COOKIE}=${locale}; Path=/; Max-Age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
@@ -40,7 +54,8 @@ function switchLocale(locale: Locale) {
 }
 
 export function LanguageSwitcher() {
-  const [currentLang, setCurrentLang] = useState<Language>(() => getCurrentLanguage());
+  const { t, languages } = useLanguages();
+  const [currentLang, setCurrentLang] = useCurrentLanguage(languages);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLanguageChange = (lang: Language) => {
@@ -60,7 +75,7 @@ export function LanguageSwitcher() {
           variant="ghost"
           size="icon"
           className="h-9 w-9 gap-1.5 px-2 sm:w-auto"
-          aria-label="Pilih bahasa"
+          aria-label={t('label')}
           aria-expanded={isOpen}
         >
           <Globe className="h-4 w-4" aria-hidden="true" />
@@ -70,7 +85,7 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 min-w-[14rem]">
-        {LANGUAGES.map((lang) => (
+        {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onSelect={() => handleLanguageChange(lang)}
@@ -94,7 +109,8 @@ export function LanguageSwitcher() {
 }
 
 export function LanguageSwitcherSimple() {
-  const [currentLang, setCurrentLang] = useState<Language>(() => getCurrentLanguage());
+  const { t, languages } = useLanguages();
+  const [currentLang, setCurrentLang] = useCurrentLanguage(languages);
 
   const handleLanguageChange = (lang: Language) => {
     setCurrentLang(lang);
@@ -104,7 +120,7 @@ export function LanguageSwitcherSimple() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-9 gap-1.5 px-2" aria-label="Pilih bahasa">
+        <Button variant="ghost" size="sm" className="h-9 gap-1.5 px-2" aria-label={t('label')}>
           <Globe className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">{currentLang.flag}</span>
           <span className="hidden font-medium sm:inline">{currentLang.nativeName}</span>
@@ -112,7 +128,7 @@ export function LanguageSwitcherSimple() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 min-w-[14rem]">
-        {LANGUAGES.map((lang) => (
+        {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onSelect={() => handleLanguageChange(lang)}
@@ -133,12 +149,4 @@ export function LanguageSwitcherSimple() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-function getCurrentLanguage(): Language {
-  if (typeof window === 'undefined') return LANGUAGES[0];
-  const fromPath = window.location.pathname.match(LOCALE_PATH_RE)?.[1];
-  const fromCookie = document.cookie.match(new RegExp(`(?:^|; )${LOCALE_COOKIE}=([^;]+)`))?.[1];
-  const code = isLocale(fromPath) ? fromPath : isLocale(fromCookie) ? fromCookie : DEFAULT_LOCALE;
-  return LANGUAGES.find((language) => language.code === code) ?? LANGUAGES[0];
 }

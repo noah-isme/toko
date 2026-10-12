@@ -1,4 +1,8 @@
 import { withSerwist } from '@serwist/turbopack';
+import createNextIntlPlugin from 'next-intl/plugin';
+
+// Locale comes from the proxy header/cookie, not a [locale] segment (ADR-010).
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 function configuredRemotePattern(raw) {
   if (!raw || raw === 'mock') return null;
@@ -148,4 +152,4 @@ const nextConfig = {
   },
 };
 
-export default withSerwist(nextConfig);
+export default withSerwist(withNextIntl(nextConfig));

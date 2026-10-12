@@ -15,3 +15,4 @@ This directory contains Architecture Decision Records (ADRs) for the Toko storef
 | [007](007-entity-based-module-structure.md)    | Entity-Based Module Structure             | Accepted (migration completed 2026-10-04) | 2026-02 |
 | [008](008-pwa-offline-strategy.md)             | PWA and Offline Strategy                  | Superseded by ADR-009                     | 2026-08 |
 | [009](009-serwist-turbopack-service-worker.md) | Serwist Service Worker on Turbopack       | Accepted                                  | 2026-10 |
+| [010](010-i18n-next-intl-cookie-locale.md)     | i18n with next-intl, Cookie Locale        | Accepted                                  | 2026-10 |

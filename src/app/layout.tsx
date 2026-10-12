@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale } from 'next-intl/server';
 import { ReactNode, Suspense } from 'react';
 
 import './globals.css';
@@ -60,46 +62,52 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Resolved by src/i18n/request.ts from the proxy's x-toko-locale header, then the cookie
+  // (ADR-010). Reading it makes every route dynamic, which is accepted.
+  const locale = await getLocale();
+
   return (
-    <html lang="id" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <SkipToContent />
-        <MockServiceWorkerProvider>
+        <NextIntlClientProvider>
+          <SkipToContent />
+          <MockServiceWorkerProvider>
+            <Suspense fallback={null}>
+              <RouteFocusHandler />
+            </Suspense>
+            <ErrorBoundary>
+              <QueryProvider>
+                <AuthProvider>
+                  <ThemeProvider>
+                    <AppInitializer />
+                    <div
+                      id="main-content"
+                      tabIndex={-1}
+                      role="main"
+                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    >
+                      {children}
+                    </div>
+                  </ThemeProvider>
+                </AuthProvider>
+              </QueryProvider>
+            </ErrorBoundary>
+          </MockServiceWorkerProvider>
           <Suspense fallback={null}>
-            <RouteFocusHandler />
+            <DevVitalsOverlay />
           </Suspense>
-          <ErrorBoundary>
-            <QueryProvider>
-              <AuthProvider>
-                <ThemeProvider>
-                  <AppInitializer />
-                  <div
-                    id="main-content"
-                    tabIndex={-1}
-                    role="main"
-                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                  >
-                    {children}
-                  </div>
-                </ThemeProvider>
-              </AuthProvider>
-            </QueryProvider>
-          </ErrorBoundary>
-        </MockServiceWorkerProvider>
-        <Suspense fallback={null}>
-          <DevVitalsOverlay />
-        </Suspense>
-        <Toaster />
-        {SERVICE_WORKER_ENABLED ? (
-          // reloadOnOnline=false keeps in-progress form state (checkout) on
-          // reconnect; cacheOnNavigation=false keeps documents out of caches.
-          <SerwistProvider
-            swUrl="/serwist/sw.js"
-            reloadOnOnline={false}
-            cacheOnNavigation={false}
-          />
-        ) : null}
+          <Toaster />
+          {SERVICE_WORKER_ENABLED ? (
+            // reloadOnOnline=false keeps in-progress form state (checkout) on
+            // reconnect; cacheOnNavigation=false keeps documents out of caches.
+            <SerwistProvider
+              swUrl="/serwist/sw.js"
+              reloadOnOnline={false}
+              cacheOnNavigation={false}
+            />
+          ) : null}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

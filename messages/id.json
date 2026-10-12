@@ -1,0 +1,23 @@
+{
+  "common": {},
+  "nav": {
+    "language": {
+      "label": "Pilih bahasa",
+      "options": {
+        "id": "Bahasa Indonesia",
+        "en": "English"
+      }
+    }
+  },
+  "footer": {},
+  "catalog": {},
+  "product": {},
+  "cart": {},
+  "checkout": {},
+  "auth": {},
+  "account": {},
+  "errors": {},
+  "notFound": {},
+  "seo": {},
+  "admin": {}
+}
