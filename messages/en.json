@@ -2157,6 +2157,34 @@
     "home": "Back to home",
     "allProducts": "View all products"
   },
-  "seo": {},
+  "seo": {
+    "site": {
+      "description": "Modern modular storefront for the toko e-commerce experience.",
+      "ogImageAlt": "toko default preview image"
+    },
+    "og": {
+      "tagline": "Modern modular storefront components"
+    },
+    "breadcrumb": {
+      "home": "Home"
+    },
+    "products": {
+      "title": "Products",
+      "description": "Explore curated products from toko for your next purchase."
+    },
+    "product": {
+      "fallbackTitle": "Product",
+      "fallbackDescription": "Discover the latest products available on toko.",
+      "imageAlt": "{title} image {index}"
+    },
+    "featured": {
+      "title": "Featured Collection",
+      "description": "Hand-picked toko products, curated for better everyday living."
+    },
+    "cart": {
+      "title": "Shopping Cart",
+      "description": "Review the products in your shopping cart before proceeding to checkout."
+    }
+  },
   "admin": {}
 }

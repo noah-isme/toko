@@ -2157,6 +2157,34 @@
     "home": "Kembali ke beranda",
     "allProducts": "Lihat semua produk"
   },
-  "seo": {},
+  "seo": {
+    "site": {
+      "description": "Modern modular storefront for the toko e-commerce experience.",
+      "ogImageAlt": "toko default preview image"
+    },
+    "og": {
+      "tagline": "Modern modular storefront components"
+    },
+    "breadcrumb": {
+      "home": "Home"
+    },
+    "products": {
+      "title": "Products",
+      "description": "Explore curated products from toko for your next purchase."
+    },
+    "product": {
+      "fallbackTitle": "Product",
+      "fallbackDescription": "Discover the latest products available on toko.",
+      "imageAlt": "{title} image {index}"
+    },
+    "featured": {
+      "title": "Koleksi Pilihan",
+      "description": "Produk pilihan toko, dikurasi untuk keseharian yang lebih baik."
+    },
+    "cart": {
+      "title": "Keranjang Belanja",
+      "description": "Tinjau produk di keranjang belanja Anda sebelum melanjutkan ke pembayaran."
+    }
+  },
   "admin": {}
 }

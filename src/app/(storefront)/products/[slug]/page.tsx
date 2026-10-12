@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { cache, Suspense } from 'react';
 
 import { CustomersAlsoViewed } from '@/components/customers-also-viewed';
@@ -20,7 +20,7 @@ import type { ProductDetail as ProductDetailData } from '@/lib/api/types';
 import { getQueryClient } from '@/lib/query/get-query-client';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
-import { abs, getCanonical, localeAlternates } from '@/shared/seo/seo';
+import { abs, localeAlternates, localizedCanonical, ogImageUrl } from '@/shared/seo/seo';
 
 function ReviewSkeleton() {
   return (
@@ -106,21 +106,24 @@ function humanizeSlug(slug: string) {
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   const product = await loadProduct(slug);
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: 'seo.product' });
+  const path = `/products/${product?.slug ?? slug}`;
+  const canonical = localizedCanonical(locale, path);
+  const alternates = { canonical, languages: localeAlternates(path) };
+
   if (!product) {
-    const fallbackTitle = humanizeSlug(slug) || 'Product';
-    const canonical = getCanonical(`/products/${slug}`);
-    const ogImage = abs(`/api/og?title=${encodeURIComponent(fallbackTitle)}`);
+    const fallbackTitle = humanizeSlug(slug) || t('fallbackTitle');
+    const description = t('fallbackDescription');
+    const ogImage = ogImageUrl(locale, fallbackTitle);
 
     return {
       title: fallbackTitle,
-      description: 'Discover the latest products available on toko.',
-      alternates: {
-        canonical,
-        languages: localeAlternates(`/products/${slug}`),
-      },
+      description,
+      alternates,
       openGraph: {
         title: fallbackTitle,
-        description: 'Discover the latest products available on toko.',
+        description,
         url: canonical,
         type: 'website',
         images: [{ url: ogImage }],
@@ -128,7 +131,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       twitter: {
         card: 'summary_large_image',
         title: fallbackTitle,
-        description: 'Discover the latest products available on toko.',
+        description,
         images: [ogImage],
       },
     };
@@ -136,26 +139,21 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const title = product.title;
   const description = product.description;
-  const canonical = getCanonical(`/products/${product.slug}`);
-  const productUrl = abs(`/products/${product.slug}`);
   const ogImages = product.images?.length
     ? product.images.map((image, index) => ({
         url: abs(image),
-        alt: `${product.title} image ${index + 1}`,
+        alt: t('imageAlt', { title: product.title, index: index + 1 }),
       }))
-    : [{ url: abs('/api/og?title=' + encodeURIComponent(product.title)) }];
+    : [{ url: ogImageUrl(locale, product.title) }];
 
   return {
     title,
     description,
-    alternates: {
-      canonical,
-      languages: localeAlternates(`/products/${product.slug}`),
-    },
+    alternates,
     openGraph: {
       title,
       description,
-      url: productUrl,
+      url: canonical,
       type: 'website',
       images: ogImages,
     },

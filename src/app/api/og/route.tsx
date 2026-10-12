@@ -1,5 +1,8 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
+import { getLocale, getTranslations } from 'next-intl/server';
+
+import { isLocale } from '@/i18n/config';
 
 const brand = 'toko';
 
@@ -25,6 +28,10 @@ export async function GET(request: NextRequest) {
   const title = searchParams.get('title') ?? brand;
   const price = formatPrice(searchParams.get('price'));
   const subtitle = searchParams.get('subtitle');
+  // `/api` bypasses the proxy, so non-default locales arrive as `?locale=` (see ogImageUrl).
+  const requestedLocale = searchParams.get('locale');
+  const locale = isLocale(requestedLocale) ? requestedLocale : await getLocale();
+  const t = await getTranslations({ locale, namespace: 'seo.og' });
 
   return new ImageResponse(
     (
@@ -94,7 +101,7 @@ export async function GET(request: NextRequest) {
             </span>
           ) : null}
         </div>
-        <div style={{ fontSize: 24, opacity: 0.7 }}>Modern modular storefront components</div>
+        <div style={{ fontSize: 24, opacity: 0.7 }}>{t('tagline')}</div>
       </div>
     ),
     {

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { ReactNode, Suspense } from 'react';
 
 import './globals.css';
@@ -13,7 +13,7 @@ import { SerwistProvider } from '@/components/providers/serwist-provider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { RouteFocusHandler } from '@/shared/lib/useRouteFocus';
 import DevVitalsOverlay from '@/shared/rum/DevVitalsOverlay';
-import { abs, metadataBase, siteUrl } from '@/shared/seo/seo';
+import { metadataBase, ogImageUrl, siteUrl } from '@/shared/seo/seo';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { SkipToContent } from '@/shared/ui/SkipToContent';
 import { Toaster } from '@/shared/ui/toast';
@@ -25,42 +25,49 @@ const appName = 'toko';
 const SERVICE_WORKER_ENABLED =
   process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_SW_DEV === 'true';
 
-const defaultDescription = 'Modern modular storefront for the toko e-commerce experience.';
+// No `alternates` here: they would be inherited by every page that sets none, so each page
+// declares its own hreflang via `localeAlternates()`.
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: 'seo.site' });
+  const description = t('description');
+  const ogImage = ogImageUrl(locale);
 
-export const metadata: Metadata = {
-  metadataBase,
-  title: {
-    default: appName,
-    template: '%s · toko',
-  },
-  description: defaultDescription,
-  icons: {
-    icon: [{ url: '/favicon.ico' }],
-    apple: [{ url: '/apple-touch-icon.png' }],
-  },
-  manifest: '/manifest.json',
-  openGraph: {
-    type: 'website',
-    url: siteUrl,
-    title: appName,
-    siteName: appName,
-    description: defaultDescription,
-    images: [
-      {
-        url: abs('/api/og'),
-        width: 1200,
-        height: 630,
-        alt: 'toko default preview image',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: appName,
-    description: defaultDescription,
-    images: [abs('/api/og')],
-  },
-};
+  return {
+    metadataBase,
+    title: {
+      default: appName,
+      template: `%s · ${appName}`,
+    },
+    description,
+    icons: {
+      icon: [{ url: '/favicon.ico' }],
+      apple: [{ url: '/apple-touch-icon.png' }],
+    },
+    manifest: '/manifest.json',
+    openGraph: {
+      type: 'website',
+      url: siteUrl,
+      title: appName,
+      siteName: appName,
+      description,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: t('ogImageAlt'),
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: appName,
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   // Resolved by src/i18n/request.ts from the proxy's x-toko-locale header, then the cookie
