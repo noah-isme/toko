@@ -27,12 +27,14 @@ function forwardLocaleHeader(request: NextRequest, locale: Locale): Headers {
 }
 
 export function proxy(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
+  const { pathname } = request.nextUrl;
   const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
 
   // Legacy locale prefixes were dropped: send them to the unprefixed (default locale) page.
   if (LEGACY_LOCALE_PATH_RE.test(pathname)) {
-    const target = new URL(stripLocalePrefix(pathname) + search, request.url);
+    // Set the pathname on a clone: new URL('//host/...', base) would leave the origin.
+    const target = request.nextUrl.clone();
+    target.pathname = stripLocalePrefix(pathname);
     const response = NextResponse.redirect(target, 308);
     if (!isLocale(cookieLocale)) setLocaleCookie(response, DEFAULT_LOCALE);
     return response;

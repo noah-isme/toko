@@ -39,6 +39,13 @@ describe('locale proxy', () => {
     expect(response.cookies.get('toko-locale')?.value).toBe('id');
   });
 
+  it('keeps legacy redirects on the same origin for protocol-relative paths', () => {
+    const response = proxy(request(`/${LEGACY_LOCALES[0]}//evil.com`));
+
+    expect(response.status).toBe(308);
+    expect(new URL(response.headers.get('location')!).origin).toBe('http://localhost:3000');
+  });
+
   it('keeps a supported cookie on legacy redirects', () => {
     const response = proxy(request(`/${LEGACY_LOCALES[0]}`, 'toko-locale=en'));
 
