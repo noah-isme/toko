@@ -49,7 +49,7 @@ function renderPage() {
 
 describe('admin flash-sale create page', () => {
   const originalTz = process.env.TZ;
-  // A non-UTC zone proves the typed wall-clock time is read as the admin's local time.
+  // The typed wall-clock time is always read as WIB, whatever the host zone.
   beforeAll(() => {
     process.env.TZ = 'Asia/Jakarta';
     // Radix Select relies on pointer APIs jsdom does not implement.
@@ -105,7 +105,6 @@ describe('admin flash-sale create page', () => {
     // 07:00 in Asia/Jakarta (UTC+7) is 00:00Z.
     expect(body.startsAt).toBe('2026-10-25T00:00:00.000Z');
     expect(body.endsAt).toBe('2026-10-27T00:30:00.000Z');
-    expect(body.startsAt).toBe(new Date('2026-10-25T07:00').toISOString());
     expect(body.startsAt).toMatch(/Z$|[+-]\d{2}:\d{2}$/);
     expect(push).toHaveBeenCalledWith('/admin/flash-sales/fs-2/edit');
   });

@@ -38,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { datetimeLocalToIso, isoToDatetimeLocal } from '@/entities/admin/datetime-local';
 import { isVoucherActive, voucherValueLabel } from '@/entities/admin/format';
 import {
   useAdminVouchers,
@@ -81,21 +82,6 @@ const EMPTY_FORM: VoucherForm = {
   priority: 0,
 };
 
-/** `datetime-local` needs `YYYY-MM-DDTHH:mm`, the API returns RFC3339. */
-function toLocalInput(value: string | null | undefined): string {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-function toRfc3339(value: string): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
-}
-
 function formToPayload(form: VoucherForm): AdminVoucherInput {
   const percent = form.kind === 'percent';
   return {
@@ -107,8 +93,8 @@ function formToPayload(form: VoucherForm): AdminVoucherInput {
     minSpend: Math.max(0, Math.round(form.minSpend)),
     usageLimit: form.usageLimit === '' ? null : Number(form.usageLimit),
     perUserLimit: form.perUserLimit === '' ? null : Number(form.perUserLimit),
-    validFrom: toRfc3339(form.validFrom),
-    validTo: toRfc3339(form.validTo),
+    validFrom: datetimeLocalToIso(form.validFrom) || null,
+    validTo: datetimeLocalToIso(form.validTo) || null,
     combinable: form.combinable,
     priority: form.priority,
   };
@@ -122,8 +108,8 @@ function voucherToForm(voucher: AdminVoucher): VoucherForm {
     minSpend: voucher.minSpend,
     usageLimit: voucher.usageLimit == null ? '' : String(voucher.usageLimit),
     perUserLimit: voucher.perUserLimit == null ? '' : String(voucher.perUserLimit),
-    validFrom: toLocalInput(voucher.validFrom),
-    validTo: toLocalInput(voucher.validTo),
+    validFrom: isoToDatetimeLocal(voucher.validFrom),
+    validTo: isoToDatetimeLocal(voucher.validTo),
     combinable: voucher.combinable,
     priority: voucher.priority,
   };
