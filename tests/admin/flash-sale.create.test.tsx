@@ -108,4 +108,68 @@ describe('admin flash-sale create page', () => {
     expect(body.startsAt).toMatch(/Z$|[+-]\d{2}:\d{2}$/);
     expect(push).toHaveBeenCalledWith('/admin/flash-sales/fs-2/edit');
   });
+
+  async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>) {
+    await user.type(await screen.findByLabelText('Nama'), 'Payday Sale');
+    fireEvent.change(screen.getByLabelText('Tanggal & Waktu Mulai'), {
+      target: { value: '2026-10-25T07:00' },
+    });
+    fireEvent.change(screen.getByLabelText('Tanggal & Waktu Selesai'), {
+      target: { value: '2026-10-27T07:30' },
+    });
+    await user.click(screen.getByRole('button', { name: 'Tambah Produk' }));
+    await user.click(screen.getByLabelText('Produk'));
+    await user.click(await screen.findByRole('option', { name: /Kemeja Linen/ }));
+    fireEvent.change(screen.getByLabelText('Harga Promo (Rp)'), { target: { value: '199000' } });
+  }
+
+  function postedItems() {
+    const postCall = apiClient.mock.calls.find(([, init]) => init?.method === 'POST');
+    return JSON.parse(postCall?.[1].body as string).items;
+  }
+
+  it('rejects a stock limit of 0 without calling the API', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await fillRequiredFields(user);
+    fireEvent.change(screen.getByLabelText('Batas Stok (opsional)'), { target: { value: '0' } });
+
+    await user.click(screen.getByRole('button', { name: 'Buat Flash Sale' }));
+
+    expect(
+      await screen.findByText(
+        'Batas stok harus bilangan bulat minimal 1, atau kosongkan jika tanpa batas',
+      ),
+    ).toBeInTheDocument();
+    expect(apiClient).not.toHaveBeenCalledWith('/admin/flash-sales', expect.anything());
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it('sends an entered stock limit as a number', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await fillRequiredFields(user);
+    fireEvent.change(screen.getByLabelText('Batas Stok (opsional)'), { target: { value: '3' } });
+
+    await user.click(screen.getByRole('button', { name: 'Buat Flash Sale' }));
+
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/admin/flash-sales/fs-2/edit'));
+    expect(postedItems()).toEqual([{ productId: 'product-1', salePrice: 199000, stockLimit: 3 }]);
+  });
+
+  it('sends an empty stock limit as an explicit null', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await fillRequiredFields(user);
+    const stockLimit = screen.getByLabelText('Batas Stok (opsional)');
+    fireEvent.change(stockLimit, { target: { value: '3' } });
+    fireEvent.change(stockLimit, { target: { value: '' } });
+
+    await user.click(screen.getByRole('button', { name: 'Buat Flash Sale' }));
+
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/admin/flash-sales/fs-2/edit'));
+    expect(postedItems()).toEqual([
+      { productId: 'product-1', salePrice: 199000, stockLimit: null },
+    ]);
+  });
 });

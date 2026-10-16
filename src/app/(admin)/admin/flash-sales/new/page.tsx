@@ -62,14 +62,21 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/** `''` means no limit; anything else must be a whole number >= 1. */
+function isValidStockLimit(raw: number | ''): boolean {
+  if (raw === '') return true;
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 1;
+}
+
 function formValuesToInput(values: FlashSaleFormValues) {
   const items = values.items
     .filter((item) => item.productId !== NONE)
     .map((item) => ({
       productId: item.productId,
       salePrice: Math.max(0, Math.round(item.salePrice)),
-      stockLimit:
-        item.stockLimit === '' ? null : Math.max(0, Math.round(Number(item.stockLimit))) || null,
+      // Validated in handleSubmit; empty is sent as an explicit null (no limit).
+      stockLimit: item.stockLimit === '' ? null : Number(item.stockLimit),
     }));
 
   return {
@@ -148,6 +155,10 @@ export default function FlashSaleNewPage() {
     }
     if (values.items.some((i) => i.productId !== NONE && i.salePrice <= 0)) {
       setError(t('form.errors.salePrice'));
+      return;
+    }
+    if (values.items.some((i) => i.productId !== NONE && !isValidStockLimit(i.stockLimit))) {
+      setError(t('form.errors.stockLimitInvalid'));
       return;
     }
 
@@ -361,7 +372,6 @@ export default function FlashSaleNewPage() {
                       <Input
                         id={`fs-item-stock-limit-${index}`}
                         type="number"
-                        min={0}
                         value={item.stockLimit}
                         onChange={(event) => updateItem(index, 'stockLimit', event.target.value)}
                         placeholder={t('form.stockLimitPlaceholder')}

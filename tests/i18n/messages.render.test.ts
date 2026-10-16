@@ -2401,6 +2401,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.flashSales.form.errors.endBeforeStart': 'Tanggal selesai harus setelah tanggal mulai',
     'admin.flashSales.form.errors.productRequired': 'Minimal satu produk wajib dipilih',
     'admin.flashSales.form.errors.salePrice': 'Harga promo harus lebih dari 0 untuk semua item',
+    'admin.flashSales.form.errors.stockLimitInvalid':
+      'Batas stok harus bilangan bulat minimal 1, atau kosongkan jika tanpa batas',
     'admin.flashSales.form.errors.createFailed': 'Gagal membuat flash sale',
     'admin.flashSales.form.errors.updateFailed': 'Gagal memperbarui flash sale',
     'admin.flashSales.form.errors.statusFailed': 'Gagal memperbarui status',
@@ -4769,6 +4771,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.flashSales.form.errors.endBeforeStart': 'End date must be after start date',
     'admin.flashSales.form.errors.productRequired': 'At least one product is required',
     'admin.flashSales.form.errors.salePrice': 'Sale price must be greater than 0 for all items',
+    'admin.flashSales.form.errors.stockLimitInvalid':
+      'Stock limit must be a whole number of at least 1, or empty for no limit',
     'admin.flashSales.form.errors.createFailed': 'Failed to create flash sale',
     'admin.flashSales.form.errors.updateFailed': 'Failed to update flash sale',
     'admin.flashSales.form.errors.statusFailed': 'Failed to update status',

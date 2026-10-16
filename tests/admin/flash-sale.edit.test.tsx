@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -149,5 +149,69 @@ describe('admin flash-sale edit page', () => {
     expect(toast).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Flash sale diperbarui', variant: 'success' }),
     );
+  });
+
+  function patchedItems() {
+    const patchCall = apiClient.mock.calls.find(([, init]) => init?.method === 'PATCH');
+    return JSON.parse(patchCall?.[1].body as string).items;
+  }
+
+  it('rejects a stock limit of 0 without calling the API', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    const stockLimit = await screen.findByLabelText('Batas Stok (opsional)');
+    fireEvent.change(stockLimit, { target: { value: '0' } });
+    await user.click(screen.getByRole('button', { name: 'Simpan Perubahan' }));
+
+    expect(
+      await screen.findByText(
+        'Batas stok harus bilangan bulat minimal 1, atau kosongkan jika tanpa batas',
+      ),
+    ).toBeInTheDocument();
+    expect(apiClient).not.toHaveBeenCalledWith(
+      '/admin/flash-sales/fs-1',
+      expect.objectContaining({ method: 'PATCH' }),
+    );
+  });
+
+  it('sends an entered stock limit as a number', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    const stockLimit = await screen.findByLabelText('Batas Stok (opsional)');
+    fireEvent.change(stockLimit, { target: { value: '' } });
+    fireEvent.change(stockLimit, { target: { value: '3' } });
+    await user.click(screen.getByRole('button', { name: 'Simpan Perubahan' }));
+
+    await waitFor(() =>
+      expect(apiClient).toHaveBeenCalledWith(
+        '/admin/flash-sales/fs-1',
+        expect.objectContaining({ method: 'PATCH' }),
+      ),
+    );
+    expect(patchedItems()).toEqual([
+      { id: 'fs-item-1', productId: 'product-1', salePrice: 199000, stockLimit: 3 },
+    ]);
+  });
+
+  it('sends a cleared stock limit as an explicit null', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    const stockLimit = await screen.findByLabelText('Batas Stok (opsional)');
+    expect(stockLimit).toHaveValue(3);
+    fireEvent.change(stockLimit, { target: { value: '' } });
+    await user.click(screen.getByRole('button', { name: 'Simpan Perubahan' }));
+
+    await waitFor(() =>
+      expect(apiClient).toHaveBeenCalledWith(
+        '/admin/flash-sales/fs-1',
+        expect.objectContaining({ method: 'PATCH' }),
+      ),
+    );
+    expect(patchedItems()).toEqual([
+      { id: 'fs-item-1', productId: 'product-1', salePrice: 199000, stockLimit: null },
+    ]);
   });
 });
