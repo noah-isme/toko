@@ -2858,6 +2858,7 @@
           "endBeforeStart": "Tanggal selesai harus setelah tanggal mulai",
           "productRequired": "Minimal satu produk wajib dipilih",
           "salePrice": "Harga promo harus lebih dari 0 untuk semua item",
+          "stockLimitInvalid": "Batas stok harus bilangan bulat minimal 1, atau kosongkan jika tanpa batas",
           "createFailed": "Gagal membuat flash sale",
           "updateFailed": "Gagal memperbarui flash sale",
           "statusFailed": "Gagal memperbarui status"

@@ -2858,6 +2858,7 @@
           "endBeforeStart": "End date must be after start date",
           "productRequired": "At least one product is required",
           "salePrice": "Sale price must be greater than 0 for all items",
+          "stockLimitInvalid": "Stock limit must be a whole number of at least 1, or empty for no limit",
           "createFailed": "Failed to create flash sale",
           "updateFailed": "Failed to update flash sale",
           "statusFailed": "Failed to update status"
