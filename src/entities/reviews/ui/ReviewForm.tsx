@@ -1,10 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
 
 import { useCreateReviewMutation } from '../hooks';
-import { reviewCreateInputSchema, type ReviewCreateInput } from '../types';
+import { isReviewValidationKey, reviewCreateInputSchema, type ReviewCreateInput } from '../types';
 
 import { Stars } from './Stars';
 
@@ -19,6 +20,10 @@ export interface ReviewFormProps {
 }
 
 export function ReviewForm({ productId, className }: ReviewFormProps) {
+  const t = useTranslations('product.reviews.form');
+  const tv = useTranslations('product.reviews.validation');
+  // Schema errors are catalog keys; anything else (e.g. a server message) is shown as is.
+  const errorText = (message?: string) => (isReviewValidationKey(message) ? tv(message) : message);
   const form = useForm<ReviewCreateInput>({
     resolver: zodResolver(reviewCreateInputSchema),
     defaultValues: {
@@ -33,11 +38,11 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
   const photoFiles = form.watch('photos') ?? [];
   const remaining = 1000 - bodyValue.length;
   const { toast } = useToast();
-  const ratingError = form.formState.errors.rating?.message;
+  const ratingError = errorText(form.formState.errors.rating?.message);
   const ratingErrorId = ratingError ? 'review-rating-error' : undefined;
-  const bodyError = form.formState.errors.body?.message;
+  const bodyError = errorText(form.formState.errors.body?.message);
   const bodyErrorId = bodyError ? 'review-body-error' : undefined;
-  const rootError = form.formState.errors.root?.message;
+  const rootError = errorText(form.formState.errors.root?.message);
 
   const bodyFieldId = 'review-body';
   const ratingLabelId = 'review-rating-label';
@@ -55,10 +60,8 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
   return (
     <form onSubmit={handleSubmit} className={cn('space-y-4', className)} noValidate>
       <div>
-        <h2 className="text-xl font-semibold">Tulis ulasan Anda</h2>
-        <p className="text-sm text-muted-foreground">
-          Bagikan pengalaman Anda untuk membantu pembeli lain.
-        </p>
+        <h2 className="text-xl font-semibold">{t('title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
       {rootError ? (
         <div
@@ -70,7 +73,7 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
       ) : null}
       <div className="space-y-2">
         <p id={ratingLabelId} className="text-sm font-medium">
-          Rating
+          {t('rating')}
         </p>
         <Controller
           control={form.control}
@@ -98,7 +101,7 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
       </div>
       <div className="space-y-2">
         <label htmlFor={bodyFieldId} className="text-sm font-medium">
-          Cerita Anda
+          {t('body')}
         </label>
         <textarea
           {...form.register('body')}
@@ -111,7 +114,7 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
           rows={4}
           disabled={isSubmitting}
           className="min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-          placeholder="Bagikan detail mengenai kualitas produk, pengiriman, atau pengalaman lainnya."
+          placeholder={t('placeholder')}
         />
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           {bodyError ? (
@@ -124,12 +127,12 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
             </span>
           )}
           <span id="review-body-limit" aria-live="polite">
-            {remaining} karakter tersisa
+            {t('remaining', { count: String(remaining) })}
           </span>
         </div>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Foto (opsional)</label>
+        <label className="text-sm font-medium">{t('photos')}</label>
         <ImageUpload
           value={photoFiles}
           onChange={(files) => form.setValue('photos', files, { shouldValidate: true })}
@@ -137,10 +140,7 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
           maxSizeMB={5}
           disabled={isSubmitting}
         />
-        <p className="text-xs text-muted-foreground">
-          Tambahkan hingga 5 foto untuk menunjukkan produk secara nyata. Format: JPEG, PNG, WebP,
-          GIF (max 5MB per file).
-        </p>
+        <p className="text-xs text-muted-foreground">{t('photosHint')}</p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <GuardedButton
@@ -148,13 +148,11 @@ export function ReviewForm({ productId, className }: ReviewFormProps) {
           size="lg"
           isLoading={isSubmitting}
           disabled={isSubmitting}
-          loadingLabel="Mengirim ulasan…"
+          loadingLabel={t('submitting')}
         >
-          Kirim ulasan
+          {t('submit')}
         </GuardedButton>
-        <p className="text-xs text-muted-foreground">
-          Ulasan Anda akan melalui proses moderasi sebelum ditayangkan.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('moderationNote')}</p>
       </div>
     </form>
   );

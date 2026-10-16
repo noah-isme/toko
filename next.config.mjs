@@ -1,58 +1,8 @@
-import withPWA from '@ducanh2912/next-pwa';
-import bundleAnalyzer from '@next/bundle-analyzer';
+import { withSerwist } from '@serwist/turbopack';
+import createNextIntlPlugin from 'next-intl/plugin';
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
-
-const withPWAConfig = withPWA({
-  dest: 'public',
-  // Keep the hand-written push-notification worker at /sw.js. @ducanh2912/next-pwa owns
-  // its generated worker under a separate name so production builds cannot
-  // overwrite push handling or its registration contract.
-  sw: 'pwa-sw.js',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'google-fonts',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60,
-        },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'google-fonts-static',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60,
-        },
-      },
-    },
-    {
-      urlPattern: /\.(?:png|jpg|jpeg|svg|webp|avif|gif)$/,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'images',
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 30 * 24 * 60 * 60,
-        },
-      },
-    },
-  ],
-  fallbacks: {
-    document: '/offline',
-  },
-});
+// Locale comes from the proxy header/cookie, not a [locale] segment (ADR-010).
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 function configuredRemotePattern(raw) {
   if (!raw || raw === 'mock') return null;
@@ -176,6 +126,18 @@ const nextConfig = {
         ],
       },
       {
+        // Always revalidate the service worker script so clients pick up new
+        // deployments immediately (ADR-009). The route handler itself sends
+        // `Service-Worker-Allowed: /`.
+        source: '/serwist/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      {
         // API responses may contain credentials, cart state, or other mutable
         // data. Keep them out of browser and shared caches by default.
         source: '/api/:path*',
@@ -190,4 +152,4 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzer(withPWAConfig(nextConfig));
+export default withSerwist(withNextIntl(nextConfig));

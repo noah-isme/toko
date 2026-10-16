@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Circle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -12,26 +13,37 @@ interface PasswordStrengthProps {
 
 type StrengthLevel = 'weak' | 'fair' | 'good' | 'strong';
 
+type Requirement = 'length' | 'uppercase' | 'lowercase' | 'number' | 'special';
+
+const REQUIREMENTS: { key: Requirement; test: (password: string) => boolean }[] = [
+  { key: 'length', test: (password) => password.length >= 8 },
+  { key: 'uppercase', test: (password) => /[A-Z]/.test(password) },
+  { key: 'lowercase', test: (password) => /[a-z]/.test(password) },
+  { key: 'number', test: (password) => /\d/.test(password) },
+  { key: 'special', test: (password) => /[^A-Za-z0-9]/.test(password) },
+];
+
 interface StrengthResult {
   level: StrengthLevel;
   score: number;
-  feedback: string;
+  /** `auth.passwordStrength.missing` keys for the requirements the password does not meet. */
+  missing: Requirement[];
   color: string;
 }
 
 function calculatePasswordStrength(password: string): StrengthResult {
   if (!password) {
-    return { level: 'weak', score: 0, feedback: '', color: 'bg-muted' };
+    return { level: 'weak', score: 0, missing: [], color: 'bg-muted' };
   }
 
   let score = 0;
-  const feedback: string[] = [];
+  const missing: Requirement[] = [];
 
   // Length check
   if (password.length >= 8) {
     score += 1;
   } else {
-    feedback.push('at least 8 characters');
+    missing.push('length');
   }
 
   if (password.length >= 12) {
@@ -42,28 +54,28 @@ function calculatePasswordStrength(password: string): StrengthResult {
   if (/[A-Z]/.test(password)) {
     score += 1;
   } else {
-    feedback.push('an uppercase letter');
+    missing.push('uppercase');
   }
 
   // Lowercase check
   if (/[a-z]/.test(password)) {
     score += 1;
   } else {
-    feedback.push('a lowercase letter');
+    missing.push('lowercase');
   }
 
   // Number check
   if (/\d/.test(password)) {
     score += 1;
   } else {
-    feedback.push('a number');
+    missing.push('number');
   }
 
   // Special character check
   if (/[^A-Za-z0-9]/.test(password)) {
     score += 1;
   } else {
-    feedback.push('a special character');
+    missing.push('special');
   }
 
   // Determine level and color
@@ -84,15 +96,11 @@ function calculatePasswordStrength(password: string): StrengthResult {
     color = 'bg-green-500';
   }
 
-  const feedbackText =
-    feedback.length > 0
-      ? `Add ${feedback.join(', ')} for a stronger password`
-      : 'Great! Your password is strong';
-
-  return { level, score, feedback: feedbackText, color };
+  return { level, score, missing, color };
 }
 
 export function PasswordStrength({ password, className }: PasswordStrengthProps) {
+  const t = useTranslations('auth.passwordStrength');
   const strength = useMemo(() => calculatePasswordStrength(password), [password]);
 
   if (!password) {
@@ -100,6 +108,10 @@ export function PasswordStrength({ password, className }: PasswordStrengthProps)
   }
 
   const percentage = (strength.score / 6) * 100;
+  const feedback =
+    strength.missing.length > 0
+      ? t('feedback', { items: strength.missing.map((key) => t(`missing.${key}`)).join(', ') })
+      : t('great');
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -123,20 +135,18 @@ export function PasswordStrength({ password, className }: PasswordStrengthProps)
       <div className="space-y-1">
         <div className="flex items-center justify-between text-xs">
           <span className="font-medium capitalize text-foreground">
-            Password strength: {strength.level}
+            {t('label', { level: t(`levels.${strength.level}`) })}
           </span>
           <span className="text-muted-foreground">{Math.round(percentage)}%</span>
         </div>
-        <p className="text-xs text-muted-foreground">{strength.feedback}</p>
+        <p className="text-xs text-muted-foreground">{feedback}</p>
       </div>
 
       {/* Requirements Checklist */}
       <div className="space-y-1 text-xs">
-        <RequirementItem met={password.length >= 8} text="At least 8 characters" />
-        <RequirementItem met={/[A-Z]/.test(password)} text="One uppercase letter" />
-        <RequirementItem met={/[a-z]/.test(password)} text="One lowercase letter" />
-        <RequirementItem met={/\d/.test(password)} text="One number" />
-        <RequirementItem met={/[^A-Za-z0-9]/.test(password)} text="One special character" />
+        {REQUIREMENTS.map(({ key, test }) => (
+          <RequirementItem key={key} met={test(password)} text={t(`requirements.${key}`)} />
+        ))}
       </div>
     </div>
   );

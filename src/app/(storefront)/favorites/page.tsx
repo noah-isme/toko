@@ -1,6 +1,7 @@
 'use client';
 
 import { HeartCrack, HeartOff } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { ProductCard } from '@/components/product-card';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
@@ -11,13 +12,15 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { FavoritesGridSkeleton } from '@/shared/ui/skeletons/FavoritesGridSkeleton';
 
 export default function FavoritesPage() {
+  const t = useTranslations('catalog.favoritesPage');
+  const tEmpty = useTranslations('common.empty');
   const userId = getGuestId() ?? undefined;
   const { data: favorites, isLoading: isLoadingFavorites } = useFavoritesQuery(userId);
 
   if (isLoadingFavorites) {
     return (
       <div className="container py-8">
-        <h1 className="mb-8 text-3xl font-bold">Favorit Saya</h1>
+        <h1 className="mb-8 text-3xl font-bold">{t('title')}</h1>
         <FavoritesGridSkeleton />
       </div>
     );
@@ -26,8 +29,8 @@ export default function FavoritesPage() {
   if (!favorites || favorites.length === 0) {
     return (
       <div className="container py-8">
-        <h1 className="mb-8 text-3xl font-bold">Favorit Saya</h1>
-        <EmptyState icon={<HeartOff aria-hidden="true" />} {...emptyFavorites()} />
+        <h1 className="mb-8 text-3xl font-bold">{t('title')}</h1>
+        <EmptyState icon={<HeartOff aria-hidden="true" />} {...emptyFavorites(tEmpty)} />
       </div>
     );
   }
@@ -35,10 +38,8 @@ export default function FavoritesPage() {
   return (
     <div className="container py-8">
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Favorit Saya</h1>
-        <p className="text-muted-foreground">
-          {favorites.length} {favorites.length === 1 ? 'produk' : 'produk'}
-        </p>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
+        <p className="text-muted-foreground">{t('count', { count: favorites.length })}</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

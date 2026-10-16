@@ -1,17 +1,22 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Card, CardContent } from '@/components/ui/card';
-import { useAdminCustomers } from '@/lib/api/hooks.admin';
+import { useAdminCustomers } from '@/entities/admin/hooks';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 
 export default function CustomersPage() {
+  const t = useTranslations('admin.customers');
+  const { day } = useAdminFormat();
   const query = useAdminCustomers();
-  if (query.isLoading) return <AdminLoading label="Loading customers…" />;
+  if (query.isLoading) return <AdminLoading label={t('loading')} />;
   if (query.error) return <AdminError error={query.error} onRetry={() => void query.refetch()} />;
   const customers = query.data ?? [];
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Customers" description="Customers with activity in this store." />
+      <AdminPageHeader title={t('title')} description={t('description')} />
       <Card>
         <CardContent className="p-0">
           <div className="divide-y">
@@ -25,12 +30,12 @@ export default function CustomersPage() {
                   <p className="text-sm text-muted-foreground">{customer.email}</p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Joined {new Date(customer.createdAt).toLocaleDateString()}
+                  {t('joined', { date: day(customer.createdAt) })}
                 </p>
               </div>
             ))}
             {customers.length === 0 && (
-              <p className="p-6 text-sm text-muted-foreground">No customers found.</p>
+              <p className="p-6 text-sm text-muted-foreground">{t('empty')}</p>
             )}
           </div>
         </CardContent>

@@ -5,87 +5,87 @@ import type { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Button } from '@/components/ui/button';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
-import { ORDER_STATUS_LABELS } from '@/lib/api/constants';
-import { formatCurrency, formatDateTime } from '@/lib/api/utils';
+import { humanizeStatus, orderStatusLabel } from '@/shared/i18n/status';
+import { useFormat } from '@/shared/i18n/use-format';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
 import { useCartStore } from '@/stores/cart-store';
 
-const STATUS_CONFIG: Record<
-  string,
-  { icon: React.ElementType; color: string; bgColor: string; label: string; message: string }
-> = {
+type ConfirmationTranslator = ReturnType<typeof useTranslations<'account.confirmation'>>;
+type StatusKey =
+  | 'pending_payment'
+  | 'paid'
+  | 'packed'
+  | 'shipped'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'cancelled';
+
+const STATUS_CONFIG: Record<string, { icon: React.ElementType; color: string; bgColor: string }> = {
   pending_payment: {
     icon: Clock,
     color: 'text-amber-600',
     bgColor: 'bg-amber-100',
-    label: 'Menunggu Pembayaran',
-    message: 'Silakan selesaikan pembayaran untuk memproses pesanan Anda.',
   },
   paid: {
     icon: CheckCircle2,
     color: 'text-green-600',
     bgColor: 'bg-green-100',
-    label: 'Pembayaran Berhasil',
-    message: 'Pembayaran Anda telah diterima. Pesanan sedang diproses.',
   },
   packed: {
     icon: Clock,
     color: 'text-blue-600',
     bgColor: 'bg-blue-100',
-    label: 'Sedang Dikemas',
-    message: 'Pesanan Anda sedang dikemas oleh tim kami.',
   },
   shipped: {
     icon: CheckCircle2,
     color: 'text-purple-600',
     bgColor: 'bg-purple-100',
-    label: 'Dalam Pengiriman',
-    message: 'Pesanan Anda sedang dalam perjalanan.',
   },
   out_for_delivery: {
     icon: CheckCircle2,
     color: 'text-purple-600',
     bgColor: 'bg-purple-100',
-    label: 'Sedang Diantar',
-    message: 'Pesanan Anda sedang diantar ke alamat tujuan.',
   },
   delivered: {
     icon: CheckCircle2,
     color: 'text-green-600',
     bgColor: 'bg-green-100',
-    label: 'Selesai',
-    message: 'Pesanan Anda telah selesai. Terima kasih!',
   },
   cancelled: {
     icon: XCircle,
     color: 'text-red-600',
     bgColor: 'bg-red-100',
-    label: 'Dibatalkan',
-    message: 'Pesanan ini telah dibatalkan.',
   },
 };
 
-function getStatusConfig(status: string) {
-  const s = status.toLowerCase().replace(/_/g, '_');
-  return (
-    STATUS_CONFIG[s] || {
-      icon: Clock,
-      color: 'text-slate-600',
-      bgColor: 'bg-slate-100',
-      label: status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
-      message: 'Status pesanan Anda.',
-    }
-  );
+function getStatusConfig(t: ConfirmationTranslator, status: string) {
+  const s = status.toLowerCase();
+  const config = STATUS_CONFIG[s];
+  if (config) {
+    const key = s as StatusKey;
+    return { ...config, label: t(`status.${key}.label`), message: t(`status.${key}.message`) };
+  }
+  return {
+    icon: Clock,
+    color: 'text-slate-600',
+    bgColor: 'bg-slate-100',
+    label: humanizeStatus(status),
+    message: t('status.fallbackMessage'),
+  };
 }
 
 export default function OrderConfirmationPage() {
+  const t = useTranslations('account.confirmation');
+  const tAccount = useTranslations('account');
+  const fmt = useFormat();
   const params = useParams();
   const orderId = typeof params?.orderId === 'string' ? params.orderId : null;
   const router = useRouter();
@@ -143,7 +143,7 @@ export default function OrderConfirmationPage() {
     setReorderError(null);
     try {
       if (!cartId) {
-        throw new Error('Keranjang belanja belum siap.');
+        throw new Error(t('cartNotReady'));
       }
 
       for (const item of order.items) {
@@ -162,12 +162,12 @@ export default function OrderConfirmationPage() {
 
       toast({
         variant: 'success',
-        title: 'Produk ditambahkan ke keranjang',
-        description: 'Silakan lanjutkan ke checkout untuk memesan ulang.',
+        title: t('reorderSuccess'),
+        description: t('reorderSuccessDescription'),
       });
       router.push('/cart');
     } catch (reorderFailure) {
-      setReorderError('Gagal menambahkan ulang produk ke keranjang. Coba lagi.');
+      setReorderError(t('reorderFailed'));
     } finally {
       setIsReordering(false);
     }
@@ -179,16 +179,14 @@ export default function OrderConfirmationPage() {
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-slate-100">
           <XCircle className="h-12 w-12 text-slate-500" />
         </div>
-        <h1 className="mb-2 text-3xl font-bold">Pesanan tidak ditemukan</h1>
-        <p className="mb-8 text-muted-foreground">
-          Kami tidak menemukan ID pesanan. Anda akan diarahkan ke halaman 404.
-        </p>
+        <h1 className="mb-2 text-3xl font-bold">{t('notFoundTitle')}</h1>
+        <p className="mb-8 text-muted-foreground">{t('notFoundDescription')}</p>
         <div className="flex gap-4">
           <Button asChild variant="outline">
-            <Link href="/account/orders">Lihat Pesanan Saya</Link>
+            <Link href="/account/orders">{t('viewMyOrders')}</Link>
           </Button>
           <Button asChild>
-            <Link href="/">Lanjut Belanja</Link>
+            <Link href="/">{t('continueShopping')}</Link>
           </Button>
         </div>
       </div>
@@ -205,26 +203,27 @@ export default function OrderConfirmationPage() {
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-amber-100">
           <Clock className="h-12 w-12 text-amber-600" />
         </div>
-        <h1 className="mb-2 text-3xl font-bold">Pesanan Dibuat</h1>
+        <h1 className="mb-2 text-3xl font-bold">{t('createdTitle')}</h1>
         <p className="mb-6 text-xl text-muted-foreground">
-          Order ID: <span className="font-mono">{orderId}</span>
+          {t.rich('orderId', {
+            orderId,
+            mono: (chunks) => <span className="font-mono">{chunks}</span>,
+          })}
         </p>
-        <p className="mb-8 text-muted-foreground">
-          Detail pesanan sedang diproses. Silakan cek riwayat pesanan Anda.
-        </p>
+        <p className="mb-8 text-muted-foreground">{t('processing')}</p>
         <div className="flex gap-4">
           <Button asChild variant="outline">
-            <Link href="/account/orders">Lihat Pesanan Saya</Link>
+            <Link href="/account/orders">{t('viewMyOrders')}</Link>
           </Button>
           <Button asChild>
-            <Link href="/">Lanjut Belanja</Link>
+            <Link href="/">{t('continueShopping')}</Link>
           </Button>
         </div>
       </div>
     );
   }
 
-  const config = getStatusConfig(order.status);
+  const config = getStatusConfig(t, order.status);
   const StatusIcon = config.icon;
   const timeRemainingMs = paymentExpiryTime ? paymentExpiryTime - now : null;
   const countdownLabel = timeRemainingMs !== null ? formatCountdown(timeRemainingMs) : null;
@@ -232,7 +231,7 @@ export default function OrderConfirmationPage() {
   const pendingTooLong =
     isPendingPayment && now - new Date(order.createdAt).getTime() > 2 * 60 * 60 * 1000;
   const supportLink = `mailto:support@toko.com?subject=${encodeURIComponent(
-    `Bantuan pembayaran ${order.orderNumber}`,
+    t('supportSubject', { orderNumber: order.orderNumber }),
   )}`;
 
   return (
@@ -248,61 +247,55 @@ export default function OrderConfirmationPage() {
 
       <div className="mb-8 w-full max-w-2xl space-y-4 rounded-lg border bg-card p-6 shadow-sm">
         <div>
-          <p className="text-sm text-muted-foreground">Nomor Pesanan</p>
+          <p className="text-sm text-muted-foreground">{t('orderNumber')}</p>
           <p className="font-mono text-lg font-medium">{order.orderNumber}</p>
         </div>
         <div className="border-t pt-4">
-          <p className="text-sm text-muted-foreground">Total Pembayaran</p>
+          <p className="text-sm text-muted-foreground">{t('totalPayment')}</p>
           <p className="text-2xl font-bold">
-            {new Intl.NumberFormat('id-ID', {
-              style: 'currency',
-              currency: order.currency || 'IDR',
-            }).format(order.pricing?.total || 0)}
+            {fmt.currency(order.pricing?.total || 0, order.currency || 'IDR')}
           </p>
         </div>
         {isPendingPayment ? (
           <div className="space-y-3 border-t pt-4">
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-              <p className="font-medium">Selesaikan pembayaran</p>
+              <p className="font-medium">{t('completePayment')}</p>
               {countdownLabel && !paymentExpired ? (
                 <p className="mt-1">
-                  Sisa waktu pembayaran: <span className="font-semibold">{countdownLabel}</span>
+                  {t.rich('timeLeft', {
+                    countdown: countdownLabel,
+                    strong: (chunks) => <span className="font-semibold">{chunks}</span>,
+                  })}
                 </p>
               ) : paymentExpired ? (
-                <p className="mt-1">
-                  Waktu pembayaran telah berakhir. Silakan buat ulang pembayaran.
-                </p>
+                <p className="mt-1">{t('expired')}</p>
               ) : (
-                <p className="mt-1">Segera selesaikan pembayaran agar pesanan diproses.</p>
+                <p className="mt-1">{t('payPrompt')}</p>
               )}
               {order.payment?.paymentExpiry ? (
                 <p className="mt-1 text-xs text-amber-800">
-                  Berlaku sampai {formatDateTime(order.payment.paymentExpiry)}.
+                  {t('validUntil', { date: fmt.dateTime(order.payment.paymentExpiry) })}
                 </p>
               ) : null}
-              <p className="mt-2 text-xs text-amber-800">
-                Jika pembayaran tertunda, pesanan akan otomatis dibatalkan.
-              </p>
+              <p className="mt-2 text-xs text-amber-800">{t('autoCancel')}</p>
             </div>
             {order.payment?.paymentUrl ? (
               <Button asChild className="w-full" size="lg">
                 <a href={order.payment.paymentUrl} target="_blank" rel="noopener noreferrer">
-                  Bayar Sekarang
+                  {t('payNow')}
                 </a>
               </Button>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Link pembayaran belum tersedia. Anda bisa membuat ulang pembayaran.
-              </p>
+              <p className="text-sm text-muted-foreground">{t('noPaymentLink')}</p>
             )}
             <Button asChild variant="outline" className="w-full" size="lg">
               <Link href={`/checkout/review?orderId=${encodeURIComponent(order.id)}`}>
-                Coba bayar lagi
+                {t('retryPayment')}
               </Link>
             </Button>
             {pendingTooLong ? (
               <Button asChild variant="ghost" className="w-full" size="sm">
-                <a href={supportLink}>Hubungi CS</a>
+                <a href={supportLink}>{t('contactSupport')}</a>
               </Button>
             ) : null}
           </div>
@@ -311,12 +304,11 @@ export default function OrderConfirmationPage() {
 
       <div className="mb-8 w-full max-w-2xl space-y-6 text-left">
         <section className="rounded-lg border bg-card p-6">
-          <h2 className="text-lg font-semibold">Status pesanan</h2>
+          <h2 className="text-lg font-semibold">{t('statusTitle')}</h2>
           <ol className="mt-4 space-y-4">
             {statusTimeline.map((item, index) => {
-              const statusKey = item.status as keyof typeof ORDER_STATUS_LABELS;
               const statusLabel =
-                ORDER_STATUS_LABELS[statusKey]?.label ?? item.status.replace(/_/g, ' ');
+                orderStatusLabel(tAccount, item.status) ?? item.status.replace(/_/g, ' ');
               const isLast = index === statusTimeline.length - 1;
               const isCurrent = item.status.toLowerCase() === normalizedStatus;
               return (
@@ -334,7 +326,7 @@ export default function OrderConfirmationPage() {
                   <div className="space-y-1">
                     <p className="text-sm font-semibold">{statusLabel}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDateTime(item.timestamp ?? item.at ?? '')}
+                      {fmt.dateTime(item.timestamp ?? item.at ?? '')}
                     </p>
                   </div>
                 </li>
@@ -343,44 +335,56 @@ export default function OrderConfirmationPage() {
           </ol>
         </section>
         <section className="rounded-lg border bg-card p-6">
-          <h2 className="text-lg font-semibold">Pengiriman</h2>
+          <h2 className="text-lg font-semibold">{t('shippingTitle')}</h2>
           <div className="mt-3 space-y-2 text-sm text-muted-foreground">
             {order.shipping ? (
               <>
                 <p>
-                  Kurir:{' '}
-                  <span className="font-medium text-foreground">{order.shipping.courier}</span>
+                  {t.rich('courier', {
+                    courier: order.shipping.courier,
+                    strong: (chunks) => (
+                      <span className="font-medium text-foreground">{chunks}</span>
+                    ),
+                  })}
                 </p>
                 <p>
-                  Layanan:{' '}
-                  <span className="font-medium text-foreground">{order.shipping.service}</span>
+                  {t.rich('service', {
+                    service: order.shipping.service,
+                    strong: (chunks) => (
+                      <span className="font-medium text-foreground">{chunks}</span>
+                    ),
+                  })}
                 </p>
                 {order.shipping.trackingNumber ? (
                   <p>
-                    Nomor resi:{' '}
-                    <span className="font-medium text-foreground">
-                      {order.shipping.trackingNumber}
-                    </span>
+                    {t.rich('trackingNumber', {
+                      number: order.shipping.trackingNumber,
+                      strong: (chunks) => (
+                        <span className="font-medium text-foreground">{chunks}</span>
+                      ),
+                    })}
                   </p>
                 ) : (
-                  <p>Nomor resi akan tersedia setelah pesanan diproses.</p>
+                  <p>{t('trackingPending')}</p>
                 )}
                 {order.shipping.estimatedDelivery ? (
                   <p>
-                    Estimasi tiba:{' '}
-                    <span className="font-medium text-foreground">
-                      {formatDateTime(order.shipping.estimatedDelivery)}
-                    </span>
+                    {t.rich('eta', {
+                      date: fmt.dateTime(order.shipping.estimatedDelivery),
+                      strong: (chunks) => (
+                        <span className="font-medium text-foreground">{chunks}</span>
+                      ),
+                    })}
                   </p>
                 ) : null}
                 <div className="pt-2">
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/order/tracking/${order.id}`}>Lacak pengiriman</Link>
+                    <Link href={`/order/tracking/${order.id}`}>{t('trackShipment')}</Link>
                   </Button>
                 </div>
               </>
             ) : (
-              <p>Informasi pengiriman akan muncul setelah pesanan diproses.</p>
+              <p>{t('shippingPending')}</p>
             )}
           </div>
         </section>
@@ -388,10 +392,8 @@ export default function OrderConfirmationPage() {
           <section className="rounded-lg border bg-card p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold">Produk dalam pesanan</h2>
-                <p className="text-sm text-muted-foreground">
-                  Tambahkan lagi produk yang pernah dibeli.
-                </p>
+                <h2 className="text-lg font-semibold">{t('itemsTitle')}</h2>
+                <p className="text-sm text-muted-foreground">{t('itemsDescription')}</p>
               </div>
               <Button
                 type="button"
@@ -400,7 +402,7 @@ export default function OrderConfirmationPage() {
                 onClick={handleReorder}
                 disabled={isReordering}
               >
-                {isReordering ? 'Menambahkan...' : 'Beli lagi'}
+                {isReordering ? t('reordering') : t('reorder')}
               </Button>
             </div>
             {reorderError ? (
@@ -426,19 +428,21 @@ export default function OrderConfirmationPage() {
                   <div className="flex-1 space-y-1">
                     <p className="font-medium text-foreground">{item.productTitle}</p>
                     <p className="text-xs text-muted-foreground">
-                      Qty {item.qty} -{' '}
-                      {formatCurrency(Number(item.unitPrice) || 0, order.currency || 'IDR')}
+                      {t('qtyPrice', {
+                        qty: item.qty,
+                        price: fmt.currency(Number(item.unitPrice) || 0, order.currency || 'IDR'),
+                      })}
                     </p>
                     <p className="text-sm font-semibold text-foreground">
-                      {formatCurrency(Number(item.subtotal) || 0, order.currency || 'IDR')}
+                      {fmt.currency(Number(item.subtotal) || 0, order.currency || 'IDR')}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/products/${item.productSlug}`}>Lihat produk</Link>
+                      <Link href={`/products/${item.productSlug}`}>{t('viewProduct')}</Link>
                     </Button>
                     <Button asChild variant="ghost" size="sm">
-                      <Link href={`/products/${item.productSlug}#reviews`}>Beri ulasan</Link>
+                      <Link href={`/products/${item.productSlug}#reviews`}>{t('review')}</Link>
                     </Button>
                   </div>
                 </li>
@@ -451,14 +455,14 @@ export default function OrderConfirmationPage() {
       <div className="flex flex-wrap justify-center gap-4">
         {canCancel ? (
           <Button variant="destructive" onClick={() => setCancelOpen(true)}>
-            Batalkan pesanan
+            {t('cancelOrder')}
           </Button>
         ) : null}
         <Button asChild variant="outline">
-          <Link href="/account/orders">Lihat Pesanan Saya</Link>
+          <Link href="/account/orders">{t('viewMyOrders')}</Link>
         </Button>
         <Button asChild>
-          <Link href="/">Lanjut Belanja</Link>
+          <Link href="/">{t('continueShopping')}</Link>
         </Button>
       </div>
       <CancelOrderModal
@@ -470,15 +474,14 @@ export default function OrderConfirmationPage() {
             await cancelMutation.mutateAsync();
             toast({
               variant: 'success',
-              title: 'Pesanan dibatalkan',
-              description:
-                'Pesanan Anda sudah dibatalkan. Tim kami akan memproses pengembalian dana jika diperlukan.',
+              title: t('toast.cancelled'),
+              description: t('toast.cancelledDescription'),
             });
             setCancelOpen(false);
           } catch (error) {
             toast({
               variant: 'destructive',
-              description: 'Gagal membatalkan pesanan. Silakan coba lagi.',
+              description: t('toast.cancelFailed'),
             });
           }
         }}

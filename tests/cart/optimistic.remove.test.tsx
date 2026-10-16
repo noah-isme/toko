@@ -4,7 +4,7 @@ import { HttpResponse, delay, http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { useCartQuery, useRemoveCartItemMutation } from '@/lib/api/hooks';
+import { useCartQuery, useRemoveCartItemMutation } from '@/entities/cart/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
 import type { CartView } from '@/lib/api/schemas';
 import { handlers } from '@/mocks/handlers';

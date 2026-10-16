@@ -1,6 +1,7 @@
 'use client';
 
 import { Heart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
 import { useAddFavoriteMutation, useIsFavorite, useRemoveFavoriteMutation } from '../hooks';
@@ -18,6 +19,7 @@ interface FavToggleProps {
 
 export function FavToggle({ productId, size = 'md', className, userIdOrGuestId }: FavToggleProps) {
   const { isAuthenticated } = useAuth();
+  const t = useTranslations('catalog.favorite');
   const userId = userIdOrGuestId ?? getGuestId() ?? undefined;
   const isFavorite = useIsFavorite(productId, userId, isAuthenticated);
   const { mutate: addFavorite, isProductInFlight: isAddInFlight } = useAddFavoriteMutation(userId);
@@ -38,6 +40,8 @@ export function FavToggle({ productId, size = 'md', className, userIdOrGuestId }
     }
   }, [addFavorite, isFavorite, isInFlight, productId, removeFavorite]);
 
+  const label = isFavorite ? t('remove') : t('add');
+
   const sizeClasses = {
     sm: 'h-8 w-8',
     md: 'h-10 w-10',
@@ -54,8 +58,8 @@ export function FavToggle({ productId, size = 'md', className, userIdOrGuestId }
       onClick={handleToggle}
       disabled={isInFlight}
       aria-pressed={isFavorite}
-      aria-label={isFavorite ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}
-      title={isFavorite ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}
+      aria-label={label}
+      title={label}
       className={cn(
         'inline-flex items-center justify-center rounded-full border bg-background transition-colors',
         'hover:bg-accent hover:text-accent-foreground',
@@ -69,7 +73,7 @@ export function FavToggle({ productId, size = 'md', className, userIdOrGuestId }
         size={iconSizes[size]}
         className={cn('transition-colors', isFavorite && 'fill-red-500 stroke-red-500')}
       />
-      <span className="sr-only">{isFavorite ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}</span>
+      <span className="sr-only">{label}</span>
     </button>
   );
 }

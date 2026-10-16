@@ -2,10 +2,12 @@
 
 import type { Route } from 'next';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
-import { useOrders } from '@/lib/api';
-import { ORDER_STATUS_LABELS, formatCurrency, formatDate } from '@/lib/api';
+import { useOrders } from '@/entities/orders/api/hooks';
 import { cn } from '@/lib/utils';
+import { orderStatusLabel } from '@/shared/i18n/status';
+import { useFormat } from '@/shared/i18n/use-format';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
 interface RecentOrdersProps {
@@ -14,6 +16,8 @@ interface RecentOrdersProps {
 }
 
 export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
+  const t = useTranslations('account');
+  const fmt = useFormat();
   const { data, isLoading, error } = useOrders(1, limit);
 
   if (isLoading) {
@@ -30,15 +34,15 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
     return (
       <div className={cn('space-y-4', className)}>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Recent Orders</h2>
+          <h2 className="text-lg font-semibold">{t('recentOrders.title')}</h2>
         </div>
         <div className="rounded-lg border border-dashed border-muted-foreground/40 p-8 text-center">
-          <p className="text-sm text-muted-foreground">No orders yet</p>
+          <p className="text-sm text-muted-foreground">{t('recentOrders.empty')}</p>
           <Link
             href="/products"
             className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
           >
-            Start shopping
+            {t('recentOrders.startShopping')}
           </Link>
         </div>
       </div>
@@ -48,17 +52,16 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Recent Orders</h2>
+        <h2 className="text-lg font-semibold">{t('recentOrders.title')}</h2>
         {orders.length >= limit && (
           <Link href="/account/orders" className="text-sm font-medium text-primary hover:underline">
-            View all →
+            {t('recentOrders.viewAll')}
           </Link>
         )}
       </div>
       <div className="space-y-3">
         {orders.map((order) => {
-          const statusInfo = ORDER_STATUS_LABELS[order.status];
-          const statusLabel = statusInfo?.label || order.status;
+          const statusLabel = orderStatusLabel(t, order.status) || order.status;
           const statusColor = getStatusColor(order.status);
 
           return (
@@ -70,7 +73,9 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium">Order #{order.orderNumber}</p>
+                    <p className="font-medium">
+                      {t('recentOrders.orderNumber', { number: order.orderNumber })}
+                    </p>
                     <span
                       className={cn('rounded-full px-2 py-0.5 text-xs font-medium', statusColor)}
                     >
@@ -78,12 +83,12 @@ export function RecentOrders({ limit = 5, className }: RecentOrdersProps) {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {order.itemCount || 0} {(order.itemCount || 0) === 1 ? 'item' : 'items'}
+                    {t('recentOrders.itemCount', { count: order.itemCount || 0 })}
                   </p>
-                  <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
+                  <p className="text-xs text-muted-foreground">{fmt.date(order.createdAt)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">{formatCurrency(order.total)}</p>
+                  <p className="font-semibold">{fmt.currency(order.total)}</p>
                 </div>
               </div>
             </Link>

@@ -1,6 +1,7 @@
 'use client';
 
 import { Shield, Zap, Send, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo, useEffect, useState } from 'react';
 
 import { usePushPreferencesQuery, usePushSubscription } from '../hooks';
@@ -20,10 +21,13 @@ interface PushBannerProps {
 export const PushNotificationBanner = memo(function PushNotificationBanner({
   className,
 }: PushBannerProps) {
+  const t = useTranslations('account.push');
   const { data: preferences, isLoading, refetch } = usePushPreferencesQuery();
   const { subscribe, unsubscribe, isSubscribing, isUnsubscribing } = usePushSubscription();
   const { toast } = useToast();
-  const [localEnabled, setLocalEnabled] = useState(false);
+  // Optimistic value while (un)subscribing; otherwise derived from the server preferences.
+  const [pendingEnabled, setPendingEnabled] = useState<boolean | null>(null);
+  const localEnabled = pendingEnabled ?? preferences?.enabled ?? false;
   const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -35,28 +39,26 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
     }
   }, []);
 
-  useEffect(() => {
-    if (preferences && mounted) {
-      setLocalEnabled(preferences.enabled);
-    }
-  }, [preferences, mounted]);
-
   const handleEnableChange = async (enabled: boolean) => {
-    setLocalEnabled(enabled);
+    setPendingEnabled(enabled);
 
     if (enabled) {
       try {
         await subscribe();
         await refetch();
-      } catch (error) {
-        setLocalEnabled(false);
+      } catch {
+        // Failure is surfaced by the switch falling back to the server state.
+      } finally {
+        setPendingEnabled(null);
       }
     } else {
       try {
         await unsubscribe();
         await refetch();
-      } catch (error) {
-        setLocalEnabled(true);
+      } catch {
+        // Failure is surfaced by the switch falling back to the server state.
+      } finally {
+        setPendingEnabled(null);
       }
     }
   };
@@ -76,8 +78,8 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
     <Card className={cn('border-primary/20 bg-primary/5 relative overflow-hidden', className)}>
       <button
         onClick={handleDismiss}
-        className="absolute right-2 top-2 rounded p-1 transition-colors hover:bg-muted"
-        aria-label="Tutup"
+        className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded transition-colors hover:bg-muted"
+        aria-label={t('banner.close')}
       >
         <span className="text-muted-foreground">×</span>
       </button>
@@ -88,10 +90,8 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
               <Shield className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <CardTitle className="text-base font-semibold">Aktifkan Notifikasi Push</CardTitle>
-              <CardDescription className="text-sm">
-                Terima update pesanan, promo flash sale, dan penurunan harga secara real-time
-              </CardDescription>
+              <CardTitle className="text-base font-semibold">{t('banner.title')}</CardTitle>
+              <CardDescription className="text-sm">{t('banner.description')}</CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-3 sm:ml-auto">
@@ -99,7 +99,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
               checked={localEnabled}
               onCheckedChange={handleEnableChange}
               disabled={isPending}
-              aria-label="Aktifkan notifikasi push"
+              aria-label={t('card.enableLabel')}
             />
             <Button
               onClick={() => handleEnableChange(true)}
@@ -108,7 +108,7 @@ export const PushNotificationBanner = memo(function PushNotificationBanner({
               className="gap-1.5"
             >
               <Zap className="h-4 w-4" aria-hidden="true" />
-              Aktifkan
+              {t('banner.enable')}
             </Button>
           </div>
         </div>

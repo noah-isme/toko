@@ -82,7 +82,7 @@ describe('PrivacyPage', () => {
 
     expect(screen.getByText(/Email Pemasaran & Promo/i)).toBeInTheDocument();
     expect(screen.getByText(/Dapatkan info diskon/i)).toBeInTheDocument();
-    expect(screen.getByText(/Update Pesanan & Pengiriman/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pembaruan Pesanan & Pengiriman/i)).toBeInTheDocument();
     expect(screen.getByText(/Notifikasi status pesanan/i)).toBeInTheDocument();
     expect(screen.getByText(/Peringatan Keamanan/i)).toBeInTheDocument();
     expect(screen.getByText(/Notifikasi login mencurigakan/i)).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe('PrivacyPage', () => {
 
     await waitFor(
       () => {
-        const orderSwitch = screen.getByRole('switch', { name: /update pesanan/i });
+        const orderSwitch = screen.getByRole('switch', { name: /pembaruan pesanan/i });
         expect(orderSwitch).toBeChecked();
 
         fireEvent.click(orderSwitch);

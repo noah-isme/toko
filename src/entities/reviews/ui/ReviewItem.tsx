@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2, Star, ThumbsUp, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo } from 'react';
 
 import { useDeleteReviewMutation, useVoteHelpfulMutation } from '../hooks';
@@ -8,6 +9,7 @@ import type { Review } from '../types';
 
 import { ReviewImageGallery } from '@/components/image-upload';
 import { cn } from '@/lib/utils';
+import { PADDED_SHORT_DATE, useFormat } from '@/shared/i18n/use-format';
 
 interface ReviewItemProps {
   review: Review;
@@ -15,24 +17,13 @@ interface ReviewItemProps {
   productId?: string;
 }
 
-function formatReviewDate(value: string) {
-  try {
-    return new Intl.DateTimeFormat('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
-}
-
-function renderStatus(status: Review['status']) {
+function ReviewStatusBadge({ status }: { status: Review['status'] }) {
+  const t = useTranslations('product.reviews.item.status');
   if (status === 'approved') {
     return null;
   }
 
-  const label = status === 'pending' ? 'Menunggu moderasi' : 'Ditolak';
+  const label = status === 'pending' ? t('pending') : t('rejected');
   const styles =
     status === 'pending'
       ? 'border-amber-200 bg-amber-50 text-amber-700'
@@ -55,6 +46,8 @@ export const ReviewItem = memo(function ReviewItem({
   isOwner,
   productId,
 }: ReviewItemProps) {
+  const t = useTranslations('product.reviews.item');
+  const fmt = useFormat();
   const { mutate: voteMutate, isPending, isReviewInFlight } = useVoteHelpfulMutation(review.id);
   const { mutate: deleteMutate, isProductInFlight } = useDeleteReviewMutation(
     isOwner ? productId : undefined,
@@ -70,24 +63,28 @@ export const ReviewItem = memo(function ReviewItem({
   };
 
   const handleDelete = () => {
-    if (!confirm('Hapus ulasan ini? Tindakan ini tidak dapat dibatalkan.')) {
+    if (!confirm(t('deleteConfirm'))) {
       return;
     }
     deleteMutate();
   };
 
+  const author = review.author ?? t('anonymous');
+
   return (
     <article
       className="space-y-3 rounded-lg border border-border/60 bg-background/30 p-4 shadow-sm"
-      aria-label={`Ulasan oleh ${review.author ?? 'Anonim'}`}
+      aria-label={t('label', { author })}
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-foreground">{review.author ?? 'Anonim'}</p>
-          <p className="text-xs text-muted-foreground">{formatReviewDate(review.createdAt)}</p>
+          <p className="text-sm font-semibold text-foreground">{author}</p>
+          <p className="text-xs text-muted-foreground">
+            {fmt.date(review.createdAt, PADDED_SHORT_DATE)}
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          {renderStatus(review.status)}
+          <ReviewStatusBadge status={review.status} />
           {isOwner && (
             <button
               type="button"
@@ -97,14 +94,14 @@ export const ReviewItem = memo(function ReviewItem({
                 'inline-flex items-center gap-1.5 rounded-md border border-destructive/30 px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
                 deleteInFlight && 'opacity-60',
               )}
-              aria-label="Hapus ulasan ini"
+              aria-label={t('deleteLabel')}
             >
               {deleteInFlight ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
               ) : (
                 <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
               )}
-              Hapus
+              {t('delete')}
             </button>
           )}
         </div>
@@ -126,7 +123,9 @@ export const ReviewItem = memo(function ReviewItem({
             );
           })}
         </div>
-        <span className="text-sm font-medium text-muted-foreground">{review.rating}/5</span>
+        <span className="text-sm font-medium text-muted-foreground">
+          {t('ratingOutOf', { rating: review.rating })}
+        </span>
       </div>
       <p className="text-sm leading-relaxed text-foreground">{review.body}</p>
       {review.photos && review.photos.length > 0 && <ReviewImageGallery images={review.photos} />}
@@ -144,9 +143,9 @@ export const ReviewItem = memo(function ReviewItem({
           onClick={handleHelpfulToggle}
           disabled={voteInFlight}
         >
-          <span className="sr-only">Tandai ulasan ini bermanfaat</span>
+          <span className="sr-only">{t('markHelpful')}</span>
           <ThumbsUp className="h-4 w-4" aria-hidden="true" />
-          Bermanfaat
+          {t('helpful')}
           <span className="text-xs text-muted-foreground">({review.helpfulCount})</span>
         </button>
       </div>

@@ -3,6 +3,7 @@
 import { Flame, ArrowRight, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 
 import { Price } from '@/components/price';
@@ -14,10 +15,13 @@ import {
   type FlashSaleCampaign,
   type FlashSaleItem,
 } from '@/lib/api/services/promotions';
+import { useFormat } from '@/shared/i18n/use-format';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 import { useCartStore } from '@/stores/cart-store';
 
 export function FlashSaleSection() {
+  const t = useTranslations('catalog.flashSale');
+  const fmt = useFormat();
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
 
@@ -39,7 +43,7 @@ export function FlashSaleSection() {
         if (!cancelled) setCampaigns(items);
       })
       .catch(() => {
-        if (!cancelled) setError('Gagal memuat flash sale.');
+        if (!cancelled) setError(t('loadFailed'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -47,7 +51,7 @@ export function FlashSaleSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const active = campaigns.find(
     (campaign) =>
@@ -90,26 +94,26 @@ export function FlashSaleSection() {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-extrabold tracking-tight text-foreground">
-                Flash Sale Hari Ini
+                {t('section.title')}
               </h2>
               <span className="rounded bg-rose-500 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
-                HOT
+                {t('section.hot')}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Diskon spesial berakhir dalam waktu terbatas
-            </p>
+            <p className="text-xs text-muted-foreground">{t('section.description')}</p>
           </div>
         </div>
 
         {/* Live Timer Badges */}
         <div className="flex items-center gap-1.5 self-start sm:self-auto">
-          <span className="mr-1 text-xs font-semibold text-muted-foreground">Berakhir dalam:</span>
-          <TimerBlock value={timeLeft.hours} label="Jam" />
+          <span className="mr-1 text-xs font-semibold text-muted-foreground">
+            {t('section.endsIn')}
+          </span>
+          <TimerBlock value={timeLeft.hours} label={t('timer.hours')} />
           <span className="font-bold text-muted-foreground">:</span>
-          <TimerBlock value={timeLeft.minutes} label="Min" />
+          <TimerBlock value={timeLeft.minutes} label={t('timer.minutes')} />
           <span className="font-bold text-muted-foreground">:</span>
-          <TimerBlock value={timeLeft.seconds} label="Det" />
+          <TimerBlock value={timeLeft.seconds} label={t('timer.seconds')} />
         </div>
       </div>
 
@@ -156,9 +160,7 @@ export function FlashSaleSection() {
               <div className="mt-4 space-y-3 border-t border-border/40 pt-3">
                 <div>
                   <div className="text-xs text-muted-foreground line-through">
-                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-                      item.originalPrice,
-                    )}
+                    {fmt.currency(item.originalPrice)}
                   </div>
                   <Price
                     amount={item.salePrice}
@@ -174,7 +176,7 @@ export function FlashSaleSection() {
                   disabled={isAdding}
                 >
                   <ShoppingCart className="h-4 w-4" />
-                  <span>{isAdding ? 'Menambahkan...' : 'Beli Sekarang'}</span>
+                  <span>{isAdding ? t('adding') : t('buyNow')}</span>
                 </Button>
               </div>
             </div>
@@ -187,7 +189,7 @@ export function FlashSaleSection() {
           href="/flash-sales"
           className="inline-flex items-center text-xs font-bold text-primary hover:underline"
         >
-          Lihat Semua Flash Sale <ArrowRight className="ml-1 h-3.5 w-3.5" />
+          {t('section.viewAll')} <ArrowRight className="ml-1 h-3.5 w-3.5" />
         </Link>
       </div>
     </section>

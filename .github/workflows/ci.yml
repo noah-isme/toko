@@ -14,22 +14,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+
       - name: Use Node.js 22.13.x
         uses: actions/setup-node@v4
         with:
           node-version: '22.13.x'
           cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.5.2
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        # ESLint + i18n catalog parity, then relative Markdown links (docs/archive excluded).
+        run: pnpm lint && pnpm lint:docs
 
       - name: Verify generated API types are current
         # schema.d.ts is generated from openapi.yaml. Regenerating must be a
@@ -42,8 +41,18 @@ jobs:
         # types still match the generated ones, so contract drift fails here.
         run: pnpm typecheck
 
-      - name: Test
-        run: pnpm test:ci
+      - name: Test (with coverage)
+        # Fails when coverage drops below vitest.config.ts `coverage.thresholds` (ratchet, see README).
+        run: pnpm test:ci --coverage
+
+      - name: Upload coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Build
         run: pnpm build
@@ -60,16 +69,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+
       - name: Use Node.js 22.13.x
         uses: actions/setup-node@v4
         with:
           node-version: '22.13.x'
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.5.2
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -108,3 +115,41 @@ jobs:
           name: test-results
           path: test-results/
           retention-days: 14
+
+  lighthouse:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      CI: 'true'
+      # build:mock / start:mock set these too; kept here so every step agrees.
+      NEXT_PUBLIC_API_URL: 'mock'
+      NEXT_PUBLIC_API_MOCKING: 'false'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+
+      - name: Use Node.js 22.13.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (mock API)
+        run: pnpm build:mock
+
+      - name: Lighthouse CI
+        # lighthouserc.json starts the server with `pnpm start:mock` and holds
+        # the URLs and assertions (a11y/SEO hard, perf/best-practices warn).
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          # Reports stay private as run artifacts; no public storage upload.
+          temporaryPublicStorage: false

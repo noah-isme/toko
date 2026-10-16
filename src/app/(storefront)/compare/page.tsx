@@ -3,6 +3,7 @@
 import { GitCompare, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { Price } from '@/components/price';
 import { Rating } from '@/components/rating';
@@ -12,14 +13,16 @@ import type { Product } from '@/lib/api';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { useCompareStore } from '@/stores/compare-store';
 
+type CompareTranslator = ReturnType<typeof useTranslations<'catalog.comparePage'>>;
+
 interface CompareRow {
-  label: string;
-  render: (product: Product) => React.ReactNode;
+  labelKey: 'price' | 'rating' | 'brand' | 'category' | 'stock' | 'description';
+  render: (product: Product, t: CompareTranslator) => React.ReactNode;
 }
 
 const rows: CompareRow[] = [
   {
-    label: 'Harga',
+    labelKey: 'price',
     render: (product) => (
       <Price
         amount={product.price}
@@ -29,7 +32,7 @@ const rows: CompareRow[] = [
     ),
   },
   {
-    label: 'Rating',
+    labelKey: 'rating',
     render: (product) =>
       typeof product.rating === 'number' ? (
         <Rating value={product.rating} reviewCount={product.reviewCount} />
@@ -38,33 +41,34 @@ const rows: CompareRow[] = [
       ),
   },
   {
-    label: 'Brand',
+    labelKey: 'brand',
     render: (product) => product.brandName || <span className="text-muted-foreground">—</span>,
   },
   {
-    label: 'Kategori',
+    labelKey: 'category',
     render: (product) => product.categoryName || <span className="text-muted-foreground">—</span>,
   },
   {
-    label: 'Stok',
-    render: (product) =>
+    labelKey: 'stock',
+    render: (product, t) =>
       product.inStock && product.stock > 0 ? (
-        <span className="text-emerald-600">Tersedia ({product.stock})</span>
+        <span className="text-emerald-600">{t('inStock', { count: product.stock })}</span>
       ) : (
-        <span className="text-destructive">Habis</span>
+        <span className="text-destructive">{t('outOfStock')}</span>
       ),
   },
   {
-    label: 'Deskripsi',
-    render: (product) => (
+    labelKey: 'description',
+    render: (product, t) => (
       <p className="line-clamp-4 text-sm text-muted-foreground">
-        {product.description || 'Tidak ada deskripsi.'}
+        {product.description || t('noDescription')}
       </p>
     ),
   },
 ];
 
 export default function ComparePage() {
+  const t = useTranslations('catalog.comparePage');
   const { products, productIds, isLoading } = useCompareProducts();
   const remove = useCompareStore((state) => state.remove);
   const clear = useCompareStore((state) => state.clear);
@@ -73,9 +77,9 @@ export default function ComparePage() {
     return (
       <EmptyState
         icon={<GitCompare className="h-8 w-8" aria-hidden="true" />}
-        title="Belum ada produk untuk dibandingkan"
-        description="Pilih hingga 3 produk dari katalog untuk melihat perbandingan berdampingan."
-        cta={{ label: 'Jelajahi produk', href: '/products' }}
+        title={t('emptyTitle')}
+        description={t('emptyDescription')}
+        cta={{ label: t('browse'), href: '/products' }}
       />
     );
   }
@@ -83,8 +87,8 @@ export default function ComparePage() {
   if (isLoading && products.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Perbandingan Produk</h1>
-        <p className="text-sm text-muted-foreground">Memuat produk…</p>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('loading')}</p>
       </div>
     );
   }
@@ -93,23 +97,23 @@ export default function ComparePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Perbandingan Produk</h1>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
           <p className="text-sm text-muted-foreground">
-            Membandingkan {products.length} produk berdampingan.
+            {t('comparing', { count: products.length })}
           </p>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={clear}>
-          Kosongkan perbandingan
+          {t('clear')}
         </Button>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-sm">
-          <caption className="sr-only">Tabel perbandingan produk</caption>
+          <caption className="sr-only">{t('caption')}</caption>
           <thead>
             <tr>
               <th scope="col" className="w-32 p-3 text-left align-bottom text-muted-foreground">
-                Produk
+                {t('product')}
               </th>
               {products.map((product) => {
                 const image = product.imageUrl || product.images?.[0] || '';
@@ -129,7 +133,7 @@ export default function ComparePage() {
                         <button
                           type="button"
                           onClick={() => remove(product.id)}
-                          aria-label={`Hapus ${product.title} dari perbandingan`}
+                          aria-label={t('remove', { title: product.title })}
                           className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/90 text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           <X className="h-3.5 w-3.5" aria-hidden="true" />
@@ -149,16 +153,16 @@ export default function ComparePage() {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.label} className="border-t">
+              <tr key={row.labelKey} className="border-t">
                 <th
                   scope="row"
                   className="p-3 text-left align-top font-medium text-muted-foreground"
                 >
-                  {row.label}
+                  {t(`rows.${row.labelKey}`)}
                 </th>
                 {products.map((product) => (
                   <td key={product.id} className="p-3 align-top">
-                    {row.render(product)}
+                    {row.render(product, t)}
                   </td>
                 ))}
               </tr>

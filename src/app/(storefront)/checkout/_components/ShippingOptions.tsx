@@ -1,10 +1,11 @@
 'use client';
 
+import { useTranslations, type DateTimeFormatOptions } from 'next-intl';
 import React from 'react';
 
 import type { ShippingOption } from '@/entities/checkout/schemas';
-import { formatCurrency } from '@/lib/api/utils';
 import { cn } from '@/lib/utils';
+import { useFormat, type StorefrontFormat } from '@/shared/i18n/use-format';
 
 export interface ShippingOptionsProps {
   options: ShippingOption[];
@@ -14,15 +15,17 @@ export interface ShippingOptionsProps {
 }
 
 export function ShippingOptions({ options, selectedId, onChange, disabled }: ShippingOptionsProps) {
+  const t = useTranslations('checkout.shipping');
+  const fmt = useFormat();
   if (!options.length) {
-    return <p className="text-sm text-muted-foreground">No shipping options available.</p>;
+    return <p className="text-sm text-muted-foreground">{t('empty')}</p>;
   }
 
   return (
     <div className="space-y-3">
       {options.map((option) => {
         const isSelected = option.id === selectedId;
-        const etaLabel = formatEtaLabel(option.etd);
+        const etaLabel = t('eta', { range: formatEtaRange(fmt, option.etd) });
         return (
           <label
             key={option.id}
@@ -50,7 +53,7 @@ export function ShippingOptions({ options, selectedId, onChange, disabled }: Shi
                   {etaLabel}
                 </span>
               </div>
-              <p className="text-sm font-semibold">{formatCurrency(option.cost)}</p>
+              <p className="text-sm font-semibold">{fmt.currency(option.cost)}</p>
             </div>
           </label>
         );
@@ -59,22 +62,22 @@ export function ShippingOptions({ options, selectedId, onChange, disabled }: Shi
   );
 }
 
-function formatEtaLabel(etd: string) {
+const ETA_DATE: DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+
+/** The arrival window shown after "Estimasi tiba": a date range, or the raw `etd` text. */
+function formatEtaRange(fmt: StorefrontFormat, etd: string) {
   const parsed = parseEtdDays(etd);
   if (!parsed) {
-    return `Estimasi tiba ${etd}`;
+    return etd;
   }
 
   const { minDays, maxDays } = parsed;
   const now = new Date();
   const startDate = addDays(now, minDays);
   const endDate = addDays(now, maxDays);
-  const formatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' });
-  const startLabel = formatter.format(startDate);
-  const endLabel = formatter.format(endDate);
-  const range = startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
-
-  return `Estimasi tiba ${range}`;
+  const startLabel = fmt.date(startDate, ETA_DATE);
+  const endLabel = fmt.date(endDate, ETA_DATE);
+  return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
 }
 
 function parseEtdDays(etd: string) {

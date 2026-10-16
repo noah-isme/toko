@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useReducer, useRef } from 'react';
 
 import {
@@ -100,6 +101,7 @@ export function useQuestionQuery(questionId: string) {
 export function useCreateQuestionMutation(productId: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('product.qa.toast');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<
@@ -117,7 +119,7 @@ export function useCreateQuestionMutation(productId: string) {
       const optimisticQuestion: Question = {
         id: createTempQuestionId(),
         productId,
-        author: 'Anda',
+        author: t('you'),
         authorId: 'current-user',
         question: input.question,
         createdAt: new Date().toISOString(),
@@ -178,8 +180,8 @@ export function useCreateQuestionMutation(productId: string) {
 
       toast({
         id: `question-create-${productId}-success`,
-        title: 'Pertanyaan dikirim',
-        description: 'Pertanyaan Anda akan ditinjau dan dijawab segera.',
+        title: t('questionSent.title'),
+        description: t('questionSent.description'),
         variant: 'success',
       });
     },
@@ -197,7 +199,7 @@ export function useCreateQuestionMutation(productId: string) {
 
       toast({
         id: `question-create-${productId}-error`,
-        title: 'Gagal mengirim pertanyaan',
+        title: t('questionFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -242,6 +244,7 @@ export function useCreateQuestionMutation(productId: string) {
 export function useAnswerQuestionMutation(questionId: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('product.qa.toast');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<Question, Error, AnswerCreateInput, AnswerQuestionContext>({
@@ -290,8 +293,8 @@ export function useAnswerQuestionMutation(questionId: string) {
     onSuccess: () => {
       toast({
         id: `answer-${questionId}-success`,
-        title: 'Jawaban dikirim',
-        description: 'Jawaban Anda telah dipublikasikan.',
+        title: t('answerSent.title'),
+        description: t('answerSent.description'),
         variant: 'success',
       });
     },
@@ -310,7 +313,7 @@ export function useAnswerQuestionMutation(questionId: string) {
 
       toast({
         id: `answer-${questionId}-error`,
-        title: 'Gagal mengirim jawaban',
+        title: t('answerFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -352,6 +355,7 @@ export function useAnswerQuestionMutation(questionId: string) {
 export function useVoteQuestionHelpfulMutation(questionId: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('product.qa.toast');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<
@@ -417,7 +421,7 @@ export function useVoteQuestionHelpfulMutation(questionId: string) {
 
       toast({
         id: `vote-${questionId}-error`,
-        title: 'Gagal voting',
+        title: t('voteFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

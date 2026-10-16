@@ -23,7 +23,7 @@ describe('ProductImageGallery swipe gestures', () => {
 
   it('advances to the next image on a left swipe past the threshold', () => {
     render(<ProductImageGallery images={images} productName="Widget" />);
-    const stage = screen.getByRole('button', { name: /zoom in/i });
+    const stage = screen.getByRole('button', { name: /perbesar/i });
 
     swipe(stage, 200, 120); // dx = -80
 
@@ -32,7 +32,7 @@ describe('ProductImageGallery swipe gestures', () => {
 
   it('goes to the previous image on a right swipe past the threshold', () => {
     render(<ProductImageGallery images={images} productName="Widget" />);
-    const stage = screen.getByRole('button', { name: /zoom in/i });
+    const stage = screen.getByRole('button', { name: /perbesar/i });
 
     swipe(stage, 120, 200); // dx = +80, wraps from first to last
 
@@ -41,7 +41,7 @@ describe('ProductImageGallery swipe gestures', () => {
 
   it('ignores swipes shorter than the threshold', () => {
     render(<ProductImageGallery images={images} productName="Widget" />);
-    const stage = screen.getByRole('button', { name: /zoom in/i });
+    const stage = screen.getByRole('button', { name: /perbesar/i });
 
     swipe(stage, 200, 180); // dx = -20
 
@@ -50,7 +50,7 @@ describe('ProductImageGallery swipe gestures', () => {
 
   it('does not change the image for a single-image gallery', () => {
     render(<ProductImageGallery images={['/only.jpg']} productName="Widget" />);
-    const stage = screen.getByRole('button', { name: /zoom in/i });
+    const stage = screen.getByRole('button', { name: /perbesar/i });
 
     // No counter is shown for a single image; a swipe must not throw or advance.
     swipe(stage, 200, 100);

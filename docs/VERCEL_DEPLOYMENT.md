@@ -2,9 +2,10 @@
 
 This repository is a Next.js App Router project. The Vercel project root is the
 repository root (.) and the framework preset is **Next.js**. The checked-in
-vercel.json pins the build command to `pnpm build`; the script selects webpack
-so @ducanh2912/next-pwa can emit its generated worker and custom push-worker
-bundle deterministically. Keep the committed pnpm-lock.yaml as the source of
+vercel.json pins the build command to `pnpm build`, a Turbopack build. The
+service worker is bundled at build time by the `/serwist/[path]` route handler
+with native esbuild (ADR-009), so pnpm must be allowed to run esbuild's install
+script (`pnpm.onlyBuiltDependencies` in package.json). Keep the committed pnpm-lock.yaml as the source of
 truth; Vercel should install with the package manager declared in package.json.
 
 ## Runtime and build contract

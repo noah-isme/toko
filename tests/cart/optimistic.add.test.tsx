@@ -4,7 +4,8 @@ import { HttpResponse, delay, http } from 'msw';
 import React, { type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { useAddToCartMutation, useCartQuery, useProductsQuery } from '@/lib/api/hooks';
+import { useAddToCartMutation, useCartQuery } from '@/entities/cart/hooks';
+import { useProducts } from '@/entities/catalog/hooks';
 import { queryKeys } from '@/lib/api/queryKeys';
 import type { CartView } from '@/lib/api/schemas';
 import { handlers } from '@/mocks/handlers';
@@ -41,13 +42,13 @@ describe('cart optimistic add mutation', () => {
     const initialCart = cartResult.current.data as CartView;
     const initialCount = initialCart.itemCount;
 
-    const { result: productsResult } = renderHook(() => useProductsQuery(), { wrapper: Wrapper });
+    const { result: productsResult } = renderHook(() => useProducts(), { wrapper: Wrapper });
 
     await waitFor(() => {
       expect(productsResult.current.data).toBeDefined();
     });
 
-    const availableProduct = productsResult.current.data!.find(
+    const availableProduct = productsResult.current.data!.data.find(
       (product) => !initialCart.items.some((item) => item.productId === product.id),
     );
 
@@ -82,7 +83,7 @@ describe('cart optimistic add mutation', () => {
         quantity: 1,
         name: availableProduct!.title,
         price: { amount: availableProduct!.price, currency: availableProduct!.currency },
-        image: availableProduct!.images[0] ?? null,
+        image: availableProduct!.images?.[0] ?? null,
         maxQuantity: availableProduct!.stock,
         cartId: initialCart.id,
       });
@@ -119,7 +120,7 @@ describe('cart optimistic add mutation', () => {
     const initialCart = cartResult.current.data as CartView;
     const initialCount = initialCart.itemCount;
 
-    const { result: productsResult } = renderHook(() => useProductsQuery(), {
+    const { result: productsResult } = renderHook(() => useProducts(), {
       wrapper: Wrapper,
     });
 
@@ -127,7 +128,7 @@ describe('cart optimistic add mutation', () => {
       expect(productsResult.current.data).toBeDefined();
     });
 
-    const fallbackProduct = productsResult.current.data!.find(
+    const fallbackProduct = productsResult.current.data!.data.find(
       (product) =>
         product.stock > 0 && !initialCart.items.some((item) => item.productId === product.id),
     );
@@ -156,7 +157,7 @@ describe('cart optimistic add mutation', () => {
         quantity: 1,
         name: fallbackProduct!.title,
         price: { amount: fallbackProduct!.price, currency: fallbackProduct!.currency },
-        image: fallbackProduct!.images[0] ?? null,
+        image: fallbackProduct!.images?.[0] ?? null,
         maxQuantity: fallbackProduct!.stock,
         cartId: initialCart.id,
       });

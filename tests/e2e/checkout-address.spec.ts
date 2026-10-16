@@ -57,7 +57,7 @@ test.describe('Checkout address flow', () => {
       await selectAddress(page);
 
       // Wait for shipping options to appear
-      const shippingSection = page.getByRole('heading', { name: 'Shipping Options' });
+      const shippingSection = page.getByRole('heading', { name: 'Opsi Pengiriman' });
       await expect(shippingSection).toBeVisible({ timeout: 10_000 });
 
       // Verify at least one shipping option is available
@@ -222,7 +222,7 @@ test.describe('Checkout address flow', () => {
         await page.waitForTimeout(500);
 
         // Shipping section should still be present
-        const shippingSection = page.getByRole('heading', { name: 'Shipping Options' });
+        const shippingSection = page.getByRole('heading', { name: 'Opsi Pengiriman' });
         await expect(shippingSection).toBeVisible();
       }
     });

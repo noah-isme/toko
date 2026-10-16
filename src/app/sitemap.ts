@@ -1,32 +1,14 @@
 import type { MetadataRoute } from 'next';
 
 import { productListSchema } from '@/lib/api/schemas';
-import { getPublicEnv, isIndexableDeployment } from '@/shared/config/env';
-import { abs, siteUrl } from '@/shared/seo/seo';
+import { serverApiGet } from '@/lib/api/server';
+import { isIndexableDeployment } from '@/shared/config/env';
+import { abs, localeAlternates, siteUrl } from '@/shared/seo/seo';
 
 async function fetchProductSlugs() {
-  const { apiUrl, apiMocking, tenantId } = getPublicEnv();
-  if (!apiUrl || apiUrl === 'mock' || apiMocking) {
-    return [];
-  }
-
   try {
-    const endpoint = `${apiUrl.replace(/\/$/, '')}/products`;
-    const headers = new Headers({ Accept: 'application/json' });
-    if (tenantId) {
-      headers.set('X-Tenant-ID', tenantId);
-    }
-
-    const response = await fetch(endpoint, {
-      headers,
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data: unknown = await response.json();
+    // serverApiGet answers from the in-process mock in mock mode (seeded slugs).
+    const data = await serverApiGet<unknown>('/products');
     const direct = productListSchema.safeParse(data);
     if (direct.success) {
       return direct.data.map((product) => product.slug);
@@ -58,19 +40,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const slugs = await fetchProductSlugs();
   const lastModified = new Date();
 
+  const withAlternates = (path: string, url: string) => {
+    const { id, en } = localeAlternates(path);
+    return { url, lastModified, alternates: { languages: { id, en } } };
+  };
+
   const entries: MetadataRoute.Sitemap = [
-    {
-      url: siteUrl,
-      lastModified,
-    },
-    {
-      url: abs('/products'),
-      lastModified,
-    },
-    ...slugs.map((slug) => ({
-      url: abs(`/products/${slug}`),
-      lastModified,
-    })),
+    withAlternates('/', siteUrl),
+    withAlternates('/products', abs('/products')),
+    ...slugs.map((slug) => withAlternates(`/products/${slug}`, abs(`/products/${slug}`))),
   ];
 
   return entries;

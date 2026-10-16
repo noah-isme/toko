@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus, RefreshCw, Repeat, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import {
@@ -46,12 +47,9 @@ import {
   useDeleteAdminWebhook,
   useReplayAdminWebhookDelivery,
   useUpdateAdminWebhook,
-} from '@/lib/api/hooks.admin';
-import {
-  formatRelativeTime,
-  type AdminWebhookEndpoint,
-  type AdminWebhookEndpointInput,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminWebhookEndpoint, AdminWebhookEndpointInput } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -107,6 +105,9 @@ function maskSecret(secret: string): string {
 }
 
 export default function WebhooksPage() {
+  const t = useTranslations('admin.webhooks');
+  const tCommon = useTranslations('admin.common');
+  const { relative } = useAdminFormat();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminWebhookEndpoint | null>(null);
@@ -155,27 +156,27 @@ export default function WebhooksPage() {
       topics: form.topics,
     };
     if (!payload.name || !payload.url || !payload.secret) {
-      toast({ title: 'Name, URL and secret are required', variant: 'destructive' });
+      toast({ title: t('toast.required'), variant: 'destructive' });
       return;
     }
     if (payload.topics.length === 0) {
-      toast({ title: 'Select at least one topic', variant: 'destructive' });
+      toast({ title: t('toast.topicRequired'), variant: 'destructive' });
       return;
     }
     try {
       if (editing) {
         await updateWebhook.mutateAsync({ id: editing.id, data: payload });
-        toast({ title: 'Endpoint updated', description: payload.name, variant: 'success' });
+        toast({ title: t('toast.updated'), description: payload.name, variant: 'success' });
       } else {
         await createWebhook.mutateAsync(payload);
-        toast({ title: 'Endpoint created', description: payload.name, variant: 'success' });
+        toast({ title: t('toast.created'), description: payload.name, variant: 'success' });
       }
       setDialogOpen(false);
       setEditing(null);
     } catch (error) {
       toast({
-        title: 'Could not save endpoint',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.saveFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -185,12 +186,12 @@ export default function WebhooksPage() {
     if (!deleteTarget) return;
     try {
       await deleteWebhook.mutateAsync(deleteTarget.id);
-      toast({ title: 'Endpoint deleted', description: deleteTarget.name, variant: 'success' });
+      toast({ title: t('toast.deleted'), description: deleteTarget.name, variant: 'success' });
       setDeleteTarget(null);
     } catch (error) {
       toast({
-        title: 'Could not delete endpoint',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.deleteFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -199,11 +200,11 @@ export default function WebhooksPage() {
   const handleReplay = async (id: string) => {
     try {
       await replayDelivery.mutateAsync(id);
-      toast({ title: 'Delivery queued for replay', variant: 'success' });
+      toast({ title: t('toast.replayQueued'), variant: 'success' });
     } catch (error) {
       toast({
-        title: 'Could not replay delivery',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.replayFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -218,37 +219,42 @@ export default function WebhooksPage() {
     }));
   };
 
+  const deliveryStatusLabel = (status: string) => {
+    const key = `deliveryStatus.${status.toUpperCase()}`;
+    return t.has(key as never) ? t(key as never) : status;
+  };
+
   const endpointName = (id: string) =>
     (endpoints.data ?? []).find((endpoint) => endpoint.id === id)?.name ?? id.slice(0, 8);
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Webhooks"
-        description="Outbound event endpoints and their delivery history"
+        title={t('title')}
+        description={t('description')}
         actions={
           <Button onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add Endpoint
+            {t('add')}
           </Button>
         }
       />
 
       <Card>
         <CardHeader>
-          <CardTitle>Endpoints</CardTitle>
+          <CardTitle>{t('endpoints')}</CardTitle>
         </CardHeader>
         <CardContent>
           {endpoints.isLoading ? (
-            <AdminLoading label="Loading endpoints..." />
+            <AdminLoading label={t('loadingEndpoints')} />
           ) : endpoints.isError ? (
             <AdminError error={endpoints.error} onRetry={() => void endpoints.refetch()} />
           ) : (endpoints.data ?? []).length === 0 ? (
             <AdminEmpty
-              message="No webhook endpoints configured."
+              message={t('noEndpoints')}
               action={
                 <Button size="sm" onClick={openCreate}>
-                  Add Endpoint
+                  {t('add')}
                 </Button>
               }
             />
@@ -257,12 +263,12 @@ export default function WebhooksPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>URL</TableHead>
-                    <TableHead>Topics</TableHead>
-                    <TableHead>Secret</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t('columns.name')}</TableHead>
+                    <TableHead>{t('columns.url')}</TableHead>
+                    <TableHead>{t('columns.topics')}</TableHead>
+                    <TableHead>{t('columns.secret')}</TableHead>
+                    <TableHead>{tCommon('status')}</TableHead>
+                    <TableHead className="text-right">{tCommon('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -290,13 +296,13 @@ export default function WebhooksPage() {
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button variant="outline" size="sm" onClick={() => openEdit(endpoint)}>
-                            Edit
+                            {tCommon('edit')}
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="text-red-600"
-                            aria-label={`Delete ${endpoint.name}`}
+                            aria-label={t('deleteName', { name: endpoint.name })}
                             onClick={() => setDeleteTarget(endpoint)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -314,14 +320,14 @@ export default function WebhooksPage() {
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>Recent Deliveries</CardTitle>
+          <CardTitle>{t('recentDeliveries')}</CardTitle>
           <div className="flex flex-wrap gap-2">
             <Select value={endpointFilter} onValueChange={setEndpointFilter}>
-              <SelectTrigger className="w-44" aria-label="Filter by endpoint">
+              <SelectTrigger className="w-44" aria-label={t('filterEndpoint')}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All endpoints</SelectItem>
+                <SelectItem value="all">{t('allEndpoints')}</SelectItem>
                 {(endpoints.data ?? []).map((endpoint) => (
                   <SelectItem key={endpoint.id} value={endpoint.id}>
                     {endpoint.name}
@@ -335,13 +341,13 @@ export default function WebhooksPage() {
                 setStatusFilter(value as (typeof DELIVERY_STATUSES)[number])
               }
             >
-              <SelectTrigger className="w-36" aria-label="Filter by status">
+              <SelectTrigger className="w-36" aria-label={t('filterStatus')}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {DELIVERY_STATUSES.map((status) => (
                   <SelectItem key={status} value={status}>
-                    {status === 'all' ? 'All statuses' : status}
+                    {status === 'all' ? t('allStatuses') : deliveryStatusLabel(status)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -349,7 +355,7 @@ export default function WebhooksPage() {
             <Button
               variant="outline"
               size="icon"
-              aria-label="Refresh deliveries"
+              aria-label={t('refresh')}
               onClick={() => void deliveries.refetch()}
             >
               <RefreshCw className={cn('h-4 w-4', deliveries.isFetching && 'animate-spin')} />
@@ -358,23 +364,23 @@ export default function WebhooksPage() {
         </CardHeader>
         <CardContent>
           {deliveries.isLoading ? (
-            <AdminLoading label="Loading deliveries..." />
+            <AdminLoading label={t('loadingDeliveries')} />
           ) : deliveries.isError ? (
             <AdminError error={deliveries.error} onRetry={() => void deliveries.refetch()} />
           ) : (deliveries.data?.data ?? []).length === 0 ? (
-            <AdminEmpty message="No deliveries recorded." />
+            <AdminEmpty message={t('noDeliveries')} />
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Endpoint</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Attempt</TableHead>
-                    <TableHead>Response</TableHead>
-                    <TableHead>Error</TableHead>
-                    <TableHead>When</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t('columns.endpoint')}</TableHead>
+                    <TableHead>{tCommon('status')}</TableHead>
+                    <TableHead>{t('columns.attempt')}</TableHead>
+                    <TableHead>{t('columns.response')}</TableHead>
+                    <TableHead>{t('columns.error')}</TableHead>
+                    <TableHead>{t('columns.when')}</TableHead>
+                    <TableHead className="text-right">{tCommon('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -388,7 +394,7 @@ export default function WebhooksPage() {
                           variant="outline"
                           className={cn('font-medium', deliveryStatusClass(delivery.status))}
                         >
-                          {delivery.status}
+                          {deliveryStatusLabel(delivery.status)}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-sm">
@@ -401,7 +407,7 @@ export default function WebhooksPage() {
                         {delivery.last_error ?? '-'}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {formatRelativeTime(delivery.updated_at)}
+                        {relative(delivery.updated_at)}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -411,7 +417,7 @@ export default function WebhooksPage() {
                           onClick={() => void handleReplay(delivery.id)}
                         >
                           <Repeat className="mr-2 h-4 w-4" aria-hidden="true" />
-                          Replay
+                          {t('replay')}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -432,20 +438,20 @@ export default function WebhooksPage() {
       >
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editing ? 'Edit Endpoint' : 'Add Endpoint'}</DialogTitle>
+            <DialogTitle>{editing ? t('edit') : t('add')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="webhook-name">Name</Label>
+              <Label htmlFor="webhook-name">{t('form.name')}</Label>
               <Input
                 id="webhook-name"
                 value={form.name}
                 onChange={(event) => setForm((c) => ({ ...c, name: event.target.value }))}
-                placeholder="Fulfilment service"
+                placeholder={t('form.namePlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="webhook-url">URL</Label>
+              <Label htmlFor="webhook-url">{t('form.url')}</Label>
               <Input
                 id="webhook-url"
                 type="url"
@@ -455,20 +461,18 @@ export default function WebhooksPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="webhook-secret">Signing secret</Label>
+              <Label htmlFor="webhook-secret">{t('form.secret')}</Label>
               <Input
                 id="webhook-secret"
                 value={form.secret}
                 onChange={(event) => setForm((c) => ({ ...c, secret: event.target.value }))}
-                placeholder="Shared HMAC secret"
+                placeholder={t('form.secretPlaceholder')}
                 className="font-mono"
               />
-              <p className="text-xs text-muted-foreground">
-                Used to sign each payload. Store it only in the receiving service.
-              </p>
+              <p className="text-xs text-muted-foreground">{t('form.secretHint')}</p>
             </div>
             <div className="space-y-2">
-              <Label>Topics</Label>
+              <Label>{t('form.topics')}</Label>
               <div className="grid gap-2 sm:grid-cols-2">
                 {TOPICS.map((topic) => (
                   <div key={topic} className="flex items-center gap-2">
@@ -490,15 +494,15 @@ export default function WebhooksPage() {
                 checked={form.active}
                 onCheckedChange={(checked) => setForm((c) => ({ ...c, active: checked }))}
               />
-              <Label htmlFor="webhook-active">Active</Label>
+              <Label htmlFor="webhook-active">{t('form.active')}</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
+              {saving ? tCommon('saving') : editing ? t('form.update') : t('form.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -507,17 +511,20 @@ export default function WebhooksPage() {
       <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Endpoint</DialogTitle>
+            <DialogTitle>{t('deleteTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Delete <strong>{deleteTarget?.name}</strong>? Pending deliveries to this endpoint stop.
+            {t.rich('deleteConfirm', {
+              name: deleteTarget?.name ?? '',
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleteWebhook.isPending}>
-              {deleteWebhook.isPending ? 'Deleting...' : 'Delete'}
+              {deleteWebhook.isPending ? tCommon('deleting') : tCommon('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

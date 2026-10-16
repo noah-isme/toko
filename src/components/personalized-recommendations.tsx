@@ -1,11 +1,14 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { ProductCard } from '@/components/product-card';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Skeleton } from '@/components/ui/skeleton';
-import { usePersonalizedRecommendations } from '@/lib/api';
+import { usePersonalizedRecommendations } from '@/entities/catalog/hooks';
 
 export function PersonalizedRecommendations({ limit = 4 }: { limit?: number }) {
+  const t = useTranslations('product.recommendations.forYou');
   const { isAuthenticated } = useAuth();
   const { data, isLoading } = usePersonalizedRecommendations(limit, {
     enabled: isAuthenticated,
@@ -16,7 +19,7 @@ export function PersonalizedRecommendations({ limit = 4 }: { limit?: number }) {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight">Recommended For You</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {[...Array(limit)].map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
@@ -36,7 +39,7 @@ export function PersonalizedRecommendations({ limit = 4 }: { limit?: number }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight">Recommended For You</h2>
+      <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
         {data.map((product) => (
           <ProductCard key={product.id} product={product} />

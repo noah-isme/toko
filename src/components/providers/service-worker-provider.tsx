@@ -26,9 +26,17 @@ export function MockServiceWorkerProvider({ children }: Props) {
     async function startMockWorker() {
       try {
         if (shouldMock) {
-          const { createWorker } = await import('@/mocks/browser');
-          const worker = await createWorker();
-          await worker.start({ onUnhandledRequest: 'bypass' });
+          // Keep this test a literal env expression (not MSW_ENABLED) so builds
+          // without mocking drop the MSW chunk; see tests/config/mock-gate.test.ts.
+          if (
+            process.env.NODE_ENV === 'production'
+              ? process.env.NEXT_PUBLIC_API_MOCKING === 'true'
+              : process.env.NEXT_PUBLIC_API_MOCKING !== 'false'
+          ) {
+            const { createWorker } = await import('@/mocks/browser');
+            const worker = await createWorker();
+            await worker.start({ onUnhandledRequest: 'bypass' });
+          }
         }
       } catch (err) {
         // If the worker fails to boot, fall through to the real API rather

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import type { ToastVariant } from './policy';
@@ -22,14 +23,19 @@ export interface RetryToastActionProps {
 
 export function RetryToastAction({
   onRetry,
-  label = 'Coba lagi',
-  busyLabel = 'Mencoba lagi…',
-  errorTitle = 'Masih gagal',
-  errorDescription = 'Tidak dapat menyelesaikan permintaan. Silakan coba lagi nanti.',
+  label: labelProp,
+  busyLabel: busyLabelProp,
+  errorTitle: errorTitleProp,
+  errorDescription: errorDescriptionProp,
   errorVariant = 'destructive',
   errorEventKey,
   className,
 }: RetryToastActionProps) {
+  const t = useTranslations('common.retryToast');
+  const label = labelProp ?? t('label');
+  const busyLabel = busyLabelProp ?? t('busy');
+  const errorTitle = errorTitleProp ?? t('errorTitle');
+  const errorDescription = errorDescriptionProp ?? t('errorDescription');
   const { toastId, dismiss } = useToastActionContext();
   const { toast: pushToast } = useToast();
   const [isRunning, setIsRunning] = useState(false);

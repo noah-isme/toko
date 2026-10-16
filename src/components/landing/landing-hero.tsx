@@ -13,10 +13,12 @@ import {
 } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 
 export function LandingHero() {
+  const t = useTranslations('common.landing.hero');
   return (
     <section className="grid gap-5 lg:grid-cols-3">
       {/* Main Promo Bento Card (2 cols wide on desktop) */}
@@ -26,19 +28,19 @@ export function LandingHero() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-accent/60 px-3 py-1 text-xs font-bold text-primary">
             <ShoppingBag className="h-3.5 w-3.5" />
-            <span>Platform Belanja Resmi</span>
+            <span>{t('badge')}</span>
           </div>
 
           {/* Main Headline */}
           <h1 className="font-display text-5xl leading-[0.92] text-foreground sm:text-6xl lg:text-7xl">
-            Pilihan untuk hidup yang{' '}
-            <span className="italic text-[hsl(35_46%_42%)]">lebih indah.</span>
+            {t.rich('headline', {
+              em: (chunks) => <span className="italic text-[hsl(35_46%_42%)]">{chunks}</span>,
+            })}
           </h1>
 
           {/* Description */}
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Temukan produk pilihan dengan kualitas yang terasa, layanan yang dapat diandalkan, dan
-            detail yang diperhatikan.
+            {t('description')}
           </p>
 
           {/* Action CTAs */}
@@ -49,7 +51,7 @@ export function LandingHero() {
               className="gap-2 bg-primary font-bold text-primary-foreground transition-all duration-150 hover:bg-primary/90 active:scale-[0.98]"
             >
               <Link href={'/featured-products' as Route}>
-                Lihat koleksi pilihan
+                {t('browse')}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -60,7 +62,7 @@ export function LandingHero() {
               variant="outline"
               className="font-semibold transition-all duration-150 active:scale-[0.98]"
             >
-              <Link href="/register">Daftar Akun Gratis</Link>
+              <Link href="/register">{t('register')}</Link>
             </Button>
           </div>
         </div>
@@ -69,15 +71,15 @@ export function LandingHero() {
         <div className="relative mt-8 grid grid-cols-3 gap-3 border-t border-border pt-5 text-xs font-semibold text-muted-foreground">
           <div className="flex items-center gap-2">
             <Truck className="h-4 w-4 shrink-0 text-primary" />
-            <span className="truncate">Gratis Ongkir</span>
+            <span className="truncate">{t('freeShipping')}</span>
           </div>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-500" />
-            <span className="truncate">Garansi 100%</span>
+            <span className="truncate">{t('guarantee')}</span>
           </div>
           <div className="flex items-center gap-2">
             <CreditCard className="h-4 w-4 shrink-0 text-blue-500" />
-            <span className="truncate">Bayar Aman</span>
+            <span className="truncate">{t('securePayment')}</span>
           </div>
         </div>
       </div>
@@ -93,13 +95,13 @@ export function LandingHero() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500 text-white">
               <Flame className="h-4 w-4" />
             </div>
-            <span className="rounded bg-rose-500 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
-              s.d 50%
+            <span className="rounded bg-rose-700 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
+              {t('dealsBadge')}
             </span>
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Diskon Musim Ini</h3>
-            <p className="text-xs text-muted-foreground">Cek promo terpanas & flash deals</p>
+            <h2 className="text-sm font-bold text-foreground">{t('dealsTitle')}</h2>
+            <p className="text-xs text-muted-foreground">{t('dealsDescription')}</p>
           </div>
         </Link>
 
@@ -115,8 +117,8 @@ export function LandingHero() {
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Gadget & Elektronik</h3>
-            <p className="text-xs text-muted-foreground">Laptop, Smartphone, & Aksesori</p>
+            <h2 className="text-sm font-bold text-foreground">{t('electronicsTitle')}</h2>
+            <p className="text-xs text-muted-foreground">{t('electronicsDescription')}</p>
           </div>
         </Link>
 
@@ -132,8 +134,8 @@ export function LandingHero() {
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Fashion & Gaya</h3>
-            <p className="text-xs text-muted-foreground">Pakaian Pria & Wanita Terbaru</p>
+            <h2 className="text-sm font-bold text-foreground">{t('fashionTitle')}</h2>
+            <p className="text-xs text-muted-foreground">{t('fashionDescription')}</p>
           </div>
         </Link>
 
@@ -149,8 +151,8 @@ export function LandingHero() {
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
           </div>
           <div className="mt-3">
-            <h3 className="text-sm font-bold text-foreground">Produk Terbaru</h3>
-            <p className="text-xs text-muted-foreground">Koleksi minggu ini</p>
+            <h2 className="text-sm font-bold text-foreground">{t('newTitle')}</h2>
+            <p className="text-xs text-muted-foreground">{t('newDescription')}</p>
           </div>
         </Link>
       </div>

@@ -1,92 +1,32 @@
-import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
-import { SEED_BRANDS, SEED_CATEGORIES, SEED_PRODUCTS } from './data';
+import { buildMswCart } from './factories/cart';
+import { mockFaker as faker } from './factories/faker';
+import { brands, categories, products as catalogProducts } from './fixtures';
 import { addressHandlers } from './handlers/addressHandlers';
 import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
+import { newsletterHandlers } from './handlers.newsletter';
 import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
+import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
+import { getProduct, listProducts } from './resolvers/catalog';
 import { apiPath, type MockCart } from './utils';
 
-import { addToCartInputSchema, updateCartItemInputSchema, Product } from '@/lib/api/schemas';
+import { addToCartInputSchema, updateCartItemInputSchema } from '@/lib/api/schemas';
 import type { Cart as ApiCart } from '@/lib/api/types';
 
-function createProduct(): Product {
-  const stock = faker.number.int({ min: 0, max: 50 });
-  return {
-    id: faker.string.uuid(),
-    title: faker.commerce.productName(),
-    slug: faker.helpers.slugify(faker.commerce.productName()).toLowerCase(),
-    description: faker.commerce.productDescription(),
-    price: Number(faker.commerce.price({ min: 100000, max: 50000000, dec: 0 })),
-    currency: 'IDR',
-    imageUrl: faker.image.url(),
-    images: Array.from({ length: 3 }, () => faker.image.url()),
-    rating: Number(faker.number.float({ min: 3.5, max: 5, fractionDigits: 1 })),
-    reviewCount: faker.number.int({ min: 10, max: 1200 }),
-    stock: stock,
-    inStock: stock > 0,
-    tags: faker.helpers.arrayElements([
-      'electronics',
-      'fashion',
-      'home',
-      'beauty',
-      'sports',
-      'outdoor',
-    ]),
-  };
-}
+// Catalog data is the canonical fixture set shared with the route handler, so
+// MSW and `/api/v1` serve identical product ids. The cart is MSW's own stateful
+// cart; its ids and quantities come from the seeded faker.
+const products = catalogProducts;
 
-// Map products to match API Contract v0.2.0
-const products: Product[] = SEED_PRODUCTS.map((p) => {
-  const category = SEED_CATEGORIES.find((c) => c.slug === p.category);
-  const brand = SEED_BRANDS.find((b) => b.slug === p.brand);
-  const stock = faker.number.int({ min: 10, max: 50 });
-
-  return {
-    id: faker.string.uuid(),
-    title: p.title,
-    slug: p.slug,
-    description: faker.commerce.productDescription(),
-    price: p.price,
-    originalPrice: p.price * 1.2, // 20% higher original price
-    discountPercent: 20,
-    currency: 'IDR',
-    categoryId: category?.id || p.category,
-    categoryName: category?.name || p.category,
-    brandId: brand?.id || p.brand,
-    brandName: brand?.name || p.brand,
-    imageUrl: p.thumbnail, // Primary image
-    images: [p.thumbnail, faker.image.url(), faker.image.url()],
-    stock: stock,
-    inStock: stock > 0,
-    rating: Number(faker.number.float({ min: 3.5, max: 5, fractionDigits: 1 })),
-    reviewCount: faker.number.int({ min: 10, max: 1200 }),
-    tags: ['new', p.category],
-    createdAt: new Date().toISOString(),
-  };
-});
-
-const cart: MockCart = {
-  id: faker.string.uuid(),
-  items: products.slice(0, 2).map((product) => ({
-    id: faker.string.uuid(),
-    productId: product.id,
-    name: product.title,
-    quantity: faker.number.int({ min: 1, max: 3 }),
-    price: { amount: product.price, currency: product.currency },
-    image: product.imageUrl ?? null,
-    maxQuantity: Math.max(1, product.stock),
-  })),
-  subtotal: { amount: 0, currency: 'IDR' },
-  itemCount: 0,
-};
+const cart: MockCart = buildMswCart(faker, products.slice(0, 2));
 
 function recalculateCartTotals() {
   cart.subtotal.amount = cart.items.reduce(
@@ -155,42 +95,14 @@ export const handlers = [
     if (typeof document !== 'undefined') {
       document.cookie = 'X-CSRF-Token=mock-csrf-token; Path=/; SameSite=Lax';
     }
-    return HttpResponse.json({ data: SEED_CATEGORIES });
+    return HttpResponse.json({ data: categories });
   }),
-  http.get(apiPath('/brands'), () => HttpResponse.json({ data: SEED_BRANDS })),
-  http.get(apiPath('/products'), ({ request }) => {
-    const url = new URL(request.url);
-    const category = url.searchParams.get('category');
-    const brand = url.searchParams.get('brand');
-    const q = url.searchParams.get('q');
-
-    let filtered = products;
-
-    if (category) {
-      filtered = filtered.filter(
-        (p) =>
-          p.categoryId === category || p.categoryName?.toLowerCase() === category.toLowerCase(),
-      );
-    }
-
-    if (brand) {
-      filtered = filtered.filter(
-        (p) => p.brandId === brand || p.brandName?.toLowerCase() === brand.toLowerCase(),
-      );
-    }
-
-    if (q) {
-      const lowerQ = q.toLowerCase();
-      filtered = filtered.filter((p) => p.title.toLowerCase().includes(lowerQ));
-    }
-
-    return HttpResponse.json({
-      data: filtered,
-      pagination: { page: 1, perPage: 20, totalItems: filtered.length },
-    });
-  }),
+  http.get(apiPath('/brands'), () => HttpResponse.json({ data: brands })),
+  http.get(apiPath('/products'), ({ request }) =>
+    HttpResponse.json(listProducts(new URL(request.url).searchParams)),
+  ),
   http.get(apiPath('/products/:slug'), ({ params }) => {
-    const product = products.find((item) => item.slug === params.slug);
+    const product = getProduct(String(params.slug));
     if (!product) {
       return HttpResponse.json({ message: 'Product not found' }, { status: 404 });
     }
@@ -555,6 +467,8 @@ export const handlers = [
   ...customerOperationsHandlers,
   ...favoritesHandlers,
   ...notificationsHandlers,
+  ...pushHandlers,
+  ...newsletterHandlers,
   ...promoHandlers,
   ...reviewsHandlers,
   ...qaHandlers,

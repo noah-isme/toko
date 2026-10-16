@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle, Bell, ChevronDown, Save, SlidersHorizontal, Star, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { PriceRangeFilter } from '@/components/price-range-filter';
@@ -14,6 +15,7 @@ import {
 } from '@/entities/search/hooks';
 import type { SearchFilters, SearchFacet } from '@/entities/search/types';
 import { cn } from '@/lib/utils';
+import { NUMERIC_DATE, useFormat } from '@/shared/i18n/use-format';
 
 interface FilterSidebarProps {
   filters: SearchFilters;
@@ -112,6 +114,8 @@ export function AdvancedFilterSidebar({
   onClearFilters,
   className,
 }: FilterSidebarProps) {
+  const t = useTranslations('catalog.filters');
+  const fmt = useFormat();
   const [open, setOpen] = useState(false);
   const activeCount = useActiveFilterCount(filters);
 
@@ -129,7 +133,7 @@ export function AdvancedFilterSidebar({
   const filterContent = (
     <div className="space-y-1">
       {facetsLoading && (
-        <div className="space-y-2 py-2" role="status" aria-label="Memuat pilihan filter">
+        <div className="space-y-2 py-2" role="status" aria-label={t('loading')}>
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-6 animate-pulse rounded bg-muted" />
           ))}
@@ -143,9 +147,9 @@ export function AdvancedFilterSidebar({
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
           <div className="space-y-2">
-            <p>Filter kategori dan merek belum tersedia. Filter harga tetap dapat digunakan.</p>
+            <p>{t('unavailable')}</p>
             <Button variant="outline" size="sm" onClick={() => refetchFacets()}>
-              Coba Lagi
+              {t('retry')}
             </Button>
           </div>
         </div>
@@ -155,7 +159,7 @@ export function AdvancedFilterSidebar({
       {facets
         .filter((f) => f.type === 'category' || f.name === 'categories')
         .map((facet) => (
-          <FilterSection key={facet.name} title={facet.label}>
+          <FilterSection key={facet.name} title={t('categories')}>
             {renderFacetValues(facet, filters, (value, label) => {
               const current = filters.categories || [];
               onFiltersChange({
@@ -169,7 +173,7 @@ export function AdvancedFilterSidebar({
       {facets
         .filter((f) => f.type === 'brand' || f.name === 'brands')
         .map((facet) => (
-          <FilterSection key={facet.name} title={facet.label}>
+          <FilterSection key={facet.name} title={t('brands')}>
             {renderFacetValues(facet, filters, (value, label) => {
               const current = filters.brands || [];
               onFiltersChange({
@@ -181,7 +185,7 @@ export function AdvancedFilterSidebar({
 
       {/* Price Range */}
       {filters.priceRange && (
-        <FilterSection title="Harga">
+        <FilterSection title={t('price')}>
           <PriceRangeFilter
             min={filters.priceRange[0]}
             max={filters.priceRange[1]}
@@ -220,7 +224,7 @@ export function AdvancedFilterSidebar({
                           )}
                         />
                       ))}
-                      <span className="text-sm">{value}+ stars</span>
+                      <span className="text-sm">{t('ratingStars', { rating: value })}</span>
                       <span className="text-xs text-muted-foreground">({count})</span>
                     </div>
                   </label>
@@ -233,7 +237,7 @@ export function AdvancedFilterSidebar({
                     onChange={() => onFiltersChange({ rating: null })}
                     className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   />
-                  <span className="text-sm">Semua rating</span>
+                  <span className="text-sm">{t('allRatings')}</span>
                 </label>
               </div>
             </FilterSection>
@@ -319,7 +323,7 @@ export function AdvancedFilterSidebar({
             size="sm"
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-            Filter
+            {t('heading')}
             {hasActiveFilters && (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
                 {activeCount}
@@ -330,11 +334,11 @@ export function AdvancedFilterSidebar({
         <SheetContent side="left" className="max-h-screen w-72 p-0 sm:w-80">
           <SheetHeader className="border-b px-4 py-3">
             <div className="flex items-center justify-between">
-              <SheetTitle className="text-lg">Filter Produk</SheetTitle>
+              <SheetTitle className="text-lg">{t('sheetTitle')}</SheetTitle>
               {hasActiveFilters && onClearFilters && (
                 <Button variant="ghost" size="sm" onClick={onClearFilters}>
                   <X className="mr-1 h-3.5 w-3.5" />
-                  Hapus Semua
+                  {t('clearAll')}
                 </Button>
               )}
             </div>
@@ -343,10 +347,10 @@ export function AdvancedFilterSidebar({
           <div className="sticky bottom-0 border-t bg-background p-4">
             <div className="flex w-full gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
-                Tutup
+                {t('close')}
               </Button>
               <Button className="flex-1" onClick={() => setOpen(false)}>
-                Terapkan
+                {t('apply')}
               </Button>
             </div>
           </div>
@@ -362,7 +366,7 @@ export function AdvancedFilterSidebar({
         style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-semibold">Filter</h3>
+          <h2 className="font-semibold">{t('heading')}</h2>
           {hasActiveFilters && onClearFilters && (
             <Button variant="ghost" size="sm" onClick={onClearFilters}>
               <X className="h-3.5 w-3.5" />
@@ -378,27 +382,27 @@ export function AdvancedFilterSidebar({
             className="flex-1"
             onClick={() =>
               saveSearch.mutate({
-                name: `Pencarian ${new Date().toLocaleDateString('id-ID')}`,
+                name: t('savedSearchName', { date: fmt.date(new Date(), NUMERIC_DATE) }),
                 filters,
               })
             }
           >
             <Save className="mr-1 h-4 w-4" />
-            Simpan
+            {t('save')}
           </Button>
           <Button
             variant="ghost"
             className="flex-1"
             onClick={() =>
               saveSearch.mutate({
-                name: `Pencarian ${new Date().toLocaleDateString('id-ID')}`,
+                name: t('savedSearchName', { date: fmt.date(new Date(), NUMERIC_DATE) }),
                 filters,
                 alertEnabled: true,
               })
             }
           >
             <Bell className="mr-1 h-4 w-4" />
-            Notif
+            {t('notify')}
           </Button>
         </div>
       </div>

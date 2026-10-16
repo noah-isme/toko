@@ -1,8 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 
 export interface ProductVariant {
   id: string;
@@ -74,6 +76,7 @@ function StandardVariants({
   selectedId?: string;
   onSelect: (id: string) => void;
 }) {
+  const fmt = useFormat();
   return (
     <div className="flex flex-wrap gap-2">
       {variants.map((variant) => {
@@ -97,15 +100,7 @@ function StandardVariants({
             aria-label={`Select ${variant.name}`}
           >
             {variant.name}
-            {variant.price && (
-              <span className="ml-1 text-xs">
-                {new Intl.NumberFormat('id-ID', {
-                  style: 'currency',
-                  currency: 'IDR',
-                  minimumFractionDigits: 0,
-                }).format(variant.price)}
-              </span>
-            )}
+            {variant.price && <span className="ml-1 text-xs">{fmt.currency(variant.price)}</span>}
           </button>
         );
       })}
@@ -122,6 +117,7 @@ function ColorVariants({
   selectedId?: string;
   onSelect: (id: string) => void;
 }) {
+  const t = useTranslations('product.detail.variants');
   return (
     <div className="flex flex-wrap gap-2">
       {variants.map((variant) => {
@@ -144,7 +140,7 @@ function ColorVariants({
             )}
             style={{ backgroundColor: colorValue }}
             aria-pressed={isSelected}
-            aria-label={`Select ${variant.name} color`}
+            aria-label={t('selectColor', { name: variant.name })}
             title={variant.name}
           >
             {isDisabled && (

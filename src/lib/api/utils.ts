@@ -4,81 +4,61 @@
 import { ApiClientError } from './apiClient';
 import type { ApiErrorCode } from './types';
 
+// Currency and date formatting moved to `@/shared/i18n/format` (plain code) and
+// `@/shared/i18n/use-format` (components): both follow the active locale.
+
 /**
- * Format currency in Indonesian Rupiah
+ * `errors` catalog keys `getErrorMessage` resolves: `api.<ApiErrorCode>` for known API error
+ * codes and `unknown` for values that are not errors.
  */
-export function formatCurrency(amount: number, currency: string = 'IDR'): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+export type ErrorMessageKey = `api.${ApiErrorCode}` | 'unknown';
+
+/** The `errors` translator (`useTranslations('errors')`), narrowed to the keys used here. */
+export type ErrorMessageTranslator = (key: ErrorMessageKey) => string;
+
+/**
+ * `id` texts of the `errors.api.*`/`errors.unknown` catalog keys, used when no translator is
+ * passed (non-React callers). Components pass their `errors` translator instead.
+ */
+const API_ERROR_MESSAGES: Record<ApiErrorCode, string> = {
+  UNAUTHORIZED: 'Sesi Anda telah berakhir. Silakan login kembali.',
+  FORBIDDEN: 'Anda tidak memiliki akses ke resource ini.',
+  NOT_FOUND: 'Data yang Anda cari tidak ditemukan.',
+  BAD_REQUEST: 'Permintaan tidak valid. Periksa kembali data Anda.',
+  VALIDATION_ERROR: 'Data yang Anda masukkan tidak valid.',
+  INTERNAL: 'Terjadi kesalahan pada server. Silakan coba lagi nanti.',
+  UNAVAILABLE: 'Layanan sedang tidak tersedia. Silakan coba lagi nanti.',
+  CART_EXPIRED: 'Keranjang Anda telah kedaluwarsa. Silakan mulai belanja lagi.',
+  OUT_OF_STOCK: 'Maaf, produk tidak tersedia atau stok tidak mencukupi.',
+  VOUCHER_INVALID: 'Kode voucher tidak valid atau sudah kedaluwarsa.',
+  VOUCHER_MIN_SPEND: 'Belum memenuhi minimum pembelian untuk menggunakan voucher ini.',
+  VOUCHER_ALREADY_USED: 'Anda sudah menggunakan voucher ini sebelumnya.',
+  RATE_LIMIT_EXCEEDED: 'Terlalu banyak percobaan. Silakan tunggu sebentar.',
+};
+
+const UNKNOWN_ERROR_MESSAGE = 'Terjadi kesalahan yang tidak diketahui';
+
+function isApiErrorCode(code: unknown): code is ApiErrorCode {
+  return typeof code === 'string' && Object.prototype.hasOwnProperty.call(API_ERROR_MESSAGES, code);
 }
 
 /**
- * Format date in Indonesian locale
+ * Get a user-friendly error message based on the error code. Pass the `errors` translator to get
+ * the message in the active locale; without it the `id` text is returned.
  */
-export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
-  const defaultOptions: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    ...options,
-  };
-
-  return new Intl.DateTimeFormat('id-ID', defaultOptions).format(new Date(date));
-}
-
-/**
- * Format date and time in Indonesian locale
- */
-export function formatDateTime(date: string | Date): string {
-  return formatDate(date, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-/**
- * Get user-friendly error message based on error code
- */
-export function getErrorMessage(error: unknown): string {
+export function getErrorMessage(error: unknown, t?: ErrorMessageTranslator): string {
   if (error instanceof ApiClientError) {
-    return getApiErrorMessage(error.code as ApiErrorCode) || error.message;
+    if (isApiErrorCode(error.code)) {
+      return t ? t(`api.${error.code}`) : API_ERROR_MESSAGES[error.code];
+    }
+    return error.message;
   }
 
   if (error instanceof Error) {
     return error.message;
   }
 
-  return 'Terjadi kesalahan yang tidak diketahui';
-}
-
-/**
- * Get localized error messages for API error codes
- */
-function getApiErrorMessage(code: ApiErrorCode): string | null {
-  const errorMessages: Record<ApiErrorCode, string> = {
-    UNAUTHORIZED: 'Sesi Anda telah berakhir. Silakan login kembali.',
-    FORBIDDEN: 'Anda tidak memiliki akses ke resource ini.',
-    NOT_FOUND: 'Data yang Anda cari tidak ditemukan.',
-    BAD_REQUEST: 'Permintaan tidak valid. Periksa kembali data Anda.',
-    VALIDATION_ERROR: 'Data yang Anda masukkan tidak valid.',
-    INTERNAL: 'Terjadi kesalahan pada server. Silakan coba lagi nanti.',
-    UNAVAILABLE: 'Layanan sedang tidak tersedia. Silakan coba lagi nanti.',
-    CART_EXPIRED: 'Keranjang Anda telah kedaluwarsa. Silakan mulai belanja lagi.',
-    OUT_OF_STOCK: 'Maaf, produk tidak tersedia atau stok tidak mencukupi.',
-    VOUCHER_INVALID: 'Kode voucher tidak valid atau sudah kedaluwarsa.',
-    VOUCHER_MIN_SPEND: 'Belum memenuhi minimum pembelian untuk menggunakan voucher ini.',
-    VOUCHER_ALREADY_USED: 'Anda sudah menggunakan voucher ini sebelumnya.',
-    RATE_LIMIT_EXCEEDED: 'Terlalu banyak percobaan. Silakan tunggu sebentar.',
-  };
-
-  return errorMessages[code] || null;
+  return t ? t('unknown') : UNKNOWN_ERROR_MESSAGE;
 }
 
 /**

@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronDown, Filter, Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 
 import { BrandFilter } from '@/components/brand-filter';
@@ -78,6 +79,7 @@ export function FilterSidebar({
   onToggleDiscount,
   onClearFilters,
 }: FilterSidebarProps) {
+  const t = useTranslations('catalog.sidebar');
   const [open, setOpen] = useState(false);
   const uniqueCategories = useMemo(() => Array.from(new Set(categories)).sort(), [categories]);
 
@@ -94,7 +96,7 @@ export function FilterSidebar({
     <div className="space-y-1">
       {/* Price Range Filter */}
       {onPriceRangeChange && (
-        <FilterSection title="Price Range">
+        <FilterSection title={t('priceRange')}>
           <PriceRangeFilter
             min={priceRange[0]}
             max={priceRange[1]}
@@ -105,7 +107,7 @@ export function FilterSidebar({
       )}
 
       {(onRatingChange || onToggleInStock || onToggleDiscount) && (
-        <FilterSection title="Rating & Availability">
+        <FilterSection title={t('ratingAvailability')}>
           <div className="space-y-3 text-sm text-muted-foreground">
             {onRatingChange ? (
               <div className="space-y-2">
@@ -133,7 +135,7 @@ export function FilterSidebar({
                       <span className="flex items-center gap-1">
                         {value}
                         <Star className="inline h-3.5 w-3.5 fill-current" aria-hidden="true" />
-                        ke atas
+                        {t('andUp')}
                       </span>
                     </label>
                   );
@@ -157,7 +159,7 @@ export function FilterSidebar({
                     checked={inStockOnly}
                     onChange={() => onToggleInStock(!inStockOnly)}
                   />
-                  <span>Stok tersedia saja</span>
+                  <span>{t('inStockOnly')}</span>
                 </label>
               ) : null}
               {onToggleDiscount ? (
@@ -176,7 +178,7 @@ export function FilterSidebar({
                     checked={discountOnly}
                     onChange={() => onToggleDiscount(!discountOnly)}
                   />
-                  <span>Promo saja</span>
+                  <span>{t('discountOnly')}</span>
                 </label>
               ) : null}
             </div>
@@ -185,7 +187,7 @@ export function FilterSidebar({
       )}
 
       {/* Categories Filter */}
-      <FilterSection title="Categories">
+      <FilterSection title={t('categories')}>
         <div className="space-y-3">
           {uniqueCategories.map((category) => {
             const checked = selectedCategories.includes(category);
@@ -218,7 +220,7 @@ export function FilterSidebar({
 
       {/* Brand Filter */}
       {onToggleBrand && brands.length > 0 && (
-        <FilterSection title="Brands">
+        <FilterSection title={t('brands')}>
           <BrandFilter
             brands={brands}
             selectedBrands={selectedBrands}
@@ -234,7 +236,7 @@ export function FilterSidebar({
       <div className="hidden w-64 shrink-0 lg:block">
         <div className="sticky top-24 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Filters</h3>
+            <h3 className="text-lg font-semibold">{t('title')}</h3>
             {hasActiveFilters && (
               <Button
                 variant="ghost"
@@ -242,7 +244,7 @@ export function FilterSidebar({
                 className="h-auto p-0 text-xs text-muted-foreground hover:text-primary"
                 onClick={() => onClearFilters?.()}
               >
-                Clear all
+                {t('clearAll')}
               </Button>
             )}
           </div>
@@ -254,22 +256,22 @@ export function FilterSidebar({
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button className="w-full lg:hidden" variant="outline">
-            <Filter className="mr-2 h-4 w-4" /> Filters
+            <Filter className="mr-2 h-4 w-4" /> {t('title')}
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="flex flex-col gap-4 sm:max-w-xs">
           <SheetHeader className="text-left">
-            <SheetTitle>Filters</SheetTitle>
+            <SheetTitle>{t('title')}</SheetTitle>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto pr-6">{filterContent}</div>
           <div className="space-y-3 border-t pt-4">
             {hasActiveFilters ? (
               <Button variant="ghost" className="w-full" onClick={() => onClearFilters?.()}>
-                Clear all
+                {t('clearAll')}
               </Button>
             ) : null}
             <Button className="w-full" onClick={() => setOpen(false)}>
-              Show Results
+              {t('showResults')}
             </Button>
           </div>
         </SheetContent>

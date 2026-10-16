@@ -1,8 +1,8 @@
 'use client';
 
 import { Banknote, CreditCard, Landmark, Smartphone, Wallet, type LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
-import { PAYMENT_METHOD_LABELS } from '@/lib/api/constants';
 import type { PaymentMethod } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 
@@ -15,44 +15,30 @@ interface PaymentMethodSelectorProps {
 
 const PAYMENT_METHODS: Array<{
   value: PaymentMethod;
-  label: string;
-  description: string;
   icon: LucideIcon;
 }> = [
   {
     value: 'bank_transfer',
-    label: PAYMENT_METHOD_LABELS.bank_transfer,
-    description: 'Transfer manual ke rekening bank',
     icon: Landmark,
   },
   {
     value: 'virtual_account',
-    label: PAYMENT_METHOD_LABELS.virtual_account,
-    description: 'Bayar melalui Virtual Account',
     icon: Wallet,
   },
   {
     value: 'credit_card',
-    label: PAYMENT_METHOD_LABELS.credit_card,
-    description: 'Pembayaran dengan kartu kredit',
     icon: CreditCard,
   },
   {
     value: 'ewallet_gopay',
-    label: PAYMENT_METHOD_LABELS.ewallet_gopay,
-    description: 'Bayar dengan GoPay',
     icon: Smartphone,
   },
   {
     value: 'ewallet_ovo',
-    label: PAYMENT_METHOD_LABELS.ewallet_ovo,
-    description: 'Bayar dengan OVO',
     icon: Smartphone,
   },
   {
     value: 'ewallet_dana',
-    label: PAYMENT_METHOD_LABELS.ewallet_dana,
-    description: 'Bayar dengan DANA',
     icon: Smartphone,
   },
 ];
@@ -63,6 +49,7 @@ export function PaymentMethodSelector({
   disabled = false,
   className,
 }: PaymentMethodSelectorProps) {
+  const t = useTranslations('checkout.payment');
   return (
     <div className={cn('space-y-3', className)} role="radiogroup">
       {PAYMENT_METHODS.map((method) => {
@@ -87,14 +74,18 @@ export function PaymentMethodSelector({
               <method.icon className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               <div className="flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold text-foreground">{method.label}</p>
+                  <p className="font-semibold text-foreground">
+                    {t(`methods.${method.value}.label`)}
+                  </p>
                   {isSelected && (
                     <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
-                      Dipilih
+                      {t('selected')}
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">{method.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t(`methods.${method.value}.description`)}
+                </p>
               </div>
             </div>
           </button>

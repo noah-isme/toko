@@ -2,6 +2,7 @@
 
 import { DollarSign, Package, ShoppingCart, Users } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import {
@@ -19,23 +20,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAdminAnalyticsOverview, useAdminOrders } from '@/lib/api/hooks.admin';
-import { formatCurrency, formatDate, type AdminAnalyticsRange } from '@/lib/api/services/admin';
+import { useAdminAnalyticsOverview, useAdminOrders } from '@/entities/admin/hooks';
+import type { AdminAnalyticsRange } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 
-const RANGE_OPTIONS: { value: AdminAnalyticsRange; label: string }[] = [
-  { value: '7d', label: 'Last 7 days' },
-  { value: '30d', label: 'Last 30 days' },
-  { value: '90d', label: 'Last 90 days' },
-  { value: 'all', label: 'All time' },
-];
+const RANGE_OPTIONS: AdminAnalyticsRange[] = ['7d', '30d', '90d', 'all'];
 
 export default function AdminDashboard() {
+  const t = useTranslations('admin.dashboard');
+  const tRanges = useTranslations('admin.ranges');
+  const tCommon = useTranslations('admin.common');
+  const { currency, date } = useAdminFormat();
   const [range, setRange] = useState<AdminAnalyticsRange>('30d');
   const overview = useAdminAnalyticsOverview(range);
   const recentOrders = useAdminOrders({ page: 1, limit: 5 });
 
   if (overview.isLoading) {
-    return <AdminLoading label="Loading dashboard..." />;
+    return <AdminLoading label={t('loading')} />;
   }
 
   if (overview.isError) {
@@ -45,36 +46,36 @@ export default function AdminDashboard() {
   const data = overview.data;
   const stats = [
     {
-      label: 'Total Revenue',
-      value: formatCurrency(data?.totalRevenue ?? 0),
+      label: t('stats.revenue'),
+      value: currency(data?.totalRevenue ?? 0),
       icon: DollarSign,
     },
-    { label: 'Orders', value: String(data?.totalOrders ?? 0), icon: ShoppingCart },
-    { label: 'Products', value: String(data?.totalProducts ?? 0), icon: Package },
-    { label: 'Customers', value: String(data?.totalCustomers ?? 0), icon: Users },
+    { label: t('stats.orders'), value: String(data?.totalOrders ?? 0), icon: ShoppingCart },
+    { label: t('stats.products'), value: String(data?.totalProducts ?? 0), icon: Package },
+    { label: t('stats.customers'), value: String(data?.totalCustomers ?? 0), icon: Users },
   ];
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Dashboard"
-        description="Overview of your store performance"
+        title={t('title')}
+        description={t('description')}
         actions={
           <>
             <Select value={range} onValueChange={(value) => setRange(value as AdminAnalyticsRange)}>
-              <SelectTrigger className="w-[160px]" aria-label="Date range">
+              <SelectTrigger className="w-[160px]" aria-label={t('dateRange')}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {RANGE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                  <SelectItem key={option} value={option}>
+                    {tRanges(option)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Button asChild>
-              <Link href="/admin/orders">View All Orders</Link>
+              <Link href="/admin/orders">{t('viewAllOrders')}</Link>
             </Button>
           </>
         }
@@ -103,28 +104,34 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Average Order Value
+              {t('stats.averageOrderValue')}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">
-            {formatCurrency(Math.round(data?.averageOrderValue ?? 0))}
+            {currency(Math.round(data?.averageOrderValue ?? 0))}
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('stats.pending')}
+            </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{data?.pendingOrders ?? 0}</CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Shipped</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('stats.shipped')}
+            </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{data?.shippedOrders ?? 0}</CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Delivered</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('stats.delivered')}
+            </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{data?.deliveredOrders ?? 0}</CardContent>
         </Card>
@@ -133,31 +140,29 @@ export default function AdminDashboard() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
+            <CardTitle>{t('recentOrders')}</CardTitle>
           </CardHeader>
           <CardContent>
             {recentOrders.isLoading ? (
-              <AdminLoading label="Loading orders..." />
+              <AdminLoading label={t('loadingOrders')} />
             ) : recentOrders.isError ? (
               <AdminError error={recentOrders.error} onRetry={() => void recentOrders.refetch()} />
             ) : (recentOrders.data?.data.length ?? 0) === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">No orders yet.</p>
+              <p className="py-6 text-center text-sm text-muted-foreground">{t('noOrders')}</p>
             ) : (
               <div className="space-y-4">
                 {recentOrders.data?.data.map((order) => (
                   <div key={order.id} className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
-                        {order.customerName ?? order.customerEmail ?? 'Guest'}
+                        {order.customerName ?? order.customerEmail ?? tCommon('guest')}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {order.orderNumber ?? order.id.slice(0, 8)} · {formatDate(order.createdAt)}
+                        {order.orderNumber ?? order.id.slice(0, 8)} · {date(order.createdAt)}
                       </p>
                     </div>
                     <div className="shrink-0 space-y-1 text-right">
-                      <p className="text-sm font-medium">
-                        {formatCurrency(order.total, order.currency)}
-                      </p>
+                      <p className="text-sm font-medium">{currency(order.total, order.currency)}</p>
                       <OrderStatusBadge status={order.status} />
                     </div>
                   </div>
@@ -169,13 +174,11 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top Products</CardTitle>
+            <CardTitle>{t('topProducts')}</CardTitle>
           </CardHeader>
           <CardContent>
             {(data?.topProducts.length ?? 0) === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No sales in this period.
-              </p>
+              <p className="py-6 text-center text-sm text-muted-foreground">{t('noSales')}</p>
             ) : (
               <div className="space-y-4">
                 {data?.topProducts.map((product, index) => (
@@ -187,10 +190,10 @@ export default function AdminDashboard() {
                       <p className="truncate text-sm font-medium">{product.title}</p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="text-sm font-medium">{product.unitsSold} sold</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatCurrency(product.revenue)}
+                      <p className="text-sm font-medium">
+                        {t('unitsSold', { count: product.unitsSold })}
                       </p>
+                      <p className="text-xs text-muted-foreground">{currency(product.revenue)}</p>
                     </div>
                   </div>
                 ))}

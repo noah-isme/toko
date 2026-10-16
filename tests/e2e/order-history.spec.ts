@@ -176,7 +176,7 @@ test.describe('Order history page', () => {
 
       // Dismiss cookie dialog if present
       try {
-        await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+        await page.getByRole('button', { name: 'Terima Semua' }).click({ timeout: 5000 });
       } catch {
         // Cookie dialog not present
       }

@@ -6,7 +6,7 @@ Complete TypeScript API client implementation for the Toko e-commerce platform.
 
 - ✅ Full TypeScript support with type safety
 - ✅ Automatic token refresh
-- ✅ React Query hooks for caching and state management
+- ✅ Services consumed by React Query hooks in `src/entities/<domain>/`
 - ✅ Zustand store for cart management
 - ✅ Authentication context provider
 - ✅ Guest cart with merge functionality
@@ -59,7 +59,9 @@ The API layer uses a clean architecture with:
 2. **Mappers** (`/mappers`) - Transform between API format (snake_case) and app format (camelCase)
 3. **Types** (`/types.ts`) - Raw API contract types (e.g., `ApiAddressResponse`)
 4. **Entities** (`/entities`) - App domain models (e.g., `Address` from `@/entities/address`)
-5. **Hooks** (`/hooks.react-query.ts`) - React Query integration with entity types
+5. **Hooks** (`src/entities/<domain>/`) - React Query integration with entity types (ADR-007).
+   This folder no longer contains hooks; an ESLint `no-restricted-imports` rule blocks the removed
+   legacy hook modules.
 
 ### Data Flow
 
@@ -119,10 +121,26 @@ API (snake_case) → Mapper → Entity (camelCase) → Components
 
 ## React Hooks
 
-All services have corresponding React Query hooks:
+React Query hooks live with their domain under `src/entities/` (ADR-007). The
+`@/lib/api` barrel exports services, utilities, constants and types only.
+
+| Domain        | Module                           | Hooks                                                                                                                                                                                             |
+| ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog       | `@/entities/catalog/hooks`       | `useCategories`, `useBrands`, `useProducts`, `useProduct`, `useRelatedProducts`, `useFrequentlyBoughtTogether`, `useCustomersAlsoViewed`, `usePersonalizedRecommendations`, `useTrendingProducts` |
+| Cart          | `@/entities/cart/hooks`          | `useCartQuery`, `useAddToCartMutation`, `useUpdateCartItemMutation`, `useRemoveCartItemMutation`                                                                                                  |
+| Orders        | `@/entities/orders/api/hooks`    | `useOrdersQuery`, `useOrderQuery`, `useCancelOrderMutation`, `useOrders`, `useShipment`                                                                                                           |
+| Notifications | `@/entities/notifications/hooks` | `useNotifications`, `useUnreadNotificationCount`, `useMarkNotificationRead`, `useMarkAllNotificationsRead`                                                                                        |
+| Address       | `@/entities/address/hooks`       | address list/create/update/delete/set-default hooks                                                                                                                                               |
+| Checkout      | `@/entities/checkout/api/hooks`  | checkout hooks                                                                                                                                                                                    |
+| Admin         | `@/entities/admin/hooks`         | admin hooks                                                                                                                                                                                       |
+
+Query keys are defined next to the hooks (`src/entities/<domain>/keys.ts`);
+`src/lib/api/queryKeys.ts` keeps only keys shared across domains (for example
+`queryKeys.cart()`).
 
 ```typescript
-import { useProducts, useCart, useCheckout } from '@/lib/api';
+import { useAddToCartMutation, useCartQuery } from '@/entities/cart/hooks';
+import { useProducts } from '@/entities/catalog/hooks';
 
 // Fetch products with filters
 const { data, isLoading, error } = useProducts({
@@ -132,11 +150,11 @@ const { data, isLoading, error } = useProducts({
 });
 
 // Get cart
-const { data: cart } = useCart(cartId);
+const { data: cart } = useCartQuery(cartId);
 
-// Add to cart with mutation
-const addToCart = useAddToCart(cartId);
-addToCart.mutate({ productId: 'xxx', qty: 1 });
+// Add to cart with an optimistic mutation
+const { mutate } = useAddToCartMutation();
+mutate({ productId: 'xxx', quantity: 1, name, price, cartId });
 ```
 
 ## Cart Management
@@ -216,18 +234,13 @@ async function handleLogin(email: string, password: string) {
 
 ## Utilities
 
+Currency and date formatting is locale-aware and lives outside this module: components use
+`useFormat()` from `@/shared/i18n/use-format` (or next-intl's `useFormatter()`/`getFormatter()`),
+plain code uses `formatCurrency(amount, locale)`/`formatDate(date, locale)` from
+`@/shared/i18n/format` (`Rp 12.000.000` in `id`, `IDR 12,000,000` in `en`).
+
 ```typescript
-import {
-  formatCurrency,
-  formatDate,
-  getErrorMessage
-} from '@/lib/api';
-
-// Format currency
-formatCurrency(12000000); // "Rp 12.000.000"
-
-// Format date
-formatDate('2025-12-07T10:00:00Z'); // "7 Desember 2025"
+import { getErrorMessage } from '@/lib/api';
 
 // Get user-friendly error messages
 try {

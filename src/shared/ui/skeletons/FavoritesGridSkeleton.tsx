@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -9,9 +10,10 @@ export interface FavoritesGridSkeletonProps {
 }
 
 export function FavoritesGridSkeleton({ items = 8 }: FavoritesGridSkeletonProps) {
+  const t = useTranslations('common');
   return (
     <div className="space-y-4" role="status">
-      {srOnly('Memuat...')}
+      {srOnly(t('loading'))}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: items }).map((_, index) => (
           <div key={`favorite-skeleton-${index}`} className="space-y-3 rounded-lg border p-4">

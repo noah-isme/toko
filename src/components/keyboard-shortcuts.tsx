@@ -2,6 +2,7 @@
 
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
 import {
@@ -11,13 +12,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { SHORTCUT_GROUPS, useKeyboardShortcuts, useShortcutHelp } from '@/lib/keyboard-shortcuts';
+import {
+  SEARCH_INPUT_ATTRIBUTE,
+  SHORTCUT_GROUPS,
+  useKeyboardShortcuts,
+  useShortcutHelp,
+} from '@/lib/keyboard-shortcuts';
 
 /**
  * Registers global keyboard shortcuts and renders the help modal (opened with
  * `?`). Mounted once at the storefront layout level.
  */
 export function KeyboardShortcuts() {
+  const t = useTranslations('nav.shortcuts');
   const router = useRouter();
   const help = useShortcutHelp();
 
@@ -33,7 +40,7 @@ export function KeyboardShortcuts() {
   const handleFocusSearch = useCallback(() => {
     // Prefer the visible desktop search; fall back to any search input.
     const inputs = Array.from(
-      document.querySelectorAll<HTMLInputElement>('input[aria-label="Search products"]'),
+      document.querySelectorAll<HTMLInputElement>(`input[${SEARCH_INPUT_ATTRIBUTE}]`),
     );
     const visible = inputs.find((input) => input.offsetParent !== null) ?? inputs[0];
     if (visible) {
@@ -52,27 +59,29 @@ export function KeyboardShortcuts() {
     <Dialog open={help.isOpen} onOpenChange={(open) => (open ? help.open() : help.close())}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Pintasan Keyboard</DialogTitle>
-          <DialogDescription>
-            Gunakan pintasan berikut untuk berpindah dengan cepat.
-          </DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">
           {SHORTCUT_GROUPS.map((group) => (
-            <div key={group.title}>
+            <div key={group.titleKey}>
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {group.title}
+                {t(`groups.${group.titleKey}`)}
               </h3>
               <ul className="space-y-2">
                 {group.shortcuts.map((shortcut) => (
                   <li
-                    key={shortcut.description}
+                    key={shortcut.descriptionKey}
                     className="flex items-center justify-between gap-4"
                   >
-                    <span className="text-sm text-foreground">{shortcut.description}</span>
+                    <span className="text-sm text-foreground">
+                      {t(`items.${shortcut.descriptionKey}`)}
+                    </span>
                     <kbd className="rounded border bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
-                      {shortcut.keys}
+                      {typeof shortcut.keys === 'string'
+                        ? shortcut.keys
+                        : t('chord', { key: shortcut.keys.chord })}
                     </kbd>
                   </li>
                 ))}

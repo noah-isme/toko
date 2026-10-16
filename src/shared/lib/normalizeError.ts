@@ -62,13 +62,17 @@ function getDataMessage(data: unknown): string | null {
 
 const DEFAULT_ERROR_MESSAGE = 'Terjadi kesalahan. Coba lagi.';
 
-export function normalizeError(error: unknown): string {
+/**
+ * Turns any thrown value into a user-facing message. `fallback` is used when the error carries
+ * no message of its own; components pass a localized text (e.g. `errors.route.description`).
+ */
+export function normalizeError(error: unknown, fallback: string = DEFAULT_ERROR_MESSAGE): string {
   if (error instanceof ZodError) {
     const firstIssue = error.issues[0];
     if (firstIssue?.message) {
       return firstIssue.message;
     }
-    return DEFAULT_ERROR_MESSAGE;
+    return fallback;
   }
 
   if (typeof error === 'string' && error.trim().length > 0) {
@@ -105,5 +109,5 @@ export function normalizeError(error: unknown): string {
     }
   }
 
-  return DEFAULT_ERROR_MESSAGE;
+  return fallback;
 }

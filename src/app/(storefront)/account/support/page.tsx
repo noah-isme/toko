@@ -1,7 +1,8 @@
 'use client';
 
 import { MessageCircle } from 'lucide-react';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,15 @@ import {
   type SupportMessage,
   type SupportTicket,
 } from '@/lib/api/services/customerOperations';
+import { FULL_DATE_TIME, useFormat } from '@/shared/i18n/use-format';
 
 type MessageMap = Record<string, SupportMessage[]>;
 
 export default function SupportPage() {
+  const t = useTranslations('account.support');
+  const tAccount = useTranslations('account');
+  const tCommon = useTranslations('common');
+  const fmt = useFormat();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [messages, setMessages] = useState<MessageMap>({});
@@ -25,7 +31,7 @@ export default function SupportPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const nextTickets = await customerOperationsApi.listTickets();
       const messageEntries = await Promise.all(
@@ -37,13 +43,13 @@ export default function SupportPage() {
       setTickets(nextTickets);
       setMessages(Object.fromEntries(messageEntries));
     } catch {
-      setNotice('Gagal memuat tiket dukungan.');
+      setNotice(t('loadFailed'));
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     if (isAuthenticated) void load();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, load]);
 
   const create = async (event: FormEvent) => {
     event.preventDefault();
@@ -53,10 +59,10 @@ export default function SupportPage() {
       setSubject('');
       setMessage('');
       setOrderId('');
-      setNotice('Tiket berhasil dibuat.');
+      setNotice(t('created'));
       await load();
     } catch {
-      setNotice('Gagal membuat tiket.');
+      setNotice(t('createFailed'));
     } finally {
       setSaving(false);
     }
@@ -68,23 +74,23 @@ export default function SupportPage() {
     try {
       await customerOperationsApi.sendTicketMessage(ticketId, text);
       setReply((current) => ({ ...current, [ticketId]: '' }));
-      setNotice('Balasan terkirim.');
+      setNotice(t('replySent'));
       await load();
     } catch {
-      setNotice('Gagal mengirim balasan.');
+      setNotice(t('replyFailed'));
     }
   };
 
-  if (authLoading) return <div className="py-16 text-center">Memuat...</div>;
+  if (authLoading) return <div className="py-16 text-center">{tCommon('loading')}</div>;
 
   if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-xl py-16 text-center">
         <MessageCircle className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Pusat Bantuan</h1>
-        <p className="mt-2 text-muted-foreground">Silakan login untuk membuat dan melihat tiket.</p>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('guestDescription')}</p>
         <Button asChild className="mt-6">
-          <a href="/login">Login</a>
+          <a href="/login">{tAccount('login')}</a>
         </Button>
       </div>
     );
@@ -93,15 +99,13 @@ export default function SupportPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Pusat Bantuan</h1>
-        <p className="text-muted-foreground">
-          Buat tiket dan lanjutkan percakapan dengan tim kami.
-        </p>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-muted-foreground">{t('description')}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Tiket baru</CardTitle>
+          <CardTitle>{t('newTicket')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={create} className="space-y-4">
@@ -110,22 +114,22 @@ export default function SupportPage() {
               value={subject}
               onChange={(event) => setSubject(event.target.value)}
               className="w-full rounded-md border bg-background px-3 py-2"
-              placeholder="Subjek"
+              placeholder={t('subject')}
             />
             <input
               value={orderId}
               onChange={(event) => setOrderId(event.target.value)}
               className="w-full rounded-md border bg-background px-3 py-2"
-              placeholder="Nomor order (opsional)"
+              placeholder={t('orderNumber')}
             />
             <textarea
               required
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               className="min-h-24 w-full rounded-md border bg-background px-3 py-2"
-              placeholder="Jelaskan kendala Anda"
+              placeholder={t('message')}
             />
-            <Button disabled={saving}>{saving ? 'Mengirim...' : 'Buat tiket'}</Button>
+            <Button disabled={saving}>{saving ? t('sending') : t('create')}</Button>
           </form>
         </CardContent>
       </Card>
@@ -139,7 +143,7 @@ export default function SupportPage() {
       <div className="space-y-4">
         {tickets.length === 0 ? (
           <Card>
-            <CardContent className="p-6 text-muted-foreground">Belum ada tiket.</CardContent>
+            <CardContent className="p-6 text-muted-foreground">{t('empty')}</CardContent>
           </Card>
         ) : (
           tickets.map((ticket) => (
@@ -152,22 +156,22 @@ export default function SupportPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-xs text-muted-foreground">
-                  Dibuat {new Date(ticket.createdAt).toLocaleString('id-ID')}
-                  {ticket.orderId ? ` • Order ${ticket.orderId}` : ''}
+                  {t('createdAt', { date: fmt.date(ticket.createdAt, FULL_DATE_TIME) })}
+                  {ticket.orderId ? ` • ${t('order', { orderId: ticket.orderId })}` : ''}
                 </p>
                 <div
-                  aria-label={`Percakapan tiket ${ticket.subject}`}
+                  aria-label={t('conversation', { subject: ticket.subject })}
                   className="space-y-2 rounded-md bg-muted/40 p-3"
                 >
                   {(messages[ticket.id] ?? []).length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Belum ada pesan.</p>
+                    <p className="text-sm text-muted-foreground">{t('noMessages')}</p>
                   ) : (
                     messages[ticket.id].map((entry) => (
                       <div key={entry.id} className="rounded-md border bg-background p-3 text-sm">
                         <div className="mb-1 flex justify-between gap-3 text-xs text-muted-foreground">
-                          <span>{entry.authorType === 'customer' ? 'Anda' : 'Tim dukungan'}</span>
+                          <span>{entry.authorType === 'customer' ? t('you') : t('team')}</span>
                           <time dateTime={entry.createdAt}>
-                            {new Date(entry.createdAt).toLocaleString('id-ID')}
+                            {fmt.date(entry.createdAt, FULL_DATE_TIME)}
                           </time>
                         </div>
                         <p className="whitespace-pre-wrap">{entry.message}</p>
@@ -182,10 +186,10 @@ export default function SupportPage() {
                       setReply((current) => ({ ...current, [ticket.id]: event.target.value }))
                     }
                     className="flex-1 rounded-md border bg-background px-3 py-2"
-                    placeholder="Tulis balasan"
+                    placeholder={t('replyPlaceholder')}
                   />
                   <Button variant="outline" onClick={() => void send(ticket.id)}>
-                    Kirim
+                    {t('send')}
                   </Button>
                 </div>
               </CardContent>

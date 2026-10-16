@@ -1,6 +1,7 @@
 'use client';
 
 import { Mail, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { capturePosthogEvent } from '@/shared/telemetry/posthog';
 const ENABLE_NEWSLETTER = true; // Enabled with full-stack backend & Resend
 
 export function NewsletterSignup() {
+  const t = useTranslations('footer.newsletter');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -22,7 +24,7 @@ export function NewsletterSignup() {
     const cleanEmail = email.trim();
     if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       setStatus('error');
-      setMessage('Silakan masukkan alamat email yang valid.');
+      setMessage(t('invalidEmail'));
       return;
     }
 
@@ -31,10 +33,11 @@ export function NewsletterSignup() {
 
     try {
       const res = await newsletterApi.subscribe(cleanEmail);
-      capturePosthogEvent('newsletter_subscribed', { email: cleanEmail });
+      // Never send the address itself: analytics events must stay free of PII.
+      capturePosthogEvent('newsletter_subscribed', { success: true });
 
       setStatus('success');
-      setMessage(res?.message || 'Terima kasih telah berlangganan buletin kami!');
+      setMessage(res?.message || t('success'));
       setEmail('');
 
       setTimeout(() => {
@@ -43,7 +46,7 @@ export function NewsletterSignup() {
       }, 6000);
     } catch (err: unknown) {
       setStatus('error');
-      const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan. Silakan coba lagi.';
+      const errorMsg = err instanceof Error ? err.message : t('error');
       setMessage(errorMsg);
     }
   };
@@ -51,10 +54,8 @@ export function NewsletterSignup() {
   return (
     <div className="w-full max-w-md">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold">Subscribe to our newsletter</h3>
-        <p className="text-sm text-muted-foreground">
-          Get the latest updates on new products and upcoming sales
-        </p>
+        <h3 className="text-lg font-semibold">{t('title')}</h3>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -66,14 +67,12 @@ export function NewsletterSignup() {
             />
             <Input
               type="email"
-              placeholder={
-                ENABLE_NEWSLETTER ? 'Enter your email' : 'Subscription temporarily disabled'
-              }
+              placeholder={ENABLE_NEWSLETTER ? t('placeholder') : t('placeholderDisabled')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10"
               disabled={!ENABLE_NEWSLETTER || status === 'loading' || status === 'success'}
-              aria-label="Email address"
+              aria-label={t('emailLabel')}
             />
           </div>
           <Button
@@ -85,14 +84,14 @@ export function NewsletterSignup() {
             )}
           >
             {status === 'loading' ? (
-              'Subscribing...'
+              t('submitting')
             ) : status === 'success' ? (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                Subscribed
+                {t('subscribed')}
               </>
             ) : (
-              'Subscribe'
+              t('submit')
             )}
           </Button>
         </div>
@@ -108,9 +107,7 @@ export function NewsletterSignup() {
       </form>
 
       <p className="mt-3 text-xs text-muted-foreground">
-        {!ENABLE_NEWSLETTER
-          ? 'Newsletter subscription is currently unavailable.'
-          : 'By subscribing, you agree to our Privacy Policy and consent to receive updates from our company.'}
+        {!ENABLE_NEWSLETTER ? t('unavailable') : t('consent')}
       </p>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { DollarSign, Package, ShoppingCart, TrendingUp, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -20,20 +21,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAdminAnalyticsOverview } from '@/lib/api/hooks.admin';
-import {
-  formatCurrency,
-  orderStatusLabel,
-  type AdminAnalyticsRange,
-  type AdminOrderStatus,
-} from '@/lib/api/services/admin';
+import { orderStatusLabel } from '@/entities/admin/format';
+import { useAdminAnalyticsOverview } from '@/entities/admin/hooks';
+import type { AdminAnalyticsRange, AdminOrderStatus } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 
-const RANGE_OPTIONS: { value: AdminAnalyticsRange; label: string }[] = [
-  { value: '7d', label: 'Last 7 days' },
-  { value: '30d', label: 'Last 30 days' },
-  { value: '90d', label: 'Last 90 days' },
-  { value: 'all', label: 'All time' },
-];
+const RANGE_OPTIONS: AdminAnalyticsRange[] = ['7d', '30d', '90d', 'all'];
 
 /** Statuses the overview endpoint counts, in fulfilment order. */
 const FUNNEL: {
@@ -49,20 +42,23 @@ const FUNNEL: {
 ];
 
 export default function AnalyticsPage() {
+  const t = useTranslations('admin.analytics');
+  const tAdmin = useTranslations('admin');
+  const { currency } = useAdminFormat();
   const [range, setRange] = useState<AdminAnalyticsRange>('30d');
   const overview = useAdminAnalyticsOverview(range);
   const data = overview.data;
 
   const summary = [
-    { label: 'Revenue', value: formatCurrency(data?.totalRevenue ?? 0), icon: DollarSign },
-    { label: 'Orders', value: String(data?.totalOrders ?? 0), icon: ShoppingCart },
+    { label: t('summary.revenue'), value: currency(data?.totalRevenue ?? 0), icon: DollarSign },
+    { label: t('summary.orders'), value: String(data?.totalOrders ?? 0), icon: ShoppingCart },
     {
-      label: 'Average Order Value',
-      value: formatCurrency(data?.averageOrderValue ?? 0),
+      label: t('summary.averageOrderValue'),
+      value: currency(data?.averageOrderValue ?? 0),
       icon: TrendingUp,
     },
-    { label: 'Customers', value: String(data?.totalCustomers ?? 0), icon: Users },
-    { label: 'Products', value: String(data?.totalProducts ?? 0), icon: Package },
+    { label: t('summary.customers'), value: String(data?.totalCustomers ?? 0), icon: Users },
+    { label: t('summary.products'), value: String(data?.totalProducts ?? 0), icon: Package },
   ];
 
   // Scale bars against the busiest status so small buckets stay visible.
@@ -74,17 +70,17 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Analytics"
-        description="Revenue, orders, and best sellers"
+        title={t('title')}
+        description={t('description')}
         actions={
           <Select value={range} onValueChange={(value) => setRange(value as AdminAnalyticsRange)}>
-            <SelectTrigger className="w-[160px]" aria-label="Date range">
+            <SelectTrigger className="w-[160px]" aria-label={t('dateRange')}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {RANGE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+                <SelectItem key={option} value={option}>
+                  {tAdmin(`ranges.${option}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -93,7 +89,7 @@ export default function AnalyticsPage() {
       />
 
       {overview.isLoading ? (
-        <AdminLoading label="Loading analytics..." />
+        <AdminLoading label={t('loading')} />
       ) : overview.isError ? (
         <AdminError error={overview.error} onRetry={() => void overview.refetch()} />
       ) : data ? (
@@ -120,7 +116,7 @@ export default function AnalyticsPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Orders by Status</CardTitle>
+                <CardTitle>{t('ordersByStatus')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {FUNNEL.map((entry) => {
@@ -128,7 +124,7 @@ export default function AnalyticsPage() {
                   return (
                     <div key={entry.status} className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
-                        <span>{orderStatusLabel(entry.status)}</span>
+                        <span>{orderStatusLabel(tAdmin, entry.status)}</span>
                         <span className="font-mono font-medium">{count}</span>
                       </div>
                       <div className="h-2 w-full rounded-full bg-muted">
@@ -145,18 +141,18 @@ export default function AnalyticsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Revenue Share of Top Products</CardTitle>
+                <CardTitle>{t('revenueShare')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {data.topProducts.length === 0 ? (
-                  <AdminEmpty message="No sales in this range." />
+                  <AdminEmpty message={t('noSales')} />
                 ) : (
                   data.topProducts.slice(0, 8).map((product) => (
                     <div key={product.productId} className="space-y-1">
                       <div className="flex items-center justify-between gap-4 text-sm">
                         <span className="truncate">{product.title}</span>
                         <span className="whitespace-nowrap font-mono font-medium">
-                          {formatCurrency(product.revenue)}
+                          {currency(product.revenue)}
                         </span>
                       </div>
                       <div className="h-2 w-full rounded-full bg-muted">
@@ -174,20 +170,20 @@ export default function AnalyticsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Top Products</CardTitle>
+              <CardTitle>{t('topProducts')}</CardTitle>
             </CardHeader>
             <CardContent>
               {data.topProducts.length === 0 ? (
-                <AdminEmpty message="No sales in this range." />
+                <AdminEmpty message={t('noSales')} />
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-12">#</TableHead>
-                        <TableHead>Product</TableHead>
-                        <TableHead className="text-right">Units Sold</TableHead>
-                        <TableHead className="text-right">Revenue</TableHead>
+                        <TableHead>{t('columns.product')}</TableHead>
+                        <TableHead className="text-right">{t('columns.unitsSold')}</TableHead>
+                        <TableHead className="text-right">{t('columns.revenue')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -204,7 +200,7 @@ export default function AnalyticsPage() {
                             {product.unitsSold}
                           </TableCell>
                           <TableCell className="text-right font-mono">
-                            {formatCurrency(product.revenue)}
+                            {currency(product.revenue)}
                           </TableCell>
                         </TableRow>
                       ))}

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useReducer, useRef } from 'react';
 
 import { listFavorites, toggleFavorite } from './api';
@@ -87,6 +88,7 @@ export function useFavoritesQuery(userIdOrGuestId?: string, isAuthenticated = fa
 }
 
 export function useAddFavoriteMutation(userIdOrGuestId?: string) {
+  const t = useTranslations('catalog.favorite');
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { add, remove, has } = useInFlightRegistry();
@@ -112,7 +114,7 @@ export function useAddFavoriteMutation(userIdOrGuestId?: string) {
         // Optimistic add with placeholder data
         const optimisticItem: FavoriteItem = {
           productId,
-          productName: 'Loading...',
+          productName: t('placeholderName'),
           productSlug: productId,
           price: 0,
           imageUrl: '',
@@ -129,7 +131,7 @@ export function useAddFavoriteMutation(userIdOrGuestId?: string) {
         capturePosthogEvent('fav_add', { productId });
         toast({
           id: `fav-${productId}-add-success`,
-          title: 'Ditambahkan ke favorit',
+          title: t('toast.added'),
           variant: 'success',
         });
       }
@@ -140,7 +142,7 @@ export function useAddFavoriteMutation(userIdOrGuestId?: string) {
       const message = normalizeError(error);
       toast({
         id: `fav-${productId}-add-error`,
-        title: 'Gagal menambahkan ke favorit',
+        title: t('toast.addFailed'),
         description: message,
         variant: 'destructive',
       });
@@ -177,6 +179,7 @@ export function useAddFavoriteMutation(userIdOrGuestId?: string) {
 }
 
 export function useRemoveFavoriteMutation(userIdOrGuestId?: string) {
+  const t = useTranslations('catalog.favorite');
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { add, remove, has } = useInFlightRegistry();
@@ -207,7 +210,7 @@ export function useRemoveFavoriteMutation(userIdOrGuestId?: string) {
         capturePosthogEvent('fav_remove', { productId });
         toast({
           id: `fav-${productId}-remove-success`,
-          title: 'Dihapus dari favorit',
+          title: t('toast.removed'),
           variant: 'success',
         });
       }
@@ -218,7 +221,7 @@ export function useRemoveFavoriteMutation(userIdOrGuestId?: string) {
       const message = normalizeError(error);
       toast({
         id: `fav-${productId}-remove-error`,
-        title: 'Gagal menghapus dari favorit',
+        title: t('toast.removeFailed'),
         description: message,
         variant: 'destructive',
       });

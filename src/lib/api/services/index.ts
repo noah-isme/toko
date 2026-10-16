@@ -11,7 +11,6 @@ export { privacyApi } from './privacy';
 export { paymentApi } from './payment';
 export { addressApi } from './address';
 export { notificationsApi } from './notifications';
-export { adminApi } from './admin';
 export { newsletterApi } from './newsletter';
 
 // Re-export all types

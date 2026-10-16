@@ -3,6 +3,7 @@
 import { Search } from 'lucide-react';
 import type { Route } from 'next';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
@@ -15,11 +16,8 @@ interface SearchBarProps {
   delay?: number;
 }
 
-export function SearchBar({
-  className,
-  placeholder = 'Search products...',
-  delay = 400,
-}: SearchBarProps) {
+export function SearchBar({ className, placeholder, delay = 400 }: SearchBarProps) {
+  const t = useTranslations('nav.search');
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -61,9 +59,10 @@ export function SearchBar({
     <div className={cn('relative flex w-full max-w-lg items-center', className)} role="search">
       <Search aria-hidden="true" className="absolute left-3 h-4 w-4 text-muted-foreground" />
       <Input
-        aria-label="Search products"
+        aria-label={t('label')}
+        data-search-input=""
         className="pl-10"
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('placeholder')}
         value={value}
         onChange={(event) => setValue(event.target.value)}
       />

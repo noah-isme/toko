@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Home, MapPin, Phone, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import React, { memo, useCallback } from 'react';
 
 import type { Address } from '../types';
@@ -35,6 +36,7 @@ export const AddressCard = memo(function AddressCard({
   disableActions,
   className,
 }: AddressCardProps) {
+  const t = useTranslations('checkout.address.card');
   const handleSelect = useCallback(() => {
     if (selectable && !disableActions) {
       onSelect?.(address);
@@ -87,7 +89,7 @@ export const AddressCard = memo(function AddressCard({
           {address.isDefault ? (
             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
               <Home className="h-3.5 w-3.5" aria-hidden="true" />
-              Default
+              {t('default')}
             </span>
           ) : null}
           {selectable ? (
@@ -100,7 +102,7 @@ export const AddressCard = memo(function AddressCard({
               )}
             >
               <Check className="h-3.5 w-3.5" aria-hidden="true" />
-              {isSelected ? 'Dipilih' : 'Pilih'}
+              {isSelected ? t('selected') : t('select')}
             </span>
           ) : null}
         </div>
@@ -132,13 +134,13 @@ export const AddressCard = memo(function AddressCard({
             variant="secondary"
             size="sm"
             disabled={isSelected || disableActions}
-            aria-label={isSelected ? 'Alamat sudah dipilih' : 'Gunakan alamat ini'}
+            aria-label={isSelected ? t('alreadySelected') : t('useThisLabel')}
             onClick={(event) => {
               event.stopPropagation();
               onSelect(address);
             }}
           >
-            Gunakan
+            {t('use')}
           </Button>
         ) : null}
         {onSetDefault ? (
@@ -148,13 +150,13 @@ export const AddressCard = memo(function AddressCard({
             size="sm"
             className="text-primary"
             disabled={address.isDefault || actionDisabled}
-            aria-label={address.isDefault ? 'Alamat default' : 'Jadikan alamat default'}
+            aria-label={address.isDefault ? t('isDefaultLabel') : t('makeDefaultLabel')}
             onClick={(event) => {
               event.stopPropagation();
               onSetDefault(address);
             }}
           >
-            Jadikan default
+            {t('makeDefault')}
           </Button>
         ) : null}
         {onEdit ? (
@@ -163,13 +165,13 @@ export const AddressCard = memo(function AddressCard({
             variant="ghost"
             size="sm"
             disabled={actionDisabled}
-            aria-label={`Edit alamat ${address.receiverName}`}
+            aria-label={t('editLabel', { name: address.receiverName })}
             onClick={(event) => {
               event.stopPropagation();
               onEdit(address);
             }}
           >
-            Edit
+            {t('edit')}
           </Button>
         ) : null}
         {onDelete ? (
@@ -181,8 +183,8 @@ export const AddressCard = memo(function AddressCard({
             disabled={deleteBlocked}
             aria-label={
               deleteBlocked
-                ? (disableDeleteReason ?? 'Menghapus alamat dinonaktifkan')
-                : `Hapus alamat ${address.receiverName}`
+                ? (disableDeleteReason ?? t('deleteDisabledLabel'))
+                : t('deleteLabel', { name: address.receiverName })
             }
             title={disableDeleteReason}
             onClick={(event) => {
@@ -194,7 +196,7 @@ export const AddressCard = memo(function AddressCard({
             }}
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
-            Hapus
+            {t('delete')}
           </Button>
         ) : null}
       </footer>

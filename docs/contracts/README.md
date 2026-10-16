@@ -1,6 +1,6 @@
 # Frontend API Contract Index
 
-The storefront consumes the versioned REST API at `NEXT_PUBLIC_API_URL`. The backend contract is canonical; this index documents the frontend-facing modules and adapters. See the [backend contract index](../../toko-api/docs/contracts/README.md) for authoritative request and response details.
+The storefront consumes the versioned REST API at `NEXT_PUBLIC_API_URL`. The backend contract is canonical; this index documents the frontend-facing modules and adapters. See the [backend contract index](../../../toko-api/docs/contracts/README.md) for authoritative request and response details.
 
 **Last Updated:** 2026-08-07
 

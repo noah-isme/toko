@@ -1,0 +1,2868 @@
+{
+  "common": {
+    "skipToContent": "Skip to main content",
+    "offline": {
+      "restored": "Connection restored",
+      "offline": "You are currently offline. Some features may be unavailable."
+    },
+    "idleTimeout": {
+      "title": "Your session is about to expire",
+      "description": "You have been inactive for a few minutes. Your session will end in <strong>{countdown}</strong>. Click “Continue” to stay signed in.",
+      "logout": "Sign out",
+      "extend": "Continue",
+      "processing": "Processing..."
+    },
+    "cookieConsent": {
+      "openPreferences": "Cookie preferences",
+      "bannerTitle": "We value your privacy",
+      "bannerDescription": "We use cookies to enhance your experience, analyze traffic, and personalize content.",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "acceptAll": "Accept All",
+      "rejectAll": "Reject All",
+      "customize": "Customize",
+      "savePreferences": "Save Preferences",
+      "dialogTitle": "Cookie Preferences",
+      "dialogDescription": "Customize which cookies and tracking technologies you allow us to use.",
+      "footnote": "You can change your preferences at any time by clicking the cookie icon.",
+      "necessary": {
+        "label": "Necessary cookies",
+        "description": "Required for the website to function properly. Cannot be disabled.",
+        "switchLabel": "Necessary cookies (always enabled)"
+      },
+      "analytics": {
+        "label": "Analytics cookies",
+        "description": "Help us understand how visitors interact with our website."
+      },
+      "marketing": {
+        "label": "Marketing cookies",
+        "description": "Used to deliver personalized advertisements and track ad performance."
+      },
+      "preferences": {
+        "label": "Preference cookies",
+        "description": "Remember your preferences like language, theme, and region."
+      }
+    },
+    "loading": "Loading...",
+    "pullToRefresh": {
+      "refreshing": "Refreshing…",
+      "release": "Release to refresh",
+      "pull": "Pull to refresh"
+    },
+    "empty": {
+      "products": {
+        "title": "No products yet",
+        "description": "We could not find any matching products. Try changing the filters or check back later.",
+        "cta": "View all products"
+      },
+      "cart": {
+        "title": "Your shopping cart is empty",
+        "description": "Start adding products to your cart to continue to checkout.",
+        "cta": "Shop now"
+      },
+      "orders": {
+        "title": "No orders yet",
+        "description": "Your order history will appear here after you complete a checkout.",
+        "cta": "Continue shopping"
+      },
+      "favorites": {
+        "title": "No favorites yet",
+        "description": "Save your favorite products to compare prices and get back to shopping faster.",
+        "cta": "Explore products"
+      },
+      "favoritesUnavailable": {
+        "title": "Favorites unavailable",
+        "description": "Some of your favorite products are no longer sold. Try finding similar products that are still available.",
+        "cta": "Find other products"
+      },
+      "searchResults": {
+        "title": "No search results found",
+        "description": "We could not find any products for \"{query}\". Try another keyword or remove some filters.",
+        "descriptionDefault": "We could not find any products for that keyword. Try another keyword.",
+        "cta": "View all products"
+      },
+      "categoryProducts": {
+        "title": "No products yet",
+        "description": "The {categories} category has no products yet. Try another category to find similar products.",
+        "descriptionDefault": "This category has no products yet. Try another category to find similar products.",
+        "cta": "Explore other categories"
+      }
+    },
+    "retryToast": {
+      "label": "Try again",
+      "busy": "Retrying…",
+      "errorTitle": "Still failing",
+      "errorDescription": "The request could not be completed. Please try again later."
+    },
+    "landing": {
+      "cta": {
+        "badge": "New Member Bonus",
+        "title": "Sign Up Now, Claim a Rp50,000 Voucher",
+        "description": "Create a free account today to get exclusive promos, alerts for your favorite products, and member-only prices.",
+        "register": "Create a Free Account",
+        "login": "I Already Have an Account",
+        "newsletterTitle": "Newsletter",
+        "newsletterDescription": "Discount promos delivered straight to your inbox"
+      },
+      "features": {
+        "title": "Why Shop with Toko",
+        "description": "Our commitment to giving you the best shopping experience",
+        "shipping": {
+          "title": "Free Shipping over Rp100k",
+          "description": "Free delivery everywhere on orders of Rp100,000 or more."
+        },
+        "original": {
+          "title": "100% Authentic Guarantee",
+          "description": "Every item is guaranteed authentic, straight from official brands."
+        },
+        "payment": {
+          "title": "Flexible Payments",
+          "description": "Bank transfer, e-wallets, credit cards, and cash on delivery, hassle-free."
+        },
+        "returns": {
+          "title": "7-Day Returns",
+          "description": "Fast & easy return claims if a product is not as expected."
+        }
+      },
+      "hero": {
+        "badge": "Official Shopping Platform",
+        "headline": "Choices for a <em>more beautiful life.</em>",
+        "description": "Discover curated products with quality you can feel, dependable service, and attention to detail.",
+        "browse": "See the curated collection",
+        "register": "Create a Free Account",
+        "freeShipping": "Free Shipping",
+        "guarantee": "100% Guarantee",
+        "securePayment": "Secure Payment",
+        "dealsBadge": "up to 50%",
+        "dealsTitle": "Seasonal Deals",
+        "dealsDescription": "Check the hottest promos & flash deals",
+        "electronicsTitle": "Gadgets & Electronics",
+        "electronicsDescription": "Laptops, Smartphones, & Accessories",
+        "fashionTitle": "Fashion & Style",
+        "fashionDescription": "Latest Men''s & Women''s Clothing",
+        "newTitle": "New Arrivals",
+        "newDescription": "This week''s collection"
+      },
+      "testimonials": {
+        "eyebrow": "Partner stories",
+        "title": "Brands growing with toko",
+        "description": "From independent brand owners to enterprise retailers, teams use toko landing pages to launch new collections without the drama.",
+        "items": {
+          "alya": {
+            "quote": "toko landing pages make our seasonal campaigns feel cinematic without an extra dev team. Their hero modules just plug in.",
+            "role": "Creative Director, Kinara Atelier"
+          },
+          "bagus": {
+            "quote": "Performance stays high even with video, carousels, and dynamic recommendations all at once. Conversion is up 21% YoY.",
+            "role": "Head of Digital, Kolektif"
+          },
+          "mita": {
+            "quote": "Toko gives every brand on our marketplace a consistent visual language and cut our campaign go-live time in half.",
+            "role": "VP Merchandising, Orbit Supply"
+          }
+        }
+      },
+      "quickNav": {
+        "title": "Featured Categories",
+        "viewAll": "View All"
+      },
+      "featured": {
+        "eyebrow": "The edit",
+        "title": "Picks worth keeping.",
+        "description": "A collection of favorite products with standout quality, function, and detail.",
+        "browse": "Browse all products",
+        "curatedEyebrow": "Curated for you",
+        "curatedTitle": "Featured products",
+        "curatedDescription": "These picks are sorted by the products customers love most.",
+        "empty": "The curated collection is coming soon."
+      },
+      "brands": {
+        "title": "Shop by Brand",
+        "description": "Discover products from your favorite brands"
+      },
+      "categories": {
+        "title": "Shop by Category",
+        "description": "Explore our curated collection of products by category"
+      },
+      "userHome": {
+        "fallbackName": "Shopper",
+        "verified": "Verified Account",
+        "welcome": "Welcome back, {name}!",
+        "description": "Find the best deals and check on your orders today.",
+        "lastOrder": "Latest Order",
+        "lastOrderStatus": "Out with the courier",
+        "trackOrder": "Track Order",
+        "favorites": "Favorites",
+        "favoritesCount": "{count, plural, =1 {# Product} other {# Products}}",
+        "cart": "Cart",
+        "cartCount": "{count, plural, =1 {# Item} other {# Items}}",
+        "history": "History",
+        "allOrders": "View All Orders",
+        "catalogTitle": "Recommended Catalog",
+        "catalogDescription": "Products tailored to your interests and activity",
+        "tabs": {
+          "recommended": "For You",
+          "popular": "Best Sellers",
+          "deals": "Deals"
+        }
+      }
+    },
+    "theme": {
+      "toggle": "Toggle theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "contrastToggle": "Toggle high contrast",
+      "normal": "Normal",
+      "highContrast": "High Contrast",
+      "highContrastAaa": "High Contrast (WCAG AAA)"
+    },
+    "offlinePage": {
+      "title": "You''re offline",
+      "description": "No internet connection detected. Some features may be unavailable.",
+      "whatYouCanDo": "What you can do:",
+      "browse": "Browse previously loaded products",
+      "cached": "View cached pages",
+      "autoRefresh": "Page will auto-refresh when back online",
+      "retry": "Try again",
+      "home": "Go to homepage",
+      "footnote": "The service worker will cache pages for offline access."
+    },
+    "legal": {
+      "helpCenter": "Help Center",
+      "privacy": {
+        "title": "Privacy Policy",
+        "intro": "We use account, address, and order data to provide the toko service, payments, delivery, support, and security.",
+        "storedTitle": "Data we store",
+        "stored": "Account data, transactions, support conversations, and privacy preferences are kept as long as needed for those purposes and our legal obligations.",
+        "controlTitle": "Your controls",
+        "control": "You can manage communication preferences on your account privacy page, download a data export, or delete your account. Deleting your account anonymizes order data that must be kept for record keeping.",
+        "contactTitle": "Contact us",
+        "contact": "For privacy questions, visit the <link>Help Center</link>."
+      },
+      "terms": {
+        "title": "Terms and Conditions",
+        "intro": "By using toko, you agree to the applicable terms for ordering, payment, delivery, returns, and account use.",
+        "ordersTitle": "Orders and payment",
+        "orders": "Prices, availability, promos, and payment deadlines may change until an order is confirmed. Unpaid orders may expire.",
+        "returnsTitle": "Returns",
+        "returns": "Request a return on the <link>Order Returns</link> page. Each request is reviewed based on the order status and product policy.",
+        "supportTitle": "Support",
+        "support": "Use the <link>Help Center</link> for questions or problems with a transaction."
+      },
+      "shipping": {
+        "title": "Shipping Policy",
+        "intro": "Courier options, costs, and estimates are shown at checkout based on the destination address and available services.",
+        "trackingTitle": "Tracking",
+        "tracking": "The tracking number and delivery status appear in the order details once the package is processed.",
+        "issuesTitle": "Delivery issues",
+        "issues": "If a package is late or damaged, keep documentation and contact the <link>Help Center</link>."
+      }
+    },
+    "health": {
+      "title": "Health check",
+      "mock": "Mock API is active. Connectivity assumed healthy.",
+      "failed": "Failed to reach backend.",
+      "healthy": "Backend connectivity is healthy."
+    },
+    "ui": {
+      "close": "Close",
+      "panel": "Panel",
+      "breadcrumb": "Breadcrumb",
+      "backToTop": "Back to top",
+      "dismiss": "Close",
+      "loading": "Loading…"
+    },
+    "time": {
+      "justNow": "just now",
+      "minutesAgo": "{count, plural, =1 {# minute ago} other {# minutes ago}}",
+      "hoursAgo": "{count, plural, =1 {# hour ago} other {# hours ago}}",
+      "daysAgo": "{count, plural, =1 {# day ago} other {# days ago}}"
+    }
+  },
+  "nav": {
+    "language": {
+      "label": "Choose language",
+      "options": {
+        "id": "Bahasa Indonesia",
+        "en": "English"
+      }
+    },
+    "links": {
+      "home": "Home",
+      "products": "Products",
+      "featured": "Featured",
+      "cart": "Cart",
+      "orders": "Orders"
+    },
+    "account": {
+      "account": "Account",
+      "profile": "Profile",
+      "orders": "Orders",
+      "notifications": "Notifications",
+      "addresses": "Addresses",
+      "favorites": "Favorites",
+      "logout": "Logout",
+      "signIn": "Sign in"
+    },
+    "mobile": {
+      "home": "Home",
+      "products": "Products",
+      "cart": "Cart",
+      "favorites": "Favorites",
+      "account": "Account"
+    },
+    "search": {
+      "label": "Search products",
+      "placeholder": "Search products...",
+      "products": "Products",
+      "viewAll": "View all {count} results",
+      "noResults": "No products found",
+      "recent": "Recent Searches",
+      "clearRecent": "Clear all",
+      "removeRecent": "Remove {term} from search history",
+      "popular": "Popular Searches"
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "description": "Use these shortcuts to get around quickly.",
+      "groups": {
+        "navigation": "Navigation",
+        "general": "General"
+      },
+      "chord": "G then {key}",
+      "items": {
+        "home": "Go to Home",
+        "cart": "Go to Cart",
+        "orders": "Go to Orders",
+        "account": "Go to Account",
+        "search": "Focus search",
+        "help": "Show keyboard shortcuts",
+        "close": "Close dialog"
+      }
+    }
+  },
+  "footer": {
+    "quickLinks": {
+      "title": "Quick Links",
+      "products": "Products",
+      "about": "About Us",
+      "contact": "Contact",
+      "faq": "FAQ"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "shipping": "Shipping Policy",
+      "returns": "Returns"
+    },
+    "copyright": "© {year} toko. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "newsletter": {
+      "title": "Subscribe to our newsletter",
+      "description": "Get the latest updates on new products and upcoming sales",
+      "placeholder": "Enter your email",
+      "placeholderDisabled": "Subscription temporarily disabled",
+      "emailLabel": "Email address",
+      "submit": "Subscribe",
+      "submitting": "Subscribing...",
+      "subscribed": "Subscribed",
+      "invalidEmail": "Please enter a valid email address.",
+      "success": "Thank you for subscribing to our newsletter!",
+      "error": "Something went wrong. Please try again.",
+      "unavailable": "Newsletter subscription is currently unavailable.",
+      "consent": "By subscribing, you agree to our Privacy Policy and consent to receive updates from our company."
+    }
+  },
+  "catalog": {
+    "page": {
+      "eyebrow": "The collection",
+      "title": "Find your pick.",
+      "description": "Explore curated products for your spaces, routines, and everyday moments."
+    },
+    "results": {
+      "heading": "Search Results",
+      "count": "{count, plural, one {# product found} other {# products found}}",
+      "countForQuery": "{count, plural, one {# product found} other {# products found}} for \"{query}\"",
+      "showing": "Showing {from} - {to} of {total}",
+      "loadError": "Failed to load products.",
+      "retry": "Try Again",
+      "emptyTitle": "No products found",
+      "emptyQuery": "Try another keyword or remove some filters",
+      "emptyDefault": "No products are available yet",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "chips": {
+      "query": "Search: \"{query}\"",
+      "category": "Category: {value}",
+      "brand": "Brand: {value}",
+      "price": "Price: {min} - {max}",
+      "rating": "Rating: {rating}+",
+      "inStock": "In Stock",
+      "discount": "Promo/Discount",
+      "remove": "Remove filter",
+      "clearAll": "Clear All ({count})"
+    },
+    "sort": {
+      "label": "Sort",
+      "options": {
+        "relevance": "Relevance",
+        "nameAsc": "Name: A - Z",
+        "nameDesc": "Name: Z - A",
+        "priceAsc": "Price: Lowest",
+        "priceDesc": "Price: Highest",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "rating": "Highest Rated",
+        "popularity": "Most Popular",
+        "discount": "Biggest Discount"
+      }
+    },
+    "filters": {
+      "loading": "Loading filter options",
+      "unavailable": "Category and brand filters are not available yet. The price filter can still be used.",
+      "retry": "Try Again",
+      "categories": "Categories",
+      "brands": "Brands",
+      "price": "Price",
+      "ratingStars": "{rating}+ stars",
+      "allRatings": "All ratings",
+      "heading": "Filters",
+      "sheetTitle": "Filter Products",
+      "clearAll": "Clear All",
+      "close": "Close",
+      "apply": "Apply",
+      "save": "Save",
+      "notify": "Alert",
+      "savedSearchName": "Search {date}"
+    },
+    "savedSearch": {
+      "saved": "Search saved",
+      "savedDescription": "\"{name}\" has been saved for quick access",
+      "saveError": "Failed to save search",
+      "deleted": "Search deleted",
+      "deletedDescription": "The saved search has been deleted",
+      "deleteError": "Failed to delete search",
+      "alertOn": "Alerts enabled",
+      "alertOff": "Alerts disabled",
+      "alertOnDescription": "You will receive alerts for this search",
+      "alertOffDescription": "You will no longer receive alerts for this search",
+      "alertError": "Failed to update alerts"
+    },
+    "card": {
+      "quickView": "Quick View",
+      "addToCart": "Add to cart",
+      "outOfStock": "Sold out"
+    },
+    "compare": {
+      "add": "Add to comparison",
+      "remove": "Remove from comparison",
+      "full": "You can compare up to {max} products"
+    },
+    "favorite": {
+      "add": "Add to favorites",
+      "remove": "Remove from favorites",
+      "placeholderName": "Loading...",
+      "toast": {
+        "added": "Added to favorites",
+        "addFailed": "Failed to add to favorites",
+        "removed": "Removed from favorites",
+        "removeFailed": "Failed to remove from favorites"
+      }
+    },
+    "productSort": {
+      "label": "Sort products",
+      "placeholder": "Sort by...",
+      "options": {
+        "nameAsc": "Name: A to Z",
+        "nameDesc": "Name: Z to A",
+        "priceAsc": "Price: Low to High",
+        "priceDesc": "Price: High to Low",
+        "newest": "Newest First",
+        "rating": "Highest Rated"
+      }
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous",
+      "previousLabel": "Previous page",
+      "next": "Next",
+      "nextLabel": "Next page",
+      "page": "Page {page}"
+    },
+    "listing": {
+      "title": "All Products",
+      "available": "{count, plural, one {# product available} other {# products available}}",
+      "pageOf": " — Page {page} of {total}",
+      "clearAll": "Clear all",
+      "loadErrorTitle": "Failed to load products",
+      "loadErrorDescription": "Please try again later",
+      "retry": "Retry",
+      "resetFilters": "Reset filters",
+      "chips": {
+        "search": "Search: {query}",
+        "rating": "Rating {rating}+ stars",
+        "inStock": "In stock",
+        "discount": "Promo",
+        "price": "Price {min} - {max}"
+      }
+    },
+    "sidebar": {
+      "title": "Filters",
+      "priceRange": "Price Range",
+      "ratingAvailability": "Rating & Availability",
+      "andUp": "& up",
+      "inStockOnly": "In stock only",
+      "discountOnly": "On sale only",
+      "categories": "Categories",
+      "brands": "Brands",
+      "clearAll": "Clear all",
+      "showResults": "Show Results"
+    },
+    "priceRange": {
+      "label": "Price Range",
+      "min": "Min Price",
+      "max": "Max Price",
+      "apply": "Apply Filter"
+    },
+    "vouchers": {
+      "percentOff": "{percent}% OFF",
+      "minSpend": "Min. spend {amount}",
+      "remaining": "{count, plural, =1 {# use left} other {# uses left}}",
+      "perUser": "Max {limit}x per customer",
+      "loadFailed": "Failed to load vouchers.",
+      "copied": "Code {code} copied.",
+      "title": "Vouchers & Promos",
+      "retry": "Try Again",
+      "description": "Find and use discount vouchers to save more. Active promos are updated live from the server.",
+      "howToTitle": "How to use vouchers",
+      "howTo": "Vouchers can be used at checkout. Some vouchers cannot be combined; terms and conditions apply. Copy the code and enter it in the Promo Code field. Final eligibility depends on your cart and usage limits.",
+      "emptyTitle": "No vouchers available yet",
+      "emptyDescription": "Please check back later.",
+      "percent": "Percentage",
+      "fixed": "Fixed amount",
+      "copyCode": "Copy code {code}",
+      "termsApply": "Terms and conditions apply.",
+      "valid": "Valid",
+      "validUntil": "Valid until {date}",
+      "noExpiry": "No expiry date",
+      "combinable": "Combinable",
+      "shopNow": "Shop Now",
+      "helpTitle": "Need help?",
+      "helpDescription": "Voucher not working? Contact our support team.",
+      "contactSupport": "Contact Support"
+    },
+    "comparePage": {
+      "rows": {
+        "price": "Price",
+        "rating": "Rating",
+        "brand": "Brand",
+        "category": "Category",
+        "stock": "Stock",
+        "description": "Description"
+      },
+      "inStock": "In stock ({count})",
+      "outOfStock": "Out of stock",
+      "noDescription": "No description.",
+      "emptyTitle": "No products to compare yet",
+      "emptyDescription": "Pick up to 3 products from the catalog to compare them side by side.",
+      "browse": "Browse products",
+      "title": "Product Comparison",
+      "loading": "Loading products…",
+      "comparing": "Comparing {count, plural, =1 {# product} other {# products}} side by side.",
+      "clear": "Clear comparison",
+      "caption": "Product comparison table",
+      "product": "Product",
+      "remove": "Remove {title} from comparison"
+    },
+    "compareBar": {
+      "label": "Compare <strong>{count}/{max}</strong>",
+      "clearAll": "Clear all",
+      "minHint": "Select at least 2 products to compare",
+      "compare": "Compare"
+    },
+    "favoritesPage": {
+      "title": "My Favorites",
+      "count": "{count, plural, =1 {# product} other {# products}}"
+    },
+    "flashSale": {
+      "loadFailed": "Failed to load flash sales.",
+      "title": "Flash Sales",
+      "retry": "Try Again",
+      "description": "Promo prices and times come from the active campaign.",
+      "endsIn": "Ends in · Up to 20% off",
+      "nextTitle": "Next Flash Sale",
+      "setReminder": "Set Reminder",
+      "startsIn": "Starts in",
+      "categoriesLabel": "Flash sale categories",
+      "categories": {
+        "all": "All",
+        "electronics": "Electronics",
+        "fashion": "Fashion",
+        "home": "Home & Living",
+        "health": "Health",
+        "sports": "Sports"
+      },
+      "emptyTitle": "No active Flash Sale yet",
+      "emptyDescription": "Check back once the next campaign starts.",
+      "perks": {
+        "discountTitle": "Exclusive Discounts",
+        "discount": "Campaign prices are calculated by the server.",
+        "timeTitle": "Limited Time",
+        "time": "Keep an eye on the promo countdown.",
+        "stockTitle": "Limited Stock",
+        "stock": "The latest stock is shown in real time."
+      },
+      "viewAllProducts": "View all products",
+      "timer": {
+        "days": "Days",
+        "hours": "Hrs",
+        "minutes": "Min",
+        "seconds": "Sec"
+      },
+      "stockLeft": "{count} left",
+      "soldOut": "Sold out",
+      "adding": "Adding...",
+      "buyNow": "Buy Now",
+      "campaignEmpty": "The active campaign has no products yet.",
+      "noCampaign": "No active campaign yet.",
+      "section": {
+        "title": "Today''s Flash Sale",
+        "hot": "HOT",
+        "description": "Special discounts for a limited time only",
+        "endsIn": "Ends in:",
+        "viewAll": "View All Flash Sales"
+      }
+    }
+  },
+  "product": {
+    "breadcrumb": {
+      "home": "Home",
+      "products": "Products",
+      "fallback": "Product"
+    },
+    "detail": {
+      "loadErrorTitle": "Failed to load product",
+      "notFound": "Product not found",
+      "cartNotReady": {
+        "title": "Failed",
+        "description": "The shopping cart is not ready yet."
+      },
+      "highlights": {
+        "shippingTitle": "Protected shipping",
+        "shippingDescription": "Handled with care",
+        "paymentTitle": "Secure shopping",
+        "paymentDescription": "Verified payment"
+      },
+      "variants": {
+        "label": "Choose a variant",
+        "available": "{count} available",
+        "soldOut": "Sold out",
+        "selectColor": "Select {name} color"
+      },
+      "adding": "Adding…",
+      "addToCart": "Add to cart",
+      "outOfStock": "Out of stock"
+    },
+    "gallery": {
+      "noImage": "No image available",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "imageAlt": "{name} - Image {index}",
+      "thumbnailAlt": "{name} thumbnail {index}",
+      "viewImage": "View image {index}",
+      "previousLabel": "Previous image",
+      "previous": "← Previous",
+      "nextLabel": "Next image",
+      "next": "Next →",
+      "hintZoomIn": "Click image to zoom in",
+      "hintZoomOut": "Click to zoom out"
+    },
+    "share": {
+      "button": "Share",
+      "native": "Native Share",
+      "platforms": {
+        "twitter": "Twitter",
+        "facebook": "Facebook",
+        "message": "Message",
+        "copy": "Copy Link"
+      },
+      "copied": {
+        "title": "Link copied",
+        "description": "Product link copied to clipboard"
+      },
+      "copyFailed": {
+        "title": "Failed to copy",
+        "description": "Please try manually"
+      },
+      "inline": {
+        "copyLink": "Copy link",
+        "twitter": "Share on Twitter",
+        "facebook": "Share on Facebook",
+        "message": "Share via Message",
+        "native": "Native share"
+      }
+    },
+    "quickView": {
+      "loading": "Loading product details",
+      "noImage": "No image",
+      "inStock": "In Stock ({count} available)",
+      "outOfStock": "Out of Stock",
+      "noDescription": "No description available",
+      "quantity": "Quantity:",
+      "adding": "Adding...",
+      "addToCart": "Add to Cart",
+      "viewDetails": "View full details →",
+      "notFound": "Product not found",
+      "cartNotReady": {
+        "title": "Error",
+        "description": "The shopping cart is not ready yet."
+      }
+    },
+    "recommendations": {
+      "emptyDefault": "No recommendations available",
+      "related": {
+        "title": "You might also like"
+      },
+      "frequentlyBoughtTogether": {
+        "title": "Frequently Bought Together",
+        "empty": "No frequently bought together items"
+      },
+      "customersAlsoViewed": {
+        "title": "Customers Also Viewed",
+        "empty": "No recently viewed items"
+      },
+      "personalized": {
+        "title": "Recommended for You",
+        "empty": "No personalized recommendations yet"
+      },
+      "forYou": {
+        "title": "Recommended for You"
+      },
+      "trending": {
+        "title": "Trending Now",
+        "empty": "No trending products"
+      }
+    },
+    "reviews": {
+      "form": {
+        "title": "Write your review",
+        "subtitle": "Share your experience to help other shoppers.",
+        "rating": "Rating",
+        "body": "Your story",
+        "placeholder": "Share details about product quality, shipping, or anything else you experienced.",
+        "remaining": "{count} characters left",
+        "photos": "Photos (optional)",
+        "photosHint": "Add up to 5 photos to show the product as it really is. Formats: JPEG, PNG, WebP, GIF (max 5MB per file).",
+        "submitting": "Submitting review…",
+        "submit": "Submit review",
+        "moderationNote": "Your review will be moderated before it is published."
+      },
+      "validation": {
+        "ratingRequired": "Choose a rating",
+        "ratingInvalid": "Invalid rating",
+        "ratingMin": "Rating must be at least 1 star",
+        "ratingMax": "Rating can be at most 5 stars",
+        "bodyRequired": "Write your review",
+        "bodyMin": "At least 10 characters",
+        "bodyMax": "At most 1000 characters",
+        "photosMax": "At most 5 photos"
+      },
+      "stars": {
+        "label": "{count, plural, one {# star} other {# stars}}"
+      },
+      "item": {
+        "anonymous": "Anonymous",
+        "label": "Review by {author}",
+        "status": {
+          "pending": "Awaiting moderation",
+          "rejected": "Rejected"
+        },
+        "deleteConfirm": "Delete this review? This action cannot be undone.",
+        "deleteLabel": "Delete this review",
+        "delete": "Delete",
+        "ratingOutOf": "{rating}/5",
+        "markHelpful": "Mark this review as helpful",
+        "helpful": "Helpful"
+      },
+      "list": {
+        "label": "Product review list",
+        "title": "Customer reviews",
+        "subtitle": "Read what other shoppers experienced.",
+        "sortLabel": "Sort",
+        "sort": {
+          "recent": "Newest",
+          "ratingHigh": "Highest rating"
+        },
+        "pageStatus": "Showing page {page} of {total}",
+        "loadError": "Failed to load reviews: {message}",
+        "emptyTitle": "No reviews yet",
+        "emptyDescription": "Be the first to share your experience with this product.",
+        "previousLabel": "Previous page",
+        "previous": "Previous",
+        "page": "Page {page} of {total}",
+        "nextLabel": "Next page",
+        "next": "Next",
+        "refreshing": "Updating reviews…"
+      },
+      "stats": {
+        "loadError": "Failed to load review statistics: {message}",
+        "title": "Product rating",
+        "subtitle": "Average from toko customers.",
+        "count": "{count, plural, one {# review} other {# reviews}}",
+        "distribution": "Rating distribution",
+        "empty": "No reviews have been published for this product yet."
+      },
+      "toast": {
+        "you": "You",
+        "created": {
+          "title": "Review submitted",
+          "description": "Awaiting moderation before it is shown."
+        },
+        "createFailed": "Failed to submit review",
+        "voteFailed": "Failed to update vote",
+        "deleteFailed": "Failed to delete review",
+        "deleted": {
+          "title": "Review deleted",
+          "description": "Your review has been deleted."
+        }
+      },
+      "upload": {
+        "unsupported": "Unsupported file format. Use JPEG, PNG, WebP, or GIF.",
+        "tooLarge": "File size exceeds {max}MB.",
+        "readFailed": "Failed to read file",
+        "maxReached": "Maximum number of files reached",
+        "maxReachedDescription": "You can upload at most {max} images.",
+        "invalid": "Invalid file",
+        "disabled": "Upload disabled",
+        "dropzoneLabel": "Click or drag images here to upload",
+        "inputLabel": "Choose images to upload",
+        "dropzone": "Click or drag images here",
+        "limits": "Up to {maxFiles} files, {maxSize}MB per file (JPEG, PNG, WebP, GIF)",
+        "previewAlt": "Image preview {index}",
+        "removeLabel": "Remove image {index}",
+        "reviewImageAlt": "Review image"
+      }
+    },
+    "qa": {
+      "section": {
+        "ask": "Ask a Question",
+        "closeForm": "Close form",
+        "signInPrompt": "<login>Sign in</login> or <register>register</register> to ask a question."
+      },
+      "form": {
+        "title": "Ask about this product",
+        "subtitle": "Your question will be answered by our team or other shoppers.",
+        "label": "Your question",
+        "placeholder": "Example: Is this product suitable for sensitive skin?",
+        "submitting": "Sending...",
+        "submit": "Ask a Question"
+      },
+      "validation": {
+        "questionRequired": "Write your question",
+        "questionMin": "At least 10 characters",
+        "questionMax": "At most 500 characters",
+        "answerRequired": "Write your answer",
+        "answerMin": "At least 10 characters",
+        "answerMax": "At most 1000 characters"
+      },
+      "item": {
+        "anonymous": "Anonymous",
+        "status": {
+          "answered": "Answered",
+          "pending": "Awaiting answer",
+          "rejected": "Rejected"
+        },
+        "answeredBy": "Answer from {name}",
+        "admin": "Admin",
+        "answerThis": "Answer this question",
+        "answerPlaceholder": "Write your answer...",
+        "submitting": "Sending...",
+        "submitAnswer": "Send Answer",
+        "cancel": "Cancel",
+        "helpful": "Helpful",
+        "answer": "Answer"
+      },
+      "list": {
+        "loadError": "Failed to load questions.",
+        "retry": "Try again",
+        "title": "Questions & Answers",
+        "sortLabel": "Sort questions",
+        "sortPlaceholder": "Sort",
+        "sort": {
+          "recent": "Newest",
+          "popular": "Popular",
+          "unanswered": "Unanswered"
+        },
+        "emptyTitle": "No questions for this product yet.",
+        "emptyDescription": "Be the first to ask!",
+        "listLabel": "Question list",
+        "paginationLabel": "Pagination",
+        "page": "Page {page} of {total}"
+      },
+      "toast": {
+        "you": "You",
+        "questionSent": {
+          "title": "Question sent",
+          "description": "Your question will be reviewed and answered soon."
+        },
+        "questionFailed": "Failed to send question",
+        "answerSent": {
+          "title": "Answer sent",
+          "description": "Your answer has been published."
+        },
+        "answerFailed": "Failed to send answer",
+        "voteFailed": "Failed to vote"
+      }
+    }
+  },
+  "cart": {
+    "drawer": {
+      "triggerLabel": "{count, plural, =0 {Open cart} =1 {Open cart with {count} item} other {Open cart with {count} items}}",
+      "trigger": "Cart",
+      "title": "Your cart",
+      "description": "Review the items in your shopping cart before checkout.",
+      "close": "Close",
+      "quantity": "Qty: {quantity}",
+      "subtotal": "Subtotal",
+      "checkout": "Go to checkout"
+    },
+    "view": {
+      "eyebrow": "Your bag",
+      "title": "Shopping Cart",
+      "subtitle": "Review your products before continuing to payment",
+      "savingChanges": "Saving cart changes…",
+      "updatingQuantity": "Updating quantity…",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "saving": "Saving…",
+      "saveForLater": "Save for Later",
+      "removing": "Removing…",
+      "remove": "Remove",
+      "summary": {
+        "title": "Order Summary",
+        "subtotal": "{count, plural, one {Subtotal (# item)} other {Subtotal (# items)}}",
+        "discount": "Discount",
+        "tax": "Tax",
+        "total": "Total",
+        "checkout": "Continue to Payment →"
+      }
+    },
+    "savedForLater": {
+      "title": "Saved for later ({count})",
+      "moving": "Moving…",
+      "moveToCart": "Move to cart",
+      "remove": "Remove"
+    },
+    "quantityPicker": {
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity"
+    },
+    "toast": {
+      "added": "Added to cart",
+      "addFailed": "Failed to add to cart",
+      "updated": "Quantity updated",
+      "updateFailed": "Failed to update quantity",
+      "removed": "Item removed",
+      "removeFailed": "Failed to remove item"
+    },
+    "promo": {
+      "title": "Promo Code",
+      "helper": "Enter a promo code to get a discount.",
+      "codeActive": "Code {code} active",
+      "savings": "Saves {amount} at checkout.",
+      "inputLabel": "Enter code",
+      "placeholder": "e.g. SAVE10",
+      "applying": "Applying promo…",
+      "apply": "Apply",
+      "appliedTitle": "Code {code} is active.",
+      "discount": "Discount:",
+      "removingCode": "Removing code…",
+      "removeCode": "Remove code",
+      "removingPromo": "Removing promo code…",
+      "validation": {
+        "codeRequired": "Enter a promo code",
+        "codeEmpty": "Promo code is required",
+        "codeTooLong": "Promo code is too long",
+        "codeInvalid": "Invalid promo code",
+        "cartMissing": "No cart found for the promo code",
+        "notValidated": "The promo must be validated before it is applied"
+      },
+      "toast": {
+        "applied": "Promo code applied",
+        "applyFailed": "Failed to apply promo code",
+        "removed": "Promo code removed",
+        "removeFailed": "Failed to remove promo code"
+      }
+    }
+  },
+  "checkout": {
+    "header": {
+      "breadcrumbHome": "Home",
+      "breadcrumbCart": "Cart",
+      "breadcrumbCheckout": "Checkout",
+      "title": "Checkout",
+      "subtitle": "Enter your shipping details to see available delivery options."
+    },
+    "stepper": {
+      "label": "Checkout progress",
+      "stepOf": "Step {step} of {total}:",
+      "steps": {
+        "address": "Address & Shipping",
+        "review": "Review & Payment",
+        "success": "Done"
+      }
+    },
+    "addressSelection": {
+      "title": "Shipping address",
+      "description": "Choose an address to calculate shipping and prepare your order.",
+      "manage": "Manage addresses",
+      "empty": "No address selected yet. Add a new address to continue checkout.",
+      "add": "Add address",
+      "viewAll": "View all addresses",
+      "inUse": "In use",
+      "primary": "Primary address",
+      "loadingShipping": "Loading shipping options…",
+      "announcement": "Address for {name} selected"
+    },
+    "addressManager": {
+      "title": "Manage addresses",
+      "description": "Choose or create a new address, then use it for checkout.",
+      "deleteDisabled": "This address is being used for checkout."
+    },
+    "shipping": {
+      "title": "Shipping Options",
+      "description": "Choose the delivery service that suits you best.",
+      "refreshing": "Refreshing...",
+      "refresh": "Refresh shipping cost",
+      "recalculating": "Recalculating shipping cost...",
+      "lastQuote": "Last shipping quote {time}",
+      "updatedQuote": "Shipping cost updated {time}",
+      "autoUpdate": "Shipping cost updates automatically when the address or cart changes.",
+      "empty": "No shipping options available.",
+      "eta": "Estimated arrival {range}"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "description": "Select how you want to pay for your order.",
+      "selected": "Selected",
+      "methods": {
+        "bank_transfer": {
+          "label": "Bank Transfer",
+          "description": "Manual transfer to a bank account"
+        },
+        "virtual_account": {
+          "label": "Virtual Account",
+          "description": "Pay via Virtual Account"
+        },
+        "credit_card": {
+          "label": "Credit Card",
+          "description": "Pay with a credit card"
+        },
+        "ewallet_gopay": {
+          "label": "GoPay",
+          "description": "Pay with GoPay"
+        },
+        "ewallet_ovo": {
+          "label": "OVO",
+          "description": "Pay with OVO"
+        },
+        "ewallet_dana": {
+          "label": "DANA",
+          "description": "Pay with DANA"
+        }
+      }
+    },
+    "notes": {
+      "title": "Order Notes (Optional)",
+      "description": "Add special instructions for your order (e.g. “Call before delivery”, “Leave at the front door”).",
+      "placeholder": "Write your notes here... (max 500 characters)",
+      "counter": "{count}/{max}"
+    },
+    "proceed": {
+      "outOfStock": "Some products in your cart are unavailable or out of stock.",
+      "processing": "Processing order…",
+      "payNow": "Pay Now",
+      "connecting": "Connecting to the payment gateway…"
+    },
+    "rules": {
+      "proceed": {
+        "processing": "Processing your selection…",
+        "missingAddress": "Complete the shipping address first.",
+        "missingShippingOption": "Choose a shipping option to continue.",
+        "missingPaymentMethod": "Choose a payment method first",
+        "fallback": "Complete the required details."
+      },
+      "payNow": {
+        "processing": "Payment is being processed…",
+        "missingOrderId": "Order ID not found. Check your link again.",
+        "missingOrderDraft": "The order draft is unavailable. Go back to the previous step.",
+        "fallback": "Complete the required details."
+      }
+    },
+    "summary": {
+      "title": "Order Summary",
+      "description": "Review the total cost before proceeding to payment.",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax",
+      "taxRate": "Tax ({rate}%)",
+      "shipping": "Shipping",
+      "total": "Total"
+    },
+    "mobileBar": {
+      "total": "Payment total",
+      "details": "View details"
+    },
+    "orderDetails": {
+      "shippingTitle": "Shipping Details",
+      "paymentTitle": "Payment Method"
+    },
+    "review": {
+      "title": "Review Order",
+      "description": "Make sure your order details are correct before continuing to payment.",
+      "orderId": "Order ID: {orderId}",
+      "addressTitle": "Shipping Address",
+      "supportSubject": "Payment help {orderId}",
+      "missingOrder": {
+        "title": "Order not found",
+        "description": "We could not find an orderId in this link.",
+        "action": "Back to cart"
+      },
+      "payment": {
+        "title": "Payment Method",
+        "description": "We use Midtrans Snap to process payments securely.",
+        "processing": "Processing payment…",
+        "payNow": "Pay Now",
+        "connecting": "Contacting the payment provider…",
+        "continueToPayment": "Continue to Payment",
+        "openPayment": "Open Payment",
+        "alreadyPaid": "I Have Paid",
+        "payBefore": "Complete payment before {deadline}.",
+        "expired": "The payment window has ended. Please create the payment again.",
+        "remaining": "Time left to pay: <strong>{countdown}</strong>",
+        "deadlineHint": "Make sure you complete the payment before the deadline.",
+        "contactSupport": "Contact support",
+        "token": "Payment token: <mono>{token}</mono>"
+      },
+      "statusError": {
+        "retry": "Try Again",
+        "viewDetails": "View Details"
+      },
+      "errors": {
+        "intentFailed": "Could not create a payment intent. Please try again.",
+        "gatewayUnavailable": "The payment URL is unavailable. Please try again.",
+        "statusFailed": "Payment has not succeeded (status: {status}). Please try again."
+      },
+      "toast": {
+        "paid": "Payment successful",
+        "failedTitle": "Payment not successful yet",
+        "failedDescription": "Payment status: {status}",
+        "checkErrorTitle": "Failed to check payment"
+      },
+      "watcher": {
+        "checking": "Checking payment status...",
+        "contacting": "Contacting the payment provider.",
+        "current": "Current status: <strong>{status}</strong>",
+        "checkError": "Could not check the payment status. Please try again."
+      },
+      "instructions": {
+        "title": "Payment instructions",
+        "providerFallback": "Payment provider",
+        "bankTransfer": "Bank transfer",
+        "bankFallback": "Bank",
+        "accountFallback": "Toko",
+        "copy": "Copy",
+        "qrTitle": "Payment QR",
+        "qrAlt": "Payment QR",
+        "proofLabel": "Proof of payment (optional)",
+        "proofUploaded": "Proof sent",
+        "uploading": "Uploading...",
+        "upload": "Upload proof",
+        "uploadFailed": "Failed to upload the proof of payment."
+      }
+    },
+    "success": {
+      "missing": {
+        "title": "Payment successful",
+        "description": "Your order has been recorded. Go back to the catalog to keep shopping.",
+        "action": "Continue shopping"
+      },
+      "title": "Payment Successful!",
+      "description": "Thank you! Your order number <strong>{orderId}</strong> has been created.",
+      "instructionsTitle": "Payment Instructions:",
+      "instructions": "Please complete the payment using the selected method. A confirmation email with the payment details has been sent to your email address.",
+      "viewOrder": "View order details",
+      "shopAgain": "Shop Again",
+      "emailNote": "A confirmation email has been sent. Check your inbox or spam folder."
+    },
+    "failed": {
+      "missing": {
+        "title": "Payment not processed yet",
+        "description": "We could not find that order. Please go back to the cart.",
+        "action": "Back to cart"
+      },
+      "title": "Payment Not Successful",
+      "status": "The latest status for order <strong>{orderId}</strong> is {status}.",
+      "statusUnknown": "We have not received the latest status for order <strong>{orderId}</strong> yet.",
+      "reasonTitle": "Failure Reason:",
+      "whatToDo": "What should you do?",
+      "tips": {
+        "retry": "• Try paying again using the button below",
+        "balance": "• Make sure your balance or card limit is sufficient",
+        "support": "• If the problem persists, contact our customer service"
+      },
+      "retry": "Try Paying Again",
+      "backToCart": "Back to Cart",
+      "shopFirst": "Keep Shopping",
+      "help": "Need help? Contact our customer service at <link>{email}</link>"
+    },
+    "toast": {
+      "draftProgress": "Creating order draft…",
+      "draftProgressDescription": "We are preparing your order details.",
+      "draftSuccess": "Order draft created",
+      "draftError": "Failed to create order draft",
+      "processing": "Processing order...",
+      "processingDescription": "Please wait a moment.",
+      "success": "Order created!",
+      "successDescription": "Order ID: {orderNumber}",
+      "error": "Failed to process order"
+    },
+    "paymentToast": {
+      "progress": "Processing payment…",
+      "progressDescription": "Connecting to the payment provider.",
+      "ready": "Payment ready to continue",
+      "readyDescription": "Open the payment page to complete the transaction.",
+      "error": "Failed to create payment"
+    },
+    "address": {
+      "book": {
+        "heading": "Address book",
+        "description": "Manage shipping addresses for a faster checkout.",
+        "deleteDisabled": "This address is in use. Choose another address before deleting it.",
+        "add": "Add address",
+        "retry": "Try again",
+        "emptyTitle": "No saved addresses yet",
+        "emptyDescription": "Add a new address for a faster checkout in the future.",
+        "addFirst": "Add your first address",
+        "busy": {
+          "creating": "Saving new address…",
+          "updating": "Updating address…",
+          "deleting": "Deleting address…",
+          "settingDefault": "Setting default…",
+          "syncing": "Syncing addresses…"
+        },
+        "create": {
+          "title": "Add address",
+          "description": "Fill in your shipping address details.",
+          "submit": "Save address"
+        },
+        "edit": {
+          "title": "Edit address",
+          "description": "Update your address details.",
+          "submit": "Update address"
+        },
+        "delete": {
+          "title": "Delete address",
+          "description": "This address will be removed from your account and can no longer be used at checkout.",
+          "cancel": "Cancel",
+          "deleting": "Deleting…",
+          "confirm": "Delete"
+        }
+      },
+      "card": {
+        "default": "Default",
+        "selected": "Selected",
+        "select": "Select",
+        "alreadySelected": "Address already selected",
+        "useThisLabel": "Use this address",
+        "use": "Use",
+        "isDefaultLabel": "Default address",
+        "makeDefaultLabel": "Make default address",
+        "makeDefault": "Make default",
+        "editLabel": "Edit address for {name}",
+        "edit": "Edit",
+        "deleteDisabledLabel": "Deleting this address is disabled",
+        "deleteLabel": "Delete address for {name}",
+        "delete": "Delete"
+      },
+      "form": {
+        "submit": "Save address",
+        "cancel": "Cancel",
+        "mapTitle": "Map Location",
+        "mapDescription": "Pick a location on the map to fill in the address automatically",
+        "closeMap": "Close Map",
+        "openMap": "Open Map",
+        "locating": "Detecting location...",
+        "useLocation": "Use my location",
+        "geocoding": "Fetching address details...",
+        "searchLabel": "Search location",
+        "searchPlaceholder": "Type a city or postal code",
+        "searchLoading": "Loading suggestions...",
+        "searchEmpty": "No suggestions.",
+        "searchError": "Could not load location suggestions. Try again.",
+        "searchHint": "Use the dropdown to fill in the city, province, and postal code.",
+        "district": "District",
+        "districtPlaceholder": "Choose a district",
+        "ward": "Ward",
+        "wardPlaceholder": "Choose a ward",
+        "regionHint": "Choose a district/ward to fill in the postal code automatically.",
+        "optional": "(optional)",
+        "postalChecking": "Checking the postal code...",
+        "postalMismatch": "The postal code does not match the city/province.",
+        "saving": "Saving address...",
+        "fields": {
+          "receiverName": "Recipient name",
+          "phone": "Phone number",
+          "addressLine1": "Street address",
+          "addressLine2": "Address details",
+          "city": "City / Regency",
+          "province": "Province",
+          "postalCode": "Postal code",
+          "country": "Country"
+        },
+        "toast": {
+          "reverseFailed": "Failed to fetch the address",
+          "reverseFailedDescription": "Try again or fill in the address manually.",
+          "unavailable": "Location unavailable",
+          "unavailableDescription": "Your device does not support automatic location detection.",
+          "locateFailed": "Failed to detect location",
+          "permissionDenied": "Location permission denied. Please allow location access in your browser.",
+          "positionUnavailable": "Position unavailable. Try again later.",
+          "timeout": "The location request timed out.",
+          "generic": "Failed to detect location automatically."
+        }
+      },
+      "validation": {
+        "receiverNameRequired": "Full name is required",
+        "receiverNameTooLong": "Full name is too long",
+        "addressLine1Required": "Address is required",
+        "addressLine1TooLong": "Address is too long",
+        "addressLine2TooLong": "Address details are too long",
+        "cityRequired": "City is required",
+        "cityTooLong": "City is too long",
+        "provinceRequired": "Province is required",
+        "provinceTooLong": "Province is too long",
+        "countryRequired": "Country is required",
+        "countryTooLong": "Country is too long",
+        "phoneRequired": "Phone number is required",
+        "phoneTooShort": "Phone number is too short",
+        "phoneTooLong": "Phone number is too long",
+        "phoneInvalid": "Invalid phone number",
+        "postalCodeRequired": "Postal code is required",
+        "postalCodeInvalid": "Invalid postal code",
+        "updateEmpty": "Change at least one field to update the address"
+      },
+      "toast": {
+        "created": "Address added",
+        "createFailed": "Failed to add address",
+        "updated": "Address updated",
+        "updateFailed": "Failed to update address",
+        "deleted": "Address deleted",
+        "deleteFailed": "Failed to delete address",
+        "defaultUpdated": "Primary address updated",
+        "defaultFailed": "Failed to set primary address",
+        "notFound": "Address not found"
+      },
+      "map": {
+        "permissionDenied": "Location permission denied. Please allow location access in your browser.",
+        "searchPlaceholder": "Search city/location...",
+        "notFound": "Location not found",
+        "clickHint": "Click the map to drop a pin"
+      }
+    }
+  },
+  "auth": {
+    "shell": {
+      "tagline": "Shopping that feels personal",
+      "headline": "Objects chosen with intention.",
+      "description": "Discover curated collections, reliable delivery, and a calm shopping experience.",
+      "securePayment": "Curated products & secure payment",
+      "shipping": "Delivery across Indonesia"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm password"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordNeedsLetter": "Password must contain a letter",
+      "passwordNeedsNumber": "Password must contain a number",
+      "nameRequired": "Name is required",
+      "nameTooLong": "Name is too long",
+      "confirmPasswordRequired": "Password confirmation is required",
+      "termsRequired": "You must accept the terms and conditions",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "social": {
+      "divider": "or continue with",
+      "or": "or",
+      "signInWith": "Sign in with {provider}",
+      "google": "Continue with Google",
+      "github": "Continue with GitHub",
+      "apple": "Continue with Apple"
+    },
+    "login": {
+      "eyebrow": "Back to the store",
+      "title": "Welcome back",
+      "description": "Sign in to continue to your account and curated collection.",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don''t have an account? <register>Register</register>"
+    },
+    "register": {
+      "eyebrow": "Start your collection",
+      "title": "Create an account",
+      "description": "Start shopping with toko today, with a more personal experience.",
+      "terms": "I agree to the <terms>Terms and Conditions</terms> and <privacy>Privacy Policy</privacy>",
+      "submit": "Register",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account? <login>Sign in</login>"
+    },
+    "forgot": {
+      "title": "Forgot password?",
+      "description": "Enter your email and we will send you a password reset link.",
+      "sentTitle": "Email sent",
+      "sentDescription": "We sent a password reset link to <strong>{email}</strong>. Check your inbox or spam folder.",
+      "backToLogin": "Back to login",
+      "resend": "Resend email",
+      "submit": "Send reset link",
+      "submitting": "Sending email...",
+      "remember": "Remember your password? <login>Log in here</login>"
+    },
+    "reset": {
+      "invalidTitle": "Invalid reset link",
+      "invalidDescription": "The password reset token was not found. Request a new link to continue.",
+      "requestLink": "Request reset link",
+      "tokenMissing": "The password reset token was not found.",
+      "successTitle": "Password changed successfully",
+      "successDescription": "Please log in with your new password.",
+      "backToLogin": "Back to login",
+      "title": "Reset password",
+      "description": "Create a new password for your account.",
+      "submit": "Save new password",
+      "submitting": "Updating password..."
+    },
+    "verify": {
+      "verifyingTitle": "Verifying email...",
+      "verifyingDescription": "Please wait a moment.",
+      "successTitle": "Email verified",
+      "verified": "Email verified successfully.",
+      "goToAccount": "Go to account",
+      "backToLogin": "Back to login",
+      "title": "Verify email",
+      "description": "Enter your email to resend the verification link.",
+      "invalidLink": "The verification link is invalid or has expired.",
+      "resendSuccess": "Verification email sent.",
+      "submit": "Resend verification",
+      "submitting": "Resending..."
+    },
+    "passwordStrength": {
+      "label": "Password strength: {level}",
+      "levels": {
+        "weak": "weak",
+        "fair": "fair",
+        "good": "good",
+        "strong": "strong"
+      },
+      "feedback": "Add {items} for a stronger password",
+      "great": "Great! Your password is strong",
+      "missing": {
+        "length": "at least 8 characters",
+        "uppercase": "an uppercase letter",
+        "lowercase": "a lowercase letter",
+        "number": "a number",
+        "special": "a special character"
+      },
+      "requirements": {
+        "length": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "lowercase": "One lowercase letter",
+        "number": "One number",
+        "special": "One special character"
+      }
+    },
+    "guard": {
+      "title": "Preparing your account",
+      "description": "Please wait a moment."
+    }
+  },
+  "account": {
+    "breadcrumb": {
+      "home": "Home",
+      "account": "Account",
+      "orders": "Orders",
+      "loyalty": "Loyalty",
+      "pushSettings": "Push notifications",
+      "searches": "Search history"
+    },
+    "backToAccount": "Back to account",
+    "login": "Log in",
+    "dashboard": {
+      "logoutFailed": "Failed to logout",
+      "guestTitle": "Account",
+      "guestDescription": "Please sign in to access your account.",
+      "signIn": "Sign in",
+      "createAccount": "Create account",
+      "welcome": "Welcome, {name}",
+      "unverified": "Your email is not verified yet.",
+      "verifyNow": "Verify now",
+      "links": {
+        "profile": "Profile",
+        "orders": "View Orders",
+        "addresses": "Manage Addresses",
+        "favorites": "Favorites",
+        "searches": "Search History",
+        "loyalty": "Loyalty",
+        "push": "Push Notifications",
+        "logout": "Logout"
+      }
+    },
+    "addresses": {
+      "title": "Address book",
+      "description": "Add or edit shipping addresses for a faster checkout."
+    },
+    "loyalty": {
+      "title": "Loyalty Program",
+      "description": "Manage your points, tier, and reward claims",
+      "table": {
+        "date": "Date",
+        "type": "Type",
+        "description": "Description",
+        "points": "Points",
+        "balance": "Balance"
+      },
+      "loadFailed": "Failed to load your loyalty profile.",
+      "retry": "Try again",
+      "rewardsTab": "Rewards Catalog",
+      "historyTab": "Points History",
+      "rewards": {
+        "title": "Rewards Catalog",
+        "notEnoughTitle": "Not enough points",
+        "notEnoughDescription": "You need {points} more points for this reward.",
+        "signIn": "<link>Sign in</link> to redeem rewards",
+        "types": {
+          "voucher": "Voucher",
+          "shipping": "Shipping",
+          "special": "Special"
+        },
+        "exclusive": "Exclusive to {audience}",
+        "member": "Member",
+        "redeeming": "Redeeming...",
+        "redeem": "Redeem",
+        "notEnough": "Not enough points",
+        "empty": "No rewards available yet.",
+        "redeemed": "Reward claimed",
+        "redeemFailed": "Failed to redeem reward",
+        "items": {
+          "voucher10k": {
+            "name": "Rp10,000 Voucher",
+            "description": "Rp10,000 off purchases of at least Rp50,000"
+          },
+          "voucher25k": {
+            "name": "Rp25,000 Voucher",
+            "description": "Rp25,000 off purchases of at least Rp100,000"
+          },
+          "voucher50k": {
+            "name": "Rp50,000 Voucher",
+            "description": "Rp50,000 off purchases of at least Rp200,000"
+          },
+          "freeShipping": {
+            "name": "Free Shipping",
+            "description": "Free shipping on 1 order"
+          },
+          "birthdayGift": {
+            "name": "Birthday Gift",
+            "description": "Special birthday voucher (Gold+ tiers only)"
+          }
+        }
+      },
+      "tier": {
+        "yours": "Your Tier",
+        "next": "Next Tier",
+        "points": "Points",
+        "lifetime": "Lifetime total: {points}",
+        "progressTo": "Progress to {tier}",
+        "pointsToNext": "Need {points} more points for {tier}",
+        "top": "🎉 You are at the highest tier!",
+        "benefitsTitle": "This tier’s benefits:",
+        "moreBenefits": "+{count, plural, =1 {# more benefit} other {# more benefits}}"
+      },
+      "benefits": {
+        "points1x": "1 point per Rp1,000 spent",
+        "points125x": "1.25 points per Rp1,000 spent",
+        "points15x": "1.5 points per Rp1,000 spent",
+        "points2x": "2 points per Rp1,000 spent",
+        "basicPromos": "Access to basic promotions",
+        "freeShippingMin": "Free shipping above a minimum spend",
+        "flashSaleAccess": "Exclusive flash sale access",
+        "freeShippingNoMin": "Free shipping with no minimum",
+        "earlyAccess": "Early access to new products",
+        "prioritySupport": "Priority support",
+        "expressShipping": "Free shipping + express delivery",
+        "personalShopper": "Personal shopper",
+        "birthdayGift": "Birthday gift",
+        "exclusiveEvents": "Exclusive event invitations"
+      },
+      "history": {
+        "types": {
+          "all": "All",
+          "earned": "Earned",
+          "redeemed": "Redeemed",
+          "expired": "Expired",
+          "adjusted": "Adjusted",
+          "bonus": "Bonus"
+        },
+        "loadFailed": "Failed to load history.",
+        "title": "Points History",
+        "filter": "Filter",
+        "empty": "No points activity yet.",
+        "reference": "Ref: {type} #{id}",
+        "showing": "Showing {from} - {to} of {total}",
+        "pageOf": "Page {page} of {total}"
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Updates on your orders and account.",
+      "loadFailed": "Failed to load notifications.",
+      "emptyTitle": "No notifications yet",
+      "emptyDescription": "Notifications about your order and delivery status will appear here.",
+      "markAllRead": "Mark all as read",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}",
+      "bell": {
+        "label": "Notifications",
+        "labelUnread": "Notifications, {count} unread",
+        "empty": "No notifications yet.",
+        "loading": "Loading…",
+        "viewAll": "View all"
+      }
+    },
+    "orderStatus": {
+      "all": "All Statuses",
+      "pending_payment": "Awaiting Payment",
+      "paid": "Paid",
+      "packed": "Packed",
+      "shipped": "Shipped",
+      "out_for_delivery": "Out for Delivery",
+      "delivered": "Completed",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    },
+    "shipmentStatus": {
+      "pending": "Awaiting Shipment",
+      "picked_up": "Picked Up by Courier",
+      "in_transit": "In Transit",
+      "on_delivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "failed": "Delivery Failed"
+    },
+    "orders": {
+      "title": "My Orders",
+      "description": "Your purchase history.",
+      "filterStatus": "Filter by status",
+      "loadFailed": "Failed to load order history",
+      "retry": "Try Again",
+      "loadMore": "Load More",
+      "itemCount": "{count, plural, one {# item} other {# items}}",
+      "totalSpent": "Order Total",
+      "pay": "Pay",
+      "detail": "Details"
+    },
+    "orderDetail": {
+      "notFoundTitle": "Order not found",
+      "notFoundDescription": "The order ID is missing. Please go back to your order list.",
+      "viewMyOrders": "View my orders",
+      "unavailableTitle": "Order details are not available yet",
+      "unavailableDescription": "We could not load this order yet. Please try again later.",
+      "backToOrders": "Back to orders",
+      "orderNumber": "Order number",
+      "createdAt": "Placed {date}",
+      "payNow": "Pay now",
+      "trackShipment": "Track shipment",
+      "downloadInvoice": "Download invoice",
+      "cancelOrder": "Cancel order",
+      "items": "Items in this order",
+      "qtyPrice": "Qty {qty} - {price}",
+      "subtotal": "Subtotal",
+      "statusTitle": "Order status",
+      "paymentSummary": "Payment summary",
+      "status": "Status",
+      "method": "Method",
+      "paymentStatus": "Payment status",
+      "paymentPending": "Payment details will appear once the order is processed.",
+      "shippingAddress": "Shipping address",
+      "costBreakdown": "Cost breakdown",
+      "discount": "Discount",
+      "tax": "Tax",
+      "shippingFee": "Shipping",
+      "total": "Total",
+      "shipping": "Delivery",
+      "trackingNumber": "Tracking no.: {number}",
+      "trackingPending": "The tracking number will be available once the order is processed.",
+      "eta": "Estimated arrival {date}",
+      "shippingPending": "Delivery details will appear once the order is processed.",
+      "toast": {
+        "cancelled": "Order cancelled",
+        "cancelledDescription": "Your order has been cancelled.",
+        "cancelFailed": "Failed to cancel the order. Please try again."
+      }
+    },
+    "invoice": {
+      "title": "Invoice #{number}",
+      "date": "Date: {date}",
+      "customer": "Customer: {name}",
+      "email": "Email: {email}",
+      "address": "Shipping address:",
+      "products": "Products:",
+      "subtotal": "Subtotal: {amount}",
+      "discount": "Discount: {amount}",
+      "tax": "Tax: {amount}",
+      "shipping": "Shipping: {amount}",
+      "total": "Total: {amount}",
+      "courier": "Courier: {courier} - {service}",
+      "trackingNumber": "Tracking number: {number}",
+      "eta": "Estimated arrival: {date}"
+    },
+    "cancelModal": {
+      "reasons": {
+        "changedMind": "Changed my mind",
+        "betterPrice": "Found a better price",
+        "accidental": "Order placed by mistake",
+        "other": "Other reason"
+      },
+      "title": "Cancel order",
+      "description": "Cancelling stops the order from being processed. If you have already paid, the funds will be refunded according to our policy.",
+      "helper": "Tell us why you are cancelling so our team can help.",
+      "noteRequired": "Please explain why you are cancelling.",
+      "noteLabel": "Cancellation reason",
+      "notePlaceholder": "e.g. I want to change the product color.",
+      "cancel": "Cancel",
+      "submitting": "Cancelling...",
+      "confirm": "Confirm cancellation"
+    },
+    "privacy": {
+      "title": "Privacy Settings",
+      "guestDescription": "Please log in to manage your privacy.",
+      "description": "Manage your account data and privacy preferences.",
+      "toast": {
+        "saved": "Privacy preferences saved.",
+        "saveFailed": "Failed to save preferences.",
+        "exported": "Data export downloaded.",
+        "exportFailed": "Failed to export data.",
+        "deleted": "Account deleted.",
+        "deleteFailed": "Failed to delete account."
+      },
+      "communication": {
+        "title": "Communication Preferences",
+        "description": "Choose which emails you want to receive from us.",
+        "marketing": "Marketing & Promo Emails",
+        "marketingDescription": "Get news about discounts, new products, and exclusive offers.",
+        "marketingLabel": "Marketing emails",
+        "orders": "Order & Delivery Updates",
+        "ordersDescription": "Notifications about order, delivery, and return status.",
+        "ordersLabel": "Order updates",
+        "security": "Security Alerts",
+        "securityDescription": "Notifications about suspicious logins, password changes, etc.",
+        "securityLabel": "Security alerts"
+      },
+      "visibility": {
+        "title": "Profile Visibility",
+        "description": "Control who can see your profile information.",
+        "question": "Who can see your profile?",
+        "public": "Public",
+        "publicDescription": "Everyone can see your name, avatar, and review history.",
+        "friends": "Friends Only",
+        "friendsDescription": "Only people you follow can see your full profile.",
+        "private": "Private",
+        "privateDescription": "Only you can see your profile. Your name stays visible on reviews."
+      },
+      "data": {
+        "title": "Data Processing",
+        "description": "Manage how your data is processed and stored.",
+        "essential": "Essential Data Processing",
+        "essentialDescription": "Required to provide core services (orders, payment, delivery). Cannot be disabled.",
+        "essentialLabel": "Essential data",
+        "analytics": "Analytics & Service Improvement",
+        "analyticsDescription": "Help us improve our products with anonymous usage data.",
+        "analyticsLabel": "Analytics",
+        "personalization": "Personalization & Recommendations",
+        "personalizationDescription": "Use your shopping history to show relevant products.",
+        "personalizationLabel": "Personalization"
+      },
+      "rights": {
+        "title": "Your Data Rights",
+        "description": "Manage your personal data in line with data protection regulations.",
+        "export": "Download My Data",
+        "exportDescription": "Get a copy of all your account data (JSON/CSV)",
+        "delete": "Delete Account",
+        "deleteDescription": "Permanently delete your account and all related data",
+        "listTitle": "Your rights:",
+        "access": "Access the personal data we store",
+        "rectify": "Request correction of inaccurate data",
+        "erase": "Request erasure (right to be forgotten)",
+        "restrict": "Restrict or object to certain processing",
+        "portability": "Data portability - move to another service",
+        "complaint": "Complain to a data protection authority"
+      },
+      "cookies": {
+        "title": "Cookies & Tracking",
+        "description": "Manage cookie and tracking technology preferences.",
+        "essential": "Essential Cookies",
+        "essentialDescription": "Required for the site to work (login, cart, security). Always on.",
+        "functional": "Functional Cookies",
+        "functionalDescription": "Remember preferences (language, currency, display).",
+        "analytics": "Analytics Cookies",
+        "analyticsDescription": "Measure site performance and anonymous user behavior.",
+        "marketing": "Marketing Cookies",
+        "marketingDescription": "Show relevant ads and measure campaign effectiveness.",
+        "manage": "Manage Cookie Details"
+      },
+      "saving": "Saving...",
+      "save": "Save Changes",
+      "deleteDialog": {
+        "title": "Delete Account Permanently",
+        "description": "This cannot be undone. All your data, including order history, addresses, favorites, and preferences, will be permanently deleted within 30 days.",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "confirm": "Delete My Account"
+      }
+    },
+    "profile": {
+      "title": "Profile",
+      "guestDescription": "Please log in to view your profile.",
+      "description": "Manage your account information.",
+      "updated": "Profile updated.",
+      "verificationSent": "Verification email sent.",
+      "emailVerified": "Email verified",
+      "emailUnverified": "Email not verified",
+      "verifiedDescription": "Thank you, your email is active.",
+      "unverifiedDescription": "Verify your email to keep your account secure.",
+      "resendVerification": "Resend verification",
+      "openVerification": "Open verification page",
+      "fields": {
+        "name": "Full name",
+        "email": "Email",
+        "phone": "Phone number",
+        "phonePlaceholder": "e.g. 081234567890"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "phoneInvalid": "Invalid phone number"
+      },
+      "changePassword": "Change password",
+      "saving": "Saving...",
+      "save": "Save changes",
+      "security": {
+        "title": "Account Security",
+        "description": "Manage active sessions and sign out other devices.",
+        "processing": "Processing...",
+        "logoutAll": "Log out all devices",
+        "loggedOutAll": "All sessions have been signed out.",
+        "loadFailed": "Failed to load active sessions.",
+        "empty": "No active sessions yet.",
+        "thisDevice": "This device",
+        "ip": "IP: {ip}",
+        "lastActive": "Last active: {date}"
+      }
+    },
+    "push": {
+      "guestTitle": "Sign in to manage notifications",
+      "guestDescription": "You need to sign in to access push notification settings.",
+      "signIn": "Sign in",
+      "register": "Register",
+      "title": "Push Notifications",
+      "description": "Manage real-time notification preferences for order updates, promos, and more.",
+      "settingsTitle": "Notification Settings",
+      "settingsDescription": "Get real-time notifications without opening the app",
+      "aboutTitle": "About Push Notifications",
+      "aboutIntro": "Push notifications let you receive instant updates about:",
+      "aboutOrders": "Order and delivery status",
+      "aboutPromos": "Flash sale promos & price drops on favorites",
+      "aboutReviews": "New reviews & your product questions",
+      "aboutLoyalty": "Available loyalty rewards & points",
+      "aboutNews": "Announcements & important news",
+      "aboutFootnote": "You can turn off notifications at any time. Preferences are stored on the server and synced across all your devices.",
+      "backToAccount": "← Back to Account",
+      "toast": {
+        "subscribed": "Push notifications turned on",
+        "subscribeFailed": "Failed to turn on push notifications",
+        "unsubscribed": "Push notifications turned off",
+        "unsubscribeFailed": "Failed to turn off push notifications",
+        "preferencesUpdated": "Notification preferences updated",
+        "preferencesFailed": "Failed to update preferences",
+        "testSent": "Test notification sent",
+        "testFailed": "Failed to send test notification"
+      },
+      "banner": {
+        "close": "Close",
+        "title": "Turn On Push Notifications",
+        "description": "Get order updates, flash sale promos, and price drops in real time",
+        "enable": "Turn on"
+      },
+      "card": {
+        "enableLabel": "Turn on push notifications",
+        "enableType": "Turn on {label} notifications",
+        "status": "Status",
+        "registered": "Registered",
+        "notRegistered": "Not registered",
+        "sendTest": "Send Test",
+        "endpoint": "Endpoint: {endpoint}...",
+        "types": {
+          "order_update": {
+            "label": "Order Updates",
+            "description": "Delivery status, shipping, etc."
+          },
+          "price_drop": {
+            "label": "Price Drops",
+            "description": "Your favorite products got cheaper."
+          },
+          "flash_sale": {
+            "label": "Flash Sale",
+            "description": "Limited promos and special events."
+          },
+          "new_review": {
+            "label": "New Reviews",
+            "description": "Reviews on products you bought."
+          },
+          "qa_answered": {
+            "label": "Questions Answered",
+            "description": "Answers to your product questions."
+          },
+          "loyalty_reward": {
+            "label": "Loyalty Rewards",
+            "description": "Points and rewards available."
+          },
+          "general": {
+            "label": "General",
+            "description": "Announcements and important news."
+          }
+        }
+      }
+    },
+    "searches": {
+      "title": "Search History",
+      "description": "Searches are stored on this device only and are never sent to the server.",
+      "clearAll": "Clear all",
+      "emptyTitle": "No search history yet",
+      "emptyDescription": "Terms you search for will appear here so you can repeat them easily.",
+      "browse": "Browse products",
+      "remove": "Remove {term} from search history"
+    },
+    "support": {
+      "title": "Help Center",
+      "guestDescription": "Please log in to create and view tickets.",
+      "description": "Create a ticket and continue the conversation with our team.",
+      "loadFailed": "Failed to load support tickets.",
+      "created": "Ticket created.",
+      "createFailed": "Failed to create ticket.",
+      "replySent": "Reply sent.",
+      "replyFailed": "Failed to send reply.",
+      "newTicket": "New ticket",
+      "subject": "Subject",
+      "orderNumber": "Order number (optional)",
+      "message": "Describe your issue",
+      "sending": "Sending...",
+      "create": "Create ticket",
+      "empty": "No tickets yet.",
+      "createdAt": "Created {date}",
+      "order": "Order {orderId}",
+      "conversation": "Ticket conversation {subject}",
+      "noMessages": "No messages yet.",
+      "you": "You",
+      "team": "Support team",
+      "replyPlaceholder": "Write a reply",
+      "send": "Send"
+    },
+    "recentOrders": {
+      "title": "Recent Orders",
+      "empty": "No orders yet",
+      "startShopping": "Start shopping",
+      "viewAll": "View all →",
+      "orderNumber": "Order #{number}",
+      "itemCount": "{count, plural, =1 {# item} other {# items}}"
+    },
+    "confirmation": {
+      "status": {
+        "pending_payment": {
+          "label": "Awaiting Payment",
+          "message": "Please complete the payment so we can process your order."
+        },
+        "paid": {
+          "label": "Payment Successful",
+          "message": "Your payment has been received. Your order is being processed."
+        },
+        "packed": {
+          "label": "Being Packed",
+          "message": "Our team is packing your order."
+        },
+        "shipped": {
+          "label": "On the Way",
+          "message": "Your order is on its way."
+        },
+        "out_for_delivery": {
+          "label": "Out for Delivery",
+          "message": "Your order is being delivered to your address."
+        },
+        "delivered": {
+          "label": "Completed",
+          "message": "Your order is complete. Thank you!"
+        },
+        "cancelled": {
+          "label": "Cancelled",
+          "message": "This order has been cancelled."
+        },
+        "fallbackMessage": "Your order status."
+      },
+      "cartNotReady": "Your cart is not ready yet.",
+      "reorderSuccess": "Products added to cart",
+      "reorderSuccessDescription": "Continue to checkout to order again.",
+      "reorderFailed": "Failed to add the products to your cart again. Please try again.",
+      "notFoundTitle": "Order not found",
+      "notFoundDescription": "We could not find the order ID. You will be redirected to the 404 page.",
+      "viewMyOrders": "View My Orders",
+      "continueShopping": "Continue Shopping",
+      "createdTitle": "Order Placed",
+      "orderId": "Order ID: <mono>{orderId}</mono>",
+      "processing": "Your order details are being processed. Please check your order history.",
+      "orderNumber": "Order Number",
+      "totalPayment": "Payment Total",
+      "completePayment": "Complete your payment",
+      "timeLeft": "Time left to pay: <strong>{countdown}</strong>",
+      "expired": "The payment window has ended. Please create a new payment.",
+      "payPrompt": "Complete your payment soon so your order can be processed.",
+      "validUntil": "Valid until {date}.",
+      "autoCancel": "If the payment is delayed, the order will be cancelled automatically.",
+      "payNow": "Pay Now",
+      "noPaymentLink": "The payment link is not available yet. You can create a new payment.",
+      "retryPayment": "Try paying again",
+      "contactSupport": "Contact support",
+      "supportSubject": "Payment help {orderNumber}",
+      "statusTitle": "Order status",
+      "shippingTitle": "Delivery",
+      "courier": "Courier: <strong>{courier}</strong>",
+      "service": "Service: <strong>{service}</strong>",
+      "trackingNumber": "Tracking number: <strong>{number}</strong>",
+      "trackingPending": "The tracking number will be available once the order is processed.",
+      "eta": "Estimated arrival: <strong>{date}</strong>",
+      "trackShipment": "Track shipment",
+      "shippingPending": "Delivery details will appear once the order is processed.",
+      "itemsTitle": "Items in this order",
+      "itemsDescription": "Add products you bought before to your cart again.",
+      "reordering": "Adding...",
+      "reorder": "Buy again",
+      "qtyPrice": "Qty {qty} - {price}",
+      "viewProduct": "View product",
+      "review": "Write a review",
+      "cancelOrder": "Cancel order",
+      "toast": {
+        "cancelled": "Order cancelled",
+        "cancelledDescription": "Your order has been cancelled. Our team will process a refund if needed.",
+        "cancelFailed": "Failed to cancel the order. Please try again."
+      }
+    },
+    "tracking": {
+      "mapLoading": "Loading map...",
+      "mapResolving": "Loading the tracking map and location coordinates...",
+      "mapEmpty": "Delivery location data is not available yet or could not be geocoded.",
+      "notFoundTitle": "Tracking not found",
+      "notFoundDescription": "The order ID is missing. Please check your link.",
+      "backToOrder": "Back to order",
+      "loadFailedTitle": "Failed to load tracking",
+      "loadFailedDescription": "We could not fetch the delivery information yet. Please try again later.",
+      "title": "Track Shipment",
+      "trackingNumber": "Tracking number <strong>{number}</strong>",
+      "courier": "Courier",
+      "currentStatus": "Current status",
+      "eta": "Estimated arrival {date}",
+      "history": "Delivery history",
+      "map": "Delivery map",
+      "viewAllOrders": "View all orders",
+      "actions": {
+        "shareTitle": "Track Shipment",
+        "shareText": "Track the order shipment (tracking no. {number})",
+        "copied": "Link copied",
+        "copiedDescription": "The tracking link has been copied to your clipboard.",
+        "copyFailed": "Failed to copy link",
+        "copyFailedDescription": "Copy the URL from your browser''s address bar.",
+        "notifyOff": "Notifications turned off",
+        "notifyOffDescription": "You will not receive delivery updates on this device.",
+        "notifyOn": "Notifications turned on",
+        "notifyOnDescription": "We will let you know when the delivery status changes.",
+        "notifyDenied": "Notification permission denied",
+        "notifyDeniedDescription": "Enable notifications for this site in your browser settings.",
+        "share": "Share tracking link",
+        "notifyActive": "Notifications on",
+        "notifyMe": "Notify me"
+      }
+    },
+    "returns": {
+      "loadFailed": "Failed to load return requests.",
+      "created": "Return request created.",
+      "createFailed": "Failed to create the request. Make sure the order number is eligible.",
+      "title": "Order Returns",
+      "guestDescription": "Please log in to view and request returns.",
+      "description": "Request and track returns in one place.",
+      "formTitle": "Request a return",
+      "orderNumber": "Order number",
+      "orderPlaceholder": "Order UUID",
+      "reason": "Reason",
+      "reasonPlaceholder": "Damaged product, wrong size, ...",
+      "notes": "Additional notes",
+      "sending": "Sending...",
+      "submit": "Submit request",
+      "listTitle": "My requests",
+      "empty": "No return requests yet.",
+      "order": "Order {orderId}"
+    }
+  },
+  "errors": {
+    "route": {
+      "title": "Something went wrong",
+      "description": "Something went wrong. Please try again.",
+      "adminDescription": "The admin page failed to load. Please try again.",
+      "digest": "Code: {digest}",
+      "retry": "Try again"
+    },
+    "boundary": {
+      "reload": "Reload"
+    },
+    "unknown": "An unknown error occurred",
+    "api": {
+      "UNAUTHORIZED": "Your session has expired. Please log in again.",
+      "FORBIDDEN": "You do not have access to this resource.",
+      "NOT_FOUND": "The data you are looking for was not found.",
+      "BAD_REQUEST": "Invalid request. Please check your data.",
+      "VALIDATION_ERROR": "The data you entered is invalid.",
+      "INTERNAL": "A server error occurred. Please try again later.",
+      "UNAVAILABLE": "The service is unavailable. Please try again later.",
+      "CART_EXPIRED": "Your cart has expired. Please start shopping again.",
+      "OUT_OF_STOCK": "Sorry, the product is unavailable or out of stock.",
+      "VOUCHER_INVALID": "The voucher code is invalid or has expired.",
+      "VOUCHER_MIN_SPEND": "You have not reached the minimum spend for this voucher.",
+      "VOUCHER_ALREADY_USED": "You have already used this voucher.",
+      "RATE_LIMIT_EXCEEDED": "Too many attempts. Please wait a moment."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "home": "Back to home",
+    "allProducts": "View all products"
+  },
+  "seo": {
+    "site": {
+      "description": "Modern modular storefront for the toko e-commerce experience.",
+      "ogImageAlt": "toko default preview image"
+    },
+    "og": {
+      "tagline": "Modern modular storefront components"
+    },
+    "breadcrumb": {
+      "home": "Home"
+    },
+    "products": {
+      "title": "Products",
+      "description": "Explore curated products from toko for your next purchase."
+    },
+    "product": {
+      "fallbackTitle": "Product",
+      "fallbackDescription": "Discover the latest products available on toko.",
+      "imageAlt": "{title} image {index}"
+    },
+    "featured": {
+      "title": "Featured Collection",
+      "description": "Hand-picked toko products, curated for better everyday living."
+    },
+    "cart": {
+      "title": "Shopping Cart",
+      "description": "Review the products in your shopping cart before proceeding to checkout."
+    }
+  },
+  "admin": {
+    "meta": {
+      "title": "Admin"
+    },
+    "shell": {
+      "brand": "toko admin",
+      "viewStore": "View store",
+      "signOut": "Sign out",
+      "openMenu": "Open admin menu",
+      "navigation": "Admin navigation"
+    },
+    "guard": {
+      "checking": "Checking permissions...",
+      "title": "Admin access required",
+      "description": "Your account does not have the admin role. Ask a store owner to grant it, then reload this page.",
+      "backToStore": "Back to store"
+    },
+    "nav": {
+      "label": "Admin sections",
+      "items": {
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "inventory": "Inventory",
+        "customers": "Customers",
+        "categories": "Categories",
+        "brands": "Brands",
+        "orders": "Orders",
+        "vouchers": "Vouchers",
+        "flashSales": "Flash Sales",
+        "returns": "Returns",
+        "support": "Support",
+        "analytics": "Analytics",
+        "webhooks": "Webhooks",
+        "auditLogs": "Audit Logs",
+        "settings": "Settings"
+      }
+    },
+    "ui": {
+      "loading": "Loading...",
+      "errorTitle": "Could not load data",
+      "errorFallback": "Something went wrong.",
+      "retry": "Try again",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "common": {
+      "unknownError": "Unknown error",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "edit": "Edit",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}",
+      "actions": "Actions",
+      "status": "Status",
+      "guest": "Guest"
+    },
+    "status": {
+      "PENDING_PAYMENT": "Pending Payment",
+      "PAID": "Paid",
+      "PACKED": "Packed",
+      "SHIPPED": "Shipped",
+      "OUT_FOR_DELIVERY": "Out for Delivery",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "time": {
+      "justNow": "Just now"
+    },
+    "notFound": {
+      "back": "Back to the admin dashboard"
+    },
+    "ranges": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "all": "All time"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Overview of your store performance",
+      "loading": "Loading dashboard...",
+      "dateRange": "Date range",
+      "viewAllOrders": "View All Orders",
+      "stats": {
+        "revenue": "Total Revenue",
+        "orders": "Orders",
+        "products": "Products",
+        "customers": "Customers",
+        "averageOrderValue": "Average Order Value",
+        "pending": "Pending",
+        "shipped": "Shipped",
+        "delivered": "Delivered"
+      },
+      "recentOrders": "Recent Orders",
+      "loadingOrders": "Loading orders...",
+      "noOrders": "No orders yet.",
+      "topProducts": "Top Products",
+      "noSales": "No sales in this period.",
+      "unitsSold": "{count, number} sold"
+    },
+    "products": {
+      "title": "Products",
+      "description": "Manage your product catalog",
+      "add": "Add Product",
+      "all": "All Products",
+      "searchPlaceholder": "Search products...",
+      "searchLabel": "Search products",
+      "loading": "Loading products...",
+      "noMatches": "No products match your search.",
+      "empty": "No products yet.",
+      "addFirst": "Add your first product",
+      "columns": {
+        "product": "Product",
+        "sku": "SKU",
+        "category": "Category",
+        "price": "Price",
+        "stock": "Stock"
+      },
+      "units": "{count, number} {count, plural, one {unit} other {units}}",
+      "outOfStock": "Out of stock",
+      "updateStockFor": "Update stock for {title}",
+      "editProduct": "Edit {title}",
+      "deleteProduct": "Delete {title}",
+      "stockDialogTitle": "Update Stock: {title}",
+      "stockQuantity": "Stock quantity",
+      "deleteDialogTitle": "Delete Product",
+      "deleteConfirm": "Are you sure you want to delete <strong>{title}</strong>? This action cannot be undone.",
+      "toast": {
+        "stockUpdated": "Stock updated",
+        "stockFailed": "Could not update stock",
+        "deleted": "Product deleted",
+        "deleteFailed": "Could not delete product",
+        "created": "Product created",
+        "createFailed": "Could not create product",
+        "updated": "Product updated",
+        "updateFailed": "Could not update product"
+      },
+      "back": "Back to products",
+      "new": {
+        "title": "New Product",
+        "description": "Add a new product to your catalog",
+        "submit": "Create Product"
+      },
+      "edit": {
+        "title": "Edit Product",
+        "description": "Update product details",
+        "loading": "Loading product...",
+        "submit": "Save Changes"
+      }
+    },
+    "productForm": {
+      "basics": "Basics",
+      "title": "Title",
+      "titlePlaceholder": "Product name",
+      "slug": "Slug",
+      "slugPlaceholder": "product-slug",
+      "price": "Price (Rp)",
+      "compareAt": "Compare-at price (Rp)",
+      "optional": "Optional",
+      "compareAtHint": "Shown struck through when higher than the price.",
+      "category": "Category",
+      "selectCategory": "Select category",
+      "noCategory": "No category",
+      "brand": "Brand",
+      "selectBrand": "Select brand",
+      "noBrand": "No brand",
+      "thumbnail": "Thumbnail URL",
+      "badges": "Badges",
+      "badgesHint": "Comma separated.",
+      "inStock": "In stock",
+      "description": "Description",
+      "descriptionPlaceholder": "Product description...",
+      "images": "Images",
+      "addImage": "Add image",
+      "noImages": "No gallery images.",
+      "imageUrl": "Image URL {index}",
+      "removeImage": "Remove image {index}",
+      "specs": "Specifications",
+      "addSpec": "Add spec",
+      "noSpecs": "No specifications.",
+      "specNamePlaceholder": "Weight",
+      "specName": "Spec name {index}",
+      "specValue": "Spec value {index}",
+      "removeSpec": "Remove spec {index}",
+      "variants": "Variants",
+      "addVariant": "Add variant",
+      "noVariants": "No variants. Stock is tracked per variant, so add at least one to sell this product.",
+      "variant": "Variant {index}",
+      "removeVariant": "Remove variant {index}",
+      "sku": "SKU",
+      "stock": "Stock",
+      "attributes": "Attributes (JSON)",
+      "errors": {
+        "titleRequired": "Title is required",
+        "invalid": "Invalid form values",
+        "variantAttributes": "Variant {index}: attributes must be a JSON object"
+      }
+    },
+    "taxonomy": {
+      "name": "Name",
+      "slug": "Slug",
+      "nameRequired": "Name is required",
+      "productCount": "<strong>{count, number}</strong> {count, plural, one {product} other {products}}",
+      "deleteFailedHint": "Still referenced by products?",
+      "create": "Create",
+      "update": "Update",
+      "deleteConfirm": "Delete <strong>{name}</strong>? Products referencing it keep existing but lose this association.",
+      "categories": {
+        "title": "Categories",
+        "description": "Manage product categories",
+        "add": "Add Category",
+        "edit": "Edit Category",
+        "delete": "Delete Category",
+        "loading": "Loading categories...",
+        "empty": "No categories yet.",
+        "namePlaceholder": "Category name",
+        "slugPlaceholder": "category-slug",
+        "created": "Category created",
+        "updated": "Category updated",
+        "deleted": "Category deleted",
+        "saveFailed": "Could not save category",
+        "deleteFailed": "Could not delete category"
+      },
+      "brands": {
+        "title": "Brands",
+        "description": "Manage product brands",
+        "add": "Add Brand",
+        "edit": "Edit Brand",
+        "delete": "Delete Brand",
+        "loading": "Loading brands...",
+        "empty": "No brands yet.",
+        "namePlaceholder": "Brand name",
+        "slugPlaceholder": "brand-slug",
+        "created": "Brand created",
+        "updated": "Brand updated",
+        "deleted": "Brand deleted",
+        "saveFailed": "Could not save brand",
+        "deleteFailed": "Could not delete brand"
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "description": "Manage and track customer orders",
+      "stats": {
+        "total": "Total Orders",
+        "revenue": "Revenue",
+        "pending": "Pending",
+        "averageOrderValue": "Avg. Order Value"
+      },
+      "all": "All Orders",
+      "searchPlaceholder": "Search orders...",
+      "searchLabel": "Search orders",
+      "filterLabel": "Filter by status",
+      "allStatuses": "All Status",
+      "loading": "Loading orders...",
+      "empty": "No orders match these filters.",
+      "columns": {
+        "order": "Order",
+        "customer": "Customer",
+        "total": "Total",
+        "payment": "Payment",
+        "tracking": "Tracking"
+      },
+      "payment": {
+        "PAID": "Paid",
+        "PENDING": "Pending",
+        "FAILED": "Failed",
+        "EXPIRED": "Expired",
+        "REFUNDED": "Refunded",
+        "none": "None"
+      },
+      "changeStatusFor": "Change status for order {order}",
+      "advanceTo": "Advance to...",
+      "viewDetails": "View order details",
+      "createShipment": "Create shipment",
+      "toast": {
+        "statusUpdated": "Status updated",
+        "statusChange": "{order} → {status}",
+        "statusFailed": "Could not update status",
+        "transitionNotAllowed": "Transition not allowed",
+        "shipmentRequired": "Courier and tracking number are required",
+        "shipmentCreated": "Shipment created",
+        "shipmentFailed": "Could not create shipment"
+      },
+      "detail": {
+        "title": "Order {order}",
+        "loading": "Loading order...",
+        "customer": "Customer",
+        "placed": "Placed {date}",
+        "items": "Items",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "discountWithCode": "Discount ({code})",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "total": "Total",
+        "notes": "Notes"
+      },
+      "shipment": {
+        "title": "Create Shipment for {order}",
+        "courier": "Courier",
+        "selectCourier": "Select courier",
+        "trackingNumber": "Tracking Number",
+        "trackingPlaceholder": "Enter tracking number",
+        "submit": "Create Shipment",
+        "submitting": "Creating..."
+      }
+    },
+    "voucher": {
+      "percentValue": "{value, number}%",
+      "kind": {
+        "percent": "Percent",
+        "fixed_amount": "Fixed"
+      }
+    },
+    "vouchers": {
+      "title": "Vouchers",
+      "description": "Manage discount codes and promotions",
+      "create": "Create Voucher",
+      "edit": "Edit Voucher",
+      "stats": {
+        "total": "Total Vouchers",
+        "active": "Active",
+        "redemptions": "Total Redemptions"
+      },
+      "all": "All Vouchers",
+      "searchPlaceholder": "Search vouchers...",
+      "searchLabel": "Search vouchers",
+      "loading": "Loading vouchers...",
+      "noMatches": "No vouchers match your search.",
+      "empty": "No vouchers yet.",
+      "columns": {
+        "code": "Code",
+        "kind": "Kind",
+        "value": "Value",
+        "minSpend": "Min Spend",
+        "usage": "Usage",
+        "period": "Period"
+      },
+      "always": "Always",
+      "openEnded": "...",
+      "editCode": "Edit {code}",
+      "deleteCode": "Delete {code}",
+      "form": {
+        "code": "Code",
+        "codeLocked": "Code cannot be changed.",
+        "kind": "Kind",
+        "kindPercent": "Percentage (%)",
+        "kindFixed": "Fixed Amount (Rp)",
+        "percentOff": "Percent off",
+        "amountOff": "Discount amount (Rp)",
+        "minSpend": "Min Spend (Rp)",
+        "usageLimit": "Usage Limit",
+        "perUserLimit": "Per Customer Limit",
+        "unlimited": "Unlimited",
+        "validFrom": "Valid From",
+        "validTo": "Valid To",
+        "priority": "Priority",
+        "priorityHint": "Higher priority wins when several vouchers match.",
+        "combinable": "Combinable with other vouchers",
+        "create": "Create",
+        "update": "Update"
+      },
+      "deleteTitle": "Delete Voucher",
+      "deleteConfirm": "Delete <strong>{code}</strong>? Orders that already used it keep their discount.",
+      "toast": {
+        "codeRequired": "Code is required",
+        "updated": "Voucher updated",
+        "created": "Voucher created",
+        "saveFailed": "Could not save voucher",
+        "deleted": "Voucher deleted",
+        "deleteFailed": "Could not delete voucher"
+      }
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Revenue, orders, and best sellers",
+      "dateRange": "Date range",
+      "loading": "Loading analytics...",
+      "summary": {
+        "revenue": "Revenue",
+        "orders": "Orders",
+        "averageOrderValue": "Average Order Value",
+        "customers": "Customers",
+        "products": "Products"
+      },
+      "ordersByStatus": "Orders by Status",
+      "revenueShare": "Revenue Share of Top Products",
+      "noSales": "No sales in this range.",
+      "topProducts": "Top Products",
+      "columns": {
+        "product": "Product",
+        "unitsSold": "Units Sold",
+        "revenue": "Revenue"
+      }
+    },
+    "inventory": {
+      "title": "Inventory",
+      "description": "Manage variant stock with tenant-scoped updates.",
+      "loading": "Loading inventory…",
+      "available": "{count, number} available",
+      "stockFor": "Stock for {title}",
+      "empty": "No variants found.",
+      "toast": {
+        "invalid": "Enter a non-negative stock quantity",
+        "updated": "Inventory updated",
+        "failed": "Could not update inventory"
+      }
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "Customers with activity in this store.",
+      "loading": "Loading customers…",
+      "joined": "Joined {date}",
+      "empty": "No customers found."
+    },
+    "returns": {
+      "title": "Returns",
+      "description": "Review customer return requests and refund eligibility",
+      "empty": "No return requests.",
+      "order": "Order {orderId}",
+      "refund": "Refund",
+      "updateFailed": "Could not update the status.",
+      "refundFailed": "Refund failed.",
+      "status": {
+        "REQUESTED": "Requested",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "RECEIVED": "Received",
+        "REFUNDED": "Refunded",
+        "CANCELLED": "Cancelled"
+      }
+    },
+    "support": {
+      "title": "Support",
+      "description": "Respond to customer support tickets",
+      "empty": "No support tickets.",
+      "order": "Order {orderId}",
+      "statusLabel": "Ticket status for {subject}",
+      "replyPlaceholder": "Reply to customer",
+      "send": "Send",
+      "author": {
+        "customer": "Customer",
+        "agent": "Agent"
+      },
+      "updateFailed": "Could not update the ticket.",
+      "sendFailed": "Could not send the reply.",
+      "status": {
+        "OPEN": "Open",
+        "PENDING_CUSTOMER": "Waiting for customer",
+        "PENDING_AGENT": "Waiting for agent",
+        "RESOLVED": "Resolved",
+        "CLOSED": "Closed"
+      },
+      "priority": {
+        "LOW": "Low",
+        "NORMAL": "Normal",
+        "HIGH": "High",
+        "URGENT": "Urgent"
+      }
+    },
+    "settings": {
+      "title": "Store settings",
+      "description": "Tenant-scoped storefront configuration and onboarding.",
+      "loading": "Loading store settings…",
+      "profile": "Store profile",
+      "storeName": "Store name",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "currency": "Currency",
+      "storeDescription": "Description",
+      "shippingOrigin": "Shipping origin code",
+      "save": "Save settings",
+      "saving": "Saving…",
+      "onboarding": "Onboarding",
+      "onboardingHint": "Complete onboarding after the store profile, catalog, payment, and shipping credentials are configured.",
+      "markComplete": "Mark complete",
+      "toast": {
+        "saved": "Store settings saved",
+        "saveFailed": "Could not save settings",
+        "onboardingComplete": "Onboarding marked complete"
+      }
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "description": "Outbound event endpoints and their delivery history",
+      "add": "Add Endpoint",
+      "edit": "Edit Endpoint",
+      "endpoints": "Endpoints",
+      "loadingEndpoints": "Loading endpoints...",
+      "noEndpoints": "No webhook endpoints configured.",
+      "columns": {
+        "name": "Name",
+        "url": "URL",
+        "topics": "Topics",
+        "secret": "Secret",
+        "endpoint": "Endpoint",
+        "attempt": "Attempt",
+        "response": "Response",
+        "error": "Error",
+        "when": "When"
+      },
+      "deleteName": "Delete {name}",
+      "recentDeliveries": "Recent Deliveries",
+      "filterEndpoint": "Filter by endpoint",
+      "allEndpoints": "All endpoints",
+      "filterStatus": "Filter by status",
+      "allStatuses": "All statuses",
+      "refresh": "Refresh deliveries",
+      "loadingDeliveries": "Loading deliveries...",
+      "noDeliveries": "No deliveries recorded.",
+      "replay": "Replay",
+      "deliveryStatus": {
+        "PENDING": "Pending",
+        "SUCCESS": "Success",
+        "FAILED": "Failed",
+        "DEAD": "Dead"
+      },
+      "form": {
+        "name": "Name",
+        "namePlaceholder": "Fulfilment service",
+        "url": "URL",
+        "secret": "Signing secret",
+        "secretPlaceholder": "Shared HMAC secret",
+        "secretHint": "Used to sign each payload. Store it only in the receiving service.",
+        "topics": "Topics",
+        "active": "Active",
+        "create": "Create",
+        "update": "Update"
+      },
+      "deleteTitle": "Delete Endpoint",
+      "deleteConfirm": "Delete <strong>{name}</strong>? Pending deliveries to this endpoint stop.",
+      "toast": {
+        "required": "Name, URL and secret are required",
+        "topicRequired": "Select at least one topic",
+        "updated": "Endpoint updated",
+        "created": "Endpoint created",
+        "saveFailed": "Could not save endpoint",
+        "deleted": "Endpoint deleted",
+        "deleteFailed": "Could not delete endpoint",
+        "replayQueued": "Delivery queued for replay",
+        "replayFailed": "Could not replay delivery"
+      }
+    },
+    "auditLogs": {
+      "title": "Audit Logs",
+      "clearFilters": "Clear filters",
+      "filters": "Filters",
+      "actionPlaceholder": "Action contains…",
+      "resourcePlaceholder": "Resource type…",
+      "startDate": "From date",
+      "endDate": "To date",
+      "columns": {
+        "id": "ID",
+        "actor": "Actor",
+        "action": "Action",
+        "resource": "Resource",
+        "method": "Method",
+        "ip": "IP",
+        "created": "Created"
+      },
+      "actor": {
+        "user": "user",
+        "system": "system",
+        "anonymous": "anonymous"
+      },
+      "empty": "No audit logs found.",
+      "pageSummary": "Page {page} of {total} — {count, number} total",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
+    },
+    "flashSales": {
+      "title": "Flash Sales",
+      "description": "Manage limited-time flash sale campaigns",
+      "create": "Create Flash Sale",
+      "loadingProducts": "Loading products...",
+      "all": "All Flash Sales",
+      "searchPlaceholder": "Search flash sales...",
+      "searchLabel": "Search flash sales",
+      "loading": "Loading flash sales...",
+      "noMatches": "No flash sales match your search.",
+      "empty": "No flash sales yet.",
+      "createFirst": "Create your first flash sale",
+      "columns": {
+        "campaign": "Campaign",
+        "period": "Period",
+        "items": "Items",
+        "totalSold": "Total Sold"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "SCHEDULED": "Scheduled",
+        "ACTIVE": "Active",
+        "ENDED": "Ended"
+      },
+      "changeStatusFor": "Change status for {name}",
+      "editName": "Edit {name}",
+      "deleteName": "Delete {name}",
+      "statusDialogTitle": "Change Status: {name}",
+      "statusDialogFrom": "Change status from <strong>{status}</strong> to",
+      "newStatus": "New status",
+      "updateStatus": "Update Status",
+      "deleteTitle": "Delete Flash Sale",
+      "deleteConfirm": "Are you sure you want to delete <strong>{name}</strong>? This action cannot be undone. Note: Backend does not have a delete endpoint; consider setting status to ENDED instead.",
+      "toast": {
+        "statusUpdated": "Status updated",
+        "statusChange": "{name} → {status}",
+        "statusFailed": "Could not update status",
+        "deleteUnsupported": "Delete not implemented",
+        "deleteUnsupportedHint": "Backend does not support delete. Set status to ENDED.",
+        "error": "Error",
+        "created": "Flash sale created",
+        "createFailed": "Could not create flash sale",
+        "updated": "Flash sale updated",
+        "updateFailed": "Could not update flash sale"
+      },
+      "new": {
+        "title": "Create Flash Sale",
+        "description": "Set up a new limited-time campaign",
+        "submit": "Create Flash Sale",
+        "submitting": "Creating..."
+      },
+      "edit": {
+        "title": "Edit Flash Sale",
+        "description": "Update campaign details",
+        "notFound": "Flash sale not found",
+        "backToList": "Back to list",
+        "createNew": "Create New",
+        "currentStatus": "Current Status",
+        "itemId": "ID: {id}",
+        "submit": "Save Changes"
+      },
+      "form": {
+        "details": "Campaign Details",
+        "name": "Name",
+        "namePlaceholder": "Summer Flash Sale",
+        "slug": "Slug",
+        "slugPlaceholder": "summer-flash-sale",
+        "selectStatus": "Select status",
+        "startsAt": "Start Date & Time",
+        "endsAt": "End Date & Time",
+        "items": "Flash Sale Items",
+        "addProduct": "Add Product",
+        "noProducts": "No products available. Create products first.",
+        "noItems": "No items added yet. Click \"Add Product\" to start.",
+        "item": "Item {index}",
+        "removeItem": "Remove item {index}",
+        "product": "Product",
+        "selectProduct": "Select product",
+        "selectProductOption": "Select a product...",
+        "productOption": "{title} ({price})",
+        "salePrice": "Sale Price (Rp)",
+        "salePricePlaceholder": "e.g. 1500000",
+        "stockLimit": "Stock Limit (optional)",
+        "stockLimitPlaceholder": "Leave empty for no limit",
+        "stockLimitHint": "Empty = use catalog stock",
+        "errors": {
+          "nameRequired": "Name is required",
+          "datesRequired": "Start and end dates are required",
+          "endBeforeStart": "End date must be after start date",
+          "productRequired": "At least one product is required",
+          "salePrice": "Sale price must be greater than 0 for all items",
+          "createFailed": "Failed to create flash sale",
+          "updateFailed": "Failed to update flash sale",
+          "statusFailed": "Failed to update status"
+        }
+      }
+    }
+  }
+}

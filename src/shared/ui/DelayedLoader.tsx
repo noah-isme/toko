@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -20,10 +21,12 @@ const DEFAULT_DELAY = 400;
 export function DelayedLoader({
   active,
   variant = 'inline',
-  label = 'Memuat…',
+  label,
   delayMs = DEFAULT_DELAY,
   className,
 }: DelayedLoaderProps) {
+  const t = useTranslations('common.ui');
+  const text = label ?? t('loading');
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -57,7 +60,7 @@ export function DelayedLoader({
           className,
         )}
       >
-        <Spinner label={label} />
+        <Spinner label={text} />
       </div>
     );
   }
@@ -68,7 +71,7 @@ export function DelayedLoader({
       role="status"
       className={cn('inline-flex items-center gap-2 text-sm text-muted-foreground', className)}
     >
-      <Spinner label={label} />
+      <Spinner label={text} />
     </span>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { Mail, Github, Apple, Chrome, UserCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -22,12 +23,24 @@ const PROVIDER_ICONS = {
   email: Mail,
 };
 
+/** Provider brand names; not translated. */
 const PROVIDER_LABELS = {
   google: 'Google',
   github: 'GitHub',
   apple: 'Apple',
   email: 'Email',
 };
+
+export type OAuthProvider = 'google' | 'github' | 'apple';
+
+/**
+ * Starts the OAuth flow. `/api/auth/<provider>` is a route handler that redirects to the identity
+ * provider, so it needs a full document navigation rather than client-side routing.
+ */
+export function startOAuthLogin(provider: OAuthProvider) {
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- route handler redirecting off-site, not a Next page
+  window.location.assign(`/api/auth/${provider}`);
+}
 
 export function SocialLoginButton({
   provider,
@@ -38,6 +51,7 @@ export function SocialLoginButton({
   className,
   loading = false,
 }: SocialLoginButtonProps) {
+  const t = useTranslations('auth.social');
   const Icon = PROVIDER_ICONS[provider];
 
   return (
@@ -53,7 +67,7 @@ export function SocialLoginButton({
       )}
       onClick={onClick}
       disabled={disabled || loading}
-      aria-label={`Sign in with ${PROVIDER_LABELS[provider]}`}
+      aria-label={t('signInWith', { provider: PROVIDER_LABELS[provider] })}
     >
       {loading ? (
         <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
@@ -85,12 +99,13 @@ interface SocialLoginDividerProps {
   className?: string;
 }
 
-export function SocialLoginDivider({ label = 'or', className }: SocialLoginDividerProps) {
+export function SocialLoginDivider({ label, className }: SocialLoginDividerProps) {
+  const t = useTranslations('auth.social');
   return (
     <div className={cn('relative flex items-center gap-4 my-6', className)}>
       <div className="flex-1 border-t border-border" />
       <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-        {label}
+        {label ?? t('or')}
       </span>
       <div className="flex-1 border-t border-border" />
     </div>

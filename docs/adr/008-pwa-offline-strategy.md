@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-009](009-serwist-turbopack-service-worker.md)
 
 ## Context
 

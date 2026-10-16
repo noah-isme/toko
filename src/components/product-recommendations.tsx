@@ -1,6 +1,7 @@
 'use client';
 
 import { Sparkles, Users, TrendingUp, RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 
 import { ProductCard } from '@/components/product-card';
@@ -10,9 +11,11 @@ import {
   useCustomersAlsoViewed,
   usePersonalizedRecommendations,
   useTrendingProducts,
-} from '@/lib/api/hooks.react-query';
+} from '@/entities/catalog/hooks';
 
 interface RecommendationSectionProps {
+  /** Stable heading id (kept locale-independent so anchors and aria links do not change). */
+  id: string;
   title: string;
   icon: React.ReactNode;
   children: React.ReactNode;
@@ -20,22 +23,24 @@ interface RecommendationSectionProps {
 }
 
 function RecommendationSection({
+  id,
   title,
   icon,
   children,
-  emptyMessage = 'No recommendations available',
+  emptyMessage,
 }: RecommendationSectionProps) {
+  const t = useTranslations('product.recommendations');
   return (
-    <section className="space-y-4" aria-labelledby={title.toLowerCase().replace(/\s+/g, '-')}>
+    <section className="space-y-4" aria-labelledby={id}>
       <div className="flex items-center gap-2">
         <span className="text-primary">{icon}</span>
-        <h2 id={title.toLowerCase().replace(/\s+/g, '-')} className="text-xl font-semibold">
+        <h2 id={id} className="text-xl font-semibold">
           {title}
         </h2>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">{children}</div>
       <p className="hidden text-sm text-muted-foreground" aria-live="polite">
-        {emptyMessage}
+        {emptyMessage ?? t('emptyDefault')}
       </p>
     </section>
   );
@@ -58,12 +63,14 @@ function RecommendationSkeleton({ count = 4 }: { count?: number }) {
 }
 
 function FrequentlyBoughtTogether({ productId }: { productId: string }) {
+  const t = useTranslations('product.recommendations.frequentlyBoughtTogether');
   const { data, isLoading, error } = useFrequentlyBoughtTogether(productId);
 
   if (isLoading) {
     return (
       <RecommendationSection
-        title="Frequently Bought Together"
+        id="frequently-bought-together"
+        title={t('title')}
         icon={<Users className="h-5 w-5" />}
       >
         <RecommendationSkeleton />
@@ -77,9 +84,10 @@ function FrequentlyBoughtTogether({ productId }: { productId: string }) {
 
   return (
     <RecommendationSection
-      title="Frequently Bought Together"
+      id="frequently-bought-together"
+      title={t('title')}
       icon={<Users className="h-5 w-5" />}
-      emptyMessage="No frequently bought together items"
+      emptyMessage={t('empty')}
     >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />
@@ -89,11 +97,16 @@ function FrequentlyBoughtTogether({ productId }: { productId: string }) {
 }
 
 function CustomersAlsoViewed({ productId }: { productId: string }) {
+  const t = useTranslations('product.recommendations.customersAlsoViewed');
   const { data, isLoading, error } = useCustomersAlsoViewed(productId);
 
   if (isLoading) {
     return (
-      <RecommendationSection title="Customers Also Viewed" icon={<Sparkles className="h-5 w-5" />}>
+      <RecommendationSection
+        id="customers-also-viewed"
+        title={t('title')}
+        icon={<Sparkles className="h-5 w-5" />}
+      >
         <RecommendationSkeleton />
       </RecommendationSection>
     );
@@ -105,9 +118,10 @@ function CustomersAlsoViewed({ productId }: { productId: string }) {
 
   return (
     <RecommendationSection
-      title="Customers Also Viewed"
+      id="customers-also-viewed"
+      title={t('title')}
       icon={<Sparkles className="h-5 w-5" />}
-      emptyMessage="No recently viewed items"
+      emptyMessage={t('empty')}
     >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />
@@ -117,11 +131,16 @@ function CustomersAlsoViewed({ productId }: { productId: string }) {
 }
 
 function PersonalizedRecommendations() {
+  const t = useTranslations('product.recommendations.personalized');
   const { data, isLoading, error } = usePersonalizedRecommendations(8, { enabled: true });
 
   if (isLoading) {
     return (
-      <RecommendationSection title="Recommended for You" icon={<RefreshCw className="h-5 w-5" />}>
+      <RecommendationSection
+        id="recommended-for-you"
+        title={t('title')}
+        icon={<RefreshCw className="h-5 w-5" />}
+      >
         <RecommendationSkeleton count={8} />
       </RecommendationSection>
     );
@@ -133,9 +152,10 @@ function PersonalizedRecommendations() {
 
   return (
     <RecommendationSection
-      title="Recommended for You"
+      id="recommended-for-you"
+      title={t('title')}
       icon={<RefreshCw className="h-5 w-5" />}
-      emptyMessage="No personalized recommendations yet"
+      emptyMessage={t('empty')}
     >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />
@@ -145,11 +165,16 @@ function PersonalizedRecommendations() {
 }
 
 function TrendingProducts() {
+  const t = useTranslations('product.recommendations.trending');
   const { data, isLoading, error } = useTrendingProducts(8);
 
   if (isLoading) {
     return (
-      <RecommendationSection title="Trending Now" icon={<TrendingUp className="h-5 w-5" />}>
+      <RecommendationSection
+        id="trending-now"
+        title={t('title')}
+        icon={<TrendingUp className="h-5 w-5" />}
+      >
         <RecommendationSkeleton count={8} />
       </RecommendationSection>
     );
@@ -161,9 +186,10 @@ function TrendingProducts() {
 
   return (
     <RecommendationSection
-      title="Trending Now"
+      id="trending-now"
+      title={t('title')}
       icon={<TrendingUp className="h-5 w-5" />}
-      emptyMessage="No trending products"
+      emptyMessage={t('empty')}
     >
       {data.map((product) => (
         <ProductCard key={product.id} product={product} />

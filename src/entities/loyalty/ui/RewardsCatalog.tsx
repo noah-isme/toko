@@ -1,6 +1,7 @@
 'use client';
 
 import { Award, Gift, Truck, Sparkles, Loader2, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo, useState } from 'react';
 
 import { useRedeemRewardMutation } from '../hooks';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 import { useToast } from '@/shared/ui/toast';
 
 interface RewardsCatalogProps {
@@ -35,6 +37,8 @@ export const RewardsCatalog = memo(function RewardsCatalog({
   userPoints,
   className,
 }: RewardsCatalogProps) {
+  const t = useTranslations('account.loyalty.rewards');
+  const fmt = useFormat();
   const { isAuthenticated } = useAuth();
   const { redeem, isPending: isRedeeming } = useRedeemRewardMutation();
   const { toast } = useToast();
@@ -44,8 +48,8 @@ export const RewardsCatalog = memo(function RewardsCatalog({
     if (userPoints < reward.pointsCost) {
       toast({
         variant: 'destructive',
-        title: 'Poin tidak cukup',
-        description: `Anda butuh ${reward.pointsCost - userPoints} poin lagi untuk hadiah ini.`,
+        title: t('notEnoughTitle'),
+        description: t('notEnoughDescription', { points: reward.pointsCost - userPoints }),
       });
       return;
     }
@@ -63,14 +67,17 @@ export const RewardsCatalog = memo(function RewardsCatalog({
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-lg font-semibold">
           <Gift className="h-5 w-5 text-primary" />
-          Katalog Hadiah
+          {t('title')}
         </h3>
         {!isAuthenticated && (
           <span className="text-xs text-muted-foreground">
-            <a href="/login" className="text-primary underline hover:no-underline">
-              Masuk
-            </a>{' '}
-            untuk menukarkan hadiah
+            {t.rich('signIn', {
+              link: (chunks) => (
+                <a href="/login" className="text-primary underline hover:no-underline">
+                  {chunks}
+                </a>
+              ),
+            })}
           </span>
         )}
       </div>
@@ -92,9 +99,7 @@ export const RewardsCatalog = memo(function RewardsCatalog({
               <div className="absolute right-3 top-3">
                 <Badge variant="outline" className={cn('gap-1', REWARD_TYPE_STYLES[reward.type])}>
                   {REWARD_TYPE_ICONS[reward.type]}
-                  {reward.type === 'voucher' && 'Voucher'}
-                  {reward.type === 'shipping' && 'Ongkir'}
-                  {reward.type === 'special' && 'Khusus'}
+                  {t(`types.${reward.type}`)}
                 </Badge>
               </div>
 
@@ -104,21 +109,25 @@ export const RewardsCatalog = memo(function RewardsCatalog({
                     {reward.icon}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="truncate font-semibold text-foreground">{reward.name}</h4>
+                    <h4 className="truncate font-semibold text-foreground">
+                      {t(`items.${reward.key}.name`)}
+                    </h4>
                     <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
-                      {reward.description}
+                      {t(`items.${reward.key}.description`)}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between border-t border-border/50 pt-3">
                   <div className="flex items-center gap-1.5 text-lg font-bold text-primary">
-                    {reward.pointsCost.toLocaleString('id-ID')}
+                    {fmt.number(reward.pointsCost)}
                     <Sparkles className="h-4 w-4" />
                   </div>
                   {reward.pointsCost === 0 && (
                     <Badge variant="secondary" className="text-xs">
-                      Khusus {reward.id.includes('birthday') ? 'Gold+' : 'Member'}
+                      {t('exclusive', {
+                        audience: reward.id.includes('birthday') ? 'Gold+' : t('member'),
+                      })}
                     </Badge>
                   )}
                 </div>
@@ -135,12 +144,12 @@ export const RewardsCatalog = memo(function RewardsCatalog({
                   {isRedeemingThis ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Menukarkan...
+                      {t('redeeming')}
                     </>
                   ) : canAfford ? (
-                    'Tukar'
+                    t('redeem')
                   ) : (
-                    'Poin tidak cukup'
+                    t('notEnough')
                   )}
                 </Button>
               </CardFooter>
@@ -152,7 +161,7 @@ export const RewardsCatalog = memo(function RewardsCatalog({
       {REWARD_CATALOG.length === 0 && (
         <div className="py-12 text-center">
           <Gift className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-          <p className="text-muted-foreground">Belum ada hadiah tersedia.</p>
+          <p className="text-muted-foreground">{t('empty')}</p>
         </div>
       )}
     </div>

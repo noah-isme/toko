@@ -60,7 +60,7 @@ function renderWithProviders(ui: React.ReactElement) {
 
 async function waitForForm() {
   await waitFor(() => {
-    expect(screen.getByRole('heading', { name: /Create an account/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Buat akun' })).toBeInTheDocument();
   });
 }
 
@@ -69,11 +69,11 @@ describe('RegisterPage', () => {
     renderWithProviders(<RegisterPage />);
     await waitForForm();
 
-    expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Nama$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Confirm Password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Register/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Konfirmasi Password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Daftar' })).toBeInTheDocument();
   });
 
   it('validates required fields', async () => {
@@ -81,7 +81,7 @@ describe('RegisterPage', () => {
     renderWithProviders(<RegisterPage />);
     await waitForForm();
 
-    await user.click(screen.getByRole('button', { name: /Register/i }));
+    await user.click(screen.getByRole('button', { name: 'Daftar' }));
 
     expect(await screen.findByText(/Nama wajib diisi/i)).toBeInTheDocument();
     expect(await screen.findByText(/Email wajib diisi/i)).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe('RegisterPage', () => {
     await waitForForm();
 
     await user.type(screen.getByLabelText(/^Password$/i), 'short');
-    await user.click(screen.getByRole('button', { name: /Register/i }));
+    await user.click(screen.getByRole('button', { name: 'Daftar' }));
 
     expect(await screen.findByText(/Password minimal 8 karakter/i)).toBeInTheDocument();
   });
@@ -103,12 +103,12 @@ describe('RegisterPage', () => {
     renderWithProviders(<RegisterPage />);
     await waitForForm();
 
-    await user.type(screen.getByLabelText(/Name/i), 'John Doe');
+    await user.type(screen.getByLabelText(/^Nama$/i), 'John Doe');
     await user.type(screen.getByLabelText(/Email/i), 'john@example.com');
     await user.type(screen.getByLabelText(/^Password$/i), 'SecurePass123');
-    await user.type(screen.getByLabelText(/Confirm Password/i), 'DifferentPass123');
+    await user.type(screen.getByLabelText(/Konfirmasi Password/i), 'DifferentPass123');
     await user.click(screen.getByRole('checkbox'));
-    await user.click(screen.getByRole('button', { name: /Register/i }));
+    await user.click(screen.getByRole('button', { name: 'Daftar' }));
 
     expect(await screen.findByText(/Password tidak cocok/i)).toBeInTheDocument();
   });
@@ -118,11 +118,11 @@ describe('RegisterPage', () => {
     renderWithProviders(<RegisterPage />);
     await waitForForm();
 
-    await user.type(screen.getByLabelText(/Name/i), 'John Doe');
+    await user.type(screen.getByLabelText(/^Nama$/i), 'John Doe');
     await user.type(screen.getByLabelText(/Email/i), 'john@example.com');
     await user.type(screen.getByLabelText(/^Password$/i), 'SecurePass123');
-    await user.type(screen.getByLabelText(/Confirm Password/i), 'SecurePass123');
-    await user.click(screen.getByRole('button', { name: /Register/i }));
+    await user.type(screen.getByLabelText(/Konfirmasi Password/i), 'SecurePass123');
+    await user.click(screen.getByRole('button', { name: 'Daftar' }));
 
     expect(
       await screen.findByText(/Anda harus menyetujui syarat dan ketentuan/i),
@@ -141,12 +141,12 @@ describe('RegisterPage', () => {
     renderWithProviders(<RegisterPage />);
     await waitForForm();
 
-    await user.type(screen.getByLabelText(/Name/i), 'John Doe');
+    await user.type(screen.getByLabelText(/^Nama$/i), 'John Doe');
     await user.type(screen.getByLabelText(/Email/i), 'john@example.com');
     await user.type(screen.getByLabelText(/^Password$/i), 'SecurePass123');
-    await user.type(screen.getByLabelText(/Confirm Password/i), 'SecurePass123');
+    await user.type(screen.getByLabelText(/Konfirmasi Password/i), 'SecurePass123');
     await user.click(screen.getByRole('checkbox'));
-    await user.click(screen.getByRole('button', { name: /Register/i }));
+    await user.click(screen.getByRole('button', { name: 'Daftar' }));
 
     await waitFor(() => {
       expect(authApi.register).toHaveBeenCalledWith({
@@ -166,12 +166,12 @@ describe('RegisterPage', () => {
     renderWithProviders(<RegisterPage />);
     await waitForForm();
 
-    await user.type(screen.getByLabelText(/Name/i), 'John Doe');
+    await user.type(screen.getByLabelText(/^Nama$/i), 'John Doe');
     await user.type(screen.getByLabelText(/Email/i), 'john@example.com');
     await user.type(screen.getByLabelText(/^Password$/i), 'SecurePass123');
-    await user.type(screen.getByLabelText(/Confirm Password/i), 'SecurePass123');
+    await user.type(screen.getByLabelText(/Konfirmasi Password/i), 'SecurePass123');
     await user.click(screen.getByRole('checkbox'));
-    await user.click(screen.getByRole('button', { name: /Register/i }));
+    await user.click(screen.getByRole('button', { name: 'Daftar' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/Email already exists/i);
   });

@@ -1,6 +1,7 @@
 'use client';
 
-import { Image, X, Loader2 } from 'lucide-react';
+import { ImageIcon, X, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ export function ImageUpload({
   disabled = false,
   className,
 }: ImageUploadProps) {
+  const t = useTranslations('product.reviews.upload');
   const [previews, setPreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState<Set<number>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,24 +38,27 @@ export function ImageUpload({
   const validateFile = useCallback(
     (file: File): string | null => {
       if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        return 'Format file tidak didukung. Gunakan JPEG, PNG, WebP, atau GIF.';
+        return t('unsupported');
       }
       if (file.size > maxSizeMB * 1024 * 1024) {
-        return `Ukuran file melebihi ${maxSizeMB}MB.`;
+        return t('tooLarge', { max: maxSizeMB });
       }
       return null;
     },
-    [maxSizeMB],
+    [maxSizeMB, t],
   );
 
-  const createPreview = useCallback((file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.onerror = () => reject(new Error('Gagal membaca file'));
-      reader.readAsDataURL(file);
-    });
-  }, []);
+  const createPreview = useCallback(
+    (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject(new Error(t('readFailed')));
+        reader.readAsDataURL(file);
+      });
+    },
+    [t],
+  );
 
   const handleFiles = useCallback(
     async (files: FileList) => {
@@ -64,8 +69,8 @@ export function ImageUpload({
       if (availableSlots <= 0) {
         toast({
           variant: 'destructive',
-          title: 'Maksimal file tercapai',
-          description: `Anda hanya bisa mengunggah maksimal ${maxFiles} gambar.`,
+          title: t('maxReached'),
+          description: t('maxReachedDescription', { max: maxFiles }),
         });
         return;
       }
@@ -79,7 +84,7 @@ export function ImageUpload({
         if (error) {
           toast({
             variant: 'destructive',
-            title: 'File tidak valid',
+            title: t('invalid'),
             description: error,
           });
           continue;
@@ -94,7 +99,7 @@ export function ImageUpload({
         setPreviews((prev) => [...prev, ...newPreviews]);
       }
     },
-    [value, maxFiles, onChange, validateFile, createPreview, toast],
+    [value, maxFiles, onChange, validateFile, createPreview, toast, t],
   );
 
   const handleFileInputChange = useCallback(
@@ -162,9 +167,7 @@ export function ImageUpload({
             handleClick();
           }
         }}
-        aria-label={
-          disabled ? 'Upload dinonaktifkan' : 'Klik atau tarik gambar ke sini untuk mengunggah'
-        }
+        aria-label={disabled ? t('disabled') : t('dropzoneLabel')}
       >
         <input
           ref={fileInputRef}
@@ -174,10 +177,11 @@ export function ImageUpload({
           onChange={handleFileInputChange}
           disabled={disabled || isAtMax}
           className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-          aria-label="Pilih gambar untuk diunggah"
+          aria-label={t('inputLabel')}
         />
         <div className="flex flex-col items-center justify-center p-8 text-center">
-          <Image
+          <ImageIcon
+            aria-hidden="true"
             className={cn(
               'h-8 w-8 mb-2',
               disabled ? 'text-muted-foreground/30' : 'text-muted-foreground',
@@ -191,14 +195,14 @@ export function ImageUpload({
                   disabled ? 'text-muted-foreground/50' : 'text-foreground',
                 )}
               >
-                {disabled ? 'Upload dinonaktifkan' : 'Klik atau tarik gambar ke sini'}
+                {disabled ? t('disabled') : t('dropzone')}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Maksimal {maxFiles} file, {maxSizeMB}MB per file (JPEG, PNG, WebP, GIF)
+                {t('limits', { maxFiles, maxSize: maxSizeMB })}
               </p>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">Maksimal file tercapai</p>
+            <p className="text-sm text-muted-foreground">{t('maxReached')}</p>
           )}
         </div>
       </div>
@@ -210,9 +214,10 @@ export function ImageUpload({
               key={index}
               className="relative aspect-square overflow-hidden rounded-lg border border-border/60 bg-background"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element -- blob: object URLs of local files cannot go through next/image */}
               <img
                 src={preview}
-                alt={`Pratinjau gambar ${index + 1}`}
+                alt={t('previewAlt', { index: index + 1 })}
                 className="h-full w-full object-cover"
               />
               <button
@@ -224,7 +229,7 @@ export function ImageUpload({
                 }}
                 disabled={disabled || uploading.has(index)}
                 className="absolute right-1 top-1 rounded-full bg-destructive/90 p-1 text-destructive-foreground opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 group-hover:opacity-100"
-                aria-label={`Hapus gambar ${index + 1}`}
+                aria-label={t('removeLabel', { index: index + 1 })}
               >
                 {uploading.has(index) ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -251,10 +256,12 @@ interface ReviewImageProps {
 }
 
 export function ReviewImage({ src, alt, className }: ReviewImageProps) {
+  const t = useTranslations('product.reviews.upload');
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- user-uploaded review images come from arbitrary hosts not in images.remotePatterns
     <img
       src={src}
-      alt={alt || 'Gambar ulasan'}
+      alt={alt || t('reviewImageAlt')}
       className={cn('rounded-lg object-cover', className)}
       loading="lazy"
     />

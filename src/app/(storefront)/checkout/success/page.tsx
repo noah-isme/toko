@@ -4,6 +4,7 @@
 import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
 import { OrderSummary } from '../_components/OrderSummary';
@@ -13,7 +14,7 @@ import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import type { OrderDraft } from '@/entities/checkout/api/hooks';
 import { clearOrderDraft, loadOrderDraft } from '@/entities/checkout/utils/draftStorage';
-import { PAYMENT_METHOD_LABELS } from '@/lib/api/constants';
+import { isPaymentMethod } from '@/lib/api/constants';
 import { cn } from '@/lib/utils';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { orderJsonLd } from '@/shared/seo/jsonld';
@@ -27,6 +28,7 @@ export default function CheckoutSuccessPage() {
 }
 
 function CheckoutSuccessContent() {
+  const t = useTranslations('checkout');
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get('orderId') ?? '';
@@ -58,9 +60,9 @@ function CheckoutSuccessContent() {
   if (!orderId) {
     return (
       <EmptyState
-        title="Pembayaran berhasil"
-        description="Pesanan Anda sudah tercatat. Kembali ke katalog untuk melanjutkan belanja."
-        action={{ label: 'Kembali berbelanja', onClick: () => router.push('/products') }}
+        title={t('success.missing.title')}
+        description={t('success.missing.description')}
+        action={{ label: t('success.missing.action'), onClick: () => router.push('/products') }}
       />
     );
   }
@@ -99,17 +101,19 @@ function CheckoutSuccessContent() {
             <path d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold">Pembayaran Berhasil!</h1>
+        <h1 className="text-3xl font-bold">{t('success.title')}</h1>
         <p className="text-sm text-muted-foreground">
-          Terima kasih! Pesanan Anda dengan nomor{' '}
-          <span className="font-semibold text-foreground">{orderId}</span> telah berhasil dibuat.
+          {t.rich('success.description', {
+            orderId,
+            strong: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>,
+          })}
         </p>
       </div>
       <div className="mx-auto max-w-2xl space-y-6">
         {orderDraft ? (
           <>
             <section className="space-y-3 rounded-lg border p-6">
-              <h2 className="text-lg font-semibold">Detail Pengiriman</h2>
+              <h2 className="text-lg font-semibold">{t('orderDetails.shippingTitle')}</h2>
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-foreground">
                   {orderDraft.address.receiverName} • {orderDraft.address.phone}
@@ -128,18 +132,15 @@ function CheckoutSuccessContent() {
 
             {orderDraft.paymentMethod && (
               <section className="space-y-3 rounded-lg border p-6">
-                <h2 className="text-lg font-semibold">Metode Pembayaran</h2>
+                <h2 className="text-lg font-semibold">{t('orderDetails.paymentTitle')}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {PAYMENT_METHOD_LABELS[
-                    orderDraft.paymentMethod as keyof typeof PAYMENT_METHOD_LABELS
-                  ] || orderDraft.paymentMethod}
+                  {isPaymentMethod(orderDraft.paymentMethod)
+                    ? t(`payment.methods.${orderDraft.paymentMethod}.label`)
+                    : orderDraft.paymentMethod}
                 </p>
                 <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-900">
-                  <p className="font-medium">Instruksi Pembayaran:</p>
-                  <p className="mt-1">
-                    Silakan lakukan pembayaran sesuai metode yang dipilih. Email konfirmasi telah
-                    dikirim ke alamat email Anda dengan detail pembayaran.
-                  </p>
+                  <p className="font-medium">{t('success.instructionsTitle')}</p>
+                  <p className="mt-1">{t('success.instructions')}</p>
                 </div>
               </section>
             )}
@@ -150,15 +151,15 @@ function CheckoutSuccessContent() {
 
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild size="lg">
-            <Link href={orderDetailHref}>Lihat detail pesanan</Link>
+            <Link href={orderDetailHref}>{t('success.viewOrder')}</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <Link href="/products">Belanja Lagi</Link>
+            <Link href="/products">{t('success.shopAgain')}</Link>
           </Button>
         </div>
 
         <div className="rounded-lg bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-          <p>Email konfirmasi telah dikirim. Periksa inbox atau folder spam Anda.</p>
+          <p>{t('success.emailNote')}</p>
         </div>
       </div>
     </div>

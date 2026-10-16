@@ -3,13 +3,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 
 import { AuthShell } from '@/components/auth-shell';
 import { PasswordStrength } from '@/components/password-strength';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { SocialLoginButton, SocialLoginDivider, SocialLoginGroup } from '@/components/social-login';
+import {
+  SocialLoginButton,
+  SocialLoginDivider,
+  SocialLoginGroup,
+  startOAuthLogin,
+} from '@/components/social-login';
 import { Input } from '@/components/ui/input';
+import { useAuthErrorMessage } from '@/entities/auth/hooks';
 import type { RegisterInput } from '@/entities/auth/schemas';
 import { registerInputSchema } from '@/entities/auth/schemas';
 import { getErrorMessage } from '@/lib/api/utils';
@@ -19,6 +26,11 @@ import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations('auth.register');
+  const tf = useTranslations('auth.fields');
+  const ts = useTranslations('auth.social');
+  const tErrors = useTranslations('errors');
+  const errorText = useAuthErrorMessage();
   const { register: registerUser, isLoading: authLoading } = useAuth();
   const { register, handleSubmit, formState, setError, watch } = useForm<RegisterInput>({
     resolver: zodResolver(registerInputSchema),
@@ -45,20 +57,20 @@ export default function RegisterPage() {
       await registerUser(registerData);
       router.push('/');
     } catch (error) {
-      const message = getErrorMessage(error);
+      const message = getErrorMessage(error, tErrors);
       setError('root', { message });
     }
   };
 
-  const nameError = formState.errors.name?.message;
+  const nameError = errorText(formState.errors.name?.message);
   const nameErrorId = nameError ? 'name-error' : undefined;
-  const emailError = formState.errors.email?.message;
+  const emailError = errorText(formState.errors.email?.message);
   const emailErrorId = emailError ? 'email-error' : undefined;
-  const passwordError = formState.errors.password?.message;
+  const passwordError = errorText(formState.errors.password?.message);
   const passwordErrorId = passwordError ? 'password-error' : undefined;
-  const confirmPasswordError = formState.errors.confirmPassword?.message;
+  const confirmPasswordError = errorText(formState.errors.confirmPassword?.message);
   const confirmPasswordErrorId = confirmPasswordError ? 'confirm-password-error' : undefined;
-  const acceptTermsError = formState.errors.acceptTerms?.message;
+  const acceptTermsError = errorText(formState.errors.acceptTerms?.message);
   const showLoadingState = authLoading && !formState.isSubmitting;
 
   if (showLoadingState) {
@@ -66,11 +78,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthShell
-      eyebrow="Mulai koleksi Anda"
-      title="Create an account"
-      description="Start shopping with toko today, with a more personal experience."
-    >
+    <AuthShell eyebrow={t('eyebrow')} title={t('title')} description={t('description')}>
       <form
         className="space-y-5"
         onSubmit={handleSubmit(onSubmit)}
@@ -87,7 +95,7 @@ export default function RegisterPage() {
         ) : null}
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="name">
-            Name
+            {tf('name')}
           </label>
           <Input
             {...register('name')}
@@ -103,7 +111,7 @@ export default function RegisterPage() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="email">
-            Email
+            {tf('email')}
           </label>
           <Input
             {...register('email')}
@@ -120,7 +128,7 @@ export default function RegisterPage() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="password">
-            Password
+            {tf('password')}
           </label>
           <Input
             {...register('password')}
@@ -138,7 +146,7 @@ export default function RegisterPage() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="confirmPassword">
-            Confirm Password
+            {tf('confirmPassword')}
           </label>
           <Input
             {...register('confirmPassword')}
@@ -161,24 +169,28 @@ export default function RegisterPage() {
               className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
             />
             <span className="text-muted-foreground">
-              I agree to the{' '}
-              <a
-                href="/terms"
-                className="font-medium text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Terms and Conditions
-              </a>{' '}
-              and{' '}
-              <a
-                href="/privacy"
-                className="font-medium text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Privacy Policy
-              </a>
+              {t.rich('terms', {
+                terms: (chunks) => (
+                  <a
+                    href="/terms"
+                    className="font-medium text-primary hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {chunks}
+                  </a>
+                ),
+                privacy: (chunks) => (
+                  <a
+                    href="/privacy"
+                    className="font-medium text-primary hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
             </span>
           </label>
           {acceptTermsError ? (
@@ -191,40 +203,34 @@ export default function RegisterPage() {
           className="w-full"
           type="submit"
           isLoading={formState.isSubmitting || authLoading}
-          loadingLabel="Creating account..."
+          loadingLabel={t('submitting')}
         >
-          Register
+          {t('submit')}
         </GuardedButton>
       </form>
-      <SocialLoginDivider label="or continue with" />
+      <SocialLoginDivider label={ts('divider')} />
       <SocialLoginGroup>
-        <SocialLoginButton
-          provider="google"
-          onClick={() => (window.location.href = '/api/auth/google')}
-        >
-          Continue with Google
+        <SocialLoginButton provider="google" onClick={() => startOAuthLogin('google')}>
+          {ts('google')}
         </SocialLoginButton>
-        <SocialLoginButton
-          provider="github"
-          onClick={() => (window.location.href = '/api/auth/github')}
-        >
-          Continue with GitHub
+        <SocialLoginButton provider="github" onClick={() => startOAuthLogin('github')}>
+          {ts('github')}
         </SocialLoginButton>
-        <SocialLoginButton
-          provider="apple"
-          onClick={() => (window.location.href = '/api/auth/apple')}
-        >
-          Continue with Apple
+        <SocialLoginButton provider="apple" onClick={() => startOAuthLogin('apple')}>
+          {ts('apple')}
         </SocialLoginButton>
       </SocialLoginGroup>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
-        <Link
-          className="font-semibold text-primary underline-offset-4 hover:underline"
-          href="/login"
-        >
-          Sign in
-        </Link>
+        {t.rich('hasAccount', {
+          login: (chunks) => (
+            <Link
+              className="font-semibold text-primary underline-offset-4 hover:underline"
+              href="/login"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
     </AuthShell>
   );

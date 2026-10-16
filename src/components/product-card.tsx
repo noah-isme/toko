@@ -4,6 +4,7 @@ import { Eye, ShoppingCart } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -45,6 +46,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
   const [showQuickView, setShowQuickView] = useState(false);
+  const t = useTranslations('catalog.card');
 
   const handleAddToCart = async () => {
     if (!cartId) {
@@ -106,7 +108,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             onClick={() => setShowQuickView(true)}
           >
             <Eye className="h-3.5 w-3.5" />
-            Lihat Cepat
+            {t('quickView')}
           </Button>
         </div>
 
@@ -134,7 +136,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
                   <Price
                     amount={product.originalPrice}
                     currency={product.currency || 'IDR'}
-                    locale="id-ID"
                     className="text-xs font-normal text-muted-foreground line-through"
                   />
                 </div>
@@ -142,7 +143,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
               <Price
                 amount={product.price}
                 currency={product.currency || 'IDR'}
-                locale="id-ID"
                 className="text-base font-extrabold tracking-tight text-foreground"
               />
             </div>
@@ -155,11 +155,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
               className="shrink-0 gap-1.5 transition-transform duration-150 active:scale-[0.97]"
             >
               {isOutOfStock ? (
-                'Habis'
+                t('outOfStock')
               ) : (
                 <>
                   <ShoppingCart className="h-4 w-4" />
-                  Keranjang
+                  {t('addToCart')}
                 </>
               )}
             </GuardedButton>

@@ -2,7 +2,8 @@
 
 import { Loader2, Plus, Save, Trash2, Clock, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -17,18 +18,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAdminProducts } from '@/lib/api/hooks.admin';
+import { datetimeLocalToIso, isoToDatetimeLocal } from '@/entities/admin/datetime-local';
+import { useAdminProducts } from '@/entities/admin/hooks';
 import {
   useAdminFlashSale,
+  useUpdateAdminFlashSale,
   useUpdateAdminFlashSaleStatus,
-  useCreateAdminFlashSale,
-} from '@/lib/api/hooks.admin';
-import {
-  formatCurrency,
-  formatDate,
-  type AdminFlashSale,
-  type AdminFlashSaleStatus,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type {
+  AdminFlashSale,
+  AdminFlashSaleStatus,
+  AdminFlashSaleUpdateInput,
+} from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { ApiClientError } from '@/lib/api/apiClient';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -58,12 +61,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-const STATUS_LABELS: Record<AdminFlashSaleStatus, string> = {
-  DRAFT: 'Draft',
-  SCHEDULED: 'Scheduled',
-  ACTIVE: 'Active',
-  ENDED: 'Ended',
-};
+const FLASH_SALE_STATUSES: AdminFlashSaleStatus[] = ['DRAFT', 'SCHEDULED', 'ACTIVE', 'ENDED'];
 
 const STATUS_COLORS: Record<AdminFlashSaleStatus, string> = {
   DRAFT: 'bg-gray-100 text-gray-800',
@@ -77,8 +75,8 @@ function flashSaleToFormValues(fs: AdminFlashSale): FlashSaleFormValues {
     name: fs.name,
     slug: fs.slug,
     status: fs.status,
-    startsAt: new Date(fs.startsAt).toISOString().slice(0, 16),
-    endsAt: new Date(fs.endsAt).toISOString().slice(0, 16),
+    startsAt: isoToDatetimeLocal(fs.startsAt),
+    endsAt: isoToDatetimeLocal(fs.endsAt),
     items: fs.items.map((item) => ({
       id: item.id,
       productId: item.productId,
@@ -88,10 +86,12 @@ function flashSaleToFormValues(fs: AdminFlashSale): FlashSaleFormValues {
   };
 }
 
-function formValuesToInput(values: FlashSaleFormValues) {
+function formValuesToInput(values: FlashSaleFormValues): AdminFlashSaleUpdateInput {
   const items = values.items
     .filter((item) => item.productId !== NONE)
     .map((item) => ({
+      // Existing items keep their id so the backend updates them in place.
+      ...(item.id ? { id: item.id } : {}),
       productId: item.productId,
       salePrice: Math.max(0, Math.round(item.salePrice)),
       stockLimit:
@@ -102,13 +102,16 @@ function formValuesToInput(values: FlashSaleFormValues) {
     name: values.name.trim(),
     slug: values.slug.trim() || slugify(values.name),
     status: values.status,
-    startsAt: values.startsAt,
-    endsAt: values.endsAt,
+    startsAt: datetimeLocalToIso(values.startsAt),
+    endsAt: datetimeLocalToIso(values.endsAt),
     items,
   };
 }
 
 export default function FlashSaleEditPage() {
+  const t = useTranslations('admin.flashSales');
+  const tCommon = useTranslations('admin.common');
+  const { currency } = useAdminFormat();
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -121,7 +124,7 @@ export default function FlashSaleEditPage() {
 
   const productsQuery = useAdminProducts({ limit: 1000 });
   const flashSaleQuery = useAdminFlashSale(flashSaleId);
-  const createMutation = useCreateAdminFlashSale();
+  const updateMutation = useUpdateAdminFlashSale();
   const updateStatusMutation = useUpdateAdminFlashSaleStatus();
 
   const update = <K extends keyof FlashSaleFormValues>(key: K, value: FlashSaleFormValues[K]) => {
@@ -169,19 +172,26 @@ export default function FlashSaleEditPage() {
     setValues(flashSaleToFormValues(fs));
   }
 
+  if (flashSaleQuery.error instanceof ApiClientError && flashSaleQuery.error.status === 404) {
+    notFound();
+  }
+
   const handleStatusChange = async (newStatus: AdminFlashSaleStatus) => {
     if (!values) return;
     try {
       await updateStatusMutation.mutateAsync({ id: flashSaleId, status: newStatus });
       toast({
-        title: 'Status updated',
-        description: `${values.name} → ${STATUS_LABELS[newStatus]}`,
+        title: t('toast.statusUpdated'),
+        description: t('toast.statusChange', {
+          name: values.name,
+          status: t(`status.${newStatus}`),
+        }),
         variant: 'success',
       });
       setValues((current) => (current ? { ...current, status: newStatus } : null));
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update status';
-      toast({ title: 'Could not update status', description: message, variant: 'destructive' });
+      const message = err instanceof Error ? err.message : t('form.errors.statusFailed');
+      toast({ title: t('toast.statusFailed'), description: message, variant: 'destructive' });
     }
   };
 
@@ -192,43 +202,41 @@ export default function FlashSaleEditPage() {
     if (!values) return;
 
     if (!values.name.trim()) {
-      setError('Name is required');
+      setError(t('form.errors.nameRequired'));
       return;
     }
     if (!values.startsAt || !values.endsAt) {
-      setError('Start and end dates are required');
+      setError(t('form.errors.datesRequired'));
       return;
     }
     if (new Date(values.endsAt) <= new Date(values.startsAt)) {
-      setError('End date must be after start date');
+      setError(t('form.errors.endBeforeStart'));
       return;
     }
     if (values.items.filter((i) => i.productId !== NONE).length === 0) {
-      setError('At least one product is required');
+      setError(t('form.errors.productRequired'));
       return;
     }
     if (values.items.some((i) => i.productId !== NONE && i.salePrice <= 0)) {
-      setError('Sale price must be greater than 0 for all items');
+      setError(t('form.errors.salePrice'));
       return;
     }
 
     try {
-      const input = formValuesToInput(values);
-      const result = await createMutation.mutateAsync(input);
-      toast({ title: 'Flash sale created (duplicate)', variant: 'success' });
-      router.push(`/admin/flash-sales/${result.id}/edit`);
+      await updateMutation.mutateAsync({ id: flashSaleId, data: formValuesToInput(values) });
+      toast({ title: t('toast.updated'), variant: 'success' });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update flash sale';
+      const message = err instanceof Error ? err.message : t('form.errors.updateFailed');
       setError(message);
-      toast({ title: 'Could not update flash sale', description: message, variant: 'destructive' });
+      toast({ title: t('toast.updateFailed'), description: message, variant: 'destructive' });
     }
   };
 
   if (flashSaleQuery.isLoading || productsQuery.isLoading) {
     return (
       <div className="space-y-6">
-        <AdminPageHeader title="Edit Flash Sale" description="Update campaign details" />
-        <AdminLoading label="Loading..." />
+        <AdminPageHeader title={t('edit.title')} description={t('edit.description')} />
+        <AdminLoading />
       </div>
     );
   }
@@ -236,7 +244,7 @@ export default function FlashSaleEditPage() {
   if (flashSaleQuery.isError || productsQuery.isError) {
     return (
       <div className="space-y-6">
-        <AdminPageHeader title="Edit Flash Sale" description="Update campaign details" />
+        <AdminPageHeader title={t('edit.title')} description={t('edit.description')} />
         <AdminError
           error={flashSaleQuery.error ?? productsQuery.error}
           onRetry={() => {
@@ -251,9 +259,9 @@ export default function FlashSaleEditPage() {
   if (!flashSaleQuery.data) {
     return (
       <div className="space-y-6">
-        <AdminPageHeader title="Edit Flash Sale" description="Update campaign details" />
+        <AdminPageHeader title={t('edit.title')} description={t('edit.description')} />
         <AdminError
-          error={new Error('Flash sale not found')}
+          error={new Error(t('edit.notFound'))}
           onRetry={() => void flashSaleQuery.refetch()}
         />
       </div>
@@ -266,15 +274,15 @@ export default function FlashSaleEditPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Edit Flash Sale"
+        title={t('edit.title')}
         description={flashSale.name}
         actions={
           <>
             <Button asChild variant="outline">
-              <Link href="/admin/flash-sales">Back to list</Link>
+              <Link href="/admin/flash-sales">{t('edit.backToList')}</Link>
             </Button>
             <Button asChild>
-              <Link href="/admin/flash-sales/new">Create New</Link>
+              <Link href="/admin/flash-sales/new">{t('edit.createNew')}</Link>
             </Button>
           </>
         }
@@ -292,12 +300,12 @@ export default function FlashSaleEditPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Campaign Details</CardTitle>
+            <CardTitle>{t('form.details')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="fs-name">Name</Label>
+                <Label htmlFor="fs-name">{t('form.name')}</Label>
                 <Input
                   id="fs-name"
                   value={values?.name ?? ''}
@@ -313,12 +321,12 @@ export default function FlashSaleEditPage() {
                         : null,
                     );
                   }}
-                  placeholder="Summer Flash Sale"
+                  placeholder={t('form.namePlaceholder')}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fs-slug">Slug</Label>
+                <Label htmlFor="fs-slug">{t('form.slug')}</Label>
                 <Input
                   id="fs-slug"
                   value={values?.slug ?? ''}
@@ -326,28 +334,29 @@ export default function FlashSaleEditPage() {
                     setSlugTouched(true);
                     update('slug', event.target.value);
                   }}
-                  placeholder="summer-flash-sale"
+                  placeholder={t('form.slugPlaceholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fs-status">Status</Label>
+                <Label htmlFor="fs-status">{tCommon('status')}</Label>
                 <Select
                   value={values?.status ?? 'DRAFT'}
                   onValueChange={(value) => update('status', value as AdminFlashSaleStatus)}
                 >
                   <SelectTrigger id="fs-status">
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder={t('form.selectStatus')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
-                    <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                    <SelectItem value="ACTIVE">Active</SelectItem>
-                    <SelectItem value="ENDED">Ended</SelectItem>
+                    {FLASH_SALE_STATUSES.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {t(`status.${status}`)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fs-starts-at">Start Date & Time</Label>
+                <Label htmlFor="fs-starts-at">{t('form.startsAt')}</Label>
                 <Input
                   id="fs-starts-at"
                   type="datetime-local"
@@ -357,7 +366,7 @@ export default function FlashSaleEditPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fs-ends-at">End Date & Time</Label>
+                <Label htmlFor="fs-ends-at">{t('form.endsAt')}</Label>
                 <Input
                   id="fs-ends-at"
                   type="datetime-local"
@@ -370,35 +379,33 @@ export default function FlashSaleEditPage() {
 
             <div className="border-t pt-4">
               <div className="mb-3 flex items-center justify-between">
-                <h4 className="font-medium">Current Status</h4>
+                <h4 className="font-medium">{t('edit.currentStatus')}</h4>
                 <span
                   className={cn(
                     'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
                     STATUS_COLORS[values?.status ?? 'DRAFT'],
                   )}
                 >
-                  {STATUS_LABELS[values?.status ?? 'DRAFT']}
+                  {t(`status.${values?.status ?? 'DRAFT'}`)}
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {(['DRAFT', 'SCHEDULED', 'ACTIVE', 'ENDED'] as AdminFlashSaleStatus[]).map(
-                  (status) => (
-                    <Button
-                      key={status}
-                      type="button"
-                      variant={values?.status === status ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => handleStatusChange(status)}
-                      disabled={values?.status === status || updateStatusMutation.isPending}
-                      className={cn(
-                        STATUS_COLORS[status].replace('bg-', 'border-').replace('text-', 'text-'),
-                      )}
-                    >
-                      {status}
-                      {values?.status === status && <Clock className="ml-1 h-3 w-3 animate-spin" />}
-                    </Button>
-                  ),
-                )}
+                {FLASH_SALE_STATUSES.map((status) => (
+                  <Button
+                    key={status}
+                    type="button"
+                    variant={values?.status === status ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => handleStatusChange(status)}
+                    disabled={values?.status === status || updateStatusMutation.isPending}
+                    className={cn(
+                      STATUS_COLORS[status].replace('bg-', 'border-').replace('text-', 'text-'),
+                    )}
+                  >
+                    {t(`status.${status}`)}
+                    {values?.status === status && <Clock className="ml-1 h-3 w-3 animate-spin" />}
+                  </Button>
+                ))}
               </div>
             </div>
           </CardContent>
@@ -406,7 +413,7 @@ export default function FlashSaleEditPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Flash Sale Items</CardTitle>
+            <CardTitle>{t('form.items')}</CardTitle>
             <Button
               type="button"
               variant="outline"
@@ -415,28 +422,24 @@ export default function FlashSaleEditPage() {
               disabled={products.length === 0}
             >
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-              Add Product
+              {t('form.addProduct')}
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {products.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No products available. Create products first.
-              </p>
+              <p className="text-sm text-muted-foreground">{t('form.noProducts')}</p>
             ) : !values || values.items.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No items added yet. Click &quot;Add Product&quot; to start.
-              </p>
+              <p className="text-sm text-muted-foreground">{t('form.noItems')}</p>
             ) : (
               values!.items.map((item, index) => (
                 <div key={item.id ?? `new-${index}`} className="rounded-lg border p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm font-medium">Item {index + 1}</p>
+                    <p className="text-sm font-medium">{t('form.item', { index: index + 1 })}</p>
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      aria-label={`Remove item ${index + 1}`}
+                      aria-label={t('form.removeItem', { index: index + 1 })}
                       onClick={() => removeItem(index)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -444,26 +447,29 @@ export default function FlashSaleEditPage() {
                   </div>
                   <div className="grid gap-3 md:grid-cols-3">
                     <div className="space-y-2">
-                      <Label htmlFor={`fs-item-product-${index}`}>Product</Label>
+                      <Label htmlFor={`fs-item-product-${index}`}>{t('form.product')}</Label>
                       <Select
                         value={item.productId}
                         onValueChange={(value) => updateItem(index, 'productId', value)}
                       >
                         <SelectTrigger id={`fs-item-product-${index}`}>
-                          <SelectValue placeholder="Select product" />
+                          <SelectValue placeholder={t('form.selectProduct')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={NONE}>Select a product...</SelectItem>
+                          <SelectItem value={NONE}>{t('form.selectProductOption')}</SelectItem>
                           {products.map((product) => (
                             <SelectItem key={product.id} value={product.id}>
-                              {product.title} ({formatCurrency(product.price)})
+                              {t('form.productOption', {
+                                title: product.title,
+                                price: currency(product.price),
+                              })}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`fs-item-sale-price-${index}`}>Sale Price (Rp)</Label>
+                      <Label htmlFor={`fs-item-sale-price-${index}`}>{t('form.salePrice')}</Label>
                       <Input
                         id={`fs-item-sale-price-${index}`}
                         type="number"
@@ -473,28 +479,29 @@ export default function FlashSaleEditPage() {
                         onChange={(event) =>
                           updateItem(index, 'salePrice', Number(event.target.value))
                         }
-                        placeholder="e.g. 1500000"
+                        placeholder={t('form.salePricePlaceholder')}
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`fs-item-stock-limit-${index}`}>Stock Limit (optional)</Label>
+                      <Label htmlFor={`fs-item-stock-limit-${index}`}>{t('form.stockLimit')}</Label>
                       <Input
                         id={`fs-item-stock-limit-${index}`}
                         type="number"
                         min={0}
                         value={item.stockLimit}
                         onChange={(event) => updateItem(index, 'stockLimit', event.target.value)}
-                        placeholder="Leave empty for no limit"
+                        placeholder={t('form.stockLimitPlaceholder')}
                       />
-                      <p className="text-xs text-muted-foreground">Empty = use catalog stock</p>
+                      <p className="text-xs text-muted-foreground">{t('form.stockLimitHint')}</p>
                     </div>
                   </div>
                   {item.id && (
                     <div className="mt-3 border-t pt-3 text-sm text-muted-foreground">
                       <div className="flex flex-wrap gap-4">
                         <span>
-                          <Calendar className="mr-1 inline h-3 w-3" /> ID: {item.id}
+                          <Calendar className="mr-1 inline h-3 w-3" />{' '}
+                          {t('edit.itemId', { id: item.id })}
                         </span>
                       </div>
                     </div>
@@ -506,16 +513,16 @@ export default function FlashSaleEditPage() {
         </Card>
 
         <div className="flex gap-2">
-          <Button type="submit" disabled={createMutation.isPending}>
-            {createMutation.isPending ? (
+          <Button type="submit" disabled={updateMutation.isPending}>
+            {updateMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                Saving...
+                {tCommon('saving')}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" aria-hidden="true" />
-                Save Changes (Creates New)
+                {t('edit.submit')}
               </>
             )}
           </Button>
@@ -523,9 +530,9 @@ export default function FlashSaleEditPage() {
             type="button"
             variant="outline"
             onClick={() => router.push('/admin/flash-sales')}
-            disabled={createMutation.isPending}
+            disabled={updateMutation.isPending}
           >
-            Cancel
+            {tCommon('cancel')}
           </Button>
         </div>
       </form>

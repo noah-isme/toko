@@ -2,6 +2,7 @@ import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import prettierConfig from 'eslint-config-prettier';
 import tailwindcss from 'eslint-plugin-tailwindcss';
+import globals from 'globals';
 import typescript from 'typescript-eslint';
 
 const eslintConfig = [
@@ -13,21 +14,12 @@ const eslintConfig = [
       'test-results/**',
       // Generated from openapi.yaml by `pnpm api:generate`.
       'src/lib/api/generated/schema.d.ts',
-      // Route groups with parentheses cause issues with typescript-eslint
-      'src/app/(admin)/settings/**',
     ],
   },
-  ...fixupConfigRules(nextCoreWebVitals).map((config) => {
-    // Add ignores to all next configs
-    return {
-      ...config,
-      ignores: [...(config.ignores || []), 'src/app/(admin)/settings/**'],
-    };
-  }),
+  ...fixupConfigRules(nextCoreWebVitals),
   {
     name: 'toko/parser',
     files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
-    ignores: ['src/app/(admin)/settings/**'],
     languageOptions: {
       parser: typescript.parser,
       parserOptions: {
@@ -40,7 +32,6 @@ const eslintConfig = [
   {
     name: 'toko/typescript',
     files: ['**/*.ts', '**/*.tsx'],
-    ignores: ['src/app/(admin)/settings/**'],
     languageOptions: {
       parserOptions: {
         project: false,
@@ -50,7 +41,6 @@ const eslintConfig = [
   {
     name: 'toko/rules',
     files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
-    ignores: ['src/app/(admin)/settings/**'],
     plugins: {
       tailwindcss: fixupPluginRules(tailwindcss),
     },
@@ -73,6 +63,28 @@ const eslintConfig = [
       'react-hooks/preserve-manual-memoization': 'off',
       'react-hooks/immutability': 'off',
       'react-hooks/incompatible-library': 'off',
+      // ADR-007: React Query hooks live in src/entities/<domain>/. The legacy
+      // src/lib/api/hooks* modules were removed; keep them from coming back.
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/lib/api/hooks*'],
+              message: 'Import hooks from @/entities/<domain> instead (ADR-007).',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // Service worker sources (ADR-009) run in ServiceWorkerGlobalScope, not
+    // the DOM; they are type-checked separately via tsconfig.worker.json.
+    name: 'toko/service-worker',
+    files: ['src/app/sw.ts', 'src/app/sw-push.ts'],
+    languageOptions: {
+      globals: globals.serviceworker,
     },
   },
   prettierConfig,

@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -59,12 +60,16 @@ export function AddressBook({
   selectedAddressId,
   onSelectAddress,
   disableDeleteIds,
-  deleteDisabledMessage = 'Alamat sedang digunakan. Pilih alamat lain sebelum menghapus.',
-  heading = 'Buku alamat',
-  description = 'Kelola alamat pengiriman agar checkout lebih cepat.',
+  deleteDisabledMessage: deleteDisabledMessageProp,
+  heading: headingProp,
+  description: descriptionProp,
   className,
   context = 'account',
 }: AddressBookProps) {
+  const t = useTranslations('checkout.address.book');
+  const deleteDisabledMessage = deleteDisabledMessageProp ?? t('deleteDisabled');
+  const heading = headingProp ?? t('heading');
+  const description = descriptionProp ?? t('description');
   const [internalGuestId, setInternalGuestId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -157,15 +162,16 @@ export function AddressBook({
   const showEmptyState = !isLoading && addresses.length === 0;
   const hasError = Boolean(error);
   const busyLabel = useMemo(() => {
-    if (createMutation.isPending) return 'Menyimpan alamat baru…';
-    if (updateMutation.isPending) return 'Memperbarui alamat…';
-    if (deleteMutation.isPending) return 'Menghapus alamat…';
-    if (setDefaultMutation.isPending) return 'Mengatur default…';
-    return 'Sinkronisasi alamat…';
+    if (createMutation.isPending) return t('busy.creating');
+    if (updateMutation.isPending) return t('busy.updating');
+    if (deleteMutation.isPending) return t('busy.deleting');
+    if (setDefaultMutation.isPending) return t('busy.settingDefault');
+    return t('busy.syncing');
   }, [
     createMutation.isPending,
     deleteMutation.isPending,
     setDefaultMutation.isPending,
+    t,
     updateMutation.isPending,
   ]);
 
@@ -178,7 +184,7 @@ export function AddressBook({
         </div>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" aria-hidden="true" />
-          Tambah alamat
+          {t('add')}
         </Button>
       </div>
       {hasError ? (
@@ -187,7 +193,7 @@ export function AddressBook({
             {normalizeError(error)}
           </p>
           <Button variant="ghost" size="sm" className="mt-3" onClick={() => refetch()}>
-            Coba lagi
+            {t('retry')}
           </Button>
         </div>
       ) : null}
@@ -197,11 +203,11 @@ export function AddressBook({
         <div className="space-y-4">
           <EmptyState
             icon={<Plus className="h-8 w-8" aria-hidden="true" />}
-            title="Belum ada alamat tersimpan"
-            description="Tambahkan alamat baru agar checkout lebih cepat di masa depan."
+            title={t('emptyTitle')}
+            description={t('emptyDescription')}
           />
           <div className="flex justify-center">
-            <Button onClick={() => setCreateOpen(true)}>Tambah alamat pertama</Button>
+            <Button onClick={() => setCreateOpen(true)}>{t('addFirst')}</Button>
           </div>
         </div>
       ) : (
@@ -259,18 +265,19 @@ function CreateAddressSheet({
   isSubmitting: boolean;
   onSubmit: (values: AddressInput) => Promise<void>;
 }) {
+  const t = useTranslations('checkout.address.book.create');
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-[85vh] overflow-y-auto sm:h-auto sm:max-w-4xl">
         <SheetHeader>
-          <SheetTitle>Tambah alamat</SheetTitle>
-          <SheetDescription>Lengkapi detail alamat pengiriman Anda.</SheetDescription>
+          <SheetTitle>{t('title')}</SheetTitle>
+          <SheetDescription>{t('description')}</SheetDescription>
         </SheetHeader>
         <div className="mt-6">
           <AddressForm
             onSubmit={onSubmit}
             isSubmitting={isSubmitting}
-            submitLabel="Simpan alamat"
+            submitLabel={t('submit')}
             onCancel={() => onOpenChange(false)}
           />
         </div>
@@ -290,19 +297,20 @@ function EditAddressDialog({
   isSubmitting: boolean;
   onSubmit: (values: AddressInput) => Promise<void>;
 }) {
+  const t = useTranslations('checkout.address.book.edit');
   return (
     <Dialog open={Boolean(address)} onOpenChange={(next) => (!next ? onClose() : null)}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit alamat</DialogTitle>
-          <DialogDescription>Perbarui detail alamat Anda.</DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         {address ? (
           <AddressForm
             defaultValues={addressToInput(address)}
             onSubmit={onSubmit}
             isSubmitting={isSubmitting}
-            submitLabel="Perbarui alamat"
+            submitLabel={t('submit')}
             onCancel={onClose}
           />
         ) : null}
@@ -322,14 +330,13 @@ function DeleteConfirmationDialog({
   onConfirm: () => Promise<void>;
   isDeleting: boolean;
 }) {
+  const t = useTranslations('checkout.address.book.delete');
   return (
     <Dialog open={Boolean(address)} onOpenChange={(next) => (!next ? onCancel() : null)}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Hapus alamat</DialogTitle>
-          <DialogDescription>
-            Alamat ini akan dihapus dari akun Anda dan tidak bisa dipakai di checkout.
-          </DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         {address ? (
           <div className="rounded-md border border-border/50 bg-muted/30 p-3 text-sm">
@@ -342,16 +349,16 @@ function DeleteConfirmationDialog({
         ) : null}
         <DialogFooter className="mt-4">
           <Button type="button" variant="ghost" onClick={onCancel} disabled={isDeleting}>
-            Batal
+            {t('cancel')}
           </Button>
           <GuardedButton
             type="button"
             variant="destructive"
             onClick={onConfirm}
             isLoading={isDeleting}
-            loadingLabel="Menghapus…"
+            loadingLabel={t('deleting')}
           >
-            Hapus
+            {t('confirm')}
           </GuardedButton>
         </DialogFooter>
       </DialogContent>

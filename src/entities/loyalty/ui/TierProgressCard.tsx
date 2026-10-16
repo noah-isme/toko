@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2, Award, Star, Target, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo } from 'react';
 
 import { useLoyaltyProfileQuery } from '../hooks';
@@ -12,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 
 interface TierProgressCardProps {
   profile?: {
@@ -43,6 +45,8 @@ export const TierProgressCard = memo(function TierProgressCard({
   profile,
   className,
 }: TierProgressCardProps) {
+  const t = useTranslations('account.loyalty');
+  const fmt = useFormat();
   if (!profile) {
     return (
       <Card className={cn('overflow-hidden', className)}>
@@ -85,13 +89,15 @@ export const TierProgressCard = memo(function TierProgressCard({
               {currentTierInfo.icon}
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">Tier Anda</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                {t('tier.yours')}
+              </p>
               <h2 className="text-2xl font-bold text-foreground">{currentTierInfo.name}</h2>
             </div>
           </div>
           {nextTierInfo && (
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Tier Berikutnya</p>
+              <p className="text-xs text-muted-foreground">{t('tier.next')}</p>
               <p className="font-semibold text-primary">{nextTierInfo.name}</p>
             </div>
           )}
@@ -100,11 +106,11 @@ export const TierProgressCard = memo(function TierProgressCard({
         {/* Points Balance */}
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-bold tabular-nums text-foreground">
-            {points.toLocaleString('id-ID')}
+            {fmt.number(points)}
           </span>
-          <span className="text-sm text-muted-foreground">Poin</span>
+          <span className="text-sm text-muted-foreground">{t('tier.points')}</span>
           <span className="ml-auto text-xs text-muted-foreground">
-            Total seumur hidup: {lifetimePoints.toLocaleString('id-ID')}
+            {t('tier.lifetime', { points: fmt.number(lifetimePoints) })}
           </span>
         </div>
 
@@ -112,35 +118,38 @@ export const TierProgressCard = memo(function TierProgressCard({
         {nextTierInfo && nextTierThreshold && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Kemajuan ke {nextTierInfo.name}</span>
+              <span className="text-muted-foreground">
+                {t('tier.progressTo', { tier: nextTierInfo.name })}
+              </span>
               <span className="font-medium">{tierProgress}%</span>
             </div>
             <Progress value={tierProgress} className="h-3" />
             <p className="text-xs text-muted-foreground">
-              Butuh {pointsToNext.toLocaleString('id-ID')} poin lagi untuk {nextTierInfo.name}
+              {t('tier.pointsToNext', {
+                points: fmt.number(pointsToNext),
+                tier: nextTierInfo.name,
+              })}
             </p>
           </div>
         )}
 
         {tier === 'platinum' && (
-          <div className="pt-2 text-center text-sm text-muted-foreground">
-            🎉 Anda sudah di tier tertinggi!
-          </div>
+          <div className="pt-2 text-center text-sm text-muted-foreground">{t('tier.top')}</div>
         )}
 
         {/* Tier Benefits Preview */}
         <div className="border-t border-border/50 pt-2">
-          <p className="mb-2 text-xs text-muted-foreground">Keuntungan tier ini:</p>
+          <p className="mb-2 text-xs text-muted-foreground">{t('tier.benefitsTitle')}</p>
           <ul className="space-y-1 text-sm">
             {currentTierInfo.benefits.slice(0, 3).map((benefit, i) => (
               <li key={i} className="flex items-center gap-2 text-foreground">
                 <span className={cn('h-1.5 w-1.5 rounded-full', `bg-${TIER_COLORS[tier]}-500`)} />
-                {benefit}
+                {t(`benefits.${benefit}`)}
               </li>
             ))}
             {currentTierInfo.benefits.length > 3 && (
               <li className="text-xs text-muted-foreground">
-                +{currentTierInfo.benefits.length - 3} keuntungan lainnya
+                {t('tier.moreBenefits', { count: currentTierInfo.benefits.length - 3 })}
               </li>
             )}
           </ul>

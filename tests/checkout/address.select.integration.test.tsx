@@ -111,7 +111,7 @@ describe('CheckoutPage address selection', () => {
     await user.click(secondaryAddress);
 
     await waitFor(() => {
-      expect(screen.getByText('Shipping Options')).toBeInTheDocument();
+      expect(screen.getByText('Opsi Pengiriman')).toBeInTheDocument();
     });
 
     await waitFor(() => {
@@ -142,7 +142,7 @@ describe('CheckoutPage address selection', () => {
       expect(screen.getByText(/Belum ada alamat terpilih/i)).toBeInTheDocument();
     });
 
-    expect(screen.queryByText('Shipping Options')).toBeNull();
+    expect(screen.queryByText('Opsi Pengiriman')).toBeNull();
     expect(screen.getByRole('button', { name: /bayar sekarang/i })).toBeDisabled();
   });
 });

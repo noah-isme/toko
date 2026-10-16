@@ -3,6 +3,7 @@
 import { AlertTriangle, Edit, Plus, Search, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -24,19 +25,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import {
   useAdminProducts,
   useDeleteAdminProduct,
   useUpdateAdminProductStock,
-} from '@/lib/api/hooks.admin';
-import { formatCurrency, type AdminProduct } from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminProduct } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
 const PAGE_SIZE = 20;
 
 export default function ProductsPage() {
+  const t = useTranslations('admin.products');
+  const tCommon = useTranslations('admin.common');
+  const { currency } = useAdminFormat();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
@@ -67,12 +72,12 @@ export default function ProductsPage() {
         stock: quickStock,
         inStock: quickStock > 0,
       });
-      toast({ title: 'Stock updated', description: stockTarget.title, variant: 'success' });
+      toast({ title: t('toast.stockUpdated'), description: stockTarget.title, variant: 'success' });
       setStockTarget(null);
     } catch (error) {
       toast({
-        title: 'Could not update stock',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.stockFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -82,12 +87,12 @@ export default function ProductsPage() {
     if (!deleteTarget) return;
     try {
       await deleteProduct.mutateAsync(deleteTarget.id);
-      toast({ title: 'Product deleted', description: deleteTarget.title, variant: 'success' });
+      toast({ title: t('toast.deleted'), description: deleteTarget.title, variant: 'success' });
       setDeleteTarget(null);
     } catch (error) {
       toast({
-        title: 'Could not delete product',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.deleteFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -96,13 +101,13 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Products"
-        description="Manage your product catalog"
+        title={t('title')}
+        description={t('description')}
         actions={
           <Button asChild>
-            <Link href="/admin/products/new">
+            <Link href="/admin/products/new" data-testid="admin-product-new">
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-              Add Product
+              {t('add')}
             </Link>
           </Button>
         }
@@ -111,7 +116,7 @@ export default function ProductsPage() {
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>
-            All Products
+            {t('all')}
             {totalItems > 0 ? (
               <span className="ml-2 text-sm font-normal text-muted-foreground">({totalItems})</span>
             ) : null}
@@ -122,25 +127,25 @@ export default function ProductsPage() {
               aria-hidden="true"
             />
             <Input
-              placeholder="Search products..."
+              placeholder={t('searchPlaceholder')}
               value={search}
               onChange={(event) => handleSearchChange(event.target.value)}
               className="pl-10"
-              aria-label="Search products"
+              aria-label={t('searchLabel')}
             />
           </div>
         </CardHeader>
         <CardContent>
           {query.isLoading ? (
-            <AdminLoading label="Loading products..." />
+            <AdminLoading label={t('loading')} />
           ) : query.isError ? (
             <AdminError error={query.error} onRetry={() => void query.refetch()} />
           ) : products.length === 0 ? (
             <AdminEmpty
-              message={debouncedSearch ? 'No products match your search.' : 'No products yet.'}
+              message={debouncedSearch ? t('noMatches') : t('empty')}
               action={
                 <Button asChild size="sm">
-                  <Link href="/admin/products/new">Add your first product</Link>
+                  <Link href="/admin/products/new">{t('addFirst')}</Link>
                 </Button>
               }
             />
@@ -150,17 +155,21 @@ export default function ProductsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>SKU</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead>Stock</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t('columns.product')}</TableHead>
+                      <TableHead>{t('columns.sku')}</TableHead>
+                      <TableHead>{t('columns.category')}</TableHead>
+                      <TableHead className="text-right">{t('columns.price')}</TableHead>
+                      <TableHead>{t('columns.stock')}</TableHead>
+                      <TableHead className="text-right">{tCommon('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {products.map((product) => (
-                      <TableRow key={product.id}>
+                      <TableRow
+                        key={product.id}
+                        data-testid="admin-product-row"
+                        data-product-id={product.id}
+                      >
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
@@ -178,6 +187,7 @@ export default function ProductsPage() {
                               <Link
                                 href={`/admin/products/${product.id}/edit` as never}
                                 className="font-medium hover:underline"
+                                data-testid="admin-product-title"
                               >
                                 {product.title}
                               </Link>
@@ -190,7 +200,7 @@ export default function ProductsPage() {
                         <TableCell className="font-mono text-sm">{product.sku ?? '-'}</TableCell>
                         <TableCell>{product.categoryName ?? '-'}</TableCell>
                         <TableCell className="text-right font-mono">
-                          {formatCurrency(product.price)}
+                          {currency(product.price)}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -204,7 +214,9 @@ export default function ProductsPage() {
                                     : 'bg-red-100 text-red-800',
                               )}
                             >
-                              {product.stock > 0 ? `${product.stock} unit` : 'Out of stock'}
+                              {product.stock > 0
+                                ? t('units', { count: product.stock })
+                                : t('outOfStock')}
                             </span>
                             {product.stock > 0 && product.stock <= 10 ? (
                               <AlertTriangle
@@ -219,7 +231,7 @@ export default function ProductsPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label={`Update stock for ${product.title}`}
+                              aria-label={t('updateStockFor', { title: product.title })}
                               onClick={() => {
                                 setStockTarget(product);
                                 setQuickStock(product.stock);
@@ -234,7 +246,8 @@ export default function ProductsPage() {
                             <Button asChild variant="ghost" size="icon">
                               <Link
                                 href={`/admin/products/${product.id}/edit` as never}
-                                aria-label={`Edit ${product.title}`}
+                                aria-label={t('editProduct', { title: product.title })}
+                                data-testid="admin-product-edit"
                               >
                                 <Edit className="h-4 w-4" />
                               </Link>
@@ -243,7 +256,8 @@ export default function ProductsPage() {
                               variant="ghost"
                               size="icon"
                               className="text-red-600"
-                              aria-label={`Delete ${product.title}`}
+                              aria-label={t('deleteProduct', { title: product.title })}
+                              data-testid="admin-product-delete"
                               onClick={() => setDeleteTarget(product)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -259,7 +273,7 @@ export default function ProductsPage() {
               {totalPages > 1 ? (
                 <div className="mt-4 flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
+                    {tCommon('pageOf', { page, total: totalPages })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -268,7 +282,7 @@ export default function ProductsPage() {
                       disabled={page <= 1}
                       onClick={() => setPage((current) => Math.max(1, current - 1))}
                     >
-                      Previous
+                      {tCommon('previous')}
                     </Button>
                     <Button
                       variant="outline"
@@ -276,7 +290,7 @@ export default function ProductsPage() {
                       disabled={page >= totalPages}
                       onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     >
-                      Next
+                      {tCommon('next')}
                     </Button>
                   </div>
                 </div>
@@ -289,7 +303,7 @@ export default function ProductsPage() {
       <Dialog open={stockTarget !== null} onOpenChange={(open) => !open && setStockTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update Stock: {stockTarget?.title}</DialogTitle>
+            <DialogTitle>{t('stockDialogTitle', { title: stockTarget?.title ?? '' })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="flex items-center justify-center gap-2">
@@ -313,7 +327,7 @@ export default function ProductsPage() {
                 value={quickStock}
                 onChange={(event) => setQuickStock(Math.max(0, Number(event.target.value)))}
                 className="w-20 text-center"
-                aria-label="Stock quantity"
+                aria-label={t('stockQuantity')}
               />
               <Button
                 variant="outline"
@@ -331,7 +345,7 @@ export default function ProductsPage() {
               </Button>
             </div>
             <Button className="w-full" onClick={handleSaveStock} disabled={updateStock.isPending}>
-              {updateStock.isPending ? 'Saving...' : 'Save'}
+              {updateStock.isPending ? tCommon('saving') : tCommon('save')}
             </Button>
           </div>
         </DialogContent>
@@ -340,18 +354,25 @@ export default function ProductsPage() {
       <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
+            <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete <strong>{deleteTarget?.title}</strong>? This action
-            cannot be undone.
+            {t.rich('deleteConfirm', {
+              title: deleteTarget?.title ?? '',
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleteProduct.isPending}>
-              {deleteProduct.isPending ? 'Deleting...' : 'Delete'}
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteProduct.isPending}
+              data-testid="admin-product-delete-confirm"
+            >
+              {deleteProduct.isPending ? tCommon('deleting') : tCommon('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

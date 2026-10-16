@@ -8,6 +8,7 @@ import {
   TrendingUp,
   HelpCircle,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react';
 
 import { useQuestionListQuery } from '../hooks';
@@ -33,10 +34,17 @@ interface QuestionListProps {
   className?: string;
 }
 
-const SORT_OPTIONS: { value: QuestionSort; label: string; icon: React.ReactNode }[] = [
-  { value: 'recent', label: 'Terbaru', icon: <HelpCircle className="h-4 w-4" /> },
-  { value: 'popular', label: 'Populer', icon: <TrendingUp className="h-4 w-4" /> },
-  { value: 'unanswered', label: 'Belum Terjawab', icon: <HelpCircle className="h-4 w-4" /> },
+/** Keys under `product.qa.list.sort` in the message catalogs. */
+type QuestionSortLabelKey = 'recent' | 'popular' | 'unanswered';
+
+const SORT_OPTIONS: {
+  value: QuestionSort;
+  labelKey: QuestionSortLabelKey;
+  icon: React.ReactNode;
+}[] = [
+  { value: 'recent', labelKey: 'recent', icon: <HelpCircle className="h-4 w-4" /> },
+  { value: 'popular', labelKey: 'popular', icon: <TrendingUp className="h-4 w-4" /> },
+  { value: 'unanswered', labelKey: 'unanswered', icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
 export function QuestionList({
@@ -45,6 +53,7 @@ export function QuestionList({
   canAnswer = false,
   className,
 }: QuestionListProps) {
+  const t = useTranslations('product.qa.list');
   const [params, setParams] = useState<QuestionListParams>({
     page: 1,
     pageSize: 10,
@@ -94,9 +103,9 @@ export function QuestionList({
           className,
         )}
       >
-        Gagal memuat pertanyaan.{' '}
+        {t('loadError')}{' '}
         <Button variant="link" size="sm" onClick={handleRefresh} className="h-auto p-0">
-          Coba lagi
+          {t('retry')}
         </Button>
       </div>
     );
@@ -107,22 +116,22 @@ export function QuestionList({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="flex items-center gap-2 text-xl font-semibold">
           <HelpCircle className="h-5 w-5 text-primary" />
-          Pertanyaan & Jawaban
-          {meta && meta.total && (
+          {t('title')}
+          {meta?.total ? (
             <span className="text-sm font-normal text-muted-foreground">({meta.total})</span>
-          )}
+          ) : null}
         </h2>
         <div className="flex items-center gap-3">
           <Select value={params.sort} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Urutkan" />
+            <SelectTrigger className="w-[180px]" aria-label={t('sortLabel')}>
+              <SelectValue placeholder={t('sortPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
               {SORT_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   <div className="flex items-center gap-2">
                     {option.icon}
-                    {option.label}
+                    {t(`sort.${option.labelKey}`)}
                   </div>
                 </SelectItem>
               ))}
@@ -137,21 +146,23 @@ export function QuestionList({
           data-testid="qa-empty-state"
         >
           <HelpCircle className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-          <p className="text-muted-foreground">Belum ada pertanyaan untuk produk ini.</p>
-          <p className="mt-1 text-sm text-muted-foreground">Jadilah yang pertama bertanya!</p>
+          <p className="text-muted-foreground">{t('emptyTitle')}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t('emptyDescription')}</p>
         </div>
       ) : (
-        <div className="space-y-4" role="list" aria-label="Daftar pertanyaan">
+        <div className="space-y-4" role="list" aria-label={t('listLabel')}>
           {questions.map((question) => (
-            <QuestionItem key={question.id} question={question} canAnswer={canAnswer} />
+            <div key={question.id} role="listitem">
+              <QuestionItem question={question} canAnswer={canAnswer} />
+            </div>
           ))}
         </div>
       )}
 
-      {meta && meta.totalPages && meta.totalPages > 1 && (
+      {meta?.totalPages !== undefined && meta.totalPages > 1 && (
         <nav
           className="flex items-center justify-center gap-2"
-          aria-label="Pagination"
+          aria-label={t('paginationLabel')}
           data-testid="qa-pagination"
         >
           <Button
@@ -163,7 +174,7 @@ export function QuestionList({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="px-3 text-sm text-muted-foreground">
-            Halaman {params.page ?? 1} dari {meta.totalPages}
+            {t('page', { page: params.page ?? 1, total: meta.totalPages })}
           </span>
           <Button
             variant="outline"

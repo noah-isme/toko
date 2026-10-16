@@ -36,9 +36,9 @@ async function openCheckout(page: Page) {
 
 async function dismissCookieDialog(page: Page) {
   try {
-    const cookieDialog = page.getByRole('dialog', { name: 'We value your privacy' });
+    const cookieDialog = page.getByRole('dialog', { name: 'Kami menghargai privasi Anda' });
     await cookieDialog.waitFor({ timeout: 10000 });
-    await page.getByRole('button', { name: 'Accept All' }).click();
+    await page.getByRole('button', { name: 'Terima Semua' }).click();
     await expect(cookieDialog).toBeHidden({ timeout: 5000 });
   } catch {
     // Cookie dialog not present

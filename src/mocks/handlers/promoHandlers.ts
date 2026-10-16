@@ -3,6 +3,7 @@ import { HttpResponse, http } from 'msw';
 import { apiPath, type MockCart } from '../utils';
 
 import type { Promo } from '@/entities/promo/types';
+import { formatCurrency } from '@/shared/i18n/format';
 
 const promoCatalog: Record<string, Promo & { message: string; scenario?: 'expired' }> = {
   SAVE10: {
@@ -83,10 +84,6 @@ function persistCartDiscount(discountValue: number | undefined, promo?: Promo) {
   }
 }
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
-}
-
 export const promoHandlers = [
   http.post(apiPath('/carts/:cartId/apply-voucher'), async ({ request }) => {
     const body = (await request.json()) as { code?: string };
@@ -102,8 +99,9 @@ export const promoHandlers = [
       return HttpResponse.json({ valid: false, message: evaluation.message }, { status: 200 });
     }
 
-    // Return the calculated discount without persisting.
-    // The frontend will update the cart cache on apply success via commitPromoResultToCart.
+    // Attach the voucher to the cart like the backend does, so the cart refetch the
+    // client runs after applying still carries it (see the route mock's resolvers/promo.ts).
+    persistCartDiscount(evaluation.discountValue, evaluation.promo);
     return HttpResponse.json({
       valid: true,
       promo: evaluation.promo,

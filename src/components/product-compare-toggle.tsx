@@ -1,6 +1,7 @@
 'use client';
 
 import { GitCompare } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ export function CompareToggle({ productId, size = 'md', className }: CompareTogg
   const isComparing = useCompareStore(selectIsComparing(productId));
   const isFull = useCompareStore(selectIsCompareFull(productId));
   const toggle = useCompareStore((state) => state.toggle);
+  const t = useTranslations('catalog.compare');
 
   const handleToggle = useCallback(() => {
     if (isFull) {
@@ -31,10 +33,10 @@ export function CompareToggle({ productId, size = 'md', className }: CompareTogg
 
   const disabled = isFull;
   const label = isComparing
-    ? 'Hapus dari perbandingan'
+    ? t('remove')
     : isFull
-      ? `Maksimal ${MAX_COMPARE_ITEMS} produk untuk dibandingkan`
-      : 'Tambahkan ke perbandingan';
+      ? t('full', { max: MAX_COMPARE_ITEMS })
+      : t('add');
 
   const sizeClasses = {
     sm: 'h-8 w-8',

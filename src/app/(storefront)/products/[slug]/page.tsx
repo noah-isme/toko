@@ -1,22 +1,26 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { cache, Suspense } from 'react';
 
 import { CustomersAlsoViewed } from '@/components/customers-also-viewed';
 import { FrequentlyBoughtTogether } from '@/components/frequently-bought-together';
 import { ProductDetail } from '@/components/product-detail';
 import { RelatedProductList } from '@/components/related-product-list';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { catalogKeys } from '@/entities/catalog/keys';
 import { ProductQASection } from '@/entities/qa/ui/ProductQASection';
 import { ReviewForm } from '@/entities/reviews/ui/ReviewForm';
 import { ReviewList } from '@/entities/reviews/ui/ReviewList';
 import { ReviewStats } from '@/entities/reviews/ui/ReviewStats';
-import { mapApiProductToProduct } from '@/lib/api/mappers/product';
-import { productSchema } from '@/lib/api/schemas';
-import type { ApiProduct, ApiResponse } from '@/lib/api/types';
-import { getPublicEnv } from '@/shared/config/env';
+import { ApiClientError } from '@/lib/api/apiClient';
+import { serverCatalogApi } from '@/lib/api/server-catalog';
+import type { ProductDetail as ProductDetailData } from '@/lib/api/types';
+import { getQueryClient } from '@/lib/query/get-query-client';
 import { JsonLd } from '@/shared/seo/JsonLd';
 import { productJsonLd } from '@/shared/seo/jsonld';
-import { abs, getCanonical } from '@/shared/seo/seo';
+import { abs, localeAlternates, localizedCanonical, ogImageUrl } from '@/shared/seo/seo';
 
 function ReviewSkeleton() {
   return (
@@ -60,37 +64,35 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function fetchProduct(slug: string) {
-  const { apiUrl, apiMocking, tenantId } = getPublicEnv();
-  if (!apiUrl || apiUrl === 'mock' || apiMocking) {
-    return null;
-  }
+type FetchedProduct =
+  | { status: 'ok'; product: ProductDetailData }
+  | { status: 'missing' }
+  | { status: 'unavailable' };
 
+// Cached per request so generateMetadata and the page share one fetch (and one
+// 404 decision). Goes through the same catalogApi functions as the client
+// `useProduct` hook, so the hydrated query data has the hook's exact shape.
+// Works in mock mode too (in-process mock, see src/lib/api/server.ts).
+const fetchProduct = cache(async (slug: string): Promise<FetchedProduct> => {
   try {
-    const endpoint = `${apiUrl.replace(/\/$/, '')}/products/${slug}`;
-    const headers = new Headers({ Accept: 'application/json' });
-    if (tenantId) {
-      headers.set('X-Tenant-ID', tenantId);
-    }
-
-    const response = await fetch(endpoint, {
-      headers,
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const json = (await response.json()) as ApiResponse<ApiProduct>;
-    return mapApiProductToProduct(json.data);
+    return { status: 'ok', product: await serverCatalogApi.getProduct(slug) };
   } catch (error) {
+    if (error instanceof ApiClientError && error.status === 404) {
+      return { status: 'missing' };
+    }
     if (process.env.NODE_ENV !== 'production') {
       console.warn('Failed to fetch product metadata', error);
     }
-
-    return null;
+    return { status: 'unavailable' };
   }
+});
+
+async function loadProduct(slug: string) {
+  const result = await fetchProduct(slug);
+  if (result.status === 'missing') {
+    notFound();
+  }
+  return result.status === 'ok' ? result.product : null;
 }
 
 function humanizeSlug(slug: string) {
@@ -103,25 +105,25 @@ function humanizeSlug(slug: string) {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = await fetchProduct(slug);
+  const product = await loadProduct(slug);
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: 'seo.product' });
+  const path = `/products/${product?.slug ?? slug}`;
+  const canonical = localizedCanonical(locale, path);
+  const alternates = { canonical, languages: localeAlternates(path) };
+
   if (!product) {
-    const fallbackTitle = humanizeSlug(slug) || 'Product';
-    const canonical = getCanonical(`/products/${slug}`);
-    const ogImage = abs(`/api/og?title=${encodeURIComponent(fallbackTitle)}`);
+    const fallbackTitle = humanizeSlug(slug) || t('fallbackTitle');
+    const description = t('fallbackDescription');
+    const ogImage = ogImageUrl(locale, fallbackTitle);
 
     return {
       title: fallbackTitle,
-      description: 'Discover the latest products available on toko.',
-      alternates: {
-        canonical,
-        languages: {
-          'en-US': canonical,
-          'id-ID': canonical,
-        },
-      },
+      description,
+      alternates,
       openGraph: {
         title: fallbackTitle,
-        description: 'Discover the latest products available on toko.',
+        description,
         url: canonical,
         type: 'website',
         images: [{ url: ogImage }],
@@ -129,7 +131,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       twitter: {
         card: 'summary_large_image',
         title: fallbackTitle,
-        description: 'Discover the latest products available on toko.',
+        description,
         images: [ogImage],
       },
     };
@@ -137,29 +139,21 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const title = product.title;
   const description = product.description;
-  const canonical = getCanonical(`/products/${product.slug}`);
-  const productUrl = abs(`/products/${product.slug}`);
   const ogImages = product.images?.length
     ? product.images.map((image, index) => ({
         url: abs(image),
-        alt: `${product.title} image ${index + 1}`,
+        alt: t('imageAlt', { title: product.title, index: index + 1 }),
       }))
-    : [{ url: abs('/api/og?title=' + encodeURIComponent(product.title)) }];
+    : [{ url: ogImageUrl(locale, product.title) }];
 
   return {
     title,
     description,
-    alternates: {
-      canonical,
-      languages: {
-        'en-US': canonical,
-        'id-ID': canonical,
-      },
-    },
+    alternates,
     openGraph: {
       title,
       description,
-      url: productUrl,
+      url: canonical,
       type: 'website',
       images: ogImages,
     },
@@ -174,11 +168,24 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await fetchProduct(slug);
+  const product = await loadProduct(slug);
+  const t = await getTranslations('product');
+
+  // Hydrate the ProductDetail/RelatedProductList islands: the product comes
+  // from the cached fetch above, related products are prefetched here. Failed
+  // queries are not dehydrated, so those islands fall back to client fetching.
+  const queryClient = getQueryClient();
+  if (product) {
+    queryClient.setQueryData(catalogKeys.product(slug), product);
+  }
+  await queryClient.prefetchQuery({
+    queryKey: catalogKeys.relatedProducts(slug),
+    queryFn: () => serverCatalogApi.getRelatedProducts(slug),
+  });
 
   const structuredData = productJsonLd(product ?? null);
   const resolvedProductId = product?.id ?? slug;
-  const productLabel = product?.title ?? humanizeSlug(slug) ?? 'Produk';
+  const productLabel = product?.title ?? humanizeSlug(slug) ?? t('breadcrumb.fallback');
 
   return (
     <>
@@ -186,17 +193,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <div className="space-y-12">
         <Breadcrumbs
           items={[
-            { label: 'Beranda', href: '/' },
-            { label: 'Produk', href: '/products' },
+            { label: t('breadcrumb.home'), href: '/' },
+            { label: t('breadcrumb.products'), href: '/products' },
             { label: productLabel },
           ]}
         />
-        <ProductDetail slug={slug} />
-        <RelatedProductList slug={slug} />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <ProductDetail slug={slug} />
+          <RelatedProductList slug={slug} />
+        </HydrationBoundary>
         <Suspense
           fallback={
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold tracking-tight">Frequently Bought Together</h2>
+              <h2 className="text-2xl font-bold tracking-tight">
+                {t('recommendations.frequentlyBoughtTogether.title')}
+              </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="flex flex-col space-y-3">
@@ -216,7 +227,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <Suspense
           fallback={
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold tracking-tight">Customers Also Viewed</h2>
+              <h2 className="text-2xl font-bold tracking-tight">
+                {t('recommendations.customersAlsoViewed.title')}
+              </h2>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="flex flex-col space-y-3">

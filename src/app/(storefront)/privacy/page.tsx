@@ -1,26 +1,17 @@
+import { useTranslations } from 'next-intl';
+
 export default function PrivacyPolicyPage() {
+  const t = useTranslations('common.legal.privacy');
   return (
     <article className="prose prose-slate dark:prose-invert max-w-3xl">
-      <h1>Kebijakan Privasi</h1>
-      <p>
-        Kami menggunakan data akun, alamat, dan pesanan untuk menyediakan layanan toko, pembayaran,
-        pengiriman, dukungan, dan keamanan.
-      </p>
-      <h2>Data yang kami simpan</h2>
-      <p>
-        Data akun, transaksi, komunikasi dukungan, dan preferensi privasi disimpan selama diperlukan
-        untuk tujuan tersebut dan kewajiban hukum.
-      </p>
-      <h2>Kontrol Anda</h2>
-      <p>
-        Anda dapat mengatur preferensi komunikasi di halaman privasi akun, mengunduh ekspor data,
-        atau menghapus akun. Penghapusan akun menganonimkan data pesanan yang harus dipertahankan
-        untuk pencatatan.
-      </p>
-      <h2>Hubungi kami</h2>
-      <p>
-        Untuk pertanyaan privasi, buka <a href="/account/support">Pusat Bantuan</a>.
-      </p>
+      <h1>{t('title')}</h1>
+      <p>{t('intro')}</p>
+      <h2>{t('storedTitle')}</h2>
+      <p>{t('stored')}</p>
+      <h2>{t('controlTitle')}</h2>
+      <p>{t('control')}</p>
+      <h2>{t('contactTitle')}</h2>
+      <p>{t.rich('contact', { link: (chunks) => <a href="/account/support">{chunks}</a> })}</p>
     </article>
   );
 }

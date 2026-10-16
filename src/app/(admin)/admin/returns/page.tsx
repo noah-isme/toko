@@ -1,63 +1,59 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
-import { AdminPageHeader } from '@/components/admin/admin-ui';
+import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  adminOperationsApi,
-  type CustomerReturn,
-  type ReturnStatus,
-} from '@/lib/api/services/customerOperations';
+  useAdminReturns,
+  useRefundAdminReturn,
+  useUpdateAdminReturn,
+} from '@/entities/admin/hooks';
+import type { ReturnStatus } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
 
 const statuses: ReturnStatus[] = ['APPROVED', 'REJECTED', 'RECEIVED', 'CANCELLED'];
 
 export default function AdminReturnsPage() {
-  const [items, setItems] = useState<CustomerReturn[]>([]);
+  const t = useTranslations('admin.returns');
+  const { date } = useAdminFormat();
+  const returnsQuery = useAdminReturns();
+  const updateReturn = useUpdateAdminReturn();
+  const refundReturn = useRefundAdminReturn();
   const [error, setError] = useState<string | null>(null);
-  const load = async () => {
-    try {
-      setItems(await adminOperationsApi.listReturns());
-    } catch {
-      setError('Gagal memuat returns.');
-    }
-  };
-  useEffect(() => {
-    void load();
-  }, []);
+  const items = returnsQuery.data ?? [];
   const update = async (id: string, status: ReturnStatus) => {
     try {
-      await adminOperationsApi.updateReturn(id, status);
-      await load();
+      await updateReturn.mutateAsync({ id, status });
     } catch {
-      setError('Gagal memperbarui status.');
+      setError(t('updateFailed'));
     }
   };
   return (
     <div className="space-y-6">
-      <AdminPageHeader
-        title="Returns"
-        description="Review customer return requests and refund eligibility"
-      />
+      <AdminPageHeader title={t('title')} description={t('description')} />
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {items.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">No return requests.</CardContent>
-        </Card>
+      {returnsQuery.isPending ? (
+        <AdminLoading />
+      ) : returnsQuery.isError ? (
+        <AdminError error={returnsQuery.error} onRetry={() => void returnsQuery.refetch()} />
+      ) : items.length === 0 ? (
+        <AdminEmpty message={t('empty')} />
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
                 <div>
-                  <p className="font-medium">Order {item.orderId}</p>
+                  <p className="font-medium">{t('order', { orderId: item.orderId })}</p>
                   <p className="text-sm text-muted-foreground">
                     {item.reason}
                     {item.notes ? ` — ${item.notes}` : ''}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {item.status} • {new Date(item.createdAt).toLocaleString()}
+                    {t(`status.${item.status}`)} • {date(item.createdAt)}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -68,8 +64,9 @@ export default function AdminReturnsPage() {
                       variant={status === item.status ? 'default' : 'outline'}
                       disabled={status === item.status}
                       onClick={() => void update(item.id, status)}
+                      data-testid={`admin-return-status-${status}`}
                     >
-                      {status}
+                      {t(`status.${status}`)}
                     </Button>
                   ))}
                   {(item.status === 'APPROVED' || item.status === 'RECEIVED') && (
@@ -78,14 +75,13 @@ export default function AdminReturnsPage() {
                       variant="destructive"
                       onClick={async () => {
                         try {
-                          await adminOperationsApi.refundReturn(item.id);
-                          await load();
+                          await refundReturn.mutateAsync(item.id);
                         } catch {
-                          setError('Refund gagal.');
+                          setError(t('refundFailed'));
                         }
                       }}
                     >
-                      Refund
+                      {t('refund')}
                     </Button>
                   )}
                 </div>

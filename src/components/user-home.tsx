@@ -11,6 +11,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { CategoryQuickNav } from '@/components/landing/category-quick-nav';
@@ -23,8 +24,9 @@ import { useFavoritesQuery } from '@/entities/favorites/hooks';
 import { useCartStore } from '@/stores/cart-store';
 
 export function UserHome() {
+  const t = useTranslations('common.landing.userHome');
   const { user, isAuthenticated } = useAuth();
-  const displayName = user?.name || user?.email?.split('@')[0] || 'Pengguna';
+  const displayName = user?.name || user?.email?.split('@')[0] || t('fallbackName');
 
   const { cart } = useCartStore();
   const { data: favorites } = useFavoritesQuery(user?.id, isAuthenticated);
@@ -42,14 +44,12 @@ export function UserHome() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-md border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>Akun Terverifikasi</span>
+              <span>{t('verified')}</span>
             </div>
             <h1 className="font-display text-4xl leading-none text-foreground sm:text-5xl">
-              Selamat datang kembali, {displayName}!
+              {t('welcome', { name: displayName })}
             </h1>
-            <p className="text-xs text-muted-foreground sm:text-sm">
-              Temukan penawaran terbaik dan cek status belanjaan Anda hari ini.
-            </p>
+            <p className="text-xs text-muted-foreground sm:text-sm">{t('description')}</p>
           </div>
 
           {/* Status Tracker Bar */}
@@ -59,12 +59,12 @@ export function UserHome() {
                 <Clock className="h-4 w-4" />
               </div>
               <div>
-                <span className="block font-bold text-foreground">Pesanan Terakhir</span>
-                <span className="text-muted-foreground">Dalam proses pengiriman kurir</span>
+                <span className="block font-bold text-foreground">{t('lastOrder')}</span>
+                <span className="text-muted-foreground">{t('lastOrderStatus')}</span>
               </div>
             </div>
             <Button asChild size="sm" variant="outline" className="shrink-0 text-xs font-bold">
-              <Link href="/account/orders">Lacak Pesanan</Link>
+              <Link href="/account/orders">{t('trackOrder')}</Link>
             </Button>
           </div>
         </div>
@@ -81,8 +81,10 @@ export function UserHome() {
                 <Heart className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-muted-foreground">Favorit</div>
-                <div className="text-lg font-extrabold text-foreground">{favoriteCount} Produk</div>
+                <div className="text-xs font-semibold text-muted-foreground">{t('favorites')}</div>
+                <div className="text-lg font-extrabold text-foreground">
+                  {t('favoritesCount', { count: favoriteCount })}
+                </div>
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
@@ -98,8 +100,10 @@ export function UserHome() {
                 <ShoppingCart className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-muted-foreground">Keranjang</div>
-                <div className="text-lg font-extrabold text-foreground">{cartItemCount} Barang</div>
+                <div className="text-xs font-semibold text-muted-foreground">{t('cart')}</div>
+                <div className="text-lg font-extrabold text-foreground">
+                  {t('cartCount', { count: cartItemCount })}
+                </div>
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
@@ -115,8 +119,8 @@ export function UserHome() {
                 <Package className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-muted-foreground">Riwayat</div>
-                <div className="text-sm font-bold text-foreground">Lihat Semua Pesanan</div>
+                <div className="text-xs font-semibold text-muted-foreground">{t('history')}</div>
+                <div className="text-sm font-bold text-foreground">{t('allOrders')}</div>
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
@@ -135,11 +139,9 @@ export function UserHome() {
         <div className="flex flex-col justify-between gap-3 border-b border-border pb-3 sm:flex-row sm:items-center">
           <div>
             <h2 className="text-lg font-extrabold tracking-tight text-foreground">
-              Katalog Rekomendasi
+              {t('catalogTitle')}
             </h2>
-            <p className="text-xs text-muted-foreground">
-              Produk disesuaikan dengan minat dan histori aktivitas Anda
-            </p>
+            <p className="text-xs text-muted-foreground">{t('catalogDescription')}</p>
           </div>
 
           {/* Filter Tabs */}
@@ -152,7 +154,7 @@ export function UserHome() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Untuk Anda
+              {t('tabs.recommended')}
             </button>
             <button
               onClick={() => setActiveTab('popular')}
@@ -162,7 +164,7 @@ export function UserHome() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Terlaris
+              {t('tabs.popular')}
             </button>
             <button
               onClick={() => setActiveTab('deals')}
@@ -172,7 +174,7 @@ export function UserHome() {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Diskon
+              {t('tabs.deals')}
             </button>
           </div>
         </div>

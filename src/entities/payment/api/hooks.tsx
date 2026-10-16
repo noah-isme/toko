@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef } from 'react';
 import { z } from 'zod';
 
@@ -42,6 +43,7 @@ type RetryHandler = ((variables: PaymentCreateBody) => void) | undefined;
 export function useCreatePaymentIntentMutation() {
   const queryClient = useQueryClient();
   const { toast: pushToast, dismiss } = useToast();
+  const t = useTranslations('checkout.paymentToast');
   const retryHandlerRef = useRef<RetryHandler>(undefined);
 
   const registerRetryHandler = useCallback((handler?: (variables: PaymentCreateBody) => void) => {
@@ -71,8 +73,8 @@ export function useCreatePaymentIntentMutation() {
       const toastId = pushToast({
         id: `payment-intent-progress-${variables.orderId}`,
         eventKey: `payment-intent-progress-${variables.orderId}`,
-        title: 'Memproses pembayaran…',
-        description: 'Menghubungkan ke penyedia pembayaran.',
+        title: t('progress'),
+        description: t('progressDescription'),
         duration: Infinity,
       });
 
@@ -96,8 +98,8 @@ export function useCreatePaymentIntentMutation() {
       pushToast({
         id: `payment-intent-success-${variables.orderId}`,
         eventKey: `payment-intent-success-${variables.orderId}`,
-        title: 'Pembayaran siap dilanjutkan',
-        description: 'Buka halaman pembayaran untuk menyelesaikan transaksi.',
+        title: t('ready'),
+        description: t('readyDescription'),
         variant: 'success',
       });
     },
@@ -115,7 +117,7 @@ export function useCreatePaymentIntentMutation() {
       pushToast({
         id: `payment-intent-error-${variables.orderId}`,
         eventKey: `payment-intent-error-${variables.orderId}`,
-        title: 'Gagal membuat pembayaran',
+        title: t('error'),
         description: normalizeError(error),
         variant: 'destructive',
         action:

@@ -3,6 +3,7 @@
 import { ArrowRight, Clock, Flame, ShoppingCart, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -15,6 +16,7 @@ import {
   type FlashSaleCampaign,
   type FlashSaleItem,
 } from '@/lib/api/services/promotions';
+import { useFormat } from '@/shared/i18n/use-format';
 import { useCartStore } from '@/stores/cart-store';
 
 function countdown(target: string, now: number) {
@@ -27,7 +29,10 @@ function countdown(target: string, now: number) {
   };
 }
 
+const CATEGORY_KEYS = ['all', 'electronics', 'fashion', 'home', 'health', 'sports'] as const;
+
 export default function FlashSalesPage() {
+  const t = useTranslations('catalog.flashSale');
   const [campaigns, setCampaigns] = useState<FlashSaleCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +52,7 @@ export default function FlashSalesPage() {
         if (!cancelled) setCampaigns(items);
       })
       .catch(() => {
-        if (!cancelled) setError('Gagal memuat flash sale.');
+        if (!cancelled) setError(t('loadFailed'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -55,7 +60,7 @@ export default function FlashSalesPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   const active = useMemo(
     () =>
@@ -90,7 +95,7 @@ export default function FlashSalesPage() {
   if (loading)
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Flash Sales</h1>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i} className="h-72 animate-pulse bg-muted" />
@@ -103,7 +108,7 @@ export default function FlashSalesPage() {
       <div className="space-y-4 py-12 text-center">
         <p className="text-destructive">{error}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          Coba Lagi
+          {t('retry')}
         </Button>
       </div>
     );
@@ -115,50 +120,41 @@ export default function FlashSalesPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
             <Flame className="h-5 w-5" />
           </div>
-          <h1 className="text-2xl font-bold">Flash Sales</h1>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
         </div>
-        <p className="text-muted-foreground">Harga dan waktu promo berasal dari campaign aktif.</p>
+        <p className="text-muted-foreground">{t('description')}</p>
       </div>
       {active && activeCountdown ? (
-        <SaleTimer
-          title={active.name}
-          subtitle="Berakhir dalam · Diskon hingga 20%"
-          time={activeCountdown}
-          tone="rose"
-        />
+        <SaleTimer title={active.name} subtitle={t('endsIn')} time={activeCountdown} tone="rose" />
       ) : (
         <EmptyCampaign active={Boolean(next)} />
       )}
       {next && nextCountdown ? (
         <div>
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Flash Sale Berikutnya</h2>
+            <h2 className="text-lg font-semibold">{t('nextTitle')}</h2>
             <Link
               href={`/flash-sales?reminder=${encodeURIComponent(next.id)}`}
               className="text-sm font-medium text-primary hover:underline"
             >
-              Setel Pengingat
+              {t('setReminder')}
             </Link>
           </div>
-          <SaleTimer title={next.name} subtitle="Mulai dalam" time={nextCountdown} tone="amber" />
+          <SaleTimer title={next.name} subtitle={t('startsIn')} time={nextCountdown} tone="amber" />
         </div>
       ) : null}
-      <div className="flex flex-wrap gap-2" aria-label="Kategori flash sale">
-        {['Semua', 'Elektronik', 'Fashion', 'Rumah Tangga', 'Kesehatan', 'Olahraga'].map(
-          (category) => (
-            <Button key={category} variant={category === 'Semua' ? 'default' : 'outline'} size="sm">
-              {category}
-            </Button>
-          ),
-        )}
+      <div className="flex flex-wrap gap-2" aria-label={t('categoriesLabel')}>
+        {CATEGORY_KEYS.map((category) => (
+          <Button key={category} variant={category === 'all' ? 'default' : 'outline'} size="sm">
+            {t(`categories.${category}`)}
+          </Button>
+        ))}
       </div>
       {items.length === 0 ? (
         <div className="py-12 text-center">
           <Flame className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">Belum ada Flash Sale aktif</h2>
-          <p className="mt-1 text-muted-foreground">
-            Cek kembali setelah campaign berikutnya dimulai.
-          </p>
+          <h2 className="text-lg font-semibold">{t('emptyTitle')}</h2>
+          <p className="mt-1 text-muted-foreground">{t('emptyDescription')}</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -175,22 +171,20 @@ export default function FlashSalesPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="p-4">
-            <h2 className="font-semibold">Diskon Eksklusif</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Harga campaign dihitung server.</p>
+            <h2 className="font-semibold">{t('perks.discountTitle')}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t('perks.discount')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <h2 className="font-semibold">Waktu Terbatas</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Pantau penghitung waktu promo.</p>
+            <h2 className="font-semibold">{t('perks.timeTitle')}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t('perks.time')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <h2 className="font-semibold">Stok Terbatas</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Stok terbaru ditampilkan real-time.
-            </p>
+            <h2 className="font-semibold">{t('perks.stockTitle')}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t('perks.stock')}</p>
           </CardContent>
         </Card>
       </div>
@@ -199,7 +193,7 @@ export default function FlashSalesPage() {
           href="/products"
           className="inline-flex items-center text-sm font-medium text-primary hover:underline"
         >
-          Lihat semua produk <ArrowRight className="ml-1 h-4 w-4" />
+          {t('viewAllProducts')} <ArrowRight className="ml-1 h-4 w-4" />
         </Link>
       </div>
     </div>
@@ -217,6 +211,7 @@ function SaleTimer({
   time: ReturnType<typeof countdown>;
   tone: 'rose' | 'amber';
 }) {
+  const t = useTranslations('catalog.flashSale.timer');
   const styles =
     tone === 'rose'
       ? 'border-rose-200/50 bg-rose-50/50 text-rose-800'
@@ -232,13 +227,13 @@ function SaleTimer({
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          {time.days > 0 && <TimerBlock value={time.days} label="Hari" />}
+          {time.days > 0 && <TimerBlock value={time.days} label={t('days')} />}
           {time.days > 0 && <span className="font-bold">:</span>}
-          <TimerBlock value={time.hours} label="Jam" />
+          <TimerBlock value={time.hours} label={t('hours')} />
           <span className="font-bold">:</span>
-          <TimerBlock value={time.minutes} label="Min" />
+          <TimerBlock value={time.minutes} label={t('minutes')} />
           <span className="font-bold">:</span>
-          <TimerBlock value={time.seconds} label="Det" />
+          <TimerBlock value={time.seconds} label={t('seconds')} />
         </div>
       </CardContent>
     </Card>
@@ -265,6 +260,8 @@ function FlashSaleCard({
   onAdd: () => void;
   adding: boolean;
 }) {
+  const t = useTranslations('catalog.flashSale');
+  const fmt = useFormat();
   const discount = Math.round(item.discountBps / 100);
   const stockPercent = item.stockLimit
     ? Math.max(5, Math.min(100, Math.round((item.stock / item.stockLimit) * 100)))
@@ -303,9 +300,7 @@ function FlashSaleCard({
         </Link>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground line-through">
-            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-              item.originalPrice,
-            )}
+            {fmt.currency(item.originalPrice)}
           </span>
           <Price
             amount={item.salePrice}
@@ -321,7 +316,9 @@ function FlashSaleCard({
                 style={{ width: `${stockPercent}%` }}
               />
             </div>
-            <p className="text-right text-[11px] text-muted-foreground">Sisa {item.stock} unit</p>
+            <p className="text-right text-[11px] text-muted-foreground">
+              {t('stockLeft', { count: item.stock })}
+            </p>
           </div>
         )}
         <Button
@@ -331,7 +328,7 @@ function FlashSaleCard({
           disabled={adding || item.stock <= 0}
         >
           <ShoppingCart className="h-4 w-4" />
-          {item.stock <= 0 ? 'Habis' : adding ? 'Menambahkan...' : 'Beli Sekarang'}
+          {item.stock <= 0 ? t('soldOut') : adding ? t('adding') : t('buyNow')}
         </Button>
       </CardContent>
     </Card>
@@ -339,10 +336,11 @@ function FlashSaleCard({
 }
 
 function EmptyCampaign({ active }: { active: boolean }) {
+  const t = useTranslations('catalog.flashSale');
   return (
     <Card>
       <CardContent className="p-6 text-center text-muted-foreground">
-        {active ? 'Campaign aktif belum memiliki produk.' : 'Belum ada campaign aktif.'}
+        {active ? t('campaignEmpty') : t('noCampaign')}
       </CardContent>
     </Card>
   );

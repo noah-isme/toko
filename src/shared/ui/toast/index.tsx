@@ -1,6 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 import { resolveToastDuration, toastPolicy, type ToastVariant } from './policy';
@@ -193,6 +194,7 @@ const variantStyles: Record<ToastVariant, string> = {
 };
 
 export function Toaster() {
+  const t = useTranslations('common.ui');
   const { dismiss, toasts } = useToast();
 
   return (
@@ -227,7 +229,7 @@ export function Toaster() {
               onClick={() => dismiss(toast.id)}
               className="prm:no-anim rounded-md p-1 text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <span className="sr-only">Tutup</span>
+              <span className="sr-only">{t('dismiss')}</span>
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>

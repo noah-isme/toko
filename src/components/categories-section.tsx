@@ -20,12 +20,14 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
-import { useCategories } from '@/lib/api';
+import { useCategories } from '@/entities/catalog/hooks';
 import { cn } from '@/lib/utils';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
 export function CategoriesSection() {
+  const t = useTranslations('common.landing.categories');
   const { data: categories, isLoading } = useCategories();
 
   if (isLoading) {
@@ -39,10 +41,8 @@ export function CategoriesSection() {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold">Shop by Category</h2>
-        <p className="text-sm text-muted-foreground">
-          Explore our curated collection of products by category
-        </p>
+        <h2 className="text-2xl font-bold">{t('title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
       </div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         {categories.map((category) => {

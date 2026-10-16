@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -5,12 +6,13 @@ import { srOnly } from '../a11y';
 import { BaseSkeleton } from './BaseSkeleton';
 
 export function OrderTrackingSkeleton() {
+  const t = useTranslations('common');
   return (
     <div
       className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center gap-6 text-center"
       role="status"
     >
-      {srOnly('Memuat...')}
+      {srOnly(t('loading'))}
       <BaseSkeleton className="h-20 w-20 rounded-full" />
       <div className="space-y-2">
         <BaseSkeleton className="mx-auto h-7 w-48" />

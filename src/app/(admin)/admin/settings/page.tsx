@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useStoreSettings, useUpdateStoreSettings } from '@/lib/api/hooks.admin';
+import { useStoreSettings, useUpdateStoreSettings } from '@/entities/admin/hooks';
 import { useToast } from '@/shared/ui/toast';
 
 type FormState = {
@@ -21,9 +22,10 @@ type FormState = {
 };
 
 export default function SettingsPage() {
+  const t = useTranslations('admin.settings');
   const query = useStoreSettings();
 
-  if (query.isLoading) return <AdminLoading label="Loading store settings…" />;
+  if (query.isLoading) return <AdminLoading label={t('loading')} />;
   if (query.error) return <AdminError error={query.error} onRetry={() => void query.refetch()} />;
 
   const settings = query.data ?? {};
@@ -40,6 +42,7 @@ export default function SettingsPage() {
 }
 
 function SettingsForm({ initialForm }: { initialForm: FormState }) {
+  const t = useTranslations('admin.settings');
   const update = useUpdateStoreSettings();
   const { toast } = useToast();
   const [form, setForm] = useState<FormState>(initialForm);
@@ -49,10 +52,10 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
   const save = async () => {
     try {
       await update.mutateAsync(form);
-      toast({ title: 'Store settings saved', variant: 'success' });
+      toast({ title: t('toast.saved'), variant: 'success' });
     } catch (error) {
       toast({
-        title: 'Could not save settings',
+        title: t('toast.saveFailed'),
         description: String(error),
         variant: 'destructive',
       });
@@ -61,17 +64,14 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
-        title="Store settings"
-        description="Tenant-scoped storefront configuration and onboarding."
-      />
+      <AdminPageHeader title={t('title')} description={t('description')} />
       <Card>
         <CardHeader>
-          <CardTitle>Store profile</CardTitle>
+          <CardTitle>{t('profile')}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="storeName">Store name</Label>
+            <Label htmlFor="storeName">{t('storeName')}</Label>
             <Input
               id="storeName"
               value={form.storeName}
@@ -79,7 +79,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contactEmail">Contact email</Label>
+            <Label htmlFor="contactEmail">{t('contactEmail')}</Label>
             <Input
               id="contactEmail"
               type="email"
@@ -88,7 +88,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contactPhone">Contact phone</Label>
+            <Label htmlFor="contactPhone">{t('contactPhone')}</Label>
             <Input
               id="contactPhone"
               value={form.contactPhone}
@@ -96,7 +96,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
+            <Label htmlFor="currency">{t('currency')}</Label>
             <Input
               id="currency"
               maxLength={3}
@@ -105,7 +105,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
             />
           </div>
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('storeDescription')}</Label>
             <Textarea
               id="description"
               value={form.description}
@@ -113,7 +113,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="shippingOrigin">Shipping origin code</Label>
+            <Label htmlFor="shippingOrigin">{t('shippingOrigin')}</Label>
             <Input
               id="shippingOrigin"
               placeholder="KOTA_KEDIRI"
@@ -123,28 +123,25 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
           </div>
           <div className="flex items-end">
             <Button onClick={() => void save()} disabled={update.isPending}>
-              {update.isPending ? 'Saving…' : 'Save settings'}
+              {update.isPending ? t('saving') : t('save')}
             </Button>
           </div>
         </CardContent>
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Onboarding</CardTitle>
+          <CardTitle>{t('onboarding')}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-muted-foreground">
-            Complete onboarding after the store profile, catalog, payment, and shipping credentials
-            are configured.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('onboardingHint')}</p>
           <Button
             variant="outline"
             onClick={async () => {
               await update.mutateAsync({ onboarding: { completed: true } });
-              toast({ title: 'Onboarding marked complete', variant: 'success' });
+              toast({ title: t('toast.onboardingComplete'), variant: 'success' });
             }}
           >
-            Mark complete
+            {t('markComplete')}
           </Button>
         </CardContent>
       </Card>

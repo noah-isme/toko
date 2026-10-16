@@ -25,42 +25,62 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { ComponentType } from 'react';
 
 import { cn } from '@/lib/utils';
 
+type NavLabelKey =
+  | 'dashboard'
+  | 'products'
+  | 'inventory'
+  | 'customers'
+  | 'categories'
+  | 'brands'
+  | 'orders'
+  | 'vouchers'
+  | 'flashSales'
+  | 'returns'
+  | 'support'
+  | 'analytics'
+  | 'webhooks'
+  | 'auditLogs'
+  | 'settings';
+
 interface NavItem {
   href: string;
-  label: string;
+  /** Key under `admin.nav.items`. */
+  labelKey: NavLabelKey;
   icon: ComponentType<{ className?: string }>;
   /** When true the link is active only on an exact path match. */
   exact?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/inventory', label: 'Inventory', icon: Boxes },
-  { href: '/admin/customers', label: 'Customers', icon: Contact },
-  { href: '/admin/categories', label: 'Categories', icon: Boxes },
-  { href: '/admin/brands', label: 'Brands', icon: Tag },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-  { href: '/admin/vouchers', label: 'Vouchers', icon: Ticket },
-  { href: '/admin/flash-sales', label: 'Flash Sales', icon: Zap },
-  { href: '/admin/returns', label: 'Returns', icon: RotateCcw },
-  { href: '/admin/support', label: 'Support', icon: MessageCircle },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/admin/webhooks', label: 'Webhooks', icon: Webhook },
-  { href: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
+  { href: '/admin', labelKey: 'dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/admin/products', labelKey: 'products', icon: Package },
+  { href: '/admin/inventory', labelKey: 'inventory', icon: Boxes },
+  { href: '/admin/customers', labelKey: 'customers', icon: Contact },
+  { href: '/admin/categories', labelKey: 'categories', icon: Boxes },
+  { href: '/admin/brands', labelKey: 'brands', icon: Tag },
+  { href: '/admin/orders', labelKey: 'orders', icon: ShoppingCart },
+  { href: '/admin/vouchers', labelKey: 'vouchers', icon: Ticket },
+  { href: '/admin/flash-sales', labelKey: 'flashSales', icon: Zap },
+  { href: '/admin/returns', labelKey: 'returns', icon: RotateCcw },
+  { href: '/admin/support', labelKey: 'support', icon: MessageCircle },
+  { href: '/admin/analytics', labelKey: 'analytics', icon: BarChart3 },
+  { href: '/admin/webhooks', labelKey: 'webhooks', icon: Webhook },
+  { href: '/admin/audit-logs', labelKey: 'auditLogs', icon: ClipboardList },
+  { href: '/admin/settings', labelKey: 'settings', icon: Settings },
 ];
 
 export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
+  const t = useTranslations('admin.nav');
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Admin sections" className="flex flex-col gap-1 p-3">
-      {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
+    <nav aria-label={t('label')} className="flex flex-col gap-1 p-3">
+      {NAV_ITEMS.map(({ href, labelKey, icon: Icon, exact }) => {
         const active = exact
           ? pathname === href
           : pathname === href || pathname.startsWith(`${href}/`);
@@ -79,7 +99,7 @@ export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
-            <span>{label}</span>
+            <span>{t(`items.${labelKey}`)}</span>
           </Link>
         );
       })}

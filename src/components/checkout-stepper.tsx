@@ -1,19 +1,12 @@
 import { Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 
 export type CheckoutStep = 'address' | 'review' | 'success';
 
-interface StepDefinition {
-  id: CheckoutStep;
-  label: string;
-}
-
-const STEPS: StepDefinition[] = [
-  { id: 'address', label: 'Alamat & Pengiriman' },
-  { id: 'review', label: 'Tinjauan & Pembayaran' },
-  { id: 'success', label: 'Selesai' },
-];
+/** Step order; each id is also its label key under `checkout.stepper.steps`. */
+const STEPS: readonly CheckoutStep[] = ['address', 'review', 'success'];
 
 interface CheckoutStepperProps {
   current: CheckoutStep;
@@ -25,10 +18,11 @@ interface CheckoutStepperProps {
  * (/checkout → /checkout/review → /checkout/success).
  */
 export function CheckoutStepper({ current, className }: CheckoutStepperProps) {
-  const currentIndex = STEPS.findIndex((step) => step.id === current);
+  const t = useTranslations('checkout.stepper');
+  const currentIndex = STEPS.indexOf(current);
 
   return (
-    <nav aria-label="Progres checkout" className={cn('w-full', className)}>
+    <nav aria-label={t('label')} className={cn('w-full', className)}>
       <ol className="flex items-center">
         {STEPS.map((step, index) => {
           const isComplete = index < currentIndex;
@@ -37,7 +31,7 @@ export function CheckoutStepper({ current, className }: CheckoutStepperProps) {
 
           return (
             <li
-              key={step.id}
+              key={step}
               className={cn('flex items-center', !isLast && 'flex-1')}
               aria-current={isCurrent ? 'step' : undefined}
             >
@@ -56,7 +50,7 @@ export function CheckoutStepper({ current, className }: CheckoutStepperProps) {
                     <span>{index + 1}</span>
                   )}
                   <span className="sr-only">
-                    Langkah {index + 1} dari {STEPS.length}:
+                    {t('stepOf', { step: index + 1, total: STEPS.length })}
                   </span>
                 </span>
                 <span
@@ -65,7 +59,7 @@ export function CheckoutStepper({ current, className }: CheckoutStepperProps) {
                     isCurrent ? 'text-foreground' : 'text-muted-foreground',
                   )}
                 >
-                  {step.label}
+                  {t(`steps.${step}`)}
                 </span>
               </div>
 

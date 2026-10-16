@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -9,9 +10,10 @@ export interface AddressListSkeletonProps {
 }
 
 export function AddressListSkeleton({ items = 3 }: AddressListSkeletonProps) {
+  const t = useTranslations('common');
   return (
     <div className="grid gap-4 lg:grid-cols-2" role="status">
-      {srOnly('Memuat...')}
+      {srOnly(t('loading'))}
       {Array.from({ length: items }).map((_, index) => (
         <div key={`address-skeleton-${index}`} className="space-y-3 rounded-lg border p-4">
           <BaseSkeleton className="h-5 w-1/3" />

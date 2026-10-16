@@ -17,7 +17,7 @@ API port from `toko-api/.env`, uses deterministic local shipping rates, and
 passes the same API URL to the frontend and Playwright:
 
 ```bash
-./run-visual-real-api-tests.sh
+pnpm e2e:visual:real-api:run   # runs scripts/run-visual-real-api-tests.sh
 ```
 
 For manual startup:
@@ -61,7 +61,7 @@ pnpm e2e:tablet      # Tablet
 Use the provided script to run everything:
 
 ```bash
-./run-visual-real-api-tests.sh
+pnpm e2e:visual:real-api:run   # runs scripts/run-visual-real-api-tests.sh
 ```
 
 ## Test Coverage

@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +13,7 @@ interface PaginationProps {
 }
 
 export function Pagination({ currentPage, totalPages, onPageChange, className }: PaginationProps) {
+  const t = useTranslations('catalog.pagination');
   if (totalPages <= 1) return null;
 
   const pages: (number | 'ellipsis')[] = [];
@@ -45,7 +48,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
   return (
     <nav
       role="navigation"
-      aria-label="Pagination"
+      aria-label={t('label')}
       className={cn('flex items-center justify-center gap-2', className)}
     >
       <Button
@@ -53,9 +56,9 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
         size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        aria-label="Previous page"
+        aria-label={t('previousLabel')}
       >
-        Previous
+        {t('previous')}
       </Button>
 
       <div className="flex items-center gap-1">
@@ -76,7 +79,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
               size="sm"
               onClick={() => onPageChange(page)}
               disabled={isCurrentPage}
-              aria-label={`Page ${page}`}
+              aria-label={t('page', { page })}
               aria-current={isCurrentPage ? 'page' : undefined}
               className={cn('min-w-[2.5rem]', isCurrentPage && 'pointer-events-none')}
             >
@@ -91,9 +94,9 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
         size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        aria-label="Next page"
+        aria-label={t('nextLabel')}
       >
-        Next
+        {t('next')}
       </Button>
     </nav>
   );

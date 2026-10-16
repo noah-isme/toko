@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 
 import {
@@ -113,6 +114,7 @@ export function useShippingQuoteMutation() {
 export function useCreateOrderDraftMutation() {
   const queryClient = useQueryClient();
   const { toast: pushToast, dismiss } = useToast();
+  const t = useTranslations('checkout.toast');
 
   return useMutation<OrderDraft, ApiClientError, CreateOrderDraftInput, DraftMutationContext>({
     mutationFn: async (input) => {
@@ -130,8 +132,8 @@ export function useCreateOrderDraftMutation() {
 
       const toastId = pushToast({
         id: 'checkout-draft-progress',
-        title: 'Membuat draft pesanan…',
-        description: 'Kami sedang menyiapkan rincian pesanan Anda.',
+        title: t('draftProgress'),
+        description: t('draftProgressDescription'),
         duration: Infinity,
       });
 
@@ -149,7 +151,7 @@ export function useCreateOrderDraftMutation() {
 
       pushToast({
         id: 'checkout-draft-success',
-        title: 'Draft pesanan berhasil dibuat',
+        title: t('draftSuccess'),
         variant: 'success',
       });
 
@@ -175,7 +177,7 @@ export function useCreateOrderDraftMutation() {
 
       pushToast({
         id: 'checkout-draft-error',
-        title: 'Gagal membuat draft pesanan',
+        title: t('draftError'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -191,6 +193,7 @@ export type { Address, ShippingOption, OrderDraft, CheckoutPayload, CheckoutResp
 export function useCheckoutMutation() {
   const queryClient = useQueryClient();
   const { toast: pushToast, dismiss } = useToast();
+  const t = useTranslations('checkout.toast');
 
   return useMutation<CheckoutResponse, ApiClientError, CheckoutPayload>({
     mutationFn: async (input) => {
@@ -205,8 +208,8 @@ export function useCheckoutMutation() {
     onMutate: () => {
       pushToast({
         id: 'checkout-process',
-        title: 'Memproses pesanan...',
-        description: 'Mohon tunggu sebentar.',
+        title: t('processing'),
+        description: t('processingDescription'),
         duration: Infinity,
       });
     },
@@ -218,8 +221,8 @@ export function useCheckoutMutation() {
 
       pushToast({
         id: 'checkout-success',
-        title: 'Pesanan berhasil dibuat!',
-        description: `Order ID: ${data.orderNumber}`,
+        title: t('success'),
+        description: t('successDescription', { orderNumber: data.orderNumber }),
         variant: 'success',
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.cart() });
@@ -228,7 +231,7 @@ export function useCheckoutMutation() {
       dismiss('checkout-process');
       pushToast({
         id: 'checkout-error',
-        title: 'Gagal memproses pesanan',
+        title: t('error'),
         description: normalizeError(error),
         variant: 'destructive',
       });

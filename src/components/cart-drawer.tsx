@@ -3,6 +3,7 @@
 import { ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useEffect, useId, useRef, useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -17,13 +18,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { useCartQuery } from '@/lib/api/hooks';
+import { useCartQuery } from '@/entities/cart/hooks';
 import { emptyCart } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { CartSkeleton } from '@/shared/ui/skeletons/CartSkeleton';
 import { useCartStore } from '@/stores/cart-store';
 
 export function CartDrawer() {
+  const t = useTranslations('cart.drawer');
+  const tEmpty = useTranslations('common.empty');
   const [open, setOpen] = useState(false);
   const cartId = useCartStore((state) => state.cartId);
   const { data, isLoading, isFetching } = useCartQuery(cartId || undefined);
@@ -33,9 +36,7 @@ export function CartDrawer() {
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const descriptionId = useId();
-  const cartLabel = itemCount
-    ? `Open cart with ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`
-    : 'Open cart';
+  const cartLabel = t('triggerLabel', { count: itemCount });
 
   useEffect(() => {
     if (open) {
@@ -49,7 +50,7 @@ export function CartDrawer() {
         <Button ref={triggerRef} aria-label={cartLabel} variant="ghost" className="relative gap-2">
           <ShoppingCart aria-hidden="true" className="h-5 w-5" />
           <span aria-hidden="true" className="sr-only sm:not-sr-only">
-            Cart
+            {t('trigger')}
           </span>
           {itemCount > 0 ? (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -69,13 +70,11 @@ export function CartDrawer() {
       >
         <div className="flex items-start justify-between gap-2">
           <SheetHeader className="flex-1">
-            <SheetTitle id={titleId}>Your cart</SheetTitle>
-            <SheetDescription id={descriptionId}>
-              Review the items in your shopping cart before checkout.
-            </SheetDescription>
+            <SheetTitle id={titleId}>{t('title')}</SheetTitle>
+            <SheetDescription id={descriptionId}>{t('description')}</SheetDescription>
           </SheetHeader>
           <SheetClose asChild>
-            <Button aria-label="Tutup" className="-mr-2 mt-1" size="icon" variant="ghost">
+            <Button aria-label={t('close')} className="-mr-2 mt-1" size="icon" variant="ghost">
               <X aria-hidden="true" className="h-4 w-4" />
             </Button>
           </SheetClose>
@@ -84,7 +83,7 @@ export function CartDrawer() {
           {isBusy ? (
             <CartSkeleton items={3} />
           ) : !data || data.items.length === 0 ? (
-            <EmptyState {...emptyCart()} className="border-none bg-transparent" />
+            <EmptyState {...emptyCart(tEmpty)} className="border-none bg-transparent" />
           ) : (
             <ul className="space-y-3">
               {data.items.map((item) => (
@@ -106,7 +105,9 @@ export function CartDrawer() {
                     ) : null}
                     <div>
                       <p className="text-sm font-medium">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('quantity', { quantity: item.quantity })}
+                      </p>
                     </div>
                   </div>
                   <Price
@@ -122,12 +123,12 @@ export function CartDrawer() {
           {data ? (
             <div className="w-full space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span>Subtotal</span>
+                <span>{t('subtotal')}</span>
                 <Price amount={data.subtotal.amount} currency={data.subtotal.currency} />
               </div>
               <Button asChild className="w-full">
                 <Link href="/checkout" onClick={() => setOpen(false)}>
-                  Go to checkout
+                  {t('checkout')}
                 </Link>
               </Button>
             </div>

@@ -49,9 +49,26 @@ export interface TierBenefits {
   color: string;
   minPoints: number;
   multiplier: number; // Points multiplier for purchases
-  benefits: string[];
+  /** Keys under `account.loyalty.benefits` in the message catalogs. */
+  benefits: TierBenefitKey[];
   icon: string;
 }
+
+export type TierBenefitKey =
+  | 'points1x'
+  | 'points125x'
+  | 'points15x'
+  | 'points2x'
+  | 'basicPromos'
+  | 'freeShippingMin'
+  | 'flashSaleAccess'
+  | 'freeShippingNoMin'
+  | 'earlyAccess'
+  | 'prioritySupport'
+  | 'expressShipping'
+  | 'personalShopper'
+  | 'birthdayGift'
+  | 'exclusiveEvents';
 
 export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
   bronze: {
@@ -60,7 +77,7 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
     color: 'amber',
     minPoints: 0,
     multiplier: 1,
-    benefits: ['1 poin per Rp1.000 belanja', 'Akses promosi dasar'],
+    benefits: ['points1x', 'basicPromos'],
     icon: '🥉',
   },
   silver: {
@@ -69,11 +86,7 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
     color: 'gray',
     minPoints: 1000,
     multiplier: 1.25,
-    benefits: [
-      '1.25 poin per Rp1.000 belanja',
-      'Gratis ongkir minimal belanja',
-      'Akses flash sale eksklusif',
-    ],
+    benefits: ['points125x', 'freeShippingMin', 'flashSaleAccess'],
     icon: '🥈',
   },
   gold: {
@@ -82,12 +95,7 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
     color: 'yellow',
     minPoints: 5000,
     multiplier: 1.5,
-    benefits: [
-      '1.5 poin per Rp1.000 belanja',
-      'Gratis ongkir tanpa minimum',
-      'Akses produk baru lebih awal',
-      'Support prioritas',
-    ],
+    benefits: ['points15x', 'freeShippingNoMin', 'earlyAccess', 'prioritySupport'],
     icon: '🥇',
   },
   platinum: {
@@ -96,13 +104,7 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
     color: 'purple',
     minPoints: 20000,
     multiplier: 2,
-    benefits: [
-      '2 poin per Rp1.000 belanja',
-      'Gratis ongkir + pengiriman ekspres',
-      'Personal shopper',
-      'Hadiah ulang tahun',
-      'Undangan event eksklusif',
-    ],
+    benefits: ['points2x', 'expressShipping', 'personalShopper', 'birthdayGift', 'exclusiveEvents'],
     icon: '💎',
   },
 };
@@ -110,40 +112,35 @@ export const TIER_BENEFITS: Record<LoyaltyTier, TierBenefits> = {
 export const REWARD_CATALOG = [
   {
     id: 'voucher-10k',
-    name: 'Voucher Rp10.000',
-    description: 'Potongan Rp10.000 untuk pembelian minimal Rp50.000',
+    key: 'voucher10k' as const,
     pointsCost: 500,
     type: 'voucher' as const,
     icon: '🎫',
   },
   {
     id: 'voucher-25k',
-    name: 'Voucher Rp25.000',
-    description: 'Potongan Rp25.000 untuk pembelian minimal Rp100.000',
+    key: 'voucher25k' as const,
     pointsCost: 1200,
     type: 'voucher' as const,
     icon: '🎫',
   },
   {
     id: 'voucher-50k',
-    name: 'Voucher Rp50.000',
-    description: 'Potongan Rp50.000 untuk pembelian minimal Rp200.000',
+    key: 'voucher50k' as const,
     pointsCost: 2400,
     type: 'voucher' as const,
     icon: '🎫',
   },
   {
     id: 'free-shipping',
-    name: 'Gratis Ongkir',
-    description: 'Gratis biaya pengiriman untuk 1 pesanan',
+    key: 'freeShipping' as const,
     pointsCost: 300,
     type: 'shipping' as const,
     icon: '🚚',
   },
   {
     id: 'birthday-gift',
-    name: 'Hadiah Ulang Tahun',
-    description: 'Voucher khusus ulang tahun (hanya untuk tier Gold+)',
+    key: 'birthdayGift' as const,
     pointsCost: 0,
     type: 'special' as const,
     icon: '🎁',
@@ -152,8 +149,8 @@ export const REWARD_CATALOG = [
 
 export interface RewardItem {
   id: string;
-  name: string;
-  description: string;
+  /** Key under `account.loyalty.rewards.items` (name + description) in the message catalogs. */
+  key: 'voucher10k' | 'voucher25k' | 'voucher50k' | 'freeShipping' | 'birthdayGift';
   pointsCost: number;
   type: 'voucher' | 'shipping' | 'special';
   icon: string;

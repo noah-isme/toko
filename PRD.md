@@ -45,7 +45,7 @@ Small-to-medium merchants need a performant, mobile-first storefront that works 
 ### 4.3 Platform Capabilities
 
 - **PWA / Offline** — installable as a Progressive Web App with offline fallback page, service worker caching (fonts, images), push notifications
-- **Internationalization** — locale-prefixed routing (`/id`, `/en`, `/zh`, `/ja`, `/ko`) via middleware
+- **Internationalization** — locale routing for `id` (default, unprefixed) and `en` (`/en/...`) via the Next.js proxy (`src/proxy.ts`)
 - **SEO** — JSON-LD structured data, per-page metadata, robots/sitemap support
 - **Observability** — PostHog analytics, Sentry error tracking, custom RUM (Real User Monitoring) transport
 - **Performance** — granular code splitting via React.lazy, image optimization, stale-while-revalidate caching

@@ -27,7 +27,7 @@ vi.mock('next/navigation', async () => {
   };
 });
 
-vi.mock('@/lib/api/hooks', () => {
+vi.mock('@/entities/cart/hooks', () => {
   const cartData = {
     id: 'cart-id',
     items: [

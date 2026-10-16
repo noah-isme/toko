@@ -2,6 +2,7 @@
 
 import { LockKeyhole } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 
@@ -32,6 +33,7 @@ function CustomerGuardWithAuth({
   isAuthenticated: boolean;
   isLoading: boolean;
 }) {
+  const t = useTranslations('auth.guard');
   const pathname = usePathname();
   const router = useRouter();
 
@@ -48,8 +50,8 @@ function CustomerGuardWithAuth({
           <LockKeyhole className="h-5 w-5" />
         </span>
         <div>
-          <p className="font-display text-2xl">Menyiapkan akun Anda</p>
-          <p className="mt-1 text-sm text-muted-foreground">Mohon tunggu sebentar.</p>
+          <p className="font-display text-2xl">{t('title')}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t('description')}</p>
         </div>
       </div>
     );

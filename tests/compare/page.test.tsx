@@ -114,7 +114,7 @@ describe('compare page', () => {
     );
 
     // Row labels
-    for (const label of ['Harga', 'Rating', 'Brand', 'Kategori', 'Stok', 'Deskripsi']) {
+    for (const label of ['Harga', 'Rating', 'Merek', 'Kategori', 'Stok', 'Deskripsi']) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
 

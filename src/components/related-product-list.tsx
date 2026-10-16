@@ -1,16 +1,19 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { ProductCard } from '@/components/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRelatedProducts } from '@/lib/api';
+import { useRelatedProducts } from '@/entities/catalog/hooks';
 
 export function RelatedProductList({ slug }: { slug: string }) {
+  const t = useTranslations('product.recommendations.related');
   const { data, isLoading } = useRelatedProducts(slug);
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight">You might also like</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
@@ -30,7 +33,7 @@ export function RelatedProductList({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight">You might also like</h2>
+      <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
         {data.map((product) => (
           <ProductCard key={product.id} product={product} />

@@ -51,13 +51,10 @@ describe('LanguageSwitcher', () => {
     await waitFor(() => {
       expect(screen.getByRole('menuitemradio', { name: /bahasa indonesia/i })).toBeInTheDocument();
       expect(screen.getByRole('menuitemradio', { name: /english/i })).toBeInTheDocument();
-      expect(screen.getByRole('menuitemradio', { name: /中文/i })).toBeInTheDocument();
-      expect(screen.getByRole('menuitemradio', { name: /日本語/i })).toBeInTheDocument();
-      expect(screen.getByRole('menuitemradio', { name: /한국어/i })).toBeInTheDocument();
     });
   });
 
-  it('shows all 5 languages in dropdown', async () => {
+  it('shows the 2 supported languages in dropdown', async () => {
     const user = userEvent.setup();
     render(<LanguageSwitcher />, { wrapper: Wrapper });
 
@@ -66,7 +63,11 @@ describe('LanguageSwitcher', () => {
 
     await waitFor(() => {
       const menuItems = screen.getAllByRole('menuitemradio');
-      expect(menuItems).toHaveLength(5);
+      expect(menuItems).toHaveLength(2);
+      expect(menuItems.map((item) => item.textContent)).toEqual([
+        expect.stringContaining('Bahasa Indonesia'),
+        expect.stringContaining('English'),
+      ]);
     });
   });
 
@@ -120,9 +121,6 @@ describe('LanguageSwitcher', () => {
       expect(flags.length).toBeGreaterThanOrEqual(1);
 
       expect(screen.getByText('🇺🇸')).toBeInTheDocument();
-      expect(screen.getByText('🇨🇳')).toBeInTheDocument();
-      expect(screen.getByText('🇯🇵')).toBeInTheDocument();
-      expect(screen.getByText('🇰🇷')).toBeInTheDocument();
     });
   });
 

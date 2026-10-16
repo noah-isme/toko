@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 
 import { getLoyaltyProfile, getLoyaltyTransactions, redeemReward } from './api';
@@ -32,6 +33,7 @@ export function useLoyaltyTransactionsQuery(params?: LoyaltyTransactionListParam
 }
 
 export function useRedeemRewardMutation() {
+  const t = useTranslations('account.loyalty.rewards');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -74,13 +76,13 @@ export function useRedeemRewardMutation() {
 
       capturePosthogEvent('loyalty_redeem', {
         rewardId: variables.rewardId,
-        rewardName: reward?.name,
+        rewardName: reward?.key,
         pointsCost: reward?.pointsCost,
       });
 
       toast({
         id: `loyalty-redeem-success`,
-        title: 'Hadiah berhasil diklaim',
+        title: t('redeemed'),
         description: data.message,
         variant: 'success',
       });
@@ -107,7 +109,7 @@ export function useRedeemRewardMutation() {
 
       toast({
         id: `loyalty-redeem-error`,
-        title: 'Gagal menukarkan hadiah',
+        title: t('redeemFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

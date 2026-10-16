@@ -4,25 +4,34 @@ import { Heart, Home, ShoppingBag, ShoppingCart, User } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import { Container } from '@/components/layout/container';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { useCartQuery } from '@/lib/api/hooks';
+import { useCartQuery } from '@/entities/cart/hooks';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/stores/cart-store';
 
-const navItems = [
-  { href: '/' as Route, label: 'Home', icon: Home },
-  { href: '/products' as Route, label: 'Produk', icon: ShoppingBag },
+type MobileNavKey = 'home' | 'products' | 'cart' | 'favorites' | 'account';
+
+const navItems: {
+  href: Route;
+  labelKey: MobileNavKey;
+  icon: typeof Home;
+  showBadge?: boolean;
+  requiresAuth?: boolean;
+}[] = [
+  { href: '/' as Route, labelKey: 'home', icon: Home },
+  { href: '/products' as Route, labelKey: 'products', icon: ShoppingBag },
   {
     href: '/cart' as Route,
-    label: 'Cart',
+    labelKey: 'cart',
     icon: ShoppingCart,
     showBadge: true,
     requiresAuth: true,
   },
-  { href: '/favorites' as Route, label: 'Favorit', icon: Heart, requiresAuth: true },
-  { href: '/account' as Route, label: 'Akun', icon: User, requiresAuth: true },
+  { href: '/favorites' as Route, labelKey: 'favorites', icon: Heart, requiresAuth: true },
+  { href: '/account' as Route, labelKey: 'account', icon: User, requiresAuth: true },
 ];
 
 const hiddenPrefixes = [
@@ -37,6 +46,7 @@ const hiddenPrefixes = [
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const t = useTranslations('nav.mobile');
   const { isAuthenticated } = useAuth();
   const cartId = useCartStore((state) => state.cartId);
   const { data } = useCartQuery(cartId || undefined);
@@ -76,7 +86,7 @@ export function MobileBottomNav() {
                       </span>
                     ) : null}
                   </span>
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </Link>
               );
             })}

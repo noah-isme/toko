@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 
-import { registerServiceWorker } from '@/lib/sw-registration';
 import { useCartStore } from '@/stores/cart-store';
 
 export function AppInitializer() {
@@ -22,13 +21,6 @@ export function AppInitializer() {
 
     void initGuestCart();
   }, [anonId, initGuestCart]);
-
-  // Register service worker for push notifications
-  useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      void registerServiceWorker();
-    }
-  }, []);
 
   return null;
 }

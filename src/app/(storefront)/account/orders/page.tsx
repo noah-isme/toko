@@ -4,6 +4,7 @@ import { ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
 import { Price } from '@/components/price';
@@ -12,21 +13,11 @@ import { Button } from '@/components/ui/button';
 import { useOrdersQuery } from '@/entities/orders/api/hooks';
 import type { OrderListItem } from '@/entities/orders/schemas';
 import { cn } from '@/lib/utils';
+import { humanizeStatus, orderStatusLabel } from '@/shared/i18n/status';
+import { useFormat } from '@/shared/i18n/use-format';
 import { emptyOrders } from '@/shared/ui/empty-presets';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'Semua Status' },
-  { value: 'pending_payment', label: 'Menunggu Pembayaran' },
-  { value: 'paid', label: 'Dibayar' },
-  { value: 'packed', label: 'Dikemas' },
-  { value: 'shipped', label: 'Dikirim' },
-  { value: 'out_for_delivery', label: 'Dalam Pengiriman' },
-  { value: 'delivered', label: 'Selesai' },
-  { value: 'cancelled', label: 'Dibatalkan' },
-  { value: 'failed', label: 'Gagal' },
-] as const;
 
 const EMPTY_ORDERS: OrderListItem[] = [];
 
@@ -39,6 +30,9 @@ export default function OrderHistoryPage() {
 }
 
 function OrderHistoryContent() {
+  const t = useTranslations('account.orders');
+  const tEmpty = useTranslations('common.empty');
+  const tCommon = useTranslations('common');
   const searchParams = useSearchParams();
   const emptyParam = searchParams.get('empty') || undefined;
   const errorParam = searchParams.get('error') || undefined;
@@ -93,8 +87,8 @@ function OrderHistoryContent() {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Pesanan Saya</h1>
-          <div className="w-[200px] text-sm text-muted-foreground">Filter status</div>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <div className="w-[200px] text-sm text-muted-foreground">{t('filterStatus')}</div>
         </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -111,10 +105,10 @@ function OrderHistoryContent() {
   if (error) {
     return (
       <div className="space-y-3 rounded-xl border border-border bg-card p-8 text-center">
-        <p className="font-semibold text-foreground">Gagal memuat riwayat pesanan</p>
+        <p className="font-semibold text-foreground">{t('loadFailed')}</p>
         <p className="text-sm text-muted-foreground">{error.message}</p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Coba Lagi
+          {t('retry')}
         </Button>
       </div>
     );
@@ -123,7 +117,7 @@ function OrderHistoryContent() {
   if (allOrders.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <EmptyState icon={<ShoppingBag aria-hidden="true" />} {...emptyOrders()} />
+        <EmptyState icon={<ShoppingBag aria-hidden="true" />} {...emptyOrders(tEmpty)} />
       </div>
     );
   }
@@ -139,10 +133,10 @@ function OrderHistoryContent() {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Pesanan Saya</h1>
-          <p className="text-muted-foreground">Riwayat transaksi belanja Anda.</p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        <div className="w-[200px] text-sm text-muted-foreground">Filter status</div>
+        <div className="w-[200px] text-sm text-muted-foreground">{t('filterStatus')}</div>
       </div>
 
       <div className="grid gap-4">
@@ -159,7 +153,7 @@ function OrderHistoryContent() {
             disabled={isLoadingMore}
             className="w-full sm:w-auto"
           >
-            {isLoadingMore ? 'Memuat...' : 'Muat Lebih Banyak'}
+            {isLoadingMore ? tCommon('loading') : t('loadMore')}
           </Button>
         </div>
       )}
@@ -168,9 +162,11 @@ function OrderHistoryContent() {
 }
 
 function OrderCard({ order }: { order: OrderListItem }) {
+  const t = useTranslations('account');
+  const fmt = useFormat();
   const dateParams = order.createdAt ? new Date(order.createdAt) : new Date();
   const isPending = order.status.toLowerCase().includes('pending');
-  const statusLabel = getStatusLabel(order.status);
+  const statusLabel = orderStatusLabel(t, order.status) ?? humanizeStatus(order.status);
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between">
@@ -199,59 +195,37 @@ function OrderCard({ order }: { order: OrderListItem }) {
               {statusLabel}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {new Intl.DateTimeFormat('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            }).format(dateParams)}
-          </p>
+          <p className="text-sm text-muted-foreground">{fmt.dateTime(dateParams)}</p>
           {order.itemCount ? (
-            <p className="text-sm text-muted-foreground">{order.itemCount} Barang</p>
+            <p className="text-sm text-muted-foreground">
+              {t('orders.itemCount', { count: order.itemCount })}
+            </p>
           ) : null}
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-4 sm:justify-end">
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">Total Belanja</p>
+          <p className="text-xs text-muted-foreground">{t('orders.totalSpent')}</p>
           <Price
             amount={order.total}
             currency={order.currency || 'IDR'}
-            locale="id-ID"
             className="text-sm font-bold text-foreground"
           />
         </div>
         <div className="flex gap-2">
           {isPending && (
             <Button asChild size="sm">
-              <Link href={`/order/confirmation/${order.id}`}>Bayar</Link>
+              <Link href={`/order/confirmation/${order.id}`}>{t('orders.pay')}</Link>
             </Button>
           )}
           <Button asChild variant="outline" size="sm">
-            <Link href={`/account/orders/${order.id}`}>Detail</Link>
+            <Link href={`/account/orders/${order.id}`}>{t('orders.detail')}</Link>
           </Button>
         </div>
       </div>
     </div>
   );
-}
-
-function getStatusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    pending_payment: 'Menunggu Pembayaran',
-    paid: 'Dibayar',
-    packed: 'Dikemas',
-    shipped: 'Dikirim',
-    out_for_delivery: 'Dalam Pengiriman',
-    delivered: 'Selesai',
-    cancelled: 'Dibatalkan',
-    failed: 'Gagal',
-  };
-  const key = status.toLowerCase();
-  return labels[key] || status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 function getStatusColor(status: string) {

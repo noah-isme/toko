@@ -3,6 +3,7 @@
 import { X, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -11,10 +12,12 @@ import { Rating } from '@/components/rating';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAddToCartMutation } from '@/entities/cart/hooks';
+import { useProduct } from '@/entities/catalog/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
 import { useToast } from '@/hooks/use-toast';
-import { useProduct, useAddToCart, formatCurrency } from '@/lib/api';
+import { useFormat } from '@/shared/i18n/use-format';
 import { useCartStore } from '@/stores/cart-store';
 
 interface ProductQuickViewProps {
@@ -24,10 +27,12 @@ interface ProductQuickViewProps {
 }
 
 export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProps) {
+  const t = useTranslations('product.quickView');
+  const fmt = useFormat();
   const { data: product, isLoading } = useProduct(slug, { enabled: isOpen });
   const [quantity, setQuantity] = useState(1);
   const { cartId } = useCartStore();
-  const addToCart = useAddToCart(cartId || '');
+  const addToCart = useAddToCartMutation();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   const userId = getGuestId() ?? undefined;
@@ -35,8 +40,8 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
   const handleAddToCart = async () => {
     if (!cartId) {
       toast({
-        title: 'Error',
-        description: 'Keranjang belanja belum siap.',
+        title: t('cartNotReady.title'),
+        description: t('cartNotReady.description'),
         variant: 'destructive',
       });
       return;
@@ -47,21 +52,17 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
     try {
       await addToCart.mutateAsync({
         productId: product.id,
-        qty: quantity,
-      });
-
-      toast({
-        title: 'Added to cart',
-        description: `${product.title} has been added to your cart`,
+        quantity,
+        name: product.title,
+        price: { amount: product.price, currency: product.currency || 'IDR' },
+        image: product.imageUrl || product.images?.[0] || null,
+        maxQuantity: product.stock,
+        cartId,
       });
 
       setQuantity(1);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to add product to cart',
-        variant: 'destructive',
-      });
+    } catch {
+      // useAddToCartMutation already reports success and failure via toasts.
     }
   };
 
@@ -70,7 +71,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
       <DialogContent className="max-w-4xl">
         {isLoading ? (
           <div className="space-y-4">
-            <DialogTitle className="sr-only">Loading product details</DialogTitle>
+            <DialogTitle className="sr-only">{t('loading')}</DialogTitle>
             <Skeleton className="h-8 w-3/4" />
             <div className="grid gap-6 md:grid-cols-2">
               <Skeleton className="aspect-square w-full" />
@@ -100,7 +101,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-muted-foreground">
-                    No image
+                    {t('noImage')}
                   </div>
                 )}
               </div>
@@ -115,7 +116,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                 {/* Price */}
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">{formatCurrency(product.price)}</span>
+                    <span className="text-3xl font-bold">{fmt.currency(product.price)}</span>
                   </div>
                 </div>
 
@@ -123,22 +124,22 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                 <div>
                   {product.inStock && product.stock > 0 ? (
                     <span className="text-sm text-green-600">
-                      In Stock ({product.stock} available)
+                      {t('inStock', { count: product.stock })}
                     </span>
                   ) : (
-                    <span className="text-sm text-destructive">Out of Stock</span>
+                    <span className="text-sm text-destructive">{t('outOfStock')}</span>
                   )}
                 </div>
 
                 {/* Description */}
                 <p className="line-clamp-4 text-sm text-muted-foreground">
-                  {product.description || 'No description available'}
+                  {product.description || t('noDescription')}
                 </p>
 
                 {/* Quantity & Actions */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium">Quantity:</span>
+                    <span className="text-sm font-medium">{t('quantity')}</span>
                     <QuantityPicker
                       quantity={quantity}
                       onChange={setQuantity}
@@ -153,7 +154,7 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                       disabled={!product.inStock || product.stock === 0 || addToCart.isPending}
                     >
                       <ShoppingCart className="mr-2 h-4 w-4" />
-                      {addToCart.isPending ? 'Adding...' : 'Add to Cart'}
+                      {addToCart.isPending ? t('adding') : t('addToCart')}
                     </Button>
                     <FavToggle productId={product.id} size="sm" userIdOrGuestId={userId} />
                   </div>
@@ -165,15 +166,15 @@ export function ProductQuickView({ slug, isOpen, onClose }: ProductQuickViewProp
                   className="inline-flex items-center text-sm text-primary hover:underline"
                   onClick={onClose}
                 >
-                  View full details →
+                  {t('viewDetails')}
                 </Link>
               </div>
             </div>
           </>
         ) : (
           <div className="py-8 text-center text-muted-foreground">
-            <DialogTitle className="sr-only">Product not found</DialogTitle>
-            Product not found
+            <DialogTitle className="sr-only">{t('notFound')}</DialogTitle>
+            {t('notFound')}
           </div>
         )}
       </DialogContent>

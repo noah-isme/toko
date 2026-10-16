@@ -20,7 +20,7 @@ describe('Breadcrumbs', () => {
       />,
     );
 
-    const nav = screen.getByRole('navigation', { name: /breadcrumb/i });
+    const nav = screen.getByRole('navigation', { name: 'Jejak navigasi' });
     const links = within(nav).getAllByRole('link');
     expect(links.map((a) => a.textContent)).toEqual(['Beranda', 'Produk']);
     expect(links[0]).toHaveAttribute('href', '/');

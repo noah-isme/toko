@@ -158,7 +158,7 @@ Creates a new flash sale campaign with product items.
 
 - `name` — required, campaign name
 - `slug` — required, unique URL-friendly identifier
-- `startsAt` / `endsAt` — required, ISO 8601 timestamps
+- `startsAt` / `endsAt` — required, RFC 3339 / ISO 8601 timestamps with a timezone (`Z` or offset, e.g. `2025-12-01T00:00:00Z`); timezone-less values such as `2025-12-01T00:00` are rejected
 - `items` — required array of product items
   - `productId` — required, product UUID
   - `salePrice` — required, sale price in IDR

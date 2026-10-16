@@ -8,14 +8,12 @@ import {
   useCreateAdminCategory,
   useDeleteAdminCategory,
   useUpdateAdminCategory,
-} from '@/lib/api/hooks.admin';
+} from '@/entities/admin/hooks';
 
 export default function CategoriesPage() {
   return (
     <TaxonomyManager
-      title="Categories"
-      description="Manage product categories"
-      entityLabel="Category"
+      kind="categories"
       icon={Layers}
       query={useAdminCategories()}
       createMutation={useCreateAdminCategory()}

@@ -136,7 +136,7 @@ describe('Guarded checkout and payment flow', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Shipping Options')).toBeInTheDocument();
+      expect(screen.getByText('Opsi Pengiriman')).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('radio', { name: /transfer bank/i }));
@@ -235,7 +235,7 @@ describe('Guarded checkout and payment flow', () => {
     render(<CheckoutReviewPage />, { wrapper: Wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText(/Review Pesanan/i)).toBeInTheDocument();
+      expect(screen.getByText(/Tinjau Pesanan/i)).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('button', { name: /bayar sekarang/i }));

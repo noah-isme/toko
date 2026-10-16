@@ -1,85 +1,90 @@
 import type { EmptyStateProps } from './EmptyState';
 
-export function emptyProducts(): EmptyStateProps {
+type EmptyPreset =
+  | 'products'
+  | 'cart'
+  | 'orders'
+  | 'favorites'
+  | 'favoritesUnavailable'
+  | 'searchResults'
+  | 'categoryProducts';
+
+/** Keys under `common.empty` in the message catalogs. */
+export type EmptyPresetKey =
+  | `${EmptyPreset}.${'title' | 'description' | 'cta'}`
+  | 'searchResults.descriptionDefault'
+  | 'categoryProducts.descriptionDefault';
+
+/**
+ * The `common.empty` translator: `useTranslations('common.empty')` in client components,
+ * `await getTranslations('common.empty')` in server components.
+ */
+export type EmptyPresetTranslator = (
+  key: EmptyPresetKey,
+  values?: Record<string, string | number>,
+) => string;
+
+/**
+ * Without a translator the presets return the message paths, mirroring next-intl's own
+ * missing-message fallback; every UI caller passes its `common.empty` translator.
+ */
+const messagePath: EmptyPresetTranslator = (key) => `common.empty.${key}`;
+
+function preset(
+  t: EmptyPresetTranslator,
+  name: EmptyPreset,
+  description: string = t(`${name}.description`),
+): EmptyStateProps {
   return {
-    title: 'Produk belum tersedia',
-    description:
-      'Kami tidak menemukan produk yang sesuai. Coba ubah filter atau periksa kembali nanti.',
+    title: t(`${name}.title`),
+    description,
     cta: {
-      label: 'Lihat semua produk',
+      label: t(`${name}.cta`),
       href: '/products',
     },
   };
 }
 
-export function emptyCart(): EmptyStateProps {
-  return {
-    title: 'Keranjang belanja kosong',
-    description: 'Mulai tambahkan produk ke keranjang Anda untuk melanjutkan ke proses checkout.',
-    cta: {
-      label: 'Belanja sekarang',
-      href: '/products',
-    },
-  };
+export function emptyProducts(t: EmptyPresetTranslator = messagePath): EmptyStateProps {
+  return preset(t, 'products');
 }
 
-export function emptyOrders(): EmptyStateProps {
-  return {
-    title: 'Belum ada pesanan',
-    description: 'Riwayat pesanan Anda akan muncul di sini setelah berhasil melakukan checkout.',
-    cta: {
-      label: 'Lanjutkan belanja',
-      href: '/products',
-    },
-  };
+export function emptyCart(t: EmptyPresetTranslator = messagePath): EmptyStateProps {
+  return preset(t, 'cart');
 }
 
-export function emptyFavorites(): EmptyStateProps {
-  return {
-    title: 'Belum ada favorit',
-    description:
-      'Simpan produk favorit Anda untuk membandingkan harga dan kembali berbelanja lebih cepat.',
-    cta: {
-      label: 'Jelajahi produk',
-      href: '/products',
-    },
-  };
+export function emptyOrders(t: EmptyPresetTranslator = messagePath): EmptyStateProps {
+  return preset(t, 'orders');
 }
 
-export function emptyFavoritesUnavailable(): EmptyStateProps {
-  return {
-    title: 'Favorit tidak tersedia',
-    description:
-      'Sebagian produk favorit Anda sudah tidak dijual. Coba cari produk serupa yang masih tersedia.',
-    cta: {
-      label: 'Cari produk lain',
-      href: '/products',
-    },
-  };
+export function emptyFavorites(t: EmptyPresetTranslator = messagePath): EmptyStateProps {
+  return preset(t, 'favorites');
 }
 
-export function emptySearchResults(query?: string): EmptyStateProps {
-  return {
-    title: 'Hasil pencarian tidak ditemukan',
-    description: query
-      ? `Kami tidak menemukan produk untuk "${query}". Coba kata kunci lain atau hapus beberapa filter.`
-      : 'Kami tidak menemukan produk dengan kata kunci tersebut. Coba kata kunci lain.',
-    cta: {
-      label: 'Lihat semua produk',
-      href: '/products',
-    },
-  };
+export function emptyFavoritesUnavailable(t: EmptyPresetTranslator = messagePath): EmptyStateProps {
+  return preset(t, 'favoritesUnavailable');
 }
 
-export function emptyCategoryProducts(categories?: string[]): EmptyStateProps {
-  const label =
-    categories && categories.length > 0 ? `Kategori ${categories.join(', ')}` : 'Kategori ini';
-  return {
-    title: 'Produk belum tersedia',
-    description: `${label} belum memiliki produk. Coba lihat kategori lain untuk menemukan produk serupa.`,
-    cta: {
-      label: 'Jelajahi kategori lain',
-      href: '/products',
-    },
-  };
+export function emptySearchResults(
+  query?: string,
+  t: EmptyPresetTranslator = messagePath,
+): EmptyStateProps {
+  return preset(
+    t,
+    'searchResults',
+    query ? t('searchResults.description', { query }) : t('searchResults.descriptionDefault'),
+  );
+}
+
+export function emptyCategoryProducts(
+  categories?: string[],
+  t: EmptyPresetTranslator = messagePath,
+): EmptyStateProps {
+  return preset(
+    t,
+    'categoryProducts',
+    categories && categories.length > 0
+      ? t('categoryProducts.description', { categories: categories.join(', ') })
+      : t('categoryProducts.descriptionDefault'),
+  );
 }

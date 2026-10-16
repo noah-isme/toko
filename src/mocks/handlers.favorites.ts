@@ -1,6 +1,6 @@
-import { faker } from '@faker-js/faker';
 import { HttpResponse, http } from 'msw';
 
+import { mockFaker as faker } from './factories/faker';
 import { apiPath } from './utils';
 
 import type { FavoriteItem } from '@/entities/favorites/types';

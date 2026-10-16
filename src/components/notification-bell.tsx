@@ -4,6 +4,7 @@ import { Bell, CheckCheck } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
@@ -15,14 +16,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  formatDateTime,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
   useUnreadNotificationCount,
-} from '@/lib/api';
+} from '@/entities/notifications/hooks';
 import type { Notification } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
+import { useFormat } from '@/shared/i18n/use-format';
 
 /**
  * Resolve the in-app destination for a notification from its `data` payload.
@@ -38,6 +39,8 @@ function notificationHref(notification: Notification): Route {
 }
 
 export function NotificationBell() {
+  const t = useTranslations('account.notifications');
+  const fmt = useFormat();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -67,7 +70,7 @@ export function NotificationBell() {
         <Button
           variant="ghost"
           className="relative"
-          aria-label={hasUnread ? `Notifikasi, ${unreadCount} belum dibaca` : 'Notifikasi'}
+          aria-label={hasUnread ? t('bell.labelUnread', { count: unreadCount }) : t('bell.label')}
         >
           <Bell aria-hidden="true" className="h-5 w-5" />
           {hasUnread && (
@@ -82,7 +85,7 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
         <div className="flex items-center justify-between px-2 py-1.5">
-          <span className="text-sm font-semibold">Notifikasi</span>
+          <span className="text-sm font-semibold">{t('bell.label')}</span>
           {hasUnread && (
             <button
               type="button"
@@ -91,17 +94,19 @@ export function NotificationBell() {
               className="flex items-center gap-1 rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
             >
               <CheckCheck aria-hidden="true" className="h-3.5 w-3.5" />
-              Tandai semua dibaca
+              {t('markAllRead')}
             </button>
           )}
         </div>
         <DropdownMenuSeparator />
 
         {isLoading ? (
-          <div className="px-2 py-6 text-center text-sm text-muted-foreground">Memuat…</div>
+          <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+            {t('bell.loading')}
+          </div>
         ) : notifications.length === 0 ? (
           <div className="px-2 py-6 text-center text-sm text-muted-foreground">
-            Belum ada notifikasi.
+            {t('bell.empty')}
           </div>
         ) : (
           <div className="max-h-96 overflow-y-auto">
@@ -131,7 +136,7 @@ export function NotificationBell() {
                       {notification.body}
                     </p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground/80">
-                      {formatDateTime(notification.createdAt)}
+                      {fmt.dateTime(notification.createdAt)}
                     </p>
                   </div>
                 </div>
@@ -142,7 +147,7 @@ export function NotificationBell() {
 
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="justify-center text-sm font-medium">
-          <Link href={'/account/notifications' as Route}>Lihat semua</Link>
+          <Link href={'/account/notifications' as Route}>{t('bell.viewAll')}</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

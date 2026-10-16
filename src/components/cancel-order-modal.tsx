@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -14,11 +15,11 @@ import {
 import { cn } from '@/lib/utils';
 
 const reasons = [
-  { value: 'changed_mind', label: 'Berubah pikiran' },
-  { value: 'found_better_price', label: 'Menemukan harga lebih baik' },
-  { value: 'ordered_by_mistake', label: 'Pesanan tidak sengaja dibuat' },
-  { value: 'other', label: 'Alasan lain' },
-];
+  { value: 'changed_mind', labelKey: 'changedMind' },
+  { value: 'found_better_price', labelKey: 'betterPrice' },
+  { value: 'ordered_by_mistake', labelKey: 'accidental' },
+  { value: 'other', labelKey: 'other' },
+] as const;
 
 interface CancelOrderModalProps {
   open: boolean;
@@ -33,7 +34,8 @@ export function CancelOrderModal({
   onConfirm,
   isSubmitting = false,
 }: CancelOrderModalProps) {
-  const [reason, setReason] = useState(reasons[0]?.value ?? 'changed_mind');
+  const t = useTranslations('account.cancelModal');
+  const [reason, setReason] = useState<string>(reasons[0]?.value ?? 'changed_mind');
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -52,12 +54,12 @@ export function CancelOrderModal({
     if (!requiresNote) {
       return null;
     }
-    return 'Tuliskan alasan pembatalan agar tim kami dapat membantu.';
-  }, [requiresNote]);
+    return t('helper');
+  }, [requiresNote, t]);
 
   const handleConfirm = async () => {
     if (requiresNote && note.trim().length < 4) {
-      setError('Mohon jelaskan alasan pembatalan.');
+      setError(t('noteRequired'));
       return;
     }
 
@@ -69,11 +71,8 @@ export function CancelOrderModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Batalkan pesanan</DialogTitle>
-          <DialogDescription>
-            Pembatalan akan menghentikan proses pesanan. Jika pembayaran sudah dilakukan, dana akan
-            dikembalikan sesuai kebijakan.
-          </DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-3">
@@ -91,7 +90,7 @@ export function CancelOrderModal({
                       : 'border-border text-muted-foreground hover:border-primary/60 hover:text-foreground',
                   )}
                 >
-                  <span>{item.label}</span>
+                  <span>{t(`reasons.${item.labelKey}`)}</span>
                   <span
                     className={cn(
                       'h-3 w-3 rounded-full border border-primary',
@@ -106,7 +105,7 @@ export function CancelOrderModal({
           {requiresNote ? (
             <div className="space-y-2">
               <label htmlFor="cancel-note" className="text-sm font-medium">
-                Alasan pembatalan
+                {t('noteLabel')}
               </label>
               <textarea
                 id="cancel-note"
@@ -114,7 +113,7 @@ export function CancelOrderModal({
                 onChange={(event) => setNote(event.target.value)}
                 rows={3}
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="Contoh: Saya ingin mengganti warna produk."
+                placeholder={t('notePlaceholder')}
               />
               {helperText ? <p className="text-xs text-muted-foreground">{helperText}</p> : null}
             </div>
@@ -132,7 +131,7 @@ export function CancelOrderModal({
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
           >
-            Batal
+            {t('cancel')}
           </Button>
           <Button
             type="button"
@@ -140,7 +139,7 @@ export function CancelOrderModal({
             onClick={handleConfirm}
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Membatalkan...' : 'Konfirmasi batal'}
+            {isSubmitting ? t('submitting') : t('confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useReducer, useRef } from 'react';
 
 import { createReview, deleteReview, getReviewStats, listReviews, voteHelpful } from './api';
@@ -148,6 +149,7 @@ export function useReviewListQuery(productId: string | undefined, params?: Revie
 export function useCreateReviewMutation(productId: string | undefined) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('product.reviews.toast');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<
@@ -184,7 +186,7 @@ export function useCreateReviewMutation(productId: string | undefined) {
       const optimisticReview: Review = {
         id: createTempReviewId(),
         productId,
-        author: 'Anda',
+        author: t('you'),
         rating: input.rating as ReviewRating,
         body: input.body,
         photos: input.photos ? Array.from(input.photos).map((f) => URL.createObjectURL(f)) : [],
@@ -269,8 +271,8 @@ export function useCreateReviewMutation(productId: string | undefined) {
 
       toast({
         id: `review-create-${productId}-success`,
-        title: 'Ulasan dikirim',
-        description: 'Menunggu moderasi sebelum ditampilkan.',
+        title: t('created.title'),
+        description: t('created.description'),
         variant: 'success',
       });
     },
@@ -297,7 +299,7 @@ export function useCreateReviewMutation(productId: string | undefined) {
 
       toast({
         id: `review-create-${productId}-error`,
-        title: 'Gagal mengirim ulasan',
+        title: t('createFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -349,6 +351,7 @@ export function useCreateReviewMutation(productId: string | undefined) {
 export function useVoteHelpfulMutation(reviewId: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('product.reviews.toast');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<
@@ -430,7 +433,7 @@ export function useVoteHelpfulMutation(reviewId: string) {
 
       toast({
         id: `review-vote-${reviewId}-error`,
-        title: 'Gagal memperbarui vote',
+        title: t('voteFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -509,6 +512,7 @@ interface DeleteReviewContext {
 export function useDeleteReviewMutation(productId: string | undefined, currentUserId?: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('product.reviews.toast');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<void, Error, void, DeleteReviewContext>({
@@ -572,7 +576,7 @@ export function useDeleteReviewMutation(productId: string | undefined, currentUs
 
       toast({
         id: `review-delete-${productId}-error`,
-        title: 'Gagal menghapus ulasan',
+        title: t('deleteFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -584,8 +588,8 @@ export function useDeleteReviewMutation(productId: string | undefined, currentUs
 
       toast({
         id: `review-delete-${productId}-success`,
-        title: 'Ulasan dihapus',
-        description: 'Ulasan Anda telah dihapus.',
+        title: t('deleted.title'),
+        description: t('deleted.description'),
         variant: 'success',
       });
     },

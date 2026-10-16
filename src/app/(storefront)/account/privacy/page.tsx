@@ -2,6 +2,7 @@
 
 import { Shield, Mail, Bell, Eye, Database, Download, Trash2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -16,6 +17,8 @@ import { privacyApi, type PrivacyPreferences } from '@/lib/api/services/privacy'
 import { useToast } from '@/shared/ui/toast';
 
 export default function PrivacyPage() {
+  const t = useTranslations('account.privacy');
+  const tAccount = useTranslations('account');
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
 
@@ -72,13 +75,11 @@ export default function PrivacyPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Pengaturan Privasi</h1>
-          <p className="text-sm text-muted-foreground">
-            Silakan login untuk mengatur privasi Anda.
-          </p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('guestDescription')}</p>
         </div>
         <Button asChild>
-          <Link href="/login">Login</Link>
+          <Link href="/login">{tAccount('login')}</Link>
         </Button>
       </div>
     );
@@ -96,9 +97,9 @@ export default function PrivacyPage() {
         analyticsTracking,
       };
       await privacyApi.updatePreferences(preferences);
-      toast({ variant: 'success', description: 'Preferensi privasi berhasil disimpan.' });
+      toast({ variant: 'success', description: t('toast.saved') });
     } catch (error) {
-      toast({ variant: 'destructive', description: 'Gagal menyimpan preferensi.' });
+      toast({ variant: 'destructive', description: t('toast.saveFailed') });
     } finally {
       setIsSaving(false);
     }
@@ -115,9 +116,9 @@ export default function PrivacyPage() {
       link.download = `toko-data-export-${new Date().toISOString().slice(0, 10)}.json`;
       link.click();
       URL.revokeObjectURL(url);
-      toast({ variant: 'success', description: 'Ekspor data berhasil diunduh.' });
+      toast({ variant: 'success', description: t('toast.exported') });
     } catch (error) {
-      toast({ variant: 'destructive', description: 'Gagal mengekspor data.' });
+      toast({ variant: 'destructive', description: t('toast.exportFailed') });
     } finally {
       setIsExporting(false);
     }
@@ -128,11 +129,12 @@ export default function PrivacyPage() {
     try {
       await privacyApi.deleteAccount();
       setAccessToken(null);
-      toast({ variant: 'success', description: 'Akun berhasil dihapus.' });
-      // Redirect to home
+      toast({ variant: 'success', description: t('toast.deleted') });
+      // Full reload to home so every in-memory client cache of the deleted account is dropped.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation
       window.location.href = '/';
     } catch (error) {
-      toast({ variant: 'destructive', description: 'Gagal menghapus akun.' });
+      toast({ variant: 'destructive', description: t('toast.deleteFailed') });
     } finally {
       setIsDeleting(false);
     }
@@ -142,13 +144,11 @@ export default function PrivacyPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Pengaturan Privasi</h1>
-          <p className="text-sm text-muted-foreground">
-            Kelola data dan preferensi privasi akun Anda.
-          </p>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('description')}</p>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link href="/account">Kembali ke akun</Link>
+          <Link href="/account">{tAccount('backToAccount')}</Link>
         </Button>
       </div>
 
@@ -160,53 +160,51 @@ export default function PrivacyPage() {
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle>Preferensi Komunikasi</CardTitle>
-              <CardDescription>
-                Kelola jenis email yang ingin Anda terima dari kami.
-              </CardDescription>
+              <CardTitle>{t('communication.title')}</CardTitle>
+              <CardDescription>{t('communication.description')}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-0">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label>Email Pemasaran & Promo</Label>
+              <Label>{t('communication.marketing')}</Label>
               <p className="text-sm text-muted-foreground">
-                Dapatkan info diskon, produk baru, dan penawaran eksklusif.
+                {t('communication.marketingDescription')}
               </p>
             </div>
             <Switch
               checked={marketingEmails}
               onCheckedChange={setMarketingEmails}
-              aria-label="Email pemasaran"
+              aria-label={t('communication.marketingLabel')}
             />
           </div>
           <Separator />
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label>Update Pesanan & Pengiriman</Label>
+              <Label>{t('communication.orders')}</Label>
               <p className="text-sm text-muted-foreground">
-                Notifikasi status pesanan, pengiriman, dan pengembalian.
+                {t('communication.ordersDescription')}
               </p>
             </div>
             <Switch
               checked={orderUpdates}
               onCheckedChange={setOrderUpdates}
-              aria-label="Update pesanan"
+              aria-label={t('communication.ordersLabel')}
             />
           </div>
           <Separator />
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label>Peringatan Keamanan</Label>
+              <Label>{t('communication.security')}</Label>
               <p className="text-sm text-muted-foreground">
-                Notifikasi login mencurigakan, perubahan password, dll.
+                {t('communication.securityDescription')}
               </p>
             </div>
             <Switch
               checked={securityAlerts}
               onCheckedChange={setSecurityAlerts}
-              aria-label="Peringatan keamanan"
+              aria-label={t('communication.securityLabel')}
             />
           </div>
         </CardContent>
@@ -220,14 +218,14 @@ export default function PrivacyPage() {
               <Eye className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle>Visibilitas Profil</CardTitle>
-              <CardDescription>Atur siapa yang bisa melihat informasi profil Anda.</CardDescription>
+              <CardTitle>{t('visibility.title')}</CardTitle>
+              <CardDescription>{t('visibility.description')}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-0">
           <div className="space-y-2">
-            <Label className="block">Siapa yang bisa melihat profil Anda?</Label>
+            <Label className="block">{t('visibility.question')}</Label>
             <div className="space-y-2">
               <label className="flex cursor-pointer items-center gap-3">
                 <input
@@ -239,9 +237,9 @@ export default function PrivacyPage() {
                   className="h-4 w-4 text-primary focus:ring-primary"
                 />
                 <div className="space-y-1">
-                  <p className="font-medium">Publik</p>
+                  <p className="font-medium">{t('visibility.public')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Semua orang bisa melihat nama, avatar, dan riwayat review Anda.
+                    {t('visibility.publicDescription')}
                   </p>
                 </div>
               </label>
@@ -255,9 +253,9 @@ export default function PrivacyPage() {
                   className="h-4 w-4 text-primary focus:ring-primary"
                 />
                 <div className="space-y-1">
-                  <p className="font-medium">Hanya Teman</p>
+                  <p className="font-medium">{t('visibility.friends')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Hanya pengguna yang Anda ikuti yang bisa melihat profil lengkap.
+                    {t('visibility.friendsDescription')}
                   </p>
                 </div>
               </label>
@@ -271,9 +269,9 @@ export default function PrivacyPage() {
                   className="h-4 w-4 text-primary focus:ring-primary"
                 />
                 <div className="space-y-1">
-                  <p className="font-medium">Pribadi</p>
+                  <p className="font-medium">{t('visibility.private')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Hanya Anda yang bisa melihat profil Anda. Nama tetap terlihat di review.
+                    {t('visibility.privateDescription')}
                   </p>
                 </div>
               </label>
@@ -290,48 +288,43 @@ export default function PrivacyPage() {
               <Database className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle>Pengolahan Data</CardTitle>
-              <CardDescription>Kelola bagaimana data Anda diproses dan disimpan.</CardDescription>
+              <CardTitle>{t('data.title')}</CardTitle>
+              <CardDescription>{t('data.description')}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-0">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label>Pemrosesan Data Esensial</Label>
-              <p className="text-sm text-muted-foreground">
-                Diperlukan untuk menyediakan layanan inti (pesanan, pembayaran, pengiriman). Tidak
-                dapat dinonaktifkan.
-              </p>
+              <Label>{t('data.essential')}</Label>
+              <p className="text-sm text-muted-foreground">{t('data.essentialDescription')}</p>
             </div>
-            <Switch checked={true} disabled aria-label="Data esensial" />
+            <Switch checked={true} disabled aria-label={t('data.essentialLabel')} />
           </div>
           <Separator />
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label>Analitik & Peningkatan Layanan</Label>
-              <p className="text-sm text-muted-foreground">
-                Bantu kami meningkatkan produk dengan data penggunaan anonim.
-              </p>
+              <Label>{t('data.analytics')}</Label>
+              <p className="text-sm text-muted-foreground">{t('data.analyticsDescription')}</p>
             </div>
             <Switch
               checked={analyticsTracking}
               onCheckedChange={setAnalyticsTracking}
-              aria-label="Analitik"
+              aria-label={t('data.analyticsLabel')}
             />
           </div>
           <Separator />
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label>Personalisasi & Rekomendasi</Label>
+              <Label>{t('data.personalization')}</Label>
               <p className="text-sm text-muted-foreground">
-                Gunakan riwayat belanja untuk menampilkan produk yang relevan.
+                {t('data.personalizationDescription')}
               </p>
             </div>
             <Switch
               checked={dataProcessing}
               onCheckedChange={setDataProcessing}
-              aria-label="Personalisasi"
+              aria-label={t('data.personalizationLabel')}
             />
           </div>
         </CardContent>
@@ -345,10 +338,8 @@ export default function PrivacyPage() {
               <Download className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle>Hak Data Anda</CardTitle>
-              <CardDescription>
-                Kelola data pribadi Anda sesuai regulasi perlindungan data.
-              </CardDescription>
+              <CardTitle>{t('rights.title')}</CardTitle>
+              <CardDescription>{t('rights.description')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -362,10 +353,8 @@ export default function PrivacyPage() {
             >
               <Download className="h-5 w-5" />
               <div className="text-left">
-                <p className="font-medium">Unduh Data Saya</p>
-                <p className="text-sm text-muted-foreground">
-                  Dapatkan salinan semua data akun Anda (JSON/CSV)
-                </p>
+                <p className="font-medium">{t('rights.export')}</p>
+                <p className="text-sm text-muted-foreground">{t('rights.exportDescription')}</p>
               </div>
               {isExporting && <Loader2 className="h-4 w-4 animate-spin" />}
             </Button>
@@ -378,24 +367,22 @@ export default function PrivacyPage() {
             >
               <Trash2 className="h-5 w-5" />
               <div className="text-left">
-                <p className="font-medium">Hapus Akun</p>
-                <p className="text-sm text-muted-foreground">
-                  Hapus permanen akun dan semua data terkait
-                </p>
+                <p className="font-medium">{t('rights.delete')}</p>
+                <p className="text-sm text-muted-foreground">{t('rights.deleteDescription')}</p>
               </div>
               {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
             </Button>
           </div>
 
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <p className="mb-2 font-medium">Hak Anda:</p>
+            <p className="mb-2 font-medium">{t('rights.listTitle')}</p>
             <ul className="list-inside list-disc space-y-1">
-              <li>Akses data pribadi yang kami simpan</li>
-              <li>Minta koreksi data yang tidak akurat</li>
-              <li>Minta penghapusan data (hak dilupakan)</li>
-              <li>Batasi atau tolak pemrosesan data tertentu</li>
-              <li>Portabilitas data - pindah ke layanan lain</li>
-              <li>Keluhan ke otoritas perlindungan data</li>
+              <li>{t('rights.access')}</li>
+              <li>{t('rights.rectify')}</li>
+              <li>{t('rights.erase')}</li>
+              <li>{t('rights.restrict')}</li>
+              <li>{t('rights.portability')}</li>
+              <li>{t('rights.complaint')}</li>
             </ul>
           </div>
         </CardContent>
@@ -409,8 +396,8 @@ export default function PrivacyPage() {
               <Shield className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle>Cookie & Pelacakan</CardTitle>
-              <CardDescription>Kelola preferensi cookie dan teknologi pelacakan.</CardDescription>
+              <CardTitle>{t('cookies.title')}</CardTitle>
+              <CardDescription>{t('cookies.description')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -419,9 +406,9 @@ export default function PrivacyPage() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="cursor-pointer">Cookie Esensial</Label>
+                  <Label className="cursor-pointer">{t('cookies.essential')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Diperlukan untuk fungsi situs (login, keranjang, keamanan). Selalu aktif.
+                    {t('cookies.essentialDescription')}
                   </p>
                 </div>
                 <Switch checked={true} disabled />
@@ -430,9 +417,9 @@ export default function PrivacyPage() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="cursor-pointer">Cookie Fungsional</Label>
+                  <Label className="cursor-pointer">{t('cookies.functional')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Mengingat preferensi (bahasa, mata uang, tampilan).
+                    {t('cookies.functionalDescription')}
                   </p>
                 </div>
                 <Switch checked={dataProcessing} onCheckedChange={setDataProcessing} />
@@ -441,9 +428,9 @@ export default function PrivacyPage() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="cursor-pointer">Cookie Analitik</Label>
+                  <Label className="cursor-pointer">{t('cookies.analytics')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Mengukur performa situs dan perilaku pengguna anonim.
+                    {t('cookies.analyticsDescription')}
                   </p>
                 </div>
                 <Switch checked={analyticsTracking} onCheckedChange={setAnalyticsTracking} />
@@ -452,9 +439,9 @@ export default function PrivacyPage() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="cursor-pointer">Cookie Pemasaran</Label>
+                  <Label className="cursor-pointer">{t('cookies.marketing')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Menampilkan iklan relevan dan mengukur efektivitas kampanye.
+                    {t('cookies.marketingDescription')}
                   </p>
                 </div>
                 <Switch checked={marketingEmails} onCheckedChange={setMarketingEmails} />
@@ -463,7 +450,7 @@ export default function PrivacyPage() {
           </div>
 
           <Button variant="outline" size="sm" onClick={() => window.open('/cookies', '_blank')}>
-            Kelola Detail Cookie
+            {t('cookies.manage')}
           </Button>
         </CardContent>
       </Card>
@@ -474,10 +461,10 @@ export default function PrivacyPage() {
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Menyimpan...
+              {t('saving')}
             </>
           ) : (
-            'Simpan Perubahan'
+            t('save')
           )}
         </Button>
       </div>
@@ -490,18 +477,15 @@ export default function PrivacyPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
                 <Trash2 className="h-5 w-5" />
               </div>
-              <h3 className="text-lg font-semibold">Hapus Akun Permanen</h3>
+              <h3 className="text-lg font-semibold">{t('deleteDialog.title')}</h3>
             </div>
-            <p className="mb-6 text-sm text-muted-foreground">
-              Tindakan ini tidak dapat dibatalkan. Semua data Anda termasuk riwayat pesanan, alamat,
-              favorit, dan preferensi akan dihapus permanen dalam 30 hari.
-            </p>
+            <p className="mb-6 text-sm text-muted-foreground">{t('deleteDialog.description')}</p>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                Batal
+                {t('deleteDialog.cancel')}
               </Button>
               <Button variant="destructive" onClick={handleDeleteAccount} disabled={isDeleting}>
-                {isDeleting ? 'Menghapus...' : 'Hapus Akun Saya'}
+                {isDeleting ? t('deleteDialog.deleting') : t('deleteDialog.confirm')}
               </Button>
             </div>
           </div>

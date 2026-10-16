@@ -4,6 +4,7 @@ import { GitCompare, X } from 'lucide-react';
 import type { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { useCompareProducts } from '@/entities/compare/useCompareProducts';
@@ -15,6 +16,8 @@ import { MAX_COMPARE_ITEMS, useCompareStore } from '@/stores/compare-store';
  * is chosen.
  */
 export function CompareBar() {
+  const t = useTranslations('catalog.compareBar');
+  const tPage = useTranslations('catalog.comparePage');
   const { products } = useCompareProducts();
   const productIds = useCompareStore((state) => state.productIds);
   const remove = useCompareStore((state) => state.remove);
@@ -31,10 +34,11 @@ export function CompareBar() {
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <GitCompare className="h-4 w-4" aria-hidden="true" />
           <span>
-            Bandingkan{' '}
-            <span className="text-foreground">
-              {productIds.length}/{MAX_COMPARE_ITEMS}
-            </span>
+            {t.rich('label', {
+              count: productIds.length,
+              max: MAX_COMPARE_ITEMS,
+              strong: (chunks) => <span className="text-foreground">{chunks}</span>,
+            })}
           </span>
         </div>
 
@@ -57,7 +61,7 @@ export function CompareBar() {
                 <button
                   type="button"
                   onClick={() => remove(product.id)}
-                  aria-label={`Hapus ${product.title} dari perbandingan`}
+                  aria-label={tPage('remove', { title: product.title })}
                   className="absolute -right-1.5 -top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <X className="h-3 w-3" aria-hidden="true" />
@@ -69,20 +73,15 @@ export function CompareBar() {
 
         <div className="flex items-center gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={clear}>
-            Hapus semua
+            {t('clearAll')}
           </Button>
           {productIds.length < 2 ? (
-            <Button
-              type="button"
-              size="sm"
-              disabled
-              title="Pilih minimal 2 produk untuk dibandingkan"
-            >
-              Bandingkan
+            <Button type="button" size="sm" disabled title={t('minHint')}>
+              {t('compare')}
             </Button>
           ) : (
             <Button asChild size="sm">
-              <Link href={'/compare' as Route}>Bandingkan</Link>
+              <Link href={'/compare' as Route}>{t('compare')}</Link>
             </Button>
           )}
         </div>

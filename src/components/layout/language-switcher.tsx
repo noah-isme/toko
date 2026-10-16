@@ -1,6 +1,7 @@
 'use client';
 
 import { Globe, ChevronDown, Check } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -10,36 +11,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  LOCALE_COOKIE,
+  LOCALE_COOKIE_MAX_AGE,
+  LOCALES,
+  localizedPath,
+  type Locale,
+} from '@/i18n/config';
 import { cn } from '@/lib/utils';
 
 interface Language {
-  code: string;
-  name: string;
+  code: Locale;
   nativeName: string;
   flag: string;
 }
 
-const LANGUAGES: Language[] = [
-  { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia', flag: '🇮🇩' },
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
-  { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
-];
+const FLAGS: Record<Locale, string> = { id: '🇮🇩', en: '🇺🇸' };
+
+/** Language options with labels from the `nav.language` catalog namespace. */
+function useLanguages() {
+  const t = useTranslations('nav.language');
+  const languages: Language[] = LOCALES.map((code) => ({
+    code,
+    nativeName: t(`options.${code}`),
+    flag: FLAGS[code],
+  }));
+  return { t, languages };
+}
+
+/** The selected option: starts at the request locale and follows the user's pick. */
+function useCurrentLanguage(languages: Language[]) {
+  const locale = useLocale();
+  const [selected, setSelected] = useState<Locale>(locale);
+  const currentLang = languages.find((language) => language.code === selected) ?? languages[0];
+  return [currentLang, (language: Language) => setSelected(language.code)] as const;
+}
+
+function switchLocale(locale: Locale) {
+  document.cookie = `${LOCALE_COOKIE}=${locale}; Path=/; Max-Age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
+  document.documentElement.lang = locale;
+  window.location.href = localizedPath(locale, window.location.pathname) + window.location.search;
+}
 
 export function LanguageSwitcher() {
-  const [currentLang, setCurrentLang] = useState<Language>(() => getCurrentLanguage());
+  const { t, languages } = useLanguages();
+  const [currentLang, setCurrentLang] = useCurrentLanguage(languages);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLanguageChange = (lang: Language) => {
     setCurrentLang(lang);
     setIsOpen(false);
-    document.cookie = `toko-locale=${lang.code}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    document.documentElement.lang = lang.code;
-    const path = window.location.pathname;
-    const newPath = path.replace(/^\/(id|en|zh|ja|ko)(?=\/|$)/, '') || '/';
-    const localizedPath = `/${lang.code}${newPath === '/' ? '' : newPath}`;
-    window.location.href = localizedPath;
+    switchLocale(lang.code);
   };
 
   useEffect(() => {
@@ -53,7 +75,7 @@ export function LanguageSwitcher() {
           variant="ghost"
           size="icon"
           className="h-9 w-9 gap-1.5 px-2 sm:w-auto"
-          aria-label="Pilih bahasa"
+          aria-label={t('label')}
           aria-expanded={isOpen}
         >
           <Globe className="h-4 w-4" aria-hidden="true" />
@@ -63,7 +85,7 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 min-w-[14rem]">
-        {LANGUAGES.map((lang) => (
+        {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onSelect={() => handleLanguageChange(lang)}
@@ -87,21 +109,18 @@ export function LanguageSwitcher() {
 }
 
 export function LanguageSwitcherSimple() {
-  const [currentLang, setCurrentLang] = useState<Language>(() => getCurrentLanguage());
+  const { t, languages } = useLanguages();
+  const [currentLang, setCurrentLang] = useCurrentLanguage(languages);
 
   const handleLanguageChange = (lang: Language) => {
     setCurrentLang(lang);
-    document.cookie = `toko-locale=${lang.code}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    document.documentElement.lang = lang.code;
-    const path = window.location.pathname;
-    const newPath = path.replace(/^\/(id|en|zh|ja|ko)(?=\/|$)/, '') || '/';
-    window.location.href = `/${lang.code}${newPath === '/' ? '' : newPath}`;
+    switchLocale(lang.code);
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-9 gap-1.5 px-2" aria-label="Pilih bahasa">
+        <Button variant="ghost" size="sm" className="h-9 gap-1.5 px-2" aria-label={t('label')}>
           <Globe className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">{currentLang.flag}</span>
           <span className="hidden font-medium sm:inline">{currentLang.nativeName}</span>
@@ -109,7 +128,7 @@ export function LanguageSwitcherSimple() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 min-w-[14rem]">
-        {LANGUAGES.map((lang) => (
+        {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onSelect={() => handleLanguageChange(lang)}
@@ -130,13 +149,4 @@ export function LanguageSwitcherSimple() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-function getCurrentLanguage(): Language {
-  if (typeof window === 'undefined') return LANGUAGES[0];
-  const code =
-    window.location.pathname.match(/^\/(id|en|zh|ja|ko)(?=\/|$)/)?.[1] ??
-    document.cookie.match(/(?:^|; )toko-locale=([^;]+)/)?.[1] ??
-    'id';
-  return LANGUAGES.find((language) => language.code === code) ?? LANGUAGES[0];
 }

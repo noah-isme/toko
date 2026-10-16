@@ -125,7 +125,7 @@ describe('CheckoutPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Shipping Options')).toBeInTheDocument();
+      expect(screen.getByText('Opsi Pengiriman')).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('radio', { name: /transfer bank/i }));

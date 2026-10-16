@@ -9,8 +9,8 @@ import { useSavedForLaterStore, type SavedItem } from '@/stores/saved-for-later-
 
 const mutateAsync = vi.fn().mockResolvedValue(undefined);
 
-vi.mock('@/lib/api/hooks', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/lib/api/hooks')>();
+vi.mock('@/entities/cart/hooks', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/entities/cart/hooks')>();
   return {
     ...actual,
     useAddToCartMutation: () => ({

@@ -4,6 +4,7 @@ import { User, LogIn, LogOut, ShoppingCart } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
 
 import { Container } from '@/components/layout/container';
@@ -26,17 +27,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
-const navLinks = [
-  { href: '/' as Route, label: 'Home' },
-  { href: '/products' as Route, label: 'Products' },
-  { href: '/featured-products' as Route, label: 'Featured' },
-  { href: '/cart' as Route, label: 'Cart', requiresAuth: true },
-  { href: '/account/orders' as Route, label: 'Orders', requiresAuth: true },
+type NavLinkKey = 'home' | 'products' | 'featured' | 'cart' | 'orders';
+
+const navLinks: { href: Route; labelKey: NavLinkKey; requiresAuth?: boolean }[] = [
+  { href: '/' as Route, labelKey: 'home' },
+  { href: '/products' as Route, labelKey: 'products' },
+  { href: '/featured-products' as Route, labelKey: 'featured' },
+  { href: '/cart' as Route, labelKey: 'cart', requiresAuth: true },
+  { href: '/account/orders' as Route, labelKey: 'orders', requiresAuth: true },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuth();
+  const t = useTranslations('nav');
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-xl">
@@ -64,7 +68,7 @@ export function Navbar() {
                 )}
                 href={link.href}
               >
-                {link.label}
+                {t(`links.${link.labelKey}`)}
               </Link>
             ))}
         </nav>
@@ -95,27 +99,29 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link href="/account">Account</Link>
+                    <Link href="/account">{t('account.account')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/account/profile">Profile</Link>
+                    <Link href="/account/profile">{t('account.profile')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/account/orders">Orders</Link>
+                    <Link href="/account/orders">{t('account.orders')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href={'/account/notifications' as Route}>Notifications</Link>
+                    <Link href={'/account/notifications' as Route}>
+                      {t('account.notifications')}
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/account/addresses">Addresses</Link>
+                    <Link href="/account/addresses">{t('account.addresses')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/favorites">Favorites</Link>
+                    <Link href="/favorites">{t('account.favorites')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    {t('account.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -124,7 +130,7 @@ export function Navbar() {
             <Button asChild variant="ghost">
               <Link href="/login" className="flex items-center gap-2">
                 <LogIn aria-hidden="true" className="h-4 w-4" />
-                <span className="sr-only sm:not-sr-only">Sign in</span>
+                <span className="sr-only sm:not-sr-only">{t('account.signIn')}</span>
               </Link>
             </Button>
           )}

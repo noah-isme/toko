@@ -1,6 +1,7 @@
 'use client';
 
 import { Cookie, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState, useCallback } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ const STORAGE_KEY = 'toko-cookie-preferences';
 const CONSENT_KEY = 'toko-cookie-consent';
 
 export function CookieConsentBanner() {
+  const t = useTranslations('common.cookieConsent');
   const [isOpen, setIsOpen] = useState(false);
   const [preferences, setPreferences] = useState<CookiePreferences>(DEFAULT_PREFERENCES);
   const [hasConsented, setHasConsented] = useState(false);
@@ -46,6 +48,7 @@ export function CookieConsentBanner() {
 
     if (stored) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after hydration
         setPreferences(JSON.parse(stored));
       } catch {
         setPreferences(DEFAULT_PREFERENCES);
@@ -123,7 +126,7 @@ export function CookieConsentBanner() {
           size="icon"
           className="fixed bottom-4 right-4 z-40 rounded-full bg-primary/90 text-primary-foreground shadow-lg hover:bg-primary"
           onClick={openPreferences}
-          aria-label="Cookie preferences"
+          aria-label={t('openPreferences')}
         >
           <Cookie className="h-5 w-5" />
         </Button>
@@ -133,7 +136,7 @@ export function CookieConsentBanner() {
       {!hasConsented && (
         <div
           role="dialog"
-          aria-label="We value your privacy"
+          aria-label={t('bannerTitle')}
           className="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-lg rounded-xl border bg-background/95 p-4 shadow-xl backdrop-blur-md transition-all sm:left-auto sm:right-6"
         >
           <div className="flex items-start gap-3">
@@ -141,17 +144,17 @@ export function CookieConsentBanner() {
               <Cookie className="h-5 w-5 text-primary" aria-hidden="true" />
             </div>
             <div className="flex-1 text-sm">
-              <h3 className="font-semibold text-foreground">We value your privacy</h3>
+              <h3 className="font-semibold text-foreground">{t('bannerTitle')}</h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                We use cookies to enhance your experience, analyze traffic, and personalize content.{' '}
+                {t('bannerDescription')}{' '}
                 <a href="/privacy" className="underline hover:text-foreground">
-                  Privacy Policy
+                  {t('privacyPolicy')}
                 </a>
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button size="sm" onClick={handleAcceptAll} className="h-8 text-xs">
                   <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-                  Accept All
+                  {t('acceptAll')}
                 </Button>
                 <Button
                   size="sm"
@@ -160,10 +163,10 @@ export function CookieConsentBanner() {
                   className="h-8 text-xs"
                 >
                   <X className="mr-1.5 h-3.5 w-3.5" />
-                  Reject All
+                  {t('rejectAll')}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={openPreferences} className="h-8 text-xs">
-                  Customize
+                  {t('customize')}
                 </Button>
               </div>
             </div>
@@ -180,10 +183,8 @@ export function CookieConsentBanner() {
                 <Cookie className="h-5 w-5 text-primary" aria-hidden="true" />
               </div>
               <div>
-                <DialogTitle className="text-lg font-semibold">Cookie Preferences</DialogTitle>
-                <DialogDescription className="text-sm">
-                  Customize which cookies and tracking technologies you allow us to use.
-                </DialogDescription>
+                <DialogTitle className="text-lg font-semibold">{t('dialogTitle')}</DialogTitle>
+                <DialogDescription className="text-sm">{t('dialogDescription')}</DialogDescription>
               </div>
             </div>
           </DialogHeader>
@@ -198,13 +199,11 @@ export function CookieConsentBanner() {
                       <CheckCircle2 className="h-5 w-5 text-green-600" aria-hidden="true" />
                     </div>
                     <div>
-                      <Label className="font-medium">Necessary cookies</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Required for the website to function properly. Cannot be disabled.
-                      </p>
+                      <Label className="font-medium">{t('necessary.label')}</Label>
+                      <p className="text-xs text-muted-foreground">{t('necessary.description')}</p>
                     </div>
                   </div>
-                  <Switch checked={true} disabled aria-label="Necessary cookies (always enabled)" />
+                  <Switch checked={true} disabled aria-label={t('necessary.switchLabel')} />
                 </div>
               </div>
 
@@ -218,16 +217,14 @@ export function CookieConsentBanner() {
                       <AlertCircle className="h-5 w-5 text-blue-600" aria-hidden="true" />
                     </div>
                     <div>
-                      <Label className="font-medium">Analytics cookies</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Help us understand how visitors interact with our website.
-                      </p>
+                      <Label className="font-medium">{t('analytics.label')}</Label>
+                      <p className="text-xs text-muted-foreground">{t('analytics.description')}</p>
                     </div>
                   </div>
                   <Switch
                     checked={preferences.analytics}
                     onCheckedChange={() => togglePreference('analytics')}
-                    aria-label="Analytics cookies"
+                    aria-label={t('analytics.label')}
                   />
                 </div>
               </div>
@@ -240,16 +237,14 @@ export function CookieConsentBanner() {
                       <AlertCircle className="h-5 w-5 text-purple-600" aria-hidden="true" />
                     </div>
                     <div>
-                      <Label className="font-medium">Marketing cookies</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Used to deliver personalized advertisements and track ad performance.
-                      </p>
+                      <Label className="font-medium">{t('marketing.label')}</Label>
+                      <p className="text-xs text-muted-foreground">{t('marketing.description')}</p>
                     </div>
                   </div>
                   <Switch
                     checked={preferences.marketing}
                     onCheckedChange={() => togglePreference('marketing')}
-                    aria-label="Marketing cookies"
+                    aria-label={t('marketing.label')}
                   />
                 </div>
               </div>
@@ -262,16 +257,16 @@ export function CookieConsentBanner() {
                       <AlertCircle className="h-5 w-5 text-amber-600" aria-hidden="true" />
                     </div>
                     <div>
-                      <Label className="font-medium">Preference cookies</Label>
+                      <Label className="font-medium">{t('preferences.label')}</Label>
                       <p className="text-xs text-muted-foreground">
-                        Remember your preferences like language, theme, and region.
+                        {t('preferences.description')}
                       </p>
                     </div>
                   </div>
                   <Switch
                     checked={preferences.preferences}
                     onCheckedChange={() => togglePreference('preferences')}
-                    aria-label="Preference cookies"
+                    aria-label={t('preferences.label')}
                   />
                 </div>
               </div>
@@ -281,26 +276,26 @@ export function CookieConsentBanner() {
           <DialogFooter className="flex flex-col gap-2 sm:flex-row">
             <Button variant="outline" className="flex-1" onClick={handleRejectAll}>
               <X className="mr-2 h-4 w-4" />
-              Reject All
+              {t('rejectAll')}
             </Button>
             <Button variant="secondary" className="flex-1" onClick={handleSavePreferences}>
-              Save Preferences
+              {t('savePreferences')}
             </Button>
             <Button className="flex-1" onClick={handleAcceptAll}>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Accept All
+              {t('acceptAll')}
             </Button>
           </DialogFooter>
 
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            You can change your preferences at any time by clicking the cookie icon.
+            {t('footnote')}
             <br />
             <a href="/privacy" className="underline hover:text-foreground">
-              Privacy Policy
+              {t('privacyPolicy')}
             </a>
             &nbsp;|&nbsp;
             <a href="/terms" className="underline hover:text-foreground">
-              Terms of Service
+              {t('termsOfService')}
             </a>
           </p>
         </DialogContent>

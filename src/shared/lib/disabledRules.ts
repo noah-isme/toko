@@ -3,6 +3,7 @@ export type DisabledReasonCode =
   | 'processing'
   | 'missing-address'
   | 'missing-shipping-option'
+  | 'missing-payment-method'
   | 'missing-order-draft'
   | 'missing-order-id'
   | 'unknown';

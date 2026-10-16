@@ -1,11 +1,13 @@
 'use client';
 
 import { WifiOff, Wifi } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
 export function OfflineBanner() {
+  const t = useTranslations('common.offline');
   // Default to online so server markup and the first client render match. The
   // real navigator.onLine is browser-only, so it is reconciled post-mount in the
   // effect below — a lazy initializer here would risk a hydration mismatch.
@@ -51,12 +53,12 @@ export function OfflineBanner() {
         {isOnline ? (
           <>
             <Wifi className="h-4 w-4" />
-            <span>Connection restored</span>
+            <span>{t('restored')}</span>
           </>
         ) : (
           <>
             <WifiOff className="h-4 w-4" />
-            <span>You are currently offline. Some features may be unavailable.</span>
+            <span>{t('offline')}</span>
           </>
         )}
       </div>

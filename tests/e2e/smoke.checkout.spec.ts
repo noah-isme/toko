@@ -5,9 +5,9 @@ import { expect, test } from './fixtures/auth.fixture';
 const QA_CHANNEL_KEY = '__TOKO_QA_CHANNEL__';
 
 async function dismissCookieDialog(page: Page) {
-  const cookieDialog = page.getByRole('dialog', { name: 'We value your privacy' });
+  const cookieDialog = page.getByRole('dialog', { name: 'Kami menghargai privasi Anda' });
   if (await cookieDialog.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await page.getByRole('button', { name: 'Accept All' }).click();
+    await page.getByRole('button', { name: 'Terima Semua' }).click();
     await expect(cookieDialog).toBeHidden({ timeout: 5000 });
   }
 }
@@ -16,7 +16,7 @@ async function seedCartFromHome(page: Page) {
   await page.goto('/cart');
   // Try to dismiss cookie consent dialog if present (non-blocking)
   try {
-    await page.getByRole('button', { name: 'Accept All' }).click({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Terima Semua' }).click({ timeout: 5000 });
   } catch {
     // Cookie dialog not present or already dismissed
   }
@@ -42,7 +42,7 @@ async function pickQuickAddress(page: Page) {
 }
 
 async function selectShipping(page: Page) {
-  const shippingSection = page.getByRole('heading', { name: 'Shipping Options' });
+  const shippingSection = page.getByRole('heading', { name: 'Opsi Pengiriman' });
   await shippingSection.waitFor();
   const shippingRadio = page.locator('input[name="shipping-option"]').first();
   await shippingRadio.check({ force: true });
@@ -53,8 +53,14 @@ async function selectShipping(page: Page) {
 async function applyPromo(page: Page, code: string) {
   const promoInput = page.getByLabel('Masukkan kode');
   await promoInput.fill(code);
+  await expect(promoInput).toHaveValue(code);
   await page.getByRole('button', { name: 'Terapkan' }).click();
-  await page.getByText(new RegExp(`Kode ${code.toUpperCase()} aktif`, 'i')).waitFor();
+  // The applied-promo panel comes from the refetched cart (the mock keeps the voucher on the
+  // cart like the backend), so it must stay visible once the apply has settled.
+  const applied = page.getByText(`Kode ${code.toUpperCase()} aktif.`, { exact: true });
+  await expect(applied).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Hapus kode' })).toBeEnabled();
+  await expect(applied).toBeVisible();
 }
 
 async function proceedToReview(page: Page) {

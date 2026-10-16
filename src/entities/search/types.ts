@@ -99,17 +99,30 @@ export const searchFiltersSchema = z.object({
 
 export type SearchFiltersInput = z.infer<typeof searchFiltersSchema>;
 
-export const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
-  { value: 'relevance', label: 'Relevansi' },
-  { value: 'name-asc', label: 'Nama: A - Z' },
-  { value: 'name-desc', label: 'Nama: Z - A' },
-  { value: 'price-asc', label: 'Harga: Termurah' },
-  { value: 'price-desc', label: 'Harga: Termahal' },
-  { value: 'newest', label: 'Terbaru' },
-  { value: 'oldest', label: 'Terlama' },
-  { value: 'rating', label: 'Rating Tertinggi' },
-  { value: 'popularity', label: 'Terpopuler' },
-  { value: 'discount', label: 'Diskon Terbesar' },
+/** Keys under `catalog.sort.options` in the message catalogs. */
+export type SortLabelKey =
+  | 'relevance'
+  | 'nameAsc'
+  | 'nameDesc'
+  | 'priceAsc'
+  | 'priceDesc'
+  | 'newest'
+  | 'oldest'
+  | 'rating'
+  | 'popularity'
+  | 'discount';
+
+export const SORT_OPTIONS: Array<{ value: SortOption; labelKey: SortLabelKey }> = [
+  { value: 'relevance', labelKey: 'relevance' },
+  { value: 'name-asc', labelKey: 'nameAsc' },
+  { value: 'name-desc', labelKey: 'nameDesc' },
+  { value: 'price-asc', labelKey: 'priceAsc' },
+  { value: 'price-desc', labelKey: 'priceDesc' },
+  { value: 'newest', labelKey: 'newest' },
+  { value: 'oldest', labelKey: 'oldest' },
+  { value: 'rating', labelKey: 'rating' },
+  { value: 'popularity', labelKey: 'popularity' },
+  { value: 'discount', labelKey: 'discount' },
 ];
 
 export const DEFAULT_SEARCH_FILTERS: SearchFilters = {

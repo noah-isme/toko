@@ -1,6 +1,7 @@
 'use client';
 
 import { Award, Sparkles, History, Loader2, Gift } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { memo } from 'react';
 
 import { useLoyaltyProfileQuery } from '../hooks';
@@ -29,6 +30,7 @@ interface LoyaltyDashboardProps {
 export const LoyaltyDashboard = memo(function LoyaltyDashboard({
   className,
 }: LoyaltyDashboardProps) {
+  const t = useTranslations('account.loyalty');
   const {
     data: profile,
     isLoading: profileLoading,
@@ -64,11 +66,11 @@ export const LoyaltyDashboard = memo(function LoyaltyDashboard({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[200px]">Tanggal</TableHead>
-                  <TableHead>Jenis</TableHead>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead className="w-[120px] text-right">Poin</TableHead>
-                  <TableHead className="w-[120px] text-right">Saldo</TableHead>
+                  <TableHead className="w-[200px]">{t('table.date')}</TableHead>
+                  <TableHead>{t('table.type')}</TableHead>
+                  <TableHead>{t('table.description')}</TableHead>
+                  <TableHead className="w-[120px] text-right">{t('table.points')}</TableHead>
+                  <TableHead className="w-[120px] text-right">{t('table.balance')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -107,12 +109,12 @@ export const LoyaltyDashboard = memo(function LoyaltyDashboard({
           className,
         )}
       >
-        Gagal memuat profil loyalitas.{' '}
+        {t('loadFailed')}{' '}
         <button
           onClick={() => refetchProfile()}
           className="text-primary underline hover:no-underline"
         >
-          Coba lagi
+          {t('retry')}
         </button>
       </div>
     );
@@ -132,11 +134,11 @@ export const LoyaltyDashboard = memo(function LoyaltyDashboard({
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="rewards" className="gap-2">
             <Gift className="h-4 w-4" />
-            Katalog Hadiah
+            {t('rewardsTab')}
           </TabsTrigger>
           <TabsTrigger value="history" className="gap-2">
             <History className="h-4 w-4" />
-            Riwayat Poin
+            {t('historyTab')}
           </TabsTrigger>
         </TabsList>
 

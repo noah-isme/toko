@@ -50,22 +50,45 @@ export interface ReviewStats {
   distribution: ReviewRatingDistribution;
 }
 
+/**
+ * Keys under `product.reviews.validation` in the message catalogs. The schema carries these
+ * keys as its error messages; `ReviewForm` translates them for display.
+ */
+export const REVIEW_VALIDATION_KEYS = [
+  'ratingRequired',
+  'ratingInvalid',
+  'ratingMin',
+  'ratingMax',
+  'bodyRequired',
+  'bodyMin',
+  'bodyMax',
+  'photosMax',
+] as const;
+
+export type ReviewValidationKey = (typeof REVIEW_VALIDATION_KEYS)[number];
+
+export function isReviewValidationKey(value: unknown): value is ReviewValidationKey {
+  return (REVIEW_VALIDATION_KEYS as readonly unknown[]).includes(value);
+}
+
+const reviewMessage = (key: ReviewValidationKey) => key;
+
 export const reviewCreateInputSchema = z.object({
   rating: z
     .number({
-      message: 'Pilih rating',
+      message: reviewMessage('ratingRequired'),
     })
-    .int('Rating tidak valid')
-    .min(1, 'Rating minimal 1 bintang')
-    .max(5, 'Rating maksimal 5 bintang'),
+    .int(reviewMessage('ratingInvalid'))
+    .min(1, reviewMessage('ratingMin'))
+    .max(5, reviewMessage('ratingMax')),
   body: z
     .string({
-      message: 'Tulis ulasan Anda',
+      message: reviewMessage('bodyRequired'),
     })
     .trim()
-    .min(10, 'Minimal 10 karakter')
-    .max(1000, 'Maksimum 1000 karakter'),
-  photos: z.array(z.instanceof(File)).max(5, 'Maksimal 5 foto').optional(),
+    .min(10, reviewMessage('bodyMin'))
+    .max(1000, reviewMessage('bodyMax')),
+  photos: z.array(z.instanceof(File)).max(5, reviewMessage('photosMax')).optional(),
 });
 
 export type ReviewCreateInput = z.infer<typeof reviewCreateInputSchema>;

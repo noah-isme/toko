@@ -33,8 +33,8 @@ This directory contains visual end-to-end tests that run against the real Toko A
 3. **Run Visual Tests**:
 
    ```bash
-   # Using the helper script
-   ./run-visual-tests-real-api.sh
+   # Using the orchestrator script (starts toko-api + frontend, then runs the tests)
+   pnpm e2e:visual:real-api:run
 
    # Or directly with pnpm
    pnpm e2e:visual:real-api

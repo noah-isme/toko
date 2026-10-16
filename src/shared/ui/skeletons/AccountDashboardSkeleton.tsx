@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import * as React from 'react';
 
 import { srOnly } from '../a11y';
@@ -5,9 +6,10 @@ import { srOnly } from '../a11y';
 import { BaseSkeleton } from './BaseSkeleton';
 
 export function AccountDashboardSkeleton() {
+  const t = useTranslations('common');
   return (
     <div className="space-y-8" role="status">
-      {srOnly('Memuat...')}
+      {srOnly(t('loading'))}
       <div className="space-y-2">
         <BaseSkeleton className="h-7 w-48" />
         <BaseSkeleton className="h-4 w-64" />

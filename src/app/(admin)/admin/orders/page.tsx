@@ -1,6 +1,7 @@
 'use client';
 
 import { Eye, Package, Search, Truck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import {
@@ -37,22 +38,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { ADMIN_ORDER_STATUSES, orderStatusLabel } from '@/entities/admin/format';
 import {
   useAdminOrder,
   useAdminOrders,
   useAdminOrderStats,
   useCreateAdminShipment,
   useUpdateAdminOrderStatus,
-} from '@/lib/api/hooks.admin';
-import {
-  ADMIN_ORDER_STATUSES,
-  formatCurrency,
-  formatDate,
-  orderStatusLabel,
-  type AdminOrder,
-  type AdminOrderStatus,
-} from '@/lib/api/services/admin';
+} from '@/entities/admin/hooks';
+import type { AdminOrder, AdminOrderStatus } from '@/entities/admin/types';
+import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -116,6 +112,10 @@ function paymentStatusClass(status: string): string {
 }
 
 export default function OrdersPage() {
+  const t = useTranslations('admin.orders');
+  const tAdmin = useTranslations('admin');
+  const tCommon = useTranslations('admin.common');
+  const { currency, date } = useAdminFormat();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<AdminOrderStatus | 'all'>('all');
   const [page, setPage] = useState(1);
@@ -139,6 +139,11 @@ export default function OrdersPage() {
   const createShipment = useCreateAdminShipment();
 
   const orders = query.data?.data ?? [];
+
+  const paymentStatusLabel = (status: string) => {
+    const key = `payment.${status || 'none'}` as const;
+    return t.has(key as never) ? t(key as never) : status;
+  };
   const totalItems = query.data?.pagination.totalItems ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
 
@@ -146,14 +151,17 @@ export default function OrdersPage() {
     try {
       await updateStatus.mutateAsync({ id: order.id, status });
       toast({
-        title: 'Status updated',
-        description: `${order.orderNumber ?? order.id.slice(0, 8)} → ${orderStatusLabel(status)}`,
+        title: t('toast.statusUpdated'),
+        description: t('toast.statusChange', {
+          order: order.orderNumber ?? order.id.slice(0, 8),
+          status: orderStatusLabel(tAdmin, status),
+        }),
         variant: 'success',
       });
     } catch (error) {
       toast({
-        title: 'Could not update status',
-        description: error instanceof Error ? error.message : 'Transition not allowed',
+        title: t('toast.statusFailed'),
+        description: error instanceof Error ? error.message : t('toast.transitionNotAllowed'),
         variant: 'destructive',
       });
     }
@@ -163,7 +171,7 @@ export default function OrdersPage() {
     event.preventDefault();
     if (!shipmentTarget) return;
     if (!courier || !trackingNumber.trim()) {
-      toast({ title: 'Courier and tracking number are required', variant: 'destructive' });
+      toast({ title: t('toast.shipmentRequired'), variant: 'destructive' });
       return;
     }
     try {
@@ -172,14 +180,14 @@ export default function OrdersPage() {
         courier,
         trackingNumber: trackingNumber.trim(),
       });
-      toast({ title: 'Shipment created', variant: 'success' });
+      toast({ title: t('toast.shipmentCreated'), variant: 'success' });
       setShipmentTarget(null);
       setCourier('');
       setTrackingNumber('');
     } catch (error) {
       toast({
-        title: 'Could not create shipment',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('toast.shipmentFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -187,40 +195,44 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Orders" description="Manage and track customer orders" />
+      <AdminPageHeader title={t('title')} description={t('description')} />
 
       {stats.data ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Orders
+                {t('stats.total')}
               </CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-bold">{stats.data.totalOrders}</CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {t('stats.revenue')}
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-bold">
-              {formatCurrency(stats.data.totalRevenue)}
+              {currency(stats.data.totalRevenue)}
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {t('stats.pending')}
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-bold">{stats.data.pendingOrders}</CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Avg. Order Value
+                {t('stats.averageOrderValue')}
               </CardTitle>
             </CardHeader>
             <CardContent className="text-2xl font-bold">
-              {formatCurrency(Math.round(stats.data.averageOrderValue))}
+              {currency(Math.round(stats.data.averageOrderValue))}
             </CardContent>
           </Card>
         </div>
@@ -230,7 +242,7 @@ export default function OrdersPage() {
         <CardHeader>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>
-              All Orders
+              {t('all')}
               {totalItems > 0 ? (
                 <span className="ml-2 text-sm font-normal text-muted-foreground">
                   ({totalItems})
@@ -244,14 +256,14 @@ export default function OrdersPage() {
                   aria-hidden="true"
                 />
                 <Input
-                  placeholder="Search orders..."
+                  placeholder={t('searchPlaceholder')}
                   value={search}
                   onChange={(event) => {
                     setSearch(event.target.value);
                     setPage(1);
                   }}
                   className="w-full pl-10 sm:w-64"
-                  aria-label="Search orders"
+                  aria-label={t('searchLabel')}
                 />
               </div>
               <Select
@@ -261,14 +273,14 @@ export default function OrdersPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="w-full sm:w-44" aria-label="Filter by status">
-                  <SelectValue placeholder="All Status" />
+                <SelectTrigger className="w-full sm:w-44" aria-label={t('filterLabel')}>
+                  <SelectValue placeholder={t('allStatuses')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="all">{t('allStatuses')}</SelectItem>
                   {ADMIN_ORDER_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
-                      {orderStatusLabel(status)}
+                      {orderStatusLabel(tAdmin, status)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -278,45 +290,51 @@ export default function OrdersPage() {
         </CardHeader>
         <CardContent>
           {query.isLoading ? (
-            <AdminLoading label="Loading orders..." />
+            <AdminLoading label={t('loading')} />
           ) : query.isError ? (
             <AdminError error={query.error} onRetry={() => void query.refetch()} />
           ) : orders.length === 0 ? (
-            <AdminEmpty message="No orders match these filters." />
+            <AdminEmpty message={t('empty')} />
           ) : (
             <>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Order</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                      <TableHead>Payment</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="hidden lg:table-cell">Tracking</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t('columns.order')}</TableHead>
+                      <TableHead>{t('columns.customer')}</TableHead>
+                      <TableHead className="text-right">{t('columns.total')}</TableHead>
+                      <TableHead>{t('columns.payment')}</TableHead>
+                      <TableHead>{tCommon('status')}</TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        {t('columns.tracking')}
+                      </TableHead>
+                      <TableHead className="text-right">{tCommon('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {orders.map((order) => {
                       const targets = allowedTargets(order.status);
                       return (
-                        <TableRow key={order.id}>
+                        <TableRow
+                          key={order.id}
+                          data-testid="admin-order-row"
+                          data-order-id={order.id}
+                        >
                           <TableCell className="font-mono font-medium">
                             {order.orderNumber ?? order.id.slice(0, 8)}
                             <p className="font-sans text-xs font-normal text-muted-foreground">
-                              {formatDate(order.createdAt)}
+                              {date(order.createdAt)}
                             </p>
                           </TableCell>
                           <TableCell>
-                            <p className="font-medium">{order.customerName ?? 'Guest'}</p>
+                            <p className="font-medium">{order.customerName ?? tCommon('guest')}</p>
                             <p className="text-sm text-muted-foreground">
                               {order.customerEmail ?? '-'}
                             </p>
                           </TableCell>
                           <TableCell className="text-right font-mono">
-                            {formatCurrency(order.total, order.currency)}
+                            {currency(order.total, order.currency)}
                           </TableCell>
                           <TableCell>
                             <span
@@ -325,7 +343,7 @@ export default function OrdersPage() {
                                 paymentStatusClass(order.paymentStatus),
                               )}
                             >
-                              {order.paymentStatus || 'none'}
+                              {paymentStatusLabel(order.paymentStatus)}
                             </span>
                           </TableCell>
                           <TableCell>
@@ -340,15 +358,22 @@ export default function OrdersPage() {
                                   disabled={updateStatus.isPending}
                                 >
                                   <SelectTrigger
+                                    data-testid="admin-order-status-select"
                                     className="h-7 w-36 text-xs"
-                                    aria-label={`Change status for order ${order.orderNumber ?? order.id}`}
+                                    aria-label={t('changeStatusFor', {
+                                      order: order.orderNumber ?? order.id,
+                                    })}
                                   >
-                                    <SelectValue placeholder="Advance to..." />
+                                    <SelectValue placeholder={t('advanceTo')} />
                                   </SelectTrigger>
                                   <SelectContent>
                                     {targets.map((target) => (
-                                      <SelectItem key={target} value={target}>
-                                        {orderStatusLabel(target)}
+                                      <SelectItem
+                                        key={target}
+                                        value={target}
+                                        data-testid={`admin-order-status-option-${target}`}
+                                      >
+                                        {orderStatusLabel(tAdmin, target)}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
@@ -379,7 +404,7 @@ export default function OrdersPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                aria-label="View order details"
+                                aria-label={t('viewDetails')}
                                 onClick={() => setDetailId(order.id)}
                               >
                                 <Eye className="h-4 w-4" />
@@ -387,7 +412,7 @@ export default function OrdersPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                aria-label="Create shipment"
+                                aria-label={t('createShipment')}
                                 disabled={
                                   !canCreateShipment(order.status) || Boolean(order.trackingNumber)
                                 }
@@ -411,7 +436,7 @@ export default function OrdersPage() {
               {totalPages > 1 ? (
                 <div className="mt-4 flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
+                    {tCommon('pageOf', { page, total: totalPages })}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -420,7 +445,7 @@ export default function OrdersPage() {
                       disabled={page <= 1}
                       onClick={() => setPage((current) => Math.max(1, current - 1))}
                     >
-                      Previous
+                      {tCommon('previous')}
                     </Button>
                     <Button
                       variant="outline"
@@ -428,7 +453,7 @@ export default function OrdersPage() {
                       disabled={page >= totalPages}
                       onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     >
-                      Next
+                      {tCommon('next')}
                     </Button>
                   </div>
                 </div>
@@ -442,28 +467,30 @@ export default function OrdersPage() {
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              Order {detail.data?.orderNumber ?? detailId?.slice(0, 8) ?? ''}
+              {t('detail.title', {
+                order: detail.data?.orderNumber ?? detailId?.slice(0, 8) ?? '',
+              })}
             </DialogTitle>
           </DialogHeader>
           {detail.isLoading ? (
-            <AdminLoading label="Loading order..." />
+            <AdminLoading label={t('detail.loading')} />
           ) : detail.isError ? (
             <AdminError error={detail.error} onRetry={() => void detail.refetch()} />
           ) : detail.data ? (
             <div className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs uppercase text-muted-foreground">Customer</p>
-                  <p className="font-medium">{detail.data.customerName ?? 'Guest'}</p>
+                  <p className="text-xs uppercase text-muted-foreground">{t('detail.customer')}</p>
+                  <p className="font-medium">{detail.data.customerName ?? tCommon('guest')}</p>
                   <p className="text-sm text-muted-foreground">
                     {detail.data.customerEmail ?? '-'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-muted-foreground">Status</p>
+                  <p className="text-xs uppercase text-muted-foreground">{tCommon('status')}</p>
                   <OrderStatusBadge status={detail.data.status} />
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Placed {formatDate(detail.data.createdAt)}
+                    {t('detail.placed', { date: date(detail.data.createdAt) })}
                   </p>
                 </div>
               </div>
@@ -471,18 +498,18 @@ export default function OrdersPage() {
               <Separator />
 
               <div>
-                <p className="mb-2 text-xs uppercase text-muted-foreground">Items</p>
+                <p className="mb-2 text-xs uppercase text-muted-foreground">{t('detail.items')}</p>
                 <div className="space-y-2">
                   {detail.data.items.map((item) => (
                     <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="truncate font-medium">{item.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {item.qty} × {formatCurrency(item.unitPrice, detail.data?.currency)}
+                          {item.qty} × {currency(item.unitPrice, detail.data?.currency)}
                         </p>
                       </div>
                       <p className="shrink-0 font-mono">
-                        {formatCurrency(item.subtotal, detail.data?.currency)}
+                        {currency(item.subtotal, detail.data?.currency)}
                       </p>
                     </div>
                   ))}
@@ -493,38 +520,36 @@ export default function OrdersPage() {
 
               <dl className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Subtotal</dt>
+                  <dt className="text-muted-foreground">{t('detail.subtotal')}</dt>
                   <dd className="font-mono">
-                    {formatCurrency(detail.data.subtotal, detail.data.currency)}
+                    {currency(detail.data.subtotal, detail.data.currency)}
                   </dd>
                 </div>
                 {detail.data.discount > 0 ? (
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">
-                      Discount{detail.data.voucherCode ? ` (${detail.data.voucherCode})` : ''}
+                      {detail.data.voucherCode
+                        ? t('detail.discountWithCode', { code: detail.data.voucherCode })
+                        : t('detail.discount')}
                     </dt>
                     <dd className="font-mono">
-                      -{formatCurrency(detail.data.discount, detail.data.currency)}
+                      -{currency(detail.data.discount, detail.data.currency)}
                     </dd>
                   </div>
                 ) : null}
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Shipping</dt>
+                  <dt className="text-muted-foreground">{t('detail.shipping')}</dt>
                   <dd className="font-mono">
-                    {formatCurrency(detail.data.shipping, detail.data.currency)}
+                    {currency(detail.data.shipping, detail.data.currency)}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Tax</dt>
-                  <dd className="font-mono">
-                    {formatCurrency(detail.data.tax, detail.data.currency)}
-                  </dd>
+                  <dt className="text-muted-foreground">{t('detail.tax')}</dt>
+                  <dd className="font-mono">{currency(detail.data.tax, detail.data.currency)}</dd>
                 </div>
                 <div className="flex justify-between border-t pt-1 font-semibold">
-                  <dt>Total</dt>
-                  <dd className="font-mono">
-                    {formatCurrency(detail.data.total, detail.data.currency)}
-                  </dd>
+                  <dt>{t('detail.total')}</dt>
+                  <dd className="font-mono">{currency(detail.data.total, detail.data.currency)}</dd>
                 </div>
               </dl>
 
@@ -532,7 +557,7 @@ export default function OrdersPage() {
                 <>
                   <Separator />
                   <div>
-                    <p className="text-xs uppercase text-muted-foreground">Notes</p>
+                    <p className="text-xs uppercase text-muted-foreground">{t('detail.notes')}</p>
                     <p className="text-sm">{detail.data.notes}</p>
                   </div>
                 </>
@@ -549,15 +574,17 @@ export default function OrdersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              Create Shipment for {shipmentTarget?.orderNumber ?? shipmentTarget?.id.slice(0, 8)}
+              {t('shipment.title', {
+                order: shipmentTarget?.orderNumber ?? shipmentTarget?.id.slice(0, 8) ?? '',
+              })}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleShipment} className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="shipment-courier">Courier</Label>
+              <Label htmlFor="shipment-courier">{t('shipment.courier')}</Label>
               <Select value={courier} onValueChange={setCourier}>
                 <SelectTrigger id="shipment-courier">
-                  <SelectValue placeholder="Select courier" />
+                  <SelectValue placeholder={t('shipment.selectCourier')} />
                 </SelectTrigger>
                 <SelectContent>
                   {COURIERS.map((name) => (
@@ -569,20 +596,20 @@ export default function OrdersPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shipment-tracking">Tracking Number</Label>
+              <Label htmlFor="shipment-tracking">{t('shipment.trackingNumber')}</Label>
               <Input
                 id="shipment-tracking"
                 value={trackingNumber}
                 onChange={(event) => setTrackingNumber(event.target.value)}
-                placeholder="Enter tracking number"
+                placeholder={t('shipment.trackingPlaceholder')}
               />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShipmentTarget(null)}>
-                Cancel
+                {tCommon('cancel')}
               </Button>
               <Button type="submit" disabled={createShipment.isPending}>
-                {createShipment.isPending ? 'Creating...' : 'Create Shipment'}
+                {createShipment.isPending ? t('shipment.submitting') : t('shipment.submit')}
               </Button>
             </DialogFooter>
           </form>

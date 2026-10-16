@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useReducer, useRef } from 'react';
 
 import { applyPromo, removePromo, validatePromo } from './api';
@@ -100,14 +101,15 @@ function commitPromoResultToCart(
 }
 
 export function useValidatePromoQuery(cartId?: string | null, code?: string | null) {
+  const t = useTranslations('cart.promo.validation');
   return useQuery<PromoResult>({
     queryKey: getPromoValidateKey(cartId ?? null, code ?? null),
     queryFn: () => {
       if (!cartId) {
-        throw new Error('Keranjang tidak ditemukan untuk kode promo');
+        throw new Error(t('cartMissing'));
       }
       if (!code) {
-        throw new Error('Kode promo wajib diisi');
+        throw new Error(t('codeEmpty'));
       }
       return validatePromo(cartId, code);
     },
@@ -136,6 +138,9 @@ type RemovePromoContext = {
 export function useApplyPromoMutation(cartId?: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('cart.promo.toast');
+  const tPromo = useTranslations('cart.promo');
+  const tValidation = useTranslations('cart.promo.validation');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<PromoResult, Error, ApplyPromoVariables, ApplyPromoContext>({
@@ -159,7 +164,7 @@ export function useApplyPromoMutation(cartId?: string) {
         throw new Error('cartId is required to apply a promo');
       }
       if (!variables.preview?.valid || !variables.preview.promo) {
-        throw new Error('Promo perlu divalidasi sebelum diterapkan');
+        throw new Error(tValidation('notValidated'));
       }
 
       const startTime = performance.now();
@@ -204,8 +209,9 @@ export function useApplyPromoMutation(cartId?: string) {
       toast({
         id: `promo-apply-${cartId}`,
         variant: 'success',
-        title: 'Kode promo diterapkan',
-        description: data.promo?.label ?? `Kode ${variables.code.toUpperCase()} aktif`,
+        title: t('applied'),
+        description:
+          data.promo?.label ?? tPromo('codeActive', { code: variables.code.toUpperCase() }),
       });
     },
     onError: (error, variables, context) => {
@@ -229,7 +235,7 @@ export function useApplyPromoMutation(cartId?: string) {
 
       toast({
         id: `promo-apply-${cartId}-error`,
-        title: 'Gagal menerapkan kode promo',
+        title: t('applyFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });
@@ -279,6 +285,7 @@ export function useApplyPromoMutation(cartId?: string) {
 export function useRemovePromoMutation(cartId?: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const t = useTranslations('cart.promo.toast');
   const { add, remove, has } = useInFlightRegistry();
 
   const mutation = useMutation<PromoResult, Error, void, RemovePromoContext>({
@@ -334,7 +341,7 @@ export function useRemovePromoMutation(cartId?: string) {
 
       toast({
         id: `promo-remove-${cartId}`,
-        title: 'Kode promo dihapus',
+        title: t('removed'),
         variant: 'default',
       });
     },
@@ -358,7 +365,7 @@ export function useRemovePromoMutation(cartId?: string) {
 
       toast({
         id: `promo-remove-${cartId}-error`,
-        title: 'Gagal menghapus kode promo',
+        title: t('removeFailed'),
         description: normalizeError(error),
         variant: 'destructive',
       });

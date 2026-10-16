@@ -2,11 +2,13 @@
 
 import { RefreshCw, WifiOff, Package, Home } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 
 export default function OfflinePage() {
+  const t = useTranslations('common.offlinePage');
   useEffect(() => {
     // Attempt to reload when back online
     const handleOnline = () => {
@@ -23,43 +25,39 @@ export default function OfflinePage() {
           <WifiOff className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
         </div>
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">You&apos;re offline</h1>
-          <p className="text-lg text-muted-foreground">
-            No internet connection detected. Some features may be unavailable.
-          </p>
+          <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+          <p className="text-lg text-muted-foreground">{t('description')}</p>
         </div>
         <div className="space-y-3 rounded-lg border border-border/50 bg-card p-6">
-          <h2 className="font-semibold text-foreground">What you can do:</h2>
+          <h2 className="font-semibold text-foreground">{t('whatYouCanDo')}</h2>
           <ul className="mt-3 space-y-2 text-left text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
               <Package className="h-4 w-4 shrink-0" aria-hidden="true" />
-              Browse previously loaded products
+              {t('browse')}
             </li>
             <li className="flex items-center gap-2">
               <Home className="h-4 w-4 shrink-0" aria-hidden="true" />
-              View cached pages
+              {t('cached')}
             </li>
             <li className="flex items-center gap-2">
               <RefreshCw className="h-4 w-4 shrink-0" aria-hidden="true" />
-              Page will auto-refresh when back online
+              {t('autoRefresh')}
             </li>
           </ul>
         </div>
         <div className="flex flex-col gap-3">
           <Button onClick={() => window.location.reload()} className="w-full" size="lg">
             <RefreshCw className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-            Try again
+            {t('retry')}
           </Button>
           <Button variant="outline" asChild className="w-full" size="lg">
             <Link href="/">
               <Home className="mr-2 h-4 w-4" aria-hidden="true" />
-              Go to homepage
+              {t('home')}
             </Link>
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          The service worker will cache pages for offline access.
-        </p>
+        <p className="text-xs text-muted-foreground">{t('footnote')}</p>
       </div>
     </div>
   );

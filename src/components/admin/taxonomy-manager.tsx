@@ -1,12 +1,13 @@
 /**
  * Shared CRUD screen for the two flat taxonomies (categories and brands). Both
- * have identical backend shapes, so the page components below only differ in
- * labels, icon, and which mutation hooks they pass in.
+ * have identical backend shapes, so the page components only differ in their
+ * `kind` (which selects the `admin.taxonomy.<kind>` copy), icon, and hooks.
  */
 'use client';
 
 import type { UseMutationResult } from '@tanstack/react-query';
 import { Edit, Plus, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState, type ComponentType } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
@@ -21,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { AdminTaxonomy, AdminTaxonomyInput } from '@/lib/api/services/admin';
+import type { AdminTaxonomy, AdminTaxonomyInput } from '@/entities/admin/types';
 import { useToast } from '@/shared/ui/toast';
 
 /** Mirrors the backend `slugify` closely enough for a form default. */
@@ -42,10 +43,8 @@ interface TaxonomyQuery {
 }
 
 export interface TaxonomyManagerProps {
-  title: string;
-  description: string;
-  /** Singular noun used in buttons and dialogs, e.g. "Category". */
-  entityLabel: string;
+  /** Selects the copy under `admin.taxonomy.<kind>`. */
+  kind: 'categories' | 'brands';
   icon: ComponentType<{ className?: string }>;
   query: TaxonomyQuery;
   createMutation: UseMutationResult<AdminTaxonomy, unknown, AdminTaxonomyInput, unknown>;
@@ -59,15 +58,16 @@ export interface TaxonomyManagerProps {
 }
 
 export function TaxonomyManager({
-  title,
-  description,
-  entityLabel,
+  kind,
   icon: Icon,
   query,
   createMutation,
   updateMutation,
   deleteMutation,
 }: TaxonomyManagerProps) {
+  const t = useTranslations('admin.taxonomy');
+  const tKind = useTranslations(`admin.taxonomy.${kind}`);
+  const tCommon = useTranslations('admin.common');
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminTaxonomy | null>(null);
@@ -96,7 +96,7 @@ export function TaxonomyManager({
   const handleSave = async () => {
     const name = form.name.trim();
     if (!name) {
-      toast({ title: 'Name is required', variant: 'destructive' });
+      toast({ title: t('nameRequired'), variant: 'destructive' });
       return;
     }
     const payload: AdminTaxonomyInput = {
@@ -107,17 +107,17 @@ export function TaxonomyManager({
     try {
       if (editing) {
         await updateMutation.mutateAsync({ id: editing.id, data: payload });
-        toast({ title: `${entityLabel} updated`, description: name, variant: 'success' });
+        toast({ title: tKind('updated'), description: name, variant: 'success' });
       } else {
         await createMutation.mutateAsync(payload);
-        toast({ title: `${entityLabel} created`, description: name, variant: 'success' });
+        toast({ title: tKind('created'), description: name, variant: 'success' });
       }
       setDialogOpen(false);
       setEditing(null);
     } catch (error) {
       toast({
-        title: `Could not save ${entityLabel.toLowerCase()}`,
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: tKind('saveFailed'),
+        description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
     }
@@ -128,15 +128,15 @@ export function TaxonomyManager({
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       toast({
-        title: `${entityLabel} deleted`,
+        title: tKind('deleted'),
         description: deleteTarget.name,
         variant: 'success',
       });
       setDeleteTarget(null);
     } catch (error) {
       toast({
-        title: `Could not delete ${entityLabel.toLowerCase()}`,
-        description: error instanceof Error ? error.message : 'Still referenced by products?',
+        title: tKind('deleteFailed'),
+        description: error instanceof Error ? error.message : t('deleteFailedHint'),
         variant: 'destructive',
       });
     }
@@ -145,26 +145,26 @@ export function TaxonomyManager({
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title={title}
-        description={description}
+        title={tKind('title')}
+        description={tKind('description')}
         actions={
           <Button onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add {entityLabel}
+            {tKind('add')}
           </Button>
         }
       />
 
       {query.isLoading ? (
-        <AdminLoading label={`Loading ${title.toLowerCase()}...`} />
+        <AdminLoading label={tKind('loading')} />
       ) : query.isError ? (
         <AdminError error={query.error} onRetry={() => void query.refetch()} />
       ) : items.length === 0 ? (
         <AdminEmpty
-          message={`No ${title.toLowerCase()} yet.`}
+          message={tKind('empty')}
           action={
             <Button size="sm" onClick={openCreate}>
-              Add {entityLabel}
+              {tKind('add')}
             </Button>
           }
         />
@@ -179,12 +179,15 @@ export function TaxonomyManager({
               <CardContent>
                 <p className="mb-1 truncate text-sm text-muted-foreground">{item.slug}</p>
                 <p className="text-sm">
-                  <strong>{item.productCount}</strong> products
+                  {t.rich('productCount', {
+                    count: item.productCount,
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
                 </p>
                 <div className="mt-4 flex gap-2">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(item)}>
                     <Edit className="mr-1 h-3 w-3" aria-hidden="true" />
-                    Edit
+                    {tCommon('edit')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -193,7 +196,7 @@ export function TaxonomyManager({
                     onClick={() => setDeleteTarget(item)}
                   >
                     <Trash2 className="mr-1 h-3 w-3" aria-hidden="true" />
-                    Delete
+                    {tCommon('delete')}
                   </Button>
                 </div>
               </CardContent>
@@ -211,11 +214,11 @@ export function TaxonomyManager({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? `Edit ${entityLabel}` : `Add ${entityLabel}`}</DialogTitle>
+            <DialogTitle>{editing ? tKind('edit') : tKind('add')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="taxonomy-name">Name</Label>
+              <Label htmlFor="taxonomy-name">{t('name')}</Label>
               <Input
                 id="taxonomy-name"
                 value={form.name}
@@ -226,11 +229,11 @@ export function TaxonomyManager({
                     slug: slugTouched ? current.slug : slugify(name),
                   }));
                 }}
-                placeholder={`${entityLabel} name`}
+                placeholder={tKind('namePlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="taxonomy-slug">Slug</Label>
+              <Label htmlFor="taxonomy-slug">{t('slug')}</Label>
               <Input
                 id="taxonomy-slug"
                 value={form.slug}
@@ -238,16 +241,16 @@ export function TaxonomyManager({
                   setSlugTouched(true);
                   setForm((current) => ({ ...current, slug: event.target.value }));
                 }}
-                placeholder={`${entityLabel.toLowerCase()}-slug`}
+                placeholder={tKind('slugPlaceholder')}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
+              {saving ? tCommon('saving') : editing ? t('update') : t('create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -256,22 +259,24 @@ export function TaxonomyManager({
       <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete {entityLabel}</DialogTitle>
+            <DialogTitle>{tKind('delete')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Delete <strong>{deleteTarget?.name}</strong>? Products referencing it keep existing but
-            lose this association.
+            {t.rich('deleteConfirm', {
+              name: deleteTarget?.name ?? '',
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              {deleteMutation.isPending ? tCommon('deleting') : tCommon('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
