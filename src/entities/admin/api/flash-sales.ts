@@ -43,6 +43,11 @@ export const adminFlashSalesApi = {
       body: JSON.stringify(data),
       requiresAuth: true,
     });
+    // An API without the full-update PATCH applies only the status and answers
+    // {id,status,updatedAt}; fail loudly instead of reporting the edit as saved.
+    if (!response.data?.name || !Array.isArray(response.data.items)) {
+      throw new Error('Flash sale update was not applied: the API returned a status-only response');
+    }
     return response.data;
   },
 
