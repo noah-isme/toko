@@ -661,11 +661,15 @@
         "label": "Pilih varian",
         "available": "{count} tersedia",
         "soldOut": "Habis",
-        "selectColor": "Pilih warna {name}"
+        "selectColor": "Pilih warna {name}",
+        "lowStock": "Hanya tersisa {count}"
       },
       "adding": "Menambahkan…",
       "addToCart": "Tambah ke keranjang",
-      "outOfStock": "Stok habis"
+      "outOfStock": "Stok habis",
+      "stickyBar": {
+        "label": "Tambah cepat ke keranjang"
+      }
     },
     "gallery": {
       "noImage": "Gambar tidak tersedia",

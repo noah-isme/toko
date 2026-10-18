@@ -1,16 +1,21 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
 import { Price } from '@/components/price';
 import { ProductImageGallery } from '@/components/product-image-gallery';
 import { ProductRecommendations } from '@/components/product-recommendations';
+import { ProductStickyAddToCart } from '@/components/product-sticky-add-to-cart';
 import { Rating } from '@/components/rating';
 import { SocialShare } from '@/components/social-share';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useProduct } from '@/entities/catalog/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
+import { useIsOffScreen } from '@/hooks/use-is-off-screen';
+import type { ProductVariant } from '@/lib/api/types';
+import { cn } from '@/lib/utils';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { ProductDetailSkeleton } from '@/shared/ui/skeletons/ProductDetailSkeleton';
@@ -22,6 +27,13 @@ interface ProductDetailProps {
   slug: string;
 }
 
+/** Variants at or below this stock show an "Only N left" emphasis. */
+export const LOW_STOCK_THRESHOLD = 5;
+
+function variantLabel(variant: ProductVariant) {
+  return Object.values(variant.attributes).join(' / ') || variant.sku || variant.id;
+}
+
 function ProductDetailContent({ slug }: ProductDetailProps) {
   const t = useTranslations('product.detail');
   const { toast: pushToast } = useToast();
@@ -29,6 +41,8 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [addToCartElement, setAddToCartElement] = useState<HTMLDivElement | null>(null);
+  const isAddToCartOffScreen = useIsOffScreen(addToCartElement);
 
   useEffect(() => {
     if (!error) {
@@ -148,25 +162,49 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
               <p className="text-sm font-semibold">{t('variants.label')}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {variants.map((variant) => {
-                  const label =
-                    Object.values(variant.attributes).join(' / ') || variant.sku || variant.id;
+                  const label = variantLabel(variant);
+                  const isSelected = activeVariantId === variant.id;
+                  const isSoldOut = variant.stock <= 0;
+                  const isLowStock = !isSoldOut && variant.stock <= LOW_STOCK_THRESHOLD;
                   return (
                     <button
                       key={variant.id}
                       type="button"
-                      disabled={variant.stock <= 0}
+                      aria-pressed={isSelected}
+                      disabled={isSoldOut}
+                      data-state={isSelected ? 'selected' : isSoldOut ? 'sold-out' : 'idle'}
                       onClick={() => setSelectedVariantId(variant.id)}
-                      className={`rounded-xl border px-3 py-3 text-left text-sm transition ${
-                        activeVariantId === variant.id
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border hover:border-primary/60'
-                      } ${variant.stock <= 0 ? 'cursor-not-allowed opacity-45' : ''}`}
+                      className={cn(
+                        'relative rounded-xl border px-3 py-3 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                        isSelected
+                          ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                          : 'border-border hover:border-primary/60',
+                        isSoldOut &&
+                          'cursor-not-allowed border-dashed bg-muted/60 text-muted-foreground hover:border-border',
+                      )}
                     >
-                      <span className="block font-medium">{label}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {variant.stock > 0
-                          ? t('variants.available', { count: variant.stock })
-                          : t('variants.soldOut')}
+                      {isSelected ? (
+                        <Check
+                          aria-hidden="true"
+                          className="absolute right-3 top-3 h-4 w-4 text-primary"
+                        />
+                      ) : null}
+                      <span className={cn('block pr-6 font-medium', isSoldOut && 'line-through')}>
+                        {label}
+                      </span>
+                      <span
+                        className={cn(
+                          'text-xs',
+                          isLowStock
+                            ? 'font-semibold text-amber-700 dark:text-amber-400'
+                            : 'text-muted-foreground',
+                        )}
+                      >
+                        {isSoldOut
+                          ? t('variants.soldOut')
+                          : isLowStock
+                            ? t('variants.lowStock', { count: variant.stock })
+                            : t('variants.available', { count: variant.stock })}
                       </span>
                     </button>
                   );
@@ -174,7 +212,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
               </div>
             </div>
           )}
-          <div className="space-y-2">
+          <div ref={setAddToCartElement} className="space-y-2">
             <GuardedButton
               data-testid="add-to-cart"
               size="lg"
@@ -192,6 +230,19 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       <Suspense fallback={<div className="h-48 animate-pulse rounded-xl bg-muted" />}>
         <ProductRecommendations productId={data.id} />
       </Suspense>
+      {/* Keeps the end of the page clear of the fixed mobile add-to-cart bar. */}
+      <div aria-hidden="true" className="h-20 lg:hidden" />
+      {isAddToCartOffScreen ? (
+        <ProductStickyAddToCart
+          title={data.title}
+          price={displayPrice}
+          currency={data.currency || 'IDR'}
+          variantLabel={selectedVariant ? variantLabel(selectedVariant) : null}
+          isOutOfStock={isOutOfStock}
+          isLoading={isProductInFlight(data.id, activeVariantId)}
+          onAddToCart={handleAddToCart}
+        />
+      ) : null}
     </>
   );
 }

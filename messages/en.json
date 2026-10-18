@@ -661,11 +661,15 @@
         "label": "Choose a variant",
         "available": "{count} available",
         "soldOut": "Sold out",
-        "selectColor": "Select {name} color"
+        "selectColor": "Select {name} color",
+        "lowStock": "Only {count} left"
       },
       "adding": "Adding…",
       "addToCart": "Add to cart",
-      "outOfStock": "Out of stock"
+      "outOfStock": "Out of stock",
+      "stickyBar": {
+        "label": "Quick add to cart"
+      }
     },
     "gallery": {
       "noImage": "No image available",

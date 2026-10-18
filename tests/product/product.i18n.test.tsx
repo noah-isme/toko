@@ -163,7 +163,7 @@ describe('product detail in English', () => {
     expect(screen.getByText('Protected shipping')).toBeInTheDocument();
     expect(screen.getByText('Verified payment')).toBeInTheDocument();
     const variants = screen.getByLabelText('Choose a variant');
-    expect(within(variants).getByText('2 available')).toBeInTheDocument();
+    expect(within(variants).getByText('Only 2 left')).toBeInTheDocument();
     expect(within(variants).getByText('Sold out')).toBeInTheDocument();
     expect(screen.getByTestId('add-to-cart')).toHaveTextContent('Add to cart');
     expect(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
@@ -175,7 +175,7 @@ describe('product detail in English', () => {
 
     expect(screen.getByText('Pengiriman terlindungi')).toBeInTheDocument();
     const variants = screen.getByLabelText('Pilih varian');
-    expect(within(variants).getByText('2 tersedia')).toBeInTheDocument();
+    expect(within(variants).getByText('Hanya tersisa 2')).toBeInTheDocument();
     expect(within(variants).getByText('Habis')).toBeInTheDocument();
   });
 
