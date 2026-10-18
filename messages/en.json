@@ -1189,7 +1189,12 @@
         "proofUploaded": "Proof sent",
         "uploading": "Uploading...",
         "upload": "Upload proof",
-        "uploadFailed": "Failed to upload the proof of payment."
+        "uploadFailed": "Failed to upload the proof of payment.",
+        "proofHint": "JPG, PNG, WebP, GIF, or PDF, up to {max} MB.",
+        "proofUnsupported": "Unsupported file format. Use an image (JPG, PNG, WebP, GIF) or a PDF.",
+        "proofTooLarge": "File size exceeds {max} MB.",
+        "proofSelected": "Selected file: {name}",
+        "proofPreviewAlt": "Payment proof preview"
       }
     },
     "success": {

@@ -1189,7 +1189,12 @@
         "proofUploaded": "Bukti terkirim",
         "uploading": "Mengunggah...",
         "upload": "Unggah bukti",
-        "uploadFailed": "Bukti pembayaran gagal diunggah."
+        "uploadFailed": "Bukti pembayaran gagal diunggah.",
+        "proofHint": "JPG, PNG, WebP, GIF, atau PDF, maksimal {max} MB.",
+        "proofUnsupported": "Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF) atau PDF.",
+        "proofTooLarge": "Ukuran file melebihi {max} MB.",
+        "proofSelected": "File dipilih: {name}",
+        "proofPreviewAlt": "Pratinjau bukti pembayaran"
       }
     },
     "success": {

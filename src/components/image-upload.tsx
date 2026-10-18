@@ -6,6 +6,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ACCEPTED_IMAGE_TYPES, validateFile as validateUpload } from '@/shared/lib/fileValidation';
 import { useToast } from '@/shared/ui/toast';
 
 interface ImageUploadProps {
@@ -17,8 +18,6 @@ interface ImageUploadProps {
   disabled?: boolean;
   className?: string;
 }
-
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export function ImageUpload({
   value,
@@ -37,10 +36,11 @@ export function ImageUpload({
 
   const validateFile = useCallback(
     (file: File): string | null => {
-      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      const error = validateUpload(file, { acceptedTypes: ACCEPTED_IMAGE_TYPES, maxSizeMB });
+      if (error === 'unsupported') {
         return t('unsupported');
       }
-      if (file.size > maxSizeMB * 1024 * 1024) {
+      if (error === 'tooLarge') {
         return t('tooLarge', { max: maxSizeMB });
       }
       return null;
