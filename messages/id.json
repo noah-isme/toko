@@ -1167,7 +1167,10 @@
         "checking": "Memeriksa status pembayaran...",
         "contacting": "Menghubungi penyedia pembayaran.",
         "current": "Status saat ini: <strong>{status}</strong>",
-        "checkError": "Tidak dapat memeriksa status pembayaran. Silakan coba lagi."
+        "checkError": "Tidak dapat memeriksa status pembayaran. Silakan coba lagi.",
+        "stillWaiting": "Masih menunggu konfirmasi pembayaran",
+        "stillWaitingDescription": "Kami berhenti memeriksa otomatis. Jika Anda sudah membayar, periksa lagi sekarang atau kembali beberapa saat lagi.",
+        "checkAgain": "Periksa lagi"
       },
       "instructions": {
         "title": "Instruksi pembayaran",

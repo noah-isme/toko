@@ -1167,7 +1167,10 @@
         "checking": "Checking payment status...",
         "contacting": "Contacting the payment provider.",
         "current": "Current status: <strong>{status}</strong>",
-        "checkError": "Could not check the payment status. Please try again."
+        "checkError": "Could not check the payment status. Please try again.",
+        "stillWaiting": "Still waiting for payment confirmation",
+        "stillWaitingDescription": "We stopped checking automatically. If you have already paid, check again now or come back in a little while.",
+        "checkAgain": "Check again"
       },
       "instructions": {
         "title": "Payment instructions",
