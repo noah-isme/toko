@@ -1868,7 +1868,7 @@
       "save": "Save changes",
       "security": {
         "title": "Account Security",
-        "description": "Manage active sessions and sign out other devices.",
+        "description": "Review where you are signed in and sign out of every device.",
         "processing": "Processing...",
         "logoutAll": "Log out all devices",
         "loggedOutAll": "All sessions have been signed out.",
@@ -1876,7 +1876,12 @@
         "empty": "No active sessions yet.",
         "thisDevice": "This device",
         "ip": "IP: {ip}",
-        "lastActive": "Last active: {date}"
+        "signedIn": "Signed in: {date}",
+        "expiredHint": "Sessions that have already expired can still be listed until they are cleaned up.",
+        "confirmTitle": "Log out of all devices?",
+        "confirmDescription": "This signs you out everywhere, including this device. You will need to sign in again.",
+        "confirm": "Log out everywhere",
+        "cancel": "Cancel"
       }
     },
     "push": {
@@ -2206,8 +2211,65 @@
     "guard": {
       "checking": "Checking permissions...",
       "title": "Admin access required",
-      "description": "Your account does not have the admin role. Ask a store owner to grant it, then reload this page.",
+      "description": "Your account has no staff role in this store. Ask a store owner or admin to add you as staff, then reload this page.",
       "backToStore": "Back to store"
+    },
+    "access": {
+      "title": "You don't have access to this page",
+      "description": "Your role doesn't include the permission this page needs: {permission}. Ask a store owner or admin if you need it.",
+      "descriptionGeneric": "Your role doesn't allow this. Ask a store owner or admin if you need access.",
+      "platformDescription": "This area is only available to platform administrators.",
+      "tenantDescription": "You are no longer an active member of this store. Sign in again or contact the store owner.",
+      "goTo": "Go to {section}",
+      "backToStore": "Back to store",
+      "actionForbidden": "You don't have permission to do this ({permission}).",
+      "actionForbiddenGeneric": "You don't have permission to do this.",
+      "platformOnly": "Only platform administrators can do this.",
+      "tenantForbidden": "You are no longer an active member of this store.",
+      "ownerRequired": "Only an owner can grant or change the owner role.",
+      "yourRole": "Role: {role}",
+      "platformAdmin": "Platform administrator",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "manager": "Manager",
+        "catalog": "Catalog",
+        "fulfillment": "Fulfillment",
+        "support": "Support",
+        "analyst": "Analyst"
+      },
+      "roleDescriptions": {
+        "owner": "Full access, including owners, staff and store settings.",
+        "admin": "Full access to the store; cannot grant or change the owner role.",
+        "manager": "Runs the store day to day; cannot change settings or staff.",
+        "catalog": "Products, categories, brands and stock.",
+        "fulfillment": "Orders, shipments, returns and stock levels.",
+        "support": "Support tickets, orders and returns.",
+        "analyst": "Read-only access to analytics, orders, catalog, promotions and customers."
+      },
+      "permissions": {
+        "catalogRead": "View catalog",
+        "catalogWrite": "Edit catalog",
+        "inventoryRead": "View inventory",
+        "inventoryWrite": "Adjust inventory",
+        "ordersRead": "View orders",
+        "ordersWrite": "Update orders and shipments",
+        "returnsRead": "View returns",
+        "returnsWrite": "Process returns",
+        "refundsWrite": "Issue refunds",
+        "customersRead": "View customers",
+        "supportRead": "View support tickets",
+        "supportWrite": "Reply to support tickets",
+        "promotionsRead": "View promotions",
+        "promotionsWrite": "Manage promotions",
+        "analyticsRead": "View analytics",
+        "settingsRead": "View settings",
+        "settingsWrite": "Change settings",
+        "staffRead": "View staff",
+        "staffManage": "Manage staff",
+        "platformAdmin": "Platform administrator",
+        "staff": "Staff role"
+      }
     },
     "nav": {
       "label": "Admin sections",
@@ -2226,7 +2288,8 @@
         "analytics": "Analytics",
         "webhooks": "Webhooks",
         "auditLogs": "Audit Logs",
-        "settings": "Settings"
+        "settings": "Settings",
+        "staff": "Staff"
       }
     },
     "ui": {
@@ -2678,6 +2741,77 @@
         "saveFailed": "Could not save settings",
         "onboardingComplete": "Onboarding marked complete"
       }
+    },
+    "staff": {
+      "title": "Staff",
+      "description": "Choose who can work in this store's admin and what each person can do.",
+      "loading": "Loading staff...",
+      "empty": "No staff yet.",
+      "readOnly": "You can view staff, but only owners and admins can change roles.",
+      "add": {
+        "title": "Add staff member",
+        "description": "The person needs a customer account on this store first. Enter the email they signed up with.",
+        "email": "Email",
+        "emailPlaceholder": "name@example.com",
+        "role": "Role",
+        "submit": "Add staff",
+        "submitting": "Adding...",
+        "emailRequired": "Enter an email address.",
+        "emailInvalid": "Enter a valid email address.",
+        "success": "{name} is now {role}.",
+        "failed": "Could not add staff member"
+      },
+      "table": {
+        "caption": "Staff members",
+        "name": "Name",
+        "role": "Role",
+        "status": "Status",
+        "added": "Added",
+        "actions": "Actions",
+        "you": "You"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "INVITED": "Invited",
+        "SUSPENDED": "Suspended"
+      },
+      "changeRoleLabel": "Role for {name}",
+      "ownerLocked": "Only an owner can change an owner.",
+      "revoke": "Revoke",
+      "revokeLabel": "Revoke staff access for {name}",
+      "confirmChange": {
+        "title": "Change role?",
+        "description": "Change {name}'s role from {from} to {to}?",
+        "selfWarning": "You are changing your own role. You may lose access to some admin pages.",
+        "confirm": "Change role",
+        "processing": "Saving...",
+        "success": "{name} is now {role}.",
+        "failed": "Could not change the role"
+      },
+      "confirmRevoke": {
+        "title": "Revoke staff access?",
+        "description": "{name} will lose access to the admin area. Their customer account stays active.",
+        "selfWarning": "You are revoking your own access. You will leave the admin area right away.",
+        "confirm": "Revoke access",
+        "processing": "Revoking...",
+        "success": "{name} no longer has staff access.",
+        "failed": "Could not revoke access"
+      },
+      "errors": {
+        "USER_NOT_FOUND": "No customer account on this store uses that email. Ask them to sign up first, then try again.",
+        "STAFF_EXISTS": "This person is already staff. Change their role in the list instead.",
+        "LAST_OWNER": "The store must keep at least one active owner. Make someone else an owner first.",
+        "STAFF_NOT_FOUND": "This person is no longer staff. The list has been refreshed.",
+        "VALIDATION_ERROR": "Check the email and role, then try again."
+      },
+      "matrix": {
+        "title": "What each role can do",
+        "loading": "Loading roles...",
+        "none": "No permissions"
+      },
+      "pageSummary": "Page {page} of {total} ({count} staff)",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     },
     "webhooks": {
       "title": "Webhooks",

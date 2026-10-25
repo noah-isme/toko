@@ -144,13 +144,13 @@ export const authApi = {
   },
 
   /**
-   * Logout all sessions
+   * Revoke every session of the current user, this one included
+   * (`204 No Content`; the backend also clears the refresh cookie).
    */
-  async logoutAllSessions(): Promise<MessageResponse | void> {
-    const response = await apiClient<ApiResponse<MessageResponse> | void>('/auth/logout/all', {
+  async logoutAllSessions(): Promise<void> {
+    await apiClient<void>('/auth/logout/all', {
       method: 'POST',
       requiresAuth: true,
     });
-    return response?.data;
   },
 };

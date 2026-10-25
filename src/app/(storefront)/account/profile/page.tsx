@@ -1,14 +1,23 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, MailWarning } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/lib/api/services';
 import { getErrorMessage, isValidPhoneNumber } from '@/lib/api/utils';
@@ -27,15 +36,15 @@ export default function ProfilePage() {
   const tAccount = useTranslations('account');
   const tErrors = useTranslations('errors');
   const fmt = useFormat();
-  const { user, isAuthenticated, isLoading, updateProfile } = useAuth();
+  const { user, isAuthenticated, isLoading, updateProfile, logoutAll } = useAuth();
+  const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendSuccess, setResendSuccess] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
-  const [securityMessage, setSecurityMessage] = useState<string | null>(null);
   const [securityError, setSecurityError] = useState<string | null>(null);
   const [isLoggingOutAll, setIsLoggingOutAll] = useState(false);
-  const queryClient = useQueryClient();
+  const [confirmLogoutAll, setConfirmLogoutAll] = useState(false);
   const form = useForm<ProfileForm>({
     defaultValues: {
       name: '',
@@ -105,15 +114,18 @@ export default function ProfilePage() {
     });
   }, [sessionsQuery.data]);
 
+  // `POST /auth/logout/all` revokes every session including this one (204, refresh
+  // cookie cleared), so the user is signed out here too and sent to the login page.
   const handleLogoutAllSessions = async () => {
     setIsLoggingOutAll(true);
-    setSecurityMessage(null);
     setSecurityError(null);
     try {
-      const response = await authApi.logoutAllSessions();
-      setSecurityMessage(response?.message ?? t('security.loggedOutAll'));
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'sessions'] });
+      await logoutAll();
+      setConfirmLogoutAll(false);
+      toast({ variant: 'success', description: t('security.loggedOutAll') });
+      router.replace('/login');
     } catch (error) {
+      setConfirmLogoutAll(false);
       setSecurityError(getErrorMessage(error, tErrors));
     } finally {
       setIsLoggingOutAll(false);
@@ -278,22 +290,13 @@ export default function ProfilePage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleLogoutAllSessions}
+            onClick={() => setConfirmLogoutAll(true)}
             disabled={isLoggingOutAll}
           >
             {isLoggingOutAll ? t('security.processing') : t('security.logoutAll')}
           </Button>
         </div>
 
-        {securityMessage ? (
-          <div
-            className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900"
-            role="status"
-            aria-live="polite"
-          >
-            {securityMessage}
-          </div>
-        ) : null}
         {securityError ? (
           <div
             className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
@@ -337,7 +340,7 @@ export default function ProfilePage() {
                       {session.location ? ` • ${session.location}` : ''}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {t('security.lastActive', { date: fmt.dateTime(session.lastActive) })}
+                      {t('security.signedIn', { date: fmt.dateTime(session.lastActive) })}
                     </p>
                   </div>
                 </div>
@@ -345,7 +348,38 @@ export default function ProfilePage() {
             ))}
           </ul>
         )}
+        {sortedSessions.length > 0 ? (
+          <p className="text-xs text-muted-foreground">{t('security.expiredHint')}</p>
+        ) : null}
       </section>
+
+      <Dialog
+        open={confirmLogoutAll}
+        onOpenChange={(open) => !isLoggingOutAll && setConfirmLogoutAll(open)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('security.confirmTitle')}</DialogTitle>
+            <DialogDescription>{t('security.confirmDescription')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmLogoutAll(false)}
+              disabled={isLoggingOutAll}
+            >
+              {t('security.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => void handleLogoutAllSessions()}
+              disabled={isLoggingOutAll}
+            >
+              {isLoggingOutAll ? t('security.processing') : t('security.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
