@@ -1790,6 +1790,7 @@
       "errorTitle": "Invoice tidak dapat diunduh",
       "errors": {
         "notAvailable": "Invoice tersedia setelah pesanan dibayar.",
+        "notAvailableCancelled": "Tidak ada invoice yang diterbitkan sebelum pesanan ini dibatalkan.",
         "notFound": "Pesanan tidak ditemukan.",
         "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi.",
         "failed": "Gagal mengunduh invoice. Silakan coba lagi."

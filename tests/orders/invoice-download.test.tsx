@@ -7,11 +7,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import OrderDetailPage from '@/app/(storefront)/account/orders/[orderId]/page';
 import OrderConfirmationPage from '@/app/(storefront)/order/confirmation/[orderId]/page';
-import { canOfferInvoice, isInvoiceIssuable } from '@/entities/orders/api/invoice';
+import {
+  canOfferInvoice,
+  invoiceErrorKind,
+  isInvoiceIssuable,
+} from '@/entities/orders/api/invoice';
 import { InvoiceDownloadButton } from '@/entities/orders/ui/InvoiceDownloadButton';
+import { ApiClientError } from '@/lib/api/apiClient';
 import { server } from '@/mocks/server';
 
-const state = vi.hoisted(() => ({ status: 'paid' }));
+const state = vi.hoisted(() => ({
+  status: 'paid',
+  payment: undefined as undefined | { status: string; paidAt?: string },
+}));
 const toastMock = vi.fn();
 
 vi.mock('next/navigation', () => ({
@@ -38,6 +46,7 @@ vi.mock('@/entities/orders/api/hooks', () => ({
       id: 'order-1001',
       orderNumber: 'ORD-1001',
       status: state.status,
+      payment: state.payment,
       currency: 'IDR',
       createdAt: '2026-10-01T08:00:00Z',
       items: [],
@@ -66,6 +75,7 @@ let clickedDownloads: Array<{ href: string; download: string }>;
 
 beforeEach(() => {
   state.status = 'paid';
+  state.payment = undefined;
   toastMock.mockClear();
   clickedDownloads = [];
   localStorage.setItem('accessToken', 'token-abc');
@@ -92,12 +102,26 @@ describe('invoice availability', () => {
     ['shipped', true, true],
     ['out_for_delivery', true, true],
     ['delivered', true, true],
-    ['cancelled', false, true],
+    ['cancelled', false, false],
     ['pending_payment', false, false],
     ['', false, false],
   ])('%s: issuable=%s, offered=%s', (status, issuable, offered) => {
     expect(isInvoiceIssuable(status)).toBe(issuable);
     expect(canOfferInvoice(status)).toBe(offered);
+  });
+
+  it('offers cancelled orders only when they were paid before the cancellation', () => {
+    expect(canOfferInvoice('cancelled', { status: 'pending' })).toBe(false);
+    expect(canOfferInvoice('cancelled', { status: 'failed' })).toBe(false);
+    expect(canOfferInvoice('cancelled', { status: 'paid' })).toBe(true);
+    expect(canOfferInvoice('canceled', { paidAt: '2026-10-01T09:00:00Z' })).toBe(true);
+    expect(canOfferInvoice('pending_payment', { status: 'paid' })).toBe(false);
+  });
+
+  it('maps a 409 on a cancelled order to its own message kind', () => {
+    const error = new ApiClientError('nope', 'INVOICE_NOT_AVAILABLE', 409);
+    expect(invoiceErrorKind(error)).toBe('notAvailable');
+    expect(invoiceErrorKind(error, { cancelled: true })).toBe('notAvailableCancelled');
   });
 });
 
@@ -195,11 +219,36 @@ describe('order pages offer the PDF invoice', () => {
     expect(screen.queryByRole('button', { name: 'Unduh invoice' })).not.toBeInTheDocument();
   });
 
-  it('order detail keeps it for cancelled orders, which may hold an earlier invoice', () => {
+  it('order detail hides it for a cancelled order that was never paid', () => {
     state.status = 'cancelled';
+    state.payment = { status: 'pending' };
     renderWithClient(<OrderDetailPage />);
 
-    expect(screen.getByRole('button', { name: 'Unduh invoice' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Unduh invoice' })).not.toBeInTheDocument();
+  });
+
+  it('order detail keeps it for a cancelled order paid earlier, with a cancelled-order 409 message', async () => {
+    state.status = 'cancelled';
+    state.payment = { status: 'paid', paidAt: '2026-10-01T09:00:00Z' };
+    server.use(
+      http.get('*/orders/:orderId/invoice', () =>
+        HttpResponse.json(
+          { error: { code: 'INVOICE_NOT_AVAILABLE', message: 'nope' } },
+          { status: 409 },
+        ),
+      ),
+    );
+    renderWithClient(<OrderDetailPage />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Unduh invoice' }));
+
+    await waitFor(() =>
+      expect(toastMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Tidak ada invoice yang diterbitkan sebelum pesanan ini dibatalkan.',
+        }),
+      ),
+    );
   });
 
   it('confirmation page shows it once the order is paid', () => {

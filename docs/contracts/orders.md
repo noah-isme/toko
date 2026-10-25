@@ -238,5 +238,7 @@ saves it under the server filename and shows a toast per error code. When the
 API is on another origin the backend must list `Content-Disposition` in
 `Access-Control-Expose-Headers` for the filename to be readable; otherwise the
 file is saved as `invoice-<orderNumber>.pdf`. The button appears on the order
-detail page (paid-like and cancelled orders) and on the order confirmation page
-(paid-like orders).
+detail page (paid-like orders, and cancelled orders whose `payment.status` is
+`paid` or that have `payment.paidAt`, since only those can hold an invoice) and
+on the order confirmation page (paid-like orders). A 409 on a cancelled order
+says that no invoice was issued before the cancellation.

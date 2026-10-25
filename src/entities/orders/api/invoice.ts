@@ -18,10 +18,24 @@ export function isInvoiceIssuable(status: string | null | undefined): boolean {
   return INVOICEABLE_STATUSES.has((status ?? '').toLowerCase());
 }
 
-/** Whether to offer the download at all: paid orders, plus cancelled ones that may hold an invoice. */
-export function canOfferInvoice(status: string | null | undefined): boolean {
+export function isCancelledStatus(status: string | null | undefined): boolean {
   const normalized = (status ?? '').toLowerCase();
-  return isInvoiceIssuable(normalized) || normalized === 'cancelled' || normalized === 'canceled';
+  return normalized === 'cancelled' || normalized === 'canceled';
+}
+
+/**
+ * Whether to offer the download at all: paid orders, plus cancelled orders
+ * that were paid before the cancellation (only those can hold an invoice; the
+ * backend issues the number on the first download, and most cancelled orders
+ * were never paid).
+ */
+export function canOfferInvoice(
+  status: string | null | undefined,
+  payment?: { status?: string | null; paidAt?: string | null } | null,
+): boolean {
+  if (isInvoiceIssuable(status)) return true;
+  if (!isCancelledStatus(status)) return false;
+  return payment?.status === 'paid' || Boolean(payment?.paidAt);
 }
 
 /**
@@ -36,12 +50,26 @@ export async function downloadOrderInvoice(orderId: string, orderNumber?: string
   saveBlob(blob, filename ?? `invoice-${orderNumber || orderId}.pdf`);
 }
 
-export type InvoiceErrorKind = 'notAvailable' | 'notFound' | 'sessionExpired' | 'failed';
+export type InvoiceErrorKind =
+  | 'notAvailable'
+  | 'notAvailableCancelled'
+  | 'notFound'
+  | 'sessionExpired'
+  | 'failed';
 
-export function invoiceErrorKind(error: unknown): InvoiceErrorKind {
+/**
+ * Maps a download failure to a message key. A 409 on a cancelled order means
+ * no invoice was issued before the cancellation, not "pay first".
+ */
+export function invoiceErrorKind(
+  error: unknown,
+  options: { cancelled?: boolean } = {},
+): InvoiceErrorKind {
   if (error instanceof AuthError) return 'sessionExpired';
   if (error instanceof ApiClientError) {
-    if (error.code === 'INVOICE_NOT_AVAILABLE' || error.status === 409) return 'notAvailable';
+    if (error.code === 'INVOICE_NOT_AVAILABLE' || error.status === 409) {
+      return options.cancelled ? 'notAvailableCancelled' : 'notAvailable';
+    }
     if (error.status === 404) return 'notFound';
   }
   return 'failed';

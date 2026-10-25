@@ -13,6 +13,8 @@ import { useToast } from '@/shared/ui/toast';
 interface InvoiceDownloadButtonProps {
   orderId: string;
   orderNumber?: string | null;
+  /** The order is cancelled; a 409 then gets the "no invoice was issued" message. */
+  cancelled?: boolean;
   variant?: ButtonProps['variant'];
   size?: ButtonProps['size'];
   className?: string;
@@ -22,6 +24,7 @@ interface InvoiceDownloadButtonProps {
 export function InvoiceDownloadButton({
   orderId,
   orderNumber,
+  cancelled = false,
   variant = 'outline',
   size,
   className,
@@ -39,7 +42,7 @@ export function InvoiceDownloadButton({
       toast({
         variant: 'destructive',
         title: t('errorTitle'),
-        description: t(`errors.${invoiceErrorKind(error)}`),
+        description: t(`errors.${invoiceErrorKind(error, { cancelled })}`),
       });
     } finally {
       setDownloading(false);

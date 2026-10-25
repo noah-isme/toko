@@ -10,7 +10,7 @@ import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
-import { canOfferInvoice } from '@/entities/orders/api/invoice';
+import { canOfferInvoice, isCancelledStatus } from '@/entities/orders/api/invoice';
 import { InvoiceDownloadButton } from '@/entities/orders/ui/InvoiceDownloadButton';
 import { humanizeStatus, orderStatusLabel, type AccountTranslator } from '@/shared/i18n/status';
 import { useFormat } from '@/shared/i18n/use-format';
@@ -93,8 +93,12 @@ export default function OrderDetailPage() {
             <Link href={`/order/tracking/${order.id}`}>{t('orderDetail.trackShipment')}</Link>
           </Button>
         ) : null}
-        {canOfferInvoice(order.status) ? (
-          <InvoiceDownloadButton orderId={order.id} orderNumber={order.orderNumber} />
+        {canOfferInvoice(order.status, order.payment) ? (
+          <InvoiceDownloadButton
+            orderId={order.id}
+            orderNumber={order.orderNumber}
+            cancelled={isCancelledStatus(order.status)}
+          />
         ) : null}
         {canCancel ? (
           <Button type="button" variant="destructive" onClick={() => setCancelOpen(true)}>

@@ -1790,6 +1790,7 @@
       "errorTitle": "Invoice unavailable",
       "errors": {
         "notAvailable": "The invoice is available once the order is paid.",
+        "notAvailableCancelled": "No invoice was issued before this order was cancelled.",
         "notFound": "Order not found.",
         "sessionExpired": "Your session has expired. Please sign in again.",
         "failed": "Could not download the invoice. Please try again."
