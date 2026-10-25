@@ -1,14 +1,20 @@
 'use client';
 
-import { AlertTriangle, Edit, Plus, Search, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
+import { Edit, Plus, Search, Trash2, TrendingDown, TrendingUp, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { BulkActionDialog, type BulkKind } from '@/components/admin/catalog/bulk-action-dialog';
+import { CsvExportButton } from '@/components/admin/catalog/csv-export-button';
+import { SortableTableHead } from '@/components/admin/catalog/sortable-head';
+import { ProductStatusBadge, StockStatusBadge } from '@/components/admin/catalog/status-badges';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +24,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Table,
   TableBody,
   TableCell,
@@ -25,43 +38,129 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { BULK_MAX_ITEMS } from '@/entities/admin/api/catalog-ops';
 import {
   useAdminProducts,
   useDeleteAdminProduct,
+  useExportProductsCsv,
   useUpdateAdminProductStock,
 } from '@/entities/admin/hooks';
-import type { AdminProduct } from '@/entities/admin/types';
+import {
+  PRODUCT_STATUSES,
+  STOCK_STATUSES,
+  nextSort,
+  parseProductListState,
+  productListSearch,
+  sortParam,
+  type ProductListUrlState,
+} from '@/entities/admin/product-list-params';
+import type {
+  AdminProduct,
+  AdminProductSortField,
+  AdminProductStatus,
+  AdminStockStatus,
+} from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
 const PAGE_SIZE = 20;
+/** Radix Select cannot hold an empty value. */
+const ALL = 'all';
+
+/** Older backends omit `stockStatus`; fall back to a plain in/out reading. */
+function stockStatusOf(product: AdminProduct): AdminStockStatus {
+  return product.stockStatus ?? (product.stock > 0 || product.inStock ? 'in' : 'out');
+}
 
 export default function ProductsPage() {
+  return (
+    <Suspense fallback={<AdminLoading />}>
+      <ProductsPageContent />
+    </Suspense>
+  );
+}
+
+function ProductsPageContent() {
   const t = useTranslations('admin.products');
+  const tCatalog = useTranslations('admin.catalog');
   const tCommon = useTranslations('admin.common');
-  const { currency } = useAdminFormat();
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  const { currency, day } = useAdminFormat();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlState = parseProductListState(new URLSearchParams(searchParams.toString()));
+  const { page, sort, status, stockStatus } = urlState;
+  const [search, setSearch] = useState(urlState.q);
   const debouncedSearch = useDebouncedValue(search);
   const { toast } = useToast();
 
   const [stockTarget, setStockTarget] = useState<AdminProduct | null>(null);
   const [quickStock, setQuickStock] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<AdminProduct | null>(null);
+  /** Selected products by id; kept across pages so a bulk action can span them. */
+  const [selected, setSelected] = useState<Map<string, AdminProduct>>(new Map());
+  const [bulkKind, setBulkKind] = useState<BulkKind | null>(null);
+  const [rowErrors, setRowErrors] = useState<Map<string, string[]>>(new Map());
 
-  const query = useAdminProducts({ page, limit: PAGE_SIZE, search: debouncedSearch || undefined });
+  const replaceUrl = (patch: Partial<ProductListUrlState>) => {
+    const query = productListSearch({ ...urlState, ...patch });
+    router.replace((query ? `${pathname}?${query}` : pathname) as never, { scroll: false });
+  };
+
+  // Push the debounced search into the URL (and back to page 1) once typing stops.
+  useEffect(() => {
+    if (debouncedSearch !== urlState.q) replaceUrl({ q: debouncedSearch, page: 1 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to the debounced value
+  }, [debouncedSearch]);
+
+  const filters = {
+    search: urlState.q || undefined,
+    status,
+    stockStatus,
+  };
+  const query = useAdminProducts({ page, limit: PAGE_SIZE, sort: sortParam(urlState), ...filters });
   const updateStock = useUpdateAdminProductStock();
   const deleteProduct = useDeleteAdminProduct();
+  const exportProducts = useExportProductsCsv();
 
   const products = query.data?.data ?? [];
   const totalItems = query.data?.pagination.totalItems ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const hasFilters = Boolean(urlState.q || status || stockStatus);
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1);
+  const handleSort = (field: AdminProductSortField) => {
+    replaceUrl({ sort: nextSort(sort, field), page: 1 });
+  };
+
+  const selectedOnPage = products.filter((product) => selected.has(product.id)).length;
+  const pageSelection: boolean | 'indeterminate' =
+    products.length > 0 && selectedOnPage === products.length
+      ? true
+      : selectedOnPage > 0
+        ? 'indeterminate'
+        : false;
+  const atLimit = selected.size >= BULK_MAX_ITEMS;
+
+  const toggleRow = (product: AdminProduct, checked: boolean) => {
+    setSelected((current) => {
+      const next = new Map(current);
+      if (checked && next.size < BULK_MAX_ITEMS) next.set(product.id, product);
+      else next.delete(product.id);
+      return next;
+    });
+  };
+
+  const togglePage = (checked: boolean) => {
+    setSelected((current) => {
+      const next = new Map(current);
+      for (const product of products) {
+        if (!checked) next.delete(product.id);
+        else if (next.size < BULK_MAX_ITEMS) next.set(product.id, product);
+      }
+      return next;
+    });
   };
 
   const handleSaveStock = async () => {
@@ -104,12 +203,25 @@ export default function ProductsPage() {
         title={t('title')}
         description={t('description')}
         actions={
-          <Button asChild>
-            <Link href="/admin/products/new" data-testid="admin-product-new">
-              <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-              {t('add')}
-            </Link>
-          </Button>
+          <>
+            <CsvExportButton
+              label={tCatalog('export.productsLabel')}
+              onExport={() => exportProducts.mutateAsync(filters)}
+              testId="admin-products-export"
+            />
+            <Button asChild variant="outline">
+              <Link href={'/admin/products/import' as never} data-testid="admin-products-import">
+                <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
+                {tCatalog('import.button')}
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/admin/products/new" data-testid="admin-product-new">
+                <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+                {t('add')}
+              </Link>
+            </Button>
+          </>
         }
       />
 
@@ -121,28 +233,129 @@ export default function ProductsPage() {
               <span className="ml-2 text-sm font-normal text-muted-foreground">({totalItems})</span>
             ) : null}
           </CardTitle>
-          <div className="relative w-full sm:w-72">
-            <Search
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              placeholder={t('searchPlaceholder')}
-              value={search}
-              onChange={(event) => handleSearchChange(event.target.value)}
-              className="pl-10"
-              aria-label={t('searchLabel')}
-            />
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <Select
+              value={status ?? ALL}
+              onValueChange={(value) =>
+                replaceUrl({
+                  status: value === ALL ? undefined : (value as AdminProductStatus),
+                  page: 1,
+                })
+              }
+            >
+              <SelectTrigger
+                className="w-full sm:w-40"
+                aria-label={tCatalog('filters.status')}
+                data-testid="admin-products-status-filter"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>{tCatalog('filters.allStatuses')}</SelectItem>
+                {PRODUCT_STATUSES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {tCatalog(`status.${value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={stockStatus ?? ALL}
+              onValueChange={(value) =>
+                replaceUrl({
+                  stockStatus: value === ALL ? undefined : (value as AdminStockStatus),
+                  page: 1,
+                })
+              }
+            >
+              <SelectTrigger
+                className="w-full sm:w-44"
+                aria-label={tCatalog('filters.stockStatus')}
+                data-testid="admin-products-stock-filter"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>{tCatalog('filters.allStock')}</SelectItem>
+                {STOCK_STATUSES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {tCatalog(`stockStatus.${value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="relative w-full sm:w-64">
+              <Search
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <Input
+                placeholder={t('searchPlaceholder')}
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="pl-10"
+                aria-label={t('searchLabel')}
+              />
+            </div>
+            {hasFilters ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch('');
+                  replaceUrl({ q: '', status: undefined, stockStatus: undefined, page: 1 });
+                }}
+              >
+                <X className="mr-1 h-4 w-4" aria-hidden="true" />
+                {tCatalog('filters.clear')}
+              </Button>
+            ) : null}
           </div>
         </CardHeader>
         <CardContent>
+          {selected.size > 0 ? (
+            <div
+              role="toolbar"
+              aria-label={tCatalog('bulk.toolbar')}
+              className="mb-4 flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 p-3"
+              data-testid="admin-products-bulk-bar"
+            >
+              <p className="mr-auto text-sm font-medium" aria-live="polite">
+                {tCatalog('selection.selected', { count: selected.size })}
+                {atLimit ? (
+                  <span className="ml-2 font-normal text-muted-foreground">
+                    {tCatalog('selection.limit', { max: BULK_MAX_ITEMS })}
+                  </span>
+                ) : null}
+              </p>
+              <Button size="sm" variant="outline" onClick={() => setBulkKind('price')}>
+                {tCatalog('bulk.setPrice')}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setBulkKind('stock')}>
+                {tCatalog('bulk.adjustStock')}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setBulkKind('status')}>
+                {tCatalog('bulk.changeStatus')}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setSelected(new Map());
+                  setRowErrors(new Map());
+                }}
+              >
+                {tCatalog('selection.clear')}
+              </Button>
+            </div>
+          ) : null}
           {query.isLoading ? (
             <AdminLoading label={t('loading')} />
           ) : query.isError ? (
             <AdminError error={query.error} onRetry={() => void query.refetch()} />
           ) : products.length === 0 ? (
             <AdminEmpty
-              message={debouncedSearch ? t('noMatches') : t('empty')}
+              message={hasFilters ? t('noMatches') : t('empty')}
               action={
                 <Button asChild size="sm">
                   <Link href="/admin/products/new">{t('addFirst')}</Link>
@@ -155,117 +368,171 @@ export default function ProductsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{t('columns.product')}</TableHead>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={pageSelection}
+                          onCheckedChange={(checked) => togglePage(checked === true)}
+                          aria-label={tCatalog('selection.selectPage')}
+                          data-testid="admin-products-select-page"
+                        />
+                      </TableHead>
+                      <SortableTableHead
+                        field="name"
+                        label={t('columns.product')}
+                        sort={sort}
+                        onSort={handleSort}
+                      />
                       <TableHead>{t('columns.sku')}</TableHead>
                       <TableHead>{t('columns.category')}</TableHead>
-                      <TableHead className="text-right">{t('columns.price')}</TableHead>
-                      <TableHead>{t('columns.stock')}</TableHead>
+                      <TableHead>{tCatalog('columns.status')}</TableHead>
+                      <SortableTableHead
+                        field="price"
+                        label={t('columns.price')}
+                        sort={sort}
+                        onSort={handleSort}
+                        className="text-right"
+                      />
+                      <SortableTableHead
+                        field="stock"
+                        label={t('columns.stock')}
+                        sort={sort}
+                        onSort={handleSort}
+                      />
+                      <SortableTableHead
+                        field="updated"
+                        label={tCatalog('columns.updated')}
+                        sort={sort}
+                        onSort={handleSort}
+                      />
                       <TableHead className="text-right">{tCommon('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.map((product) => (
-                      <TableRow
-                        key={product.id}
-                        data-testid="admin-product-row"
-                        data-product-id={product.id}
-                      >
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                              {product.thumbnail ? (
-                                <Image
-                                  src={product.thumbnail}
-                                  alt=""
-                                  fill
-                                  className="object-cover"
-                                  sizes="40px"
-                                />
-                              ) : null}
+                    {products.map((product) => {
+                      const errors = rowErrors.get(product.id);
+                      const errorId = `product-errors-${product.id}`;
+                      const productStock = stockStatusOf(product);
+                      return (
+                        <TableRow
+                          key={product.id}
+                          data-testid="admin-product-row"
+                          data-product-id={product.id}
+                          data-state={selected.has(product.id) ? 'selected' : undefined}
+                          className={cn(errors && 'bg-destructive/5')}
+                        >
+                          <TableCell>
+                            <Checkbox
+                              checked={selected.has(product.id)}
+                              disabled={atLimit && !selected.has(product.id)}
+                              onCheckedChange={(checked) => toggleRow(product, checked === true)}
+                              aria-label={tCatalog('selection.selectRow', { title: product.title })}
+                              aria-describedby={errors ? errorId : undefined}
+                              aria-invalid={errors ? true : undefined}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                                {product.thumbnail ? (
+                                  <Image
+                                    src={product.thumbnail}
+                                    alt=""
+                                    fill
+                                    className="object-cover"
+                                    sizes="40px"
+                                  />
+                                ) : null}
+                              </div>
+                              <div className="min-w-0">
+                                <Link
+                                  href={`/admin/products/${product.id}/edit` as never}
+                                  className="font-medium hover:underline"
+                                  data-testid="admin-product-title"
+                                >
+                                  {product.title}
+                                </Link>
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {product.slug}
+                                </p>
+                                {errors ? (
+                                  <ul
+                                    id={errorId}
+                                    className="mt-1 space-y-0.5 text-xs text-destructive"
+                                    aria-label={tCatalog('bulk.rowErrorsLabel', {
+                                      title: product.title,
+                                    })}
+                                    data-testid="admin-product-row-errors"
+                                  >
+                                    {errors.map((message) => (
+                                      <li key={message}>{message}</li>
+                                    ))}
+                                  </ul>
+                                ) : null}
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <Link
-                                href={`/admin/products/${product.id}/edit` as never}
-                                className="font-medium hover:underline"
-                                data-testid="admin-product-title"
-                              >
-                                {product.title}
-                              </Link>
-                              <p className="truncate text-xs text-muted-foreground">
-                                {product.slug}
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">{product.sku ?? '-'}</TableCell>
-                        <TableCell>{product.categoryName ?? '-'}</TableCell>
-                        <TableCell className="text-right font-mono">
-                          {currency(product.price)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={cn(
-                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-                                product.stock > 10
-                                  ? 'bg-green-100 text-green-800'
-                                  : product.stock > 0
-                                    ? 'bg-amber-100 text-amber-800'
-                                    : 'bg-red-100 text-red-800',
-                              )}
-                            >
-                              {product.stock > 0
-                                ? t('units', { count: product.stock })
-                                : t('outOfStock')}
-                            </span>
-                            {product.stock > 0 && product.stock <= 10 ? (
-                              <AlertTriangle
-                                className="h-4 w-4 text-amber-500"
-                                aria-hidden="true"
-                              />
-                            ) : null}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label={t('updateStockFor', { title: product.title })}
-                              onClick={() => {
-                                setStockTarget(product);
-                                setQuickStock(product.stock);
-                              }}
-                            >
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">{product.sku ?? '-'}</TableCell>
+                          <TableCell>{product.categoryName ?? '-'}</TableCell>
+                          <TableCell>
+                            <ProductStatusBadge status={product.status ?? 'published'} />
+                          </TableCell>
+                          <TableCell className="text-right font-mono">
+                            {currency(product.price)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap items-center gap-2">
                               {product.stock > 0 ? (
-                                <TrendingUp className="h-4 w-4" />
-                              ) : (
-                                <TrendingDown className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <Button asChild variant="ghost" size="icon">
-                              <Link
-                                href={`/admin/products/${product.id}/edit` as never}
-                                aria-label={t('editProduct', { title: product.title })}
-                                data-testid="admin-product-edit"
+                                <span className="text-sm">
+                                  {t('units', { count: product.stock })}
+                                </span>
+                              ) : null}
+                              <StockStatusBadge status={productStock} />
+                            </div>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                            {day(product.updatedAt)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={t('updateStockFor', { title: product.title })}
+                                onClick={() => {
+                                  setStockTarget(product);
+                                  setQuickStock(product.stock);
+                                }}
                               >
-                                <Edit className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-red-600"
-                              aria-label={t('deleteProduct', { title: product.title })}
-                              data-testid="admin-product-delete"
-                              onClick={() => setDeleteTarget(product)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                                {product.stock > 0 ? (
+                                  <TrendingUp className="h-4 w-4" />
+                                ) : (
+                                  <TrendingDown className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button asChild variant="ghost" size="icon">
+                                <Link
+                                  href={`/admin/products/${product.id}/edit` as never}
+                                  aria-label={t('editProduct', { title: product.title })}
+                                  data-testid="admin-product-edit"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Link>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-red-600"
+                                aria-label={t('deleteProduct', { title: product.title })}
+                                data-testid="admin-product-delete"
+                                onClick={() => setDeleteTarget(product)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -280,7 +547,7 @@ export default function ProductsPage() {
                       variant="outline"
                       size="sm"
                       disabled={page <= 1}
-                      onClick={() => setPage((current) => Math.max(1, current - 1))}
+                      onClick={() => replaceUrl({ page: Math.max(1, page - 1) })}
                     >
                       {tCommon('previous')}
                     </Button>
@@ -288,7 +555,7 @@ export default function ProductsPage() {
                       variant="outline"
                       size="sm"
                       disabled={page >= totalPages}
-                      onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                      onClick={() => replaceUrl({ page: Math.min(totalPages, page + 1) })}
                     >
                       {tCommon('next')}
                     </Button>
@@ -299,6 +566,18 @@ export default function ProductsPage() {
           )}
         </CardContent>
       </Card>
+
+      <BulkActionDialog
+        kind={bulkKind}
+        products={[...selected.values()]}
+        onClose={() => setBulkKind(null)}
+        onRowErrors={setRowErrors}
+        onApplied={() => {
+          setBulkKind(null);
+          setSelected(new Map());
+          setRowErrors(new Map());
+        }}
+      />
 
       <Dialog open={stockTarget !== null} onOpenChange={(open) => !open && setStockTarget(null)}>
         <DialogContent>

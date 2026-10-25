@@ -2287,7 +2287,12 @@
         "averageOrderValue": "Average Order Value",
         "pending": "Pending",
         "shipped": "Shipped",
-        "delivered": "Delivered"
+        "delivered": "Delivered",
+        "lowStock": "Low stock",
+        "outOfStock": "Out of stock",
+        "lowStockLink": "View low-stock inventory",
+        "outOfStockLink": "View out-of-stock inventory",
+        "productsCount": "{count, plural, one {# product} other {# products}}"
       },
       "recentOrders": "Recent Orders",
       "loadingOrders": "Loading orders...",
@@ -2391,8 +2396,14 @@
       "errors": {
         "titleRequired": "Title is required",
         "invalid": "Invalid form values",
-        "variantAttributes": "Variant {index}: attributes must be a JSON object"
-      }
+        "variantAttributes": "Variant {index}: attributes must be a JSON object",
+        "lowStockThreshold": "Low-stock threshold must be a whole number from 0 to 1,000,000."
+      },
+      "status": "Status",
+      "statusHint": "Only published products are visible and purchasable in the store.",
+      "lowStockThreshold": "Low-stock threshold",
+      "lowStockPlaceholder": "Store default",
+      "lowStockHint": "Leave empty to use the store default. 0 turns low-stock alerts off for this product."
     },
     "taxonomy": {
       "name": "Name",
@@ -2603,6 +2614,20 @@
         "invalid": "Enter a non-negative stock quantity",
         "updated": "Inventory updated",
         "failed": "Could not update inventory"
+      },
+      "filterLabel": "Stock level",
+      "filterAll": "All variants",
+      "emptyFiltered": "No variants match this filter.",
+      "thresholdHint": "Low at {threshold, number} or fewer",
+      "thresholdOff": "Low-stock alerts off",
+      "threshold": {
+        "title": "Low-stock threshold",
+        "description": "Store default used when a product has no threshold of its own. 0 turns low-stock alerts off.",
+        "label": "Default threshold",
+        "save": "Save threshold",
+        "saved": "Low-stock threshold saved",
+        "failed": "Could not save the threshold",
+        "invalid": "Enter a whole number from 0 to 1,000,000."
       }
     },
     "customers": {
@@ -2862,6 +2887,225 @@
           "createFailed": "Failed to create flash sale",
           "updateFailed": "Failed to update flash sale",
           "statusFailed": "Failed to update status"
+        }
+      }
+    },
+    "catalog": {
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "stockStatus": {
+        "in": "In stock",
+        "low": "Low stock",
+        "out": "Out of stock"
+      },
+      "filters": {
+        "status": "Product status",
+        "stockStatus": "Stock level",
+        "allStatuses": "All statuses",
+        "allStock": "All stock levels",
+        "clear": "Clear filters"
+      },
+      "sort": {
+        "by": "Sort by {column}"
+      },
+      "columns": {
+        "status": "Status",
+        "updated": "Updated"
+      },
+      "selection": {
+        "selectPage": "Select all products on this page",
+        "selectRow": "Select {title}",
+        "selected": "{count, plural, one {# product selected} other {# products selected}}",
+        "clear": "Clear selection",
+        "limit": "You can select up to {max, number} products at once."
+      },
+      "bulk": {
+        "toolbar": "Bulk actions",
+        "setPrice": "Set price",
+        "adjustStock": "Adjust stock",
+        "changeStatus": "Change status",
+        "titles": {
+          "price": "Set price for {count, plural, one {# product} other {# products}}",
+          "stock": "Adjust stock for {count, plural, one {# product} other {# products}}",
+          "status": "Change status of {count, plural, one {# product} other {# products}}"
+        },
+        "price": {
+          "label": "New price (Rp)",
+          "applyTo": "Apply to",
+          "applyBoth": "Product and all variants (recommended)",
+          "applyProduct": "Listing price only",
+          "applyProductHint": "The cart keeps charging each variant's own price, so the listing and cart prices can differ.",
+          "compareAt": "Compare-at price",
+          "compareKeep": "Keep current",
+          "compareSet": "Set a new value",
+          "compareClear": "Remove",
+          "compareValue": "New compare-at price (Rp)"
+        },
+        "stock": {
+          "mode": "Change",
+          "modeSet": "Set stock to",
+          "modeAdjust": "Adjust stock by",
+          "value": "Quantity",
+          "setHint": "Sets every variant of each selected product to this quantity.",
+          "adjustHint": "Adds to every variant of each selected product. Use a negative number to remove stock.",
+          "noVariants": "{count, plural, one {# product has} other {# products have}} no variants and will be skipped.",
+          "loadingVariants": "Loading variants…",
+          "variantsFailed": "Could not load the variants of the selected products."
+        },
+        "status": {
+          "label": "New status",
+          "hint": "Only published products are visible and purchasable in the store."
+        },
+        "review": "Review changes",
+        "back": "Back",
+        "confirmTitle": "Confirm bulk update",
+        "confirmPrice": "Set the price of {count, plural, one {# product} other {# products}} to {price}.",
+        "confirmApplyBoth": "Every variant price changes too.",
+        "confirmApplyProduct": "Variant prices stay as they are.",
+        "confirmCompareSet": "The compare-at price becomes {price}.",
+        "confirmCompareClear": "The compare-at price is removed.",
+        "confirmStockSet": "Set the stock of {variants, plural, one {# variant} other {# variants}} to {value, number}.",
+        "confirmStockAdjust": "Change the stock of {variants, plural, one {# variant} other {# variants}} by {value, number}.",
+        "confirmStatus": "Change {count, plural, one {# product} other {# products}} to {status}.",
+        "allOrNothing": "All changes are applied together. If any item is rejected, nothing changes.",
+        "apply": "Apply changes",
+        "applying": "Applying…",
+        "success": "{count, plural, one {# item updated} other {# items updated}}",
+        "failed": "Bulk update failed",
+        "rejected": "Nothing was changed. Fix the products marked below and try again.",
+        "conflict": "The catalog is busy with another change. Nothing was changed; try again in a moment.",
+        "retry": "Try again",
+        "invalidPrice": "Enter a price of 0 or more.",
+        "invalidStock": "Enter a whole number other than 0.",
+        "invalidStockSet": "Enter a stock of 0 or more.",
+        "rowErrorsLabel": "Problems with {title}",
+        "unknownItem": "Item {index, number}",
+        "rowErrors": {
+          "MISSING": "A required value is missing.",
+          "AMBIGUOUS": "Conflicting values were sent for this item.",
+          "INVALID_UUID": "The id is not valid.",
+          "NEGATIVE": "The value must be 0 or more.",
+          "NOT_FOUND": "This product or variant no longer exists.",
+          "DUPLICATE": "This item appears more than once in the request.",
+          "INVALID_STATUS": "The status is not valid.",
+          "INVALID_APPLY_TO": "The price target is not valid.",
+          "NEGATIVE_RESULT": "Stock would drop below 0.",
+          "OUT_OF_RANGE": "The value is too large.",
+          "NOT_ALLOWED": "This change is not allowed for this item."
+        }
+      },
+      "export": {
+        "button": "Export CSV",
+        "exporting": "Exporting…",
+        "success": "Downloaded {filename}",
+        "failed": "Export failed",
+        "productsLabel": "Export the products that match the current filters as CSV",
+        "ordersLabel": "Export the orders that match the current filters as CSV"
+      },
+      "import": {
+        "button": "Import CSV",
+        "title": "Import products",
+        "description": "Upload a CSV, review the dry run, then confirm. Nothing changes until you confirm.",
+        "back": "Back to products",
+        "type": "What to import",
+        "typeProducts": "Products",
+        "typeProductsHint": "Create and update products and variants (columns from the product export).",
+        "typeStock": "Stock only",
+        "typeStockHint": "Set stock counts by SKU (columns sku, stock, optional stock_baseline).",
+        "file": "CSV file",
+        "fileHint": "CSV only, up to 5 MB and 5,000 rows. Comma or semicolon separated.",
+        "selected": "Selected: {name}",
+        "tooLarge": "The file is larger than 5 MB.",
+        "notCsv": "Choose a .csv file. Save Excel workbooks as CSV first.",
+        "noFile": "Choose a CSV file first.",
+        "preview": "Check file",
+        "previewing": "Checking…",
+        "summary": {
+          "title": "Summary",
+          "total": "Rows",
+          "create": "New products",
+          "createVariant": "New variants",
+          "update": "Updates",
+          "unchanged": "Unchanged",
+          "rejected": "Rejected"
+        },
+        "previewTitle": "Dry run",
+        "committedTitle": "Import complete",
+        "previewNote": "This is a preview. Nothing has been saved yet.",
+        "committedNote": "These are the saved results.",
+        "rejectedNote": "{count, plural, one {# row has} other {# rows have}} errors. Fix them in the file and check it again; nothing is imported while any row is rejected.",
+        "nothingToDo": "Every row already matches the catalog. There is nothing to import.",
+        "confirm": "Import {count, plural, one {# change} other {# changes}}",
+        "confirming": "Importing…",
+        "confirmed": "Import complete",
+        "reset": "Import another file",
+        "showUnchanged": "Show unchanged rows",
+        "tableLabel": "Import rows",
+        "columns": {
+          "row": "Row",
+          "sku": "SKU",
+          "product": "Product",
+          "action": "Action",
+          "changes": "Changes",
+          "errors": "Errors"
+        },
+        "actions": {
+          "create": "New product",
+          "create_variant": "New variant",
+          "update": "Update",
+          "unchanged": "Unchanged",
+          "reject": "Rejected"
+        },
+        "noChanges": "No changes",
+        "empty": "empty",
+        "tips": {
+          "title": "Tips for Excel",
+          "dataImport": "Open exported files with Data › From Text/CSV and choose comma as the delimiter.",
+          "baseline": "Leave stock_baseline as exported: it protects sales made since the export.",
+          "prices": "price is the listing price and variant_price is what the cart charges. Change both to keep them in sync."
+        },
+        "errors": {
+          "UNSUPPORTED_FILE": "Only CSV files can be imported. Save the workbook as CSV first.",
+          "INVALID_ENCODING": "The file is not UTF-8. Save it as \"CSV UTF-8\".",
+          "EMPTY_FILE": "The file is empty.",
+          "INVALID_CSV": "The file is not valid CSV (around row {row}).",
+          "TOO_MANY_ROWS": "The file has more than {max, number} rows. Split it into smaller files.",
+          "INVALID_HEADER": "Unknown column \"{header}\". Use the column names from an export.",
+          "DUPLICATE_HEADER": "The column \"{header}\" appears more than once.",
+          "MISSING_HEADER": "The required column \"{header}\" is missing.",
+          "PAYLOAD_TOO_LARGE": "The file is larger than 5 MB.",
+          "CONFLICT": "The catalog is busy with another change. Nothing was imported; try again in a moment.",
+          "generic": "The file could not be checked."
+        },
+        "rowErrors": {
+          "MISSING": "sku, variant_id or product_id is required.",
+          "INVALID_ROW": "The row has the wrong number of columns.",
+          "INVALID_NUMBER": "{field} must be a whole number.",
+          "INVALID_UUID": "{field} is not a valid id.",
+          "NEGATIVE": "{field} must be 0 or more.",
+          "OUT_OF_RANGE": "{field} is too large.",
+          "INVALID_STATUS": "status must be draft, published or archived.",
+          "INVALID_JSON": "attributes must be a JSON object.",
+          "INVALID_SLUG": "slug may only contain lowercase letters, numbers and hyphens.",
+          "DUPLICATE_SKU": "This SKU appears more than once in the file.",
+          "DUPLICATE_VARIANT": "This variant_id appears more than once in the file.",
+          "SKU_TAKEN": "This SKU is already used by another store.",
+          "SKU_MISMATCH": "The SKU differs from the stored SKU for this variant_id (Excel may have changed it, e.g. 1.23E+12).",
+          "PRODUCT_MISMATCH": "The variant belongs to a different product_id.",
+          "SLUG_TAKEN": "This slug is already used by another product.",
+          "UNKNOWN_SKU": "No variant has this SKU.",
+          "UNKNOWN_VARIANT": "No variant has this variant_id.",
+          "UNKNOWN_PRODUCT": "No product has this product_id.",
+          "MISSING_FOR_CREATE": "{field} is required to create a product.",
+          "UNKNOWN_CATEGORY": "No category has this category_slug.",
+          "UNKNOWN_BRAND": "No brand has this brand_slug.",
+          "CONFLICTING_PRODUCT_VALUES": "Rows of the same product have different {field} values.",
+          "NO_VARIANT": "{field} needs a variant (add a sku).",
+          "STALE_STOCK": "Stock changed since the export (sales or another edit). Export again and redo this row.",
+          "STOCK_BASELINE_REQUIRED": "Add the stock_baseline column from an export to change the stock of an existing variant."
         }
       }
     }

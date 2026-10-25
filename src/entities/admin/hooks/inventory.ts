@@ -4,10 +4,14 @@ import { adminApi } from '../api';
 import { adminKeys } from '../keys';
 import type { AdminInventoryParams } from '../types';
 
-export function useAdminInventory(params: AdminInventoryParams = {}) {
+export function useAdminInventory(
+  params: AdminInventoryParams = {},
+  options: { enabled?: boolean } = {},
+) {
   return useQuery({
     queryKey: adminKeys.inventory(params),
     queryFn: () => adminApi.getInventory(params),
+    enabled: options.enabled ?? true,
     staleTime: 15_000,
   });
 }
