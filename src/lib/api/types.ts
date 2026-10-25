@@ -81,6 +81,16 @@ export interface User {
    * payloads without it still typecheck.
    */
   roles?: string[];
+  /**
+   * Caller's role in the resolved tenant (`owner` ... `analyst`, or `customer`).
+   * Only `GET /auth/me` sends it; login/register responses omit it.
+   */
+  role?: string;
+  /**
+   * Permissions of `role` in the resolved tenant (empty for `customer`). Only
+   * `GET /auth/me` sends it. Gate tenant-scoped admin UI on this list.
+   */
+  permissions?: string[];
   emailVerified?: boolean;
   phone?: string;
   createdAt: string;

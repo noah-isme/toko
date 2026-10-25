@@ -15,3 +15,4 @@ export type {
   SupportTicket,
   TicketStatus,
 } from '@/lib/api/services/customerOperations';
+export type * from './staff';

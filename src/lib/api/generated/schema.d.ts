@@ -317,6 +317,120 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/logout/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke every session of the current user
+         * @description Revokes all refresh tokens of the authenticated user on every device and clears the refresh cookie on this response. Access tokens already issued stay valid until they expire.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description All sessions revoked; refresh cookie cleared */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing or invalid token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Not an active member of the current tenant (TENANT_FORBIDDEN) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the active sessions of the current user
+         * @description One entry per stored refresh-token session of the user, newest first. Expired sessions are only purged when they are next used, so they can still appear. `lastActive` is the session's creation time and `current` is always false today (the current session is not tracked). `location` is never set yet.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Active sessions */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["SessionInfo"][];
+                        };
+                    };
+                };
+                /** @description Missing or invalid token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Not an active member of the current tenant (TENANT_FORBIDDEN) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -2479,16 +2593,60 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Apply voucher */
+        /**
+         * Apply voucher
+         * @description Vouchers belong to one tenant. A code that belongs to another tenant is treated exactly like an unknown code (404).
+         */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: string;
+                };
                 cookie?: never;
             };
-            requestBody?: never;
-            responses: never;
+            requestBody: {
+                content: {
+                    "application/json": {
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Voucher applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                /** Format: int64 */
+                                discount?: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Invalid payload, or the voucher is not active, expired, used up or below minimum spend (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Cart not found, or voucher code unknown or owned by another tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
         };
         delete?: never;
         options?: never;
@@ -3064,7 +3222,68 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List vouchers (admin)
+         * @description Paginated voucher list for the current tenant.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    limit?: number;
+                    /** @description Match on voucher code */
+                    search?: string;
+                    /** @description Discount kind filter */
+                    kind?: "fixed_amount" | "percent";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Voucher page */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminVoucher"][];
+                            pagination: components["schemas"]["Pagination"];
+                        };
+                    };
+                };
+                /** @description Invalid kind filter (`BAD_REQUEST`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         put?: never;
         /**
          * Create voucher
@@ -3214,7 +3433,72 @@ export interface paths {
             };
         };
         post?: never;
-        delete?: never;
+        /**
+         * Delete voucher (admin)
+         * @description Deletes an unused voucher of the current tenant.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    code: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Voucher deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing code (`BAD_REQUEST`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Voucher not found in this tenant (`NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Voucher has been used and cannot be deleted (`CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -3302,7 +3586,7 @@ export interface paths {
         };
         /**
          * List webhook endpoints
-         * @description Returns configured webhook endpoints.
+         * @description Returns configured webhook endpoints. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3355,7 +3639,7 @@ export interface paths {
         put?: never;
         /**
          * Create webhook endpoint
-         * @description Registers a new webhook endpoint.
+         * @description Registers a new webhook endpoint. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         post: {
             parameters: {
@@ -3425,7 +3709,7 @@ export interface paths {
         get?: never;
         /**
          * Update webhook endpoint
-         * @description Updates the webhook endpoint identified by id.
+         * @description Updates the webhook endpoint identified by id. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         put: {
             parameters: {
@@ -3492,7 +3776,7 @@ export interface paths {
         post?: never;
         /**
          * Delete webhook endpoint
-         * @description Removes the webhook endpoint identified by id.
+         * @description Removes the webhook endpoint identified by id. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         delete: {
             parameters: {
@@ -3564,7 +3848,7 @@ export interface paths {
         };
         /**
          * List webhook deliveries
-         * @description Returns webhook delivery attempts with optional filtering.
+         * @description Returns webhook delivery attempts with optional filtering. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3640,7 +3924,7 @@ export interface paths {
         put?: never;
         /**
          * Replay a webhook delivery
-         * @description Resets the delivery for retry and releases any related DLQ lock.
+         * @description Resets the delivery for retry and releases any related DLQ lock. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         post: {
             parameters: {
@@ -3715,7 +3999,7 @@ export interface paths {
         };
         /**
          * List dead-letter queue items
-         * @description Returns DLQ entries filtered by kind with pagination.
+         * @description Returns DLQ entries filtered by kind with pagination. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3784,7 +4068,7 @@ export interface paths {
         put?: never;
         /**
          * Replay DLQ items
-         * @description Re-enqueues DLQ entries either by ID list or by batch kind.
+         * @description Re-enqueues DLQ entries either by ID list or by batch kind. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         post: {
             parameters: {
@@ -3853,7 +4137,7 @@ export interface paths {
         };
         /**
          * Queue depth and DLQ metrics
-         * @description Returns queue depth, in-flight count, DLQ size, and oldest lag for a given queue kind.
+         * @description Returns queue depth, in-flight count, DLQ size, and oldest lag for a given queue kind. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3923,7 +4207,7 @@ export interface paths {
         };
         /**
          * List audit logs (admin)
-         * @description Returns a paginated list of audit logs.
+         * @description Returns a paginated list of audit logs. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3988,7 +4272,7 @@ export interface paths {
         };
         /**
          * Sales trend (daily)
-         * @description Returns daily sales aggregates for the requested date range. Range is inclusive of `from` and exclusive of `to`.
+         * @description Returns daily sales aggregates for the requested date range. Range is inclusive of `from` and exclusive of `to`. Requires the global `admin` role (`users.roles`); not granted by any tenant role. Tenant-scoped `analytics:read` once the analytics stream lands (see rec-api-analytics).
          */
         get: {
             parameters: {
@@ -4070,7 +4354,7 @@ export interface paths {
         };
         /**
          * Top products by qty
-         * @description Returns top-selling products ordered by quantity sold.
+         * @description Returns top-selling products ordered by quantity sold. Requires the global `admin` role (`users.roles`); not granted by any tenant role. Tenant-scoped `analytics:read` once the analytics stream lands (see rec-api-analytics).
          */
         get: {
             parameters: {
@@ -4137,7 +4421,7 @@ export interface paths {
         };
         /**
          * Overview for dashboard
-         * @description Aggregated order and revenue metrics for the requested date range.
+         * @description Aggregated order and revenue metrics for the requested date range. Requires the global `admin` role (`users.roles`); not granted by any tenant role. Tenant-scoped `analytics:read` once the analytics stream lands (see rec-api-analytics).
          */
         get: {
             parameters: {
@@ -4361,7 +4645,54 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List flash-sale campaigns */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Campaign page (each campaign includes its items) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["FlashSaleCampaign"][];
+                            pagination: components["schemas"]["Pagination"];
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         put?: never;
         /** Create a flash-sale campaign */
         post: {
@@ -4385,6 +4716,7 @@ export interface paths {
                             /** Format: uuid */
                             productId: string;
                             salePrice: number;
+                            /** @description null or absent means unlimited; 0 is rejected with 400 */
                             stockLimit?: number | null;
                         }[];
                     };
@@ -4413,7 +4745,59 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get a flash-sale campaign */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The campaign with all its items */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["FlashSaleCampaign"];
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Campaign not found for this tenant (`NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         put?: never;
         post?: never;
         delete?: never;
@@ -5167,7 +5551,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or brandId/categoryId unknown or owned by another tenant (BAD_REQUEST, 'unknown brand or category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -5188,7 +5572,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description Slug already exists. Slugs are currently unique across all tenants, so this can also mean another tenant uses it. */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5363,7 +5747,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or brandId/categoryId unknown or owned by another tenant (BAD_REQUEST, 'unknown brand or category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -5391,7 +5775,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description Slug already exists. Slugs are currently unique across all tenants, so this can also mean another tenant uses it. */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5578,7 +5962,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or parentId unknown or owned by another tenant (BAD_REQUEST, 'unknown parent category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -5712,7 +6096,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or parentId unknown or owned by another tenant (BAD_REQUEST, 'unknown parent category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -7149,6 +7533,385 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List staff roles and their permissions
+         * @description The seven staff roles in rank order (owner first) with the permissions each grants. `owner` can only be granted by an owner; every other role can be granted by any holder of `staff:manage`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Role matrix */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["RoleDefinition"][];
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing permission (`FORBIDDEN`, `details.required`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List staff of the current tenant
+         * @description Memberships of the current tenant whose role is not `customer`, ordered by role rank (owner, admin, manager, then the rest) and then email.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    /** @description Values above 100 are clamped to 100 */
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Staff page */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["StaffMember"][];
+                            pagination: components["schemas"]["Pagination"];
+                        };
+                    };
+                };
+                /** @description Missing tenant (`MISSING_TENANT`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing permission (`FORBIDDEN`, `details.required`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Grant a staff role to an existing member
+         * @description Looks the user up by email (case-insensitive) among the members of the current tenant only: a person must first have an account on this tenant's storefront. An unknown email and a user who is not a member of this tenant both return `404 USER_NOT_FOUND`. A SUSPENDED membership is reactivated. Runs in a transaction serialized per tenant; the actor's role is re-read inside it.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StaffAssignRequest"];
+                };
+            };
+            responses: {
+                /** @description Role granted */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["StaffMember"];
+                        };
+                    };
+                };
+                /** @description Invalid payload, missing email, unknown role or role `customer` (`VALIDATION_ERROR`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `FORBIDDEN` (no `staff:manage`, `details.required = "staff:manage"`), `OWNER_REQUIRED` (role `owner` requested by a non-owner) or `TENANT_FORBIDDEN` (actor's membership is no longer ACTIVE) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description No member of this tenant has that email (`USER_NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description The user is already staff; use PATCH (`STAFF_EXISTS`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke a staff role
+         * @description Sets the membership role back to `customer`; the membership itself is kept.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Role revoked */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid user id (`VALIDATION_ERROR`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `FORBIDDEN`, `OWNER_REQUIRED` or `TENANT_FORBIDDEN` (see PATCH) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description No staff membership for that user in this tenant (`STAFF_NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description The target is the only ACTIVE owner (`LAST_OWNER`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** Change a staff member's role */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StaffRoleUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description Role changed */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["StaffMember"];
+                        };
+                    };
+                };
+                /** @description Invalid user id, unknown role or role `customer` (use DELETE) (`VALIDATION_ERROR`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `FORBIDDEN` (no `staff:manage`), `OWNER_REQUIRED` (target is an owner or the new role is `owner`, and the actor is not an owner) or `TENANT_FORBIDDEN` */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description No staff membership for that user in this tenant (`STAFF_NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description The target is the only ACTIVE owner (`LAST_OWNER`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -7157,7 +7920,7 @@ export interface components {
             reason: string;
             notes?: string;
         };
-        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
+        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. `stockLimit` is tri-state: `null` means unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry, absent means unlimited. `0` is rejected with 400. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
         FlashSaleCampaignUpdateRequest: {
             name?: string;
             slug?: string;
@@ -7177,7 +7940,7 @@ export interface components {
                 productId: string;
                 /** @description Must be lower than the product price */
                 salePrice: number;
-                /** @description null or absent means unlimited */
+                /** @description `null` = unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry absent = unlimited; integer must be >= 1 and >= `soldCount`; `0` is rejected with 400 */
                 stockLimit?: number | null;
             }[];
         };
@@ -7717,7 +8480,15 @@ export interface components {
             email: string;
             /** @description Omitted when the user has not set a phone number. */
             phone?: string;
+            /** @description Legacy global roles. Containing `admin` grants the platform-admin routes. */
             roles: string[];
+            /**
+             * @description Caller's role in the resolved tenant. Present on GET /auth/me only (absent from login/register responses); `customer` for non-staff.
+             * @enum {string}
+             */
+            role?: "owner" | "admin" | "manager" | "catalog" | "fulfillment" | "support" | "analyst" | "customer";
+            /** @description Permissions of `role` (empty for `customer`). Present on GET /auth/me only. Gate tenant-scoped UI on this list. `roles` (legacy, global) containing `admin` is still what grants the platform-admin routes. */
+            permissions?: components["schemas"]["Permission"][];
             emailVerified: boolean;
             /** Format: date-time */
             createdAt: string;
@@ -7956,6 +8727,51 @@ export interface components {
                 /** @description Free-form additional context. */
                 details?: unknown;
             };
+        };
+        /**
+         * @description Tenant staff role slug.
+         * @enum {string}
+         */
+        Role: "owner" | "admin" | "manager" | "catalog" | "fulfillment" | "support" | "analyst";
+        /**
+         * @description Stable permission identifier. Gate UI on these, not on the role.
+         * @enum {string}
+         */
+        Permission: "catalog:read" | "catalog:write" | "inventory:read" | "inventory:write" | "orders:read" | "orders:write" | "returns:read" | "returns:write" | "refunds:write" | "customers:read" | "support:read" | "support:write" | "promotions:read" | "promotions:write" | "analytics:read" | "settings:read" | "settings:write" | "staff:read" | "staff:manage";
+        RoleDefinition: {
+            role: components["schemas"]["Role"];
+            permissions: components["schemas"]["Permission"][];
+        };
+        StaffMember: {
+            /** Format: uuid */
+            userId: string;
+            name: string;
+            /** Format: email */
+            email: string;
+            role: components["schemas"]["Role"];
+            /**
+             * @description Membership status
+             * @enum {string}
+             */
+            status: "INVITED" | "ACTIVE" | "SUSPENDED";
+            /**
+             * Format: date-time
+             * @description Membership creation time
+             */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        StaffAssignRequest: {
+            /**
+             * Format: email
+             * @description Email of an existing member of this tenant (case-insensitive)
+             */
+            email: string;
+            role: components["schemas"]["Role"];
+        };
+        StaffRoleUpdateRequest: {
+            role: components["schemas"]["Role"];
         };
         Pagination: {
             page: number;
