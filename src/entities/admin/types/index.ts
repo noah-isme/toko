@@ -1,5 +1,6 @@
 export type * from './analytics';
 export type * from './audit-logs';
+export type * from './catalog-ops';
 export type * from './flash-sales';
 export type * from './orders';
 export type * from './products';

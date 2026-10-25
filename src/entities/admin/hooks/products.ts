@@ -41,6 +41,9 @@ export function useUpdateAdminProduct() {
     onSuccess: (_result, { id }) => {
       void queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       void queryClient.invalidateQueries({ queryKey: adminKeys.product(id) });
+      // Status and low-stock threshold edits change inventory rows and dashboard counts.
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'inventory'] });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'analytics'] });
     },
   });
 }

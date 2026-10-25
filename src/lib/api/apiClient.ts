@@ -287,6 +287,50 @@ export async function apiClient<T = unknown>(
   return data as T;
 }
 
+export interface ApiDownload {
+  blob: Blob;
+  /** The raw Content-Disposition header, or null when absent or not exposed by CORS. */
+  contentDisposition: string | null;
+}
+
+/**
+ * GETs a file (e.g. a CSV export) with the same tenant, bearer and 401-refresh
+ * handling as `apiClient`, returning the body untouched as a Blob. Error
+ * responses throw the same typed errors as `apiClient` (JSON error envelope).
+ */
+export async function apiDownload(
+  path: string,
+  options: { requiresAuth?: boolean; signal?: AbortSignal; accept?: string } = {},
+): Promise<ApiDownload> {
+  const { requiresAuth = false, signal, accept } = options;
+  const headers = new Headers();
+  if (TENANT_ID) headers.set('X-Tenant-ID', TENANT_ID);
+  if (accept) headers.set('Accept', accept);
+  const token = getAccessToken();
+  if (requiresAuth && token) headers.set('Authorization', `Bearer ${token}`);
+
+  const url = `${API_URL.replace(/\/$/, '')}${path}`;
+  const init: RequestInit = { method: 'GET', headers, credentials: 'include', signal };
+  let response = await executeFetch(url, init);
+
+  if (response.status === 401 && requiresAuth) {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      headers.set('Authorization', `Bearer ${newToken}`);
+      response = await executeFetch(url, init);
+    }
+  }
+
+  if (!response.ok) {
+    throw await createResponseError(response);
+  }
+
+  return {
+    blob: await response.blob(),
+    contentDisposition: response.headers.get('Content-Disposition'),
+  };
+}
+
 async function executeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   try {
     return await fetch(input, init);

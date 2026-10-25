@@ -6,6 +6,7 @@
  */
 export * from './hooks/analytics';
 export * from './hooks/audit-logs';
+export * from './hooks/catalog-ops';
 export * from './hooks/flash-sales';
 export * from './hooks/inventory';
 export * from './hooks/orders';
