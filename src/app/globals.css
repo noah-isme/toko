@@ -33,6 +33,18 @@
   --ring: 35 46% 42%;
 
   --radius: 1rem;
+
+  /* Categorical data-viz slots (dataviz reference palette: blue, orange, aqua), in fixed order. */
+  --chart-1: 213 68% 50%;
+  --chart-2: 17 82% 56%;
+  --chart-3: 159 73% 40%;
+}
+
+.dark {
+  /* Same hues stepped for a dark surface. */
+  --chart-1: 213 77% 56%;
+  --chart-2: 17 70% 50%;
+  --chart-3: 159 73% 36%;
 }
 
 @layer base {

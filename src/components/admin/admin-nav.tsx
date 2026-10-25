@@ -11,6 +11,7 @@ import {
   BarChart3,
   Boxes,
   ClipboardList,
+  FileBarChart,
   Contact,
   MessageCircle,
   LayoutDashboard,
@@ -43,6 +44,7 @@ type NavLabelKey =
   | 'returns'
   | 'support'
   | 'analytics'
+  | 'reports'
   | 'webhooks'
   | 'auditLogs'
   | 'settings';
@@ -69,6 +71,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin/returns', labelKey: 'returns', icon: RotateCcw },
   { href: '/admin/support', labelKey: 'support', icon: MessageCircle },
   { href: '/admin/analytics', labelKey: 'analytics', icon: BarChart3 },
+  { href: '/admin/reports', labelKey: 'reports', icon: FileBarChart },
   { href: '/admin/webhooks', labelKey: 'webhooks', icon: Webhook },
   { href: '/admin/audit-logs', labelKey: 'auditLogs', icon: ClipboardList },
   { href: '/admin/settings', labelKey: 'settings', icon: Settings },

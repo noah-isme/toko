@@ -11,6 +11,7 @@ Toko uses a shadcn/ui-inspired component architecture: unstyled Radix UI primiti
 - **CSS custom properties** define the color palette (background, foreground, primary, secondary, muted, accent, destructive, etc.)
 - **Dark mode**: supported via `ThemeProvider` using `next-themes` with `class` strategy
 - Colors are referenced as Tailwind utilities mapped to CSS variables (e.g., `bg-primary`, `text-muted-foreground`)
+- **Chart colors**: `--chart-1..3` (`bg-chart-1` …) are categorical data-viz slots (blue, orange, aqua), assigned in fixed order and never cycled; a single-series chart uses `bg-primary`. Charts are plain Tailwind/HTML (no chart library): every multi-series chart has a legend and a table view, and values stay in text tokens, never the series color.
 
 ### Typography
 

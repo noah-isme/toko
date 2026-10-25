@@ -2224,6 +2224,7 @@
         "returns": "Returns",
         "support": "Support",
         "analytics": "Analytics",
+        "reports": "Reports",
         "webhooks": "Webhooks",
         "auditLogs": "Audit Logs",
         "settings": "Settings"
@@ -2287,7 +2288,9 @@
         "averageOrderValue": "Average Order Value",
         "pending": "Pending",
         "shipped": "Shipped",
-        "delivered": "Delivered"
+        "delivered": "Delivered",
+        "revenueBasis": "Net of refunds, paid to delivered orders",
+        "averageOrderValueBasis": "Across {count, plural, one {# paid order} other {# paid orders}}"
       },
       "recentOrders": "Recent Orders",
       "loadingOrders": "Loading orders...",
@@ -2443,7 +2446,9 @@
         "total": "Total Orders",
         "revenue": "Revenue",
         "pending": "Pending",
-        "averageOrderValue": "Avg. Order Value"
+        "averageOrderValue": "Avg. Order Value",
+        "revenueBasis": "Net of refunds, paid to delivered orders",
+        "averageOrderValueBasis": "Across {count, plural, one {# paid order} other {# paid orders}}"
       },
       "all": "All Orders",
       "searchPlaceholder": "Search orders...",
@@ -2580,7 +2585,9 @@
         "orders": "Orders",
         "averageOrderValue": "Average Order Value",
         "customers": "Customers",
-        "products": "Products"
+        "products": "Products",
+        "revenueBasis": "Net of refunds, paid to delivered orders",
+        "averageOrderValueBasis": "Across {count, plural, one {# paid order} other {# paid orders}}"
       },
       "ordersByStatus": "Orders by Status",
       "revenueShare": "Revenue Share of Top Products",
@@ -2590,6 +2597,111 @@
         "product": "Product",
         "unitsSold": "Units Sold",
         "revenue": "Revenue"
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Sales, conversion and customer reports for any date range",
+      "revenueNote": "Revenue counts paid to delivered orders that are not fully refunded. Category and product figures are gross item values, so they can be higher than net order revenue.",
+      "timezone": "Days are counted in {timezone}",
+      "loading": "Loading report...",
+      "tabsLabel": "Report",
+      "tabs": {
+        "category": "Sales by category",
+        "product": "Sales by product",
+        "conversion": "Conversion",
+        "customers": "Customers"
+      },
+      "range": {
+        "label": "Date range",
+        "custom": "Custom",
+        "from": "From",
+        "to": "To",
+        "errors": {
+          "invalid": "Enter both dates.",
+          "order": "The start date must be on or before the end date.",
+          "tooLong": "Choose a range of at most 366 days."
+        }
+      },
+      "export": {
+        "button": "Export CSV",
+        "label": "Export {report} as CSV",
+        "exporting": "Exporting…",
+        "success": "Downloaded {filename}",
+        "failed": "Export failed"
+      },
+      "category": {
+        "totalRevenue": "Item revenue",
+        "totalUnits": "Units sold",
+        "categories": "Categories with sales",
+        "empty": "No category sales in this range.",
+        "uncategorized": "Uncategorized",
+        "viewProducts": "View products in {category}",
+        "columns": {
+          "category": "Category",
+          "units": "Units",
+          "orders": "Orders",
+          "revenue": "Revenue",
+          "share": "Share of revenue"
+        }
+      },
+      "product": {
+        "empty": "No product sales in this range.",
+        "filterLabel": "Category",
+        "allCategories": "All categories",
+        "filteredBy": "Showing products in {category}",
+        "clearFilter": "Show all categories",
+        "columns": {
+          "product": "Product",
+          "category": "Category",
+          "units": "Units",
+          "orders": "Orders",
+          "revenue": "Revenue"
+        }
+      },
+      "conversion": {
+        "funnelTitle": "Checkout funnel",
+        "carts": "Carts created",
+        "checkouts": "Checkouts started",
+        "paid": "Paid orders",
+        "checkoutRate": "Checkout rate",
+        "paymentRate": "Payment rate",
+        "conversionRate": "Conversion rate",
+        "stepRate": "{rate} of the previous step",
+        "rateNote": "Rates can exceed 100% because one cart can be checked out more than once.",
+        "outcomesTitle": "Checkout outcomes",
+        "pending": "Pending payment",
+        "cancelled": "Cancelled",
+        "refunded": "Fully refunded",
+        "paidRevenue": "Net paid revenue",
+        "refundedAmount": "Refunded amount",
+        "empty": "No carts or checkouts in this range."
+      },
+      "customers": {
+        "new": "New customers",
+        "returning": "Returning customers",
+        "total": "Customers",
+        "repeatRate": "Repeat rate",
+        "guestOrders": "Guest orders",
+        "ordersCount": "{count, plural, one {# order} other {# orders}}",
+        "revenueSplitTitle": "Net revenue by customer type",
+        "segmentNew": "New",
+        "segmentReturning": "Returning",
+        "segmentGuest": "Guests",
+        "dailyTitle": "Customers per day",
+        "dailyNote": "Signed-in customers only, so daily rows do not add up to the totals above.",
+        "chartLabel": "New and returning customers per day",
+        "barLabel": "{day}: {new, number} new, {returning, number} returning, {orders, number} orders, {revenue}",
+        "showTable": "Show table",
+        "hideTable": "Hide table",
+        "empty": "No customer orders in this range.",
+        "columns": {
+          "day": "Day",
+          "new": "New",
+          "returning": "Returning",
+          "orders": "Orders",
+          "revenue": "Net revenue"
+        }
       }
     },
     "inventory": {

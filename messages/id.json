@@ -2224,6 +2224,7 @@
         "returns": "Retur",
         "support": "Dukungan",
         "analytics": "Analitik",
+        "reports": "Laporan",
         "webhooks": "Webhook",
         "auditLogs": "Log Audit",
         "settings": "Pengaturan"
@@ -2287,7 +2288,9 @@
         "averageOrderValue": "Rata-rata Nilai Pesanan",
         "pending": "Tertunda",
         "shipped": "Dikirim",
-        "delivered": "Diterima"
+        "delivered": "Diterima",
+        "revenueBasis": "Bersih setelah refund, pesanan dibayar hingga diterima",
+        "averageOrderValueBasis": "Dari {count, number} pesanan dibayar"
       },
       "recentOrders": "Pesanan Terbaru",
       "loadingOrders": "Memuat pesanan...",
@@ -2443,7 +2446,9 @@
         "total": "Total Pesanan",
         "revenue": "Pendapatan",
         "pending": "Tertunda",
-        "averageOrderValue": "Rata-rata Nilai Pesanan"
+        "averageOrderValue": "Rata-rata Nilai Pesanan",
+        "revenueBasis": "Bersih setelah refund, pesanan dibayar hingga diterima",
+        "averageOrderValueBasis": "Dari {count, number} pesanan dibayar"
       },
       "all": "Semua Pesanan",
       "searchPlaceholder": "Cari pesanan...",
@@ -2580,7 +2585,9 @@
         "orders": "Pesanan",
         "averageOrderValue": "Rata-rata Nilai Pesanan",
         "customers": "Pelanggan",
-        "products": "Produk"
+        "products": "Produk",
+        "revenueBasis": "Bersih setelah refund, pesanan dibayar hingga diterima",
+        "averageOrderValueBasis": "Dari {count, number} pesanan dibayar"
       },
       "ordersByStatus": "Pesanan per Status",
       "revenueShare": "Porsi Pendapatan Produk Teratas",
@@ -2590,6 +2597,111 @@
         "product": "Produk",
         "unitsSold": "Unit Terjual",
         "revenue": "Pendapatan"
+      }
+    },
+    "reports": {
+      "title": "Laporan",
+      "description": "Laporan penjualan, konversi, dan pelanggan untuk rentang tanggal apa pun",
+      "revenueNote": "Pendapatan menghitung pesanan dibayar hingga diterima yang tidak dikembalikan penuh. Angka kategori dan produk adalah nilai item kotor, sehingga bisa lebih tinggi dari pendapatan bersih pesanan.",
+      "timezone": "Hari dihitung dalam zona waktu {timezone}",
+      "loading": "Memuat laporan...",
+      "tabsLabel": "Laporan",
+      "tabs": {
+        "category": "Penjualan per kategori",
+        "product": "Penjualan per produk",
+        "conversion": "Konversi",
+        "customers": "Pelanggan"
+      },
+      "range": {
+        "label": "Rentang tanggal",
+        "custom": "Kustom",
+        "from": "Dari",
+        "to": "Sampai",
+        "errors": {
+          "invalid": "Isi kedua tanggal.",
+          "order": "Tanggal mulai harus sama dengan atau sebelum tanggal akhir.",
+          "tooLong": "Pilih rentang paling lama 366 hari."
+        }
+      },
+      "export": {
+        "button": "Ekspor CSV",
+        "label": "Ekspor {report} sebagai CSV",
+        "exporting": "Mengekspor…",
+        "success": "{filename} telah diunduh",
+        "failed": "Ekspor gagal"
+      },
+      "category": {
+        "totalRevenue": "Pendapatan item",
+        "totalUnits": "Unit terjual",
+        "categories": "Kategori dengan penjualan",
+        "empty": "Tidak ada penjualan kategori pada rentang ini.",
+        "uncategorized": "Tanpa kategori",
+        "viewProducts": "Lihat produk di {category}",
+        "columns": {
+          "category": "Kategori",
+          "units": "Unit",
+          "orders": "Pesanan",
+          "revenue": "Pendapatan",
+          "share": "Porsi pendapatan"
+        }
+      },
+      "product": {
+        "empty": "Tidak ada penjualan produk pada rentang ini.",
+        "filterLabel": "Kategori",
+        "allCategories": "Semua kategori",
+        "filteredBy": "Menampilkan produk di {category}",
+        "clearFilter": "Tampilkan semua kategori",
+        "columns": {
+          "product": "Produk",
+          "category": "Kategori",
+          "units": "Unit",
+          "orders": "Pesanan",
+          "revenue": "Pendapatan"
+        }
+      },
+      "conversion": {
+        "funnelTitle": "Corong checkout",
+        "carts": "Keranjang dibuat",
+        "checkouts": "Checkout dimulai",
+        "paid": "Pesanan dibayar",
+        "checkoutRate": "Tingkat checkout",
+        "paymentRate": "Tingkat pembayaran",
+        "conversionRate": "Tingkat konversi",
+        "stepRate": "{rate} dari langkah sebelumnya",
+        "rateNote": "Tingkat bisa melebihi 100% karena satu keranjang dapat di-checkout lebih dari sekali.",
+        "outcomesTitle": "Hasil checkout",
+        "pending": "Menunggu pembayaran",
+        "cancelled": "Dibatalkan",
+        "refunded": "Dikembalikan penuh",
+        "paidRevenue": "Pendapatan bersih dibayar",
+        "refundedAmount": "Jumlah pengembalian dana",
+        "empty": "Tidak ada keranjang atau checkout pada rentang ini."
+      },
+      "customers": {
+        "new": "Pelanggan baru",
+        "returning": "Pelanggan kembali",
+        "total": "Pelanggan",
+        "repeatRate": "Tingkat pembelian ulang",
+        "guestOrders": "Pesanan tamu",
+        "ordersCount": "{count, number} pesanan",
+        "revenueSplitTitle": "Pendapatan bersih per jenis pelanggan",
+        "segmentNew": "Baru",
+        "segmentReturning": "Kembali",
+        "segmentGuest": "Tamu",
+        "dailyTitle": "Pelanggan per hari",
+        "dailyNote": "Hanya pelanggan yang masuk, jadi baris harian tidak sama dengan total di atas.",
+        "chartLabel": "Pelanggan baru dan kembali per hari",
+        "barLabel": "{day}: {new, number} baru, {returning, number} kembali, {orders, number} pesanan, {revenue}",
+        "showTable": "Tampilkan tabel",
+        "hideTable": "Sembunyikan tabel",
+        "empty": "Tidak ada pesanan pelanggan pada rentang ini.",
+        "columns": {
+          "day": "Hari",
+          "new": "Baru",
+          "returning": "Kembali",
+          "orders": "Pesanan",
+          "revenue": "Pendapatan bersih"
+        }
       }
     },
     "inventory": {
