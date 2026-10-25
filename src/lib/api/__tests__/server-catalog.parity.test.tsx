@@ -21,14 +21,30 @@ function wrapper() {
  * deep-equal data, or hydration would show different content than a refetch.
  */
 describe('server-prefetched catalog data matches the client hooks', () => {
-  it.each(['', 'q=pro', 'sort=price-desc&page=1'])('products for ?%s', async (search) => {
-    const params = productApiParamsFromSearchParams(new URLSearchParams(search));
+  it.each(['', 'q=pro', 'sort=price-desc&page=1', 'sort=popularity&category=electronics'])(
+    'products for ?%s',
+    async (search) => {
+      const params = productApiParamsFromSearchParams(new URLSearchParams(search));
+      const server = await serverCatalogApi.getProducts(params);
+
+      const { result } = renderHook(() => useProducts(params), { wrapper: wrapper() });
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      expect(server.data.length).toBeGreaterThan(0);
+      expect(server.facets?.categories.length).toBeGreaterThan(0);
+      expect(result.current.data).toEqual(server);
+    },
+  );
+
+  it('zero-result search with suggestions', async () => {
+    const params = productApiParamsFromSearchParams(new URLSearchParams('q=macbx'));
     const server = await serverCatalogApi.getProducts(params);
 
     const { result } = renderHook(() => useProducts(params), { wrapper: wrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(server.data.length).toBeGreaterThan(0);
+    expect(server.data).toEqual([]);
+    expect(server.meta?.suggestions?.length).toBeGreaterThan(0);
     expect(result.current.data).toEqual(server);
   });
 
