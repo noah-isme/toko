@@ -90,6 +90,9 @@ describe('mock API route golden responses', () => {
       ['page 2 limit 5', { page: '2', limit: '5' }],
       ['page beyond range', { page: '9', limit: '5' }],
       ['combined', { q: 'pro', category: 'cat-electronics', sort: 'price:desc', limit: '3' }],
+      ['q fuzzy fallback', { q: 'macbok' }],
+      ['q suggestions', { q: 'macbx' }],
+      ['include facets', { include: 'facets', category: 'electronics', limit: '2' }],
     ];
 
     it.each(productQueries)('GET products (%s)', async (_label, query) => {
