@@ -12,8 +12,17 @@ import { buildCategoryList } from './factories/category';
 import { buildProductList } from './factories/product';
 import { buildUserList } from './factories/user';
 
-/** Bearer token that the mock API treats as an admin session. */
+/**
+ * Bearer token that the mock API treats as an admin session: tenant role
+ * `owner` plus the global `admin` role (platform admin).
+ */
 export const MOCK_ADMIN_TOKEN = 'mock-admin-token';
+
+/**
+ * Prefix of bearer tokens that sign in as a staff member with one tenant role
+ * and no platform-admin access, e.g. `mock-staff-token-support`.
+ */
+export const MOCK_STAFF_TOKEN_PREFIX = 'mock-staff-token-';
 
 /** Cookie that scopes per-browser mock state (payments, admin edits). */
 export const MOCK_SESSION_COOKIE = 'mockSessionId';

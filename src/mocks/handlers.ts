@@ -6,6 +6,7 @@ import { brands, categories, products as catalogProducts } from './fixtures';
 import { addressHandlers } from './handlers/addressHandlers';
 import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
+import { adminStaffHandlers } from './handlers.adminStaff';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
@@ -15,6 +16,7 @@ import { paymentHandlers } from './handlers.payment';
 import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
+import { accessFor } from './resolvers/auth';
 import { getProduct, listProducts } from './resolvers/catalog';
 import { apiPath, type MockCart } from './utils';
 
@@ -422,7 +424,7 @@ export const handlers = [
 
     return HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) });
   }),
-  http.get(apiPath('/auth/me'), () =>
+  http.get(apiPath('/auth/me'), ({ request }) =>
     HttpResponse.json({
       data: {
         id: faker.string.uuid(),
@@ -431,6 +433,8 @@ export const handlers = [
         emailVerified: faker.datatype.boolean(),
         phone: faker.phone.number(),
         createdAt: new Date().toISOString(),
+        // Tenant role and permissions follow the bearer token, as in the route mock.
+        ...accessFor(request.headers),
       },
     }),
   ),
@@ -462,6 +466,7 @@ export const handlers = [
     HttpResponse.json({ data: { message: 'verification email sent' } }),
   ),
   ...checkoutHandlers,
+  ...adminStaffHandlers,
   ...addressHandlers,
   ...paymentHandlers,
   ...customerOperationsHandlers,

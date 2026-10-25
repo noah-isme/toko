@@ -1,6 +1,8 @@
 import { MOCK_USER } from '../factories/user';
-import { MOCK_ADMIN_TOKEN } from '../fixtures';
+import { MOCK_ADMIN_TOKEN, MOCK_STAFF_TOKEN_PREFIX } from '../fixtures';
 
+import { sessionValue } from './session';
+import { isStaffRoleSlug, permissionsFor, type MockTenantRole } from './staff';
 import type { MockResolver } from './types';
 
 const ACCESS_TOKEN = 'mock-access-token-12345';
@@ -13,6 +15,26 @@ function rolesFor(headers: Headers): string[] {
   return isAdminRequest(headers) ? ['admin'] : [];
 }
 
+/**
+ * The caller's role in the mock tenant: `owner` for `MOCK_ADMIN_TOKEN`, the
+ * named role for `mock-staff-token-<role>`, `customer` for any other token.
+ */
+export function mockTenantRole(headers: Headers): MockTenantRole {
+  if (isAdminRequest(headers)) return 'owner';
+  const token = headers.get('authorization')?.replace(/^Bearer /, '') ?? '';
+  if (token.startsWith(MOCK_STAFF_TOKEN_PREFIX)) {
+    const role = token.slice(MOCK_STAFF_TOKEN_PREFIX.length);
+    if (isStaffRoleSlug(role)) return role;
+  }
+  return 'customer';
+}
+
+/** `/auth/me` fields for the caller: legacy global roles plus tenant role and permissions. */
+export function accessFor(headers: Headers) {
+  const role = mockTenantRole(headers);
+  return { roles: rolesFor(headers), role, permissions: permissionsFor(role) };
+}
+
 function message(text: string) {
   return { data: { message: text } };
 }
@@ -23,14 +45,46 @@ const MESSAGES: Record<string, string> = {
   'auth/password/reset': 'Password reset successfully',
   'auth/email/verify': 'Email verified successfully',
   'auth/email/resend': 'Verification email sent',
-  'auth/logout/all': 'Semua sesi telah keluar.',
 };
 
 /**
- * Auth and profile. Every token signs in as the same customer; the
- * `MOCK_ADMIN_TOKEN` bearer token additionally carries the `admin` role.
+ * Sessions as `GET /auth/sessions` documents them today: newest first,
+ * `lastActive` is the sign-in time, `current` is always false and `location` is
+ * never set. `POST /auth/logout/all` revokes them all.
  */
-export const resolveAuth: MockResolver = ({ path, method, body, headers }) => {
+function seedSessions() {
+  return {
+    revoked: false,
+    sessions: [
+      {
+        id: '5e55a0e1-0000-4000-8000-000000000001',
+        device: 'Chrome on macOS',
+        ipAddress: '203.0.113.9',
+        lastActive: '2026-10-25T08:00:00.000Z',
+        current: false,
+      },
+      {
+        id: '5e55a0e1-0000-4000-8000-000000000002',
+        device: 'Safari on iOS',
+        ipAddress: '198.51.100.24',
+        lastActive: '2026-10-24T19:30:00.000Z',
+        current: false,
+      },
+    ],
+  };
+}
+
+function listSessions(sessionId: string) {
+  const state = sessionValue('authSessions', sessionId, seedSessions);
+  return { data: state.revoked ? [] : state.sessions };
+}
+
+/**
+ * Auth and profile. Every token signs in as the same user; `MOCK_ADMIN_TOKEN`
+ * additionally carries the global `admin` role and the tenant role `owner`,
+ * and `mock-staff-token-<role>` tokens carry that tenant role.
+ */
+export const resolveAuth: MockResolver = ({ path, method, body, headers, sessionId }) => {
   const now = new Date().toISOString();
 
   if (path === 'auth/register' && method === 'POST') {
@@ -70,7 +124,7 @@ export const resolveAuth: MockResolver = ({ path, method, body, headers }) => {
 
   if (path === 'auth/me' && method === 'GET') {
     return {
-      data: { ...MOCK_USER, emailVerified: true, createdAt: now, roles: rolesFor(headers) },
+      data: { ...MOCK_USER, emailVerified: true, createdAt: now, ...accessFor(headers) },
     };
   }
 
@@ -88,19 +142,11 @@ export const resolveAuth: MockResolver = ({ path, method, body, headers }) => {
 
   if (path in MESSAGES && method === 'POST') return message(MESSAGES[path]);
 
-  if (path === 'auth/sessions' && method === 'GET') {
-    return {
-      data: [
-        {
-          id: 'session-1',
-          device: 'Chrome',
-          ipAddress: '127.0.0.1',
-          location: 'Jakarta, ID',
-          lastActive: now,
-          current: true,
-        },
-      ],
-    };
+  if (path === 'auth/sessions' && method === 'GET') return listSessions(sessionId);
+
+  if (path === 'auth/logout/all' && method === 'POST') {
+    sessionValue('authSessions', sessionId, seedSessions).revoked = true;
+    return { status: 204 };
   }
 
   if (path === 'auth/refresh' && method === 'POST') {

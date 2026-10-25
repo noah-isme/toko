@@ -2,8 +2,9 @@ import { ADMIN_ORDER_STATUSES, buildAdminTaxonomy, toAdminOrderRow } from '../fa
 import { stableUuid } from '../factories/product';
 import { adminOrders, adminProducts, brands, categories } from '../fixtures';
 
-import { isAdminRequest } from './auth';
+import { isAdminRequest, mockTenantRole } from './auth';
 import { adminStore, type AdminStore } from './session';
+import { adminRoutePermission, ROLE_PERMISSIONS, resolveStaff } from './staff';
 import type { MockRequest, MockResult } from './types';
 
 import type {
@@ -12,7 +13,9 @@ import type {
   AdminProductInput,
 } from '@/entities/admin/types';
 
-const FORBIDDEN = { status: 403, error: { code: 'FORBIDDEN', message: 'Admin access required' } };
+function forbidden(message: string, required: string): MockResult {
+  return { status: 403, error: { code: 'FORBIDDEN', message, details: { required } } };
+}
 const NOT_FOUND = { status: 404, error: { code: 'NOT_FOUND', message: 'Not Found' } };
 
 function store(sessionId: string): AdminStore {
@@ -258,15 +261,29 @@ function analyticsOverview(admin: AdminStore, range: string) {
 
 /**
  * Admin endpoints backed by a per-session store seeded from the fixtures.
- * Every `admin/*` path needs the `MOCK_ADMIN_TOKEN` bearer token (403
- * otherwise); admin endpoints that are not implemented here return 404.
+ * Authorization follows the backend: a staff tenant role is required (403
+ * `details.required = "staff"`), then the route's permission, or the global
+ * admin role (`MOCK_ADMIN_TOKEN`) for platform routes. Admin endpoints that
+ * are not implemented here return 404.
  */
 export function resolveAdmin(req: MockRequest): MockResult | undefined {
   if (req.path !== 'admin' && !req.path.startsWith('admin/')) return undefined;
-  if (!isAdminRequest(req.headers)) return FORBIDDEN;
+  const role = mockTenantRole(req.headers);
+  if (role === 'customer') return forbidden('staff role required', 'staff');
+
+  const parts = req.path.split('/').slice(1);
+  const required = adminRoutePermission(parts, req.method);
+  if (required === 'platform-admin' && !isAdminRequest(req.headers)) {
+    return forbidden('insufficient permissions', required);
+  }
+  if (required && required !== 'platform-admin' && !ROLE_PERMISSIONS[role].includes(required)) {
+    return forbidden('insufficient permissions', required);
+  }
+
+  const staff = resolveStaff(req, parts, role);
+  if (staff) return staff;
 
   const admin = store(req.sessionId);
-  const parts = req.path.split('/').slice(1);
   const countBy = (key: 'categoryId' | 'brandId', id: string) =>
     admin.products.filter((p) => p[key] === id).length;
 
