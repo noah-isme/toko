@@ -12,6 +12,7 @@ export * from './hooks/orders';
 export * from './hooks/products';
 export * from './hooks/queue';
 export * from './hooks/returns';
+export * from './hooks/staff';
 export * from './hooks/store';
 export * from './hooks/support';
 export * from './hooks/taxonomy';

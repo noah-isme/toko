@@ -17,6 +17,7 @@ import { adminOrdersApi } from './orders';
 import { adminProductsApi } from './products';
 import { adminQueueApi } from './queue';
 import { adminSettingsApi } from './settings';
+import { adminStaffApi } from './staff';
 import { adminTaxonomyApi } from './taxonomy';
 import { adminVouchersApi } from './vouchers';
 import { adminWebhooksApi } from './webhooks';
@@ -36,4 +37,5 @@ export const adminApi = {
   ...adminInventoryApi,
   ...adminCustomersApi,
   ...adminSettingsApi,
+  ...adminStaffApi,
 };

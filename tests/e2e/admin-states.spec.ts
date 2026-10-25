@@ -21,6 +21,7 @@ const RECOVERABLE_PAGES = [
   '/admin/orders',
   '/admin/products',
   '/admin/products/new',
+  '/admin/staff',
 ];
 
 const ERROR_ONLY_PAGES = [
