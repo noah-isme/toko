@@ -917,6 +917,36 @@
         "answerFailed": "Failed to send answer",
         "voteFailed": "Failed to vote"
       }
+    },
+    "alerts": {
+      "saving": "Saving...",
+      "backInStock": {
+        "hint": "Out of stock right now. We can let you know by notification and email when it's back.",
+        "subscribe": "Notify me when available",
+        "active": "We'll notify you when it's back in stock.",
+        "cancel": "Cancel alert",
+        "subscribedTitle": "Back-in-stock alert on",
+        "subscribedDescription": "You'll get a notification and an email when it's available.",
+        "cancelled": "Back-in-stock alert cancelled."
+      },
+      "priceDrop": {
+        "label": "Alert me if the price drops",
+        "labelFor": "Alert me if the price drops: {product}",
+        "enabled": "We'll let you know if the price drops.",
+        "disabled": "Price alert turned off."
+      },
+      "errors": {
+        "alreadyInStock": "This product is back in stock. You can buy it now.",
+        "notFound": "Product not found.",
+        "sessionExpired": "Your session has expired. Please sign in again.",
+        "failed": "Could not save the alert. Please try again."
+      },
+      "login": {
+        "title": "Sign in to turn on alerts",
+        "description": "After signing in you'll come right back to this page.",
+        "signIn": "Sign in",
+        "cancel": "Not now"
+      }
     }
   },
   "cart": {
@@ -1505,7 +1535,8 @@
       "orders": "Orders",
       "loyalty": "Loyalty",
       "pushSettings": "Push notifications",
-      "searches": "Search history"
+      "searches": "Search history",
+      "alerts": "Product Alerts"
     },
     "backToAccount": "Back to account",
     "login": "Log in",
@@ -1526,7 +1557,8 @@
         "searches": "Search History",
         "loyalty": "Loyalty",
         "push": "Push Notifications",
-        "logout": "Logout"
+        "logout": "Logout",
+        "alerts": "Product Alerts"
       }
     },
     "addresses": {
@@ -1650,6 +1682,38 @@
         "loading": "Loading…",
         "viewAll": "View all"
       }
+    },
+    "alerts": {
+      "title": "My alerts",
+      "description": "We'll let you know when a product is back in stock or its price drops.",
+      "loadFailed": "Could not load your alerts.",
+      "retry": "Try again",
+      "emptyTitle": "No alerts yet",
+      "emptyDescription": "Turn on “Notify me” for a sold-out product, or watch prices from your favorites.",
+      "browse": "Browse products",
+      "types": {
+        "BACK_IN_STOCK": "Back in stock",
+        "PRICE_DROP": "Price drop"
+      },
+      "status": {
+        "active": "Active",
+        "notified": "Sent {date}"
+      },
+      "variant": "Variant {sku}",
+      "prices": "Price when set {then} · now {now}",
+      "availableNow": "Available now",
+      "stillSoldOut": "Still sold out",
+      "createdAt": "Created {date}",
+      "remove": "Remove",
+      "removeLabel": "Remove alert for {product}",
+      "rearm": "Turn on again",
+      "rearmLabel": "Turn on the alert for {product} again",
+      "removed": "Alert removed.",
+      "rearmed": "Alert turned on again.",
+      "pagination": "Alert pages",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}"
     },
     "orderStatus": {
       "all": "All Statuses",

@@ -4,6 +4,7 @@ import { HeartCrack, HeartOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { ProductCard } from '@/components/product-card';
+import { PriceDropToggle } from '@/entities/alerts/ui/PriceDropToggle';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
 import type { FavoriteItem } from '@/entities/favorites/types';
@@ -44,21 +45,23 @@ export default function FavoritesPage() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {favorites.map((fav: FavoriteItem) => (
-          <ProductCard
-            key={fav.productId}
-            product={{
-              id: fav.productId,
-              slug: fav.productSlug,
-              title: fav.productName,
-              price: fav.price,
-              imageUrl: fav.imageUrl,
-              rating: 0,
-              reviewCount: 0,
-              inStock: true,
-              stock: 10,
-              currency: 'IDR',
-            }}
-          />
+          <div key={fav.productId} className="flex flex-col gap-2">
+            <ProductCard
+              product={{
+                id: fav.productId,
+                slug: fav.productSlug,
+                title: fav.productName,
+                price: fav.price,
+                imageUrl: fav.imageUrl,
+                rating: 0,
+                reviewCount: 0,
+                inStock: true,
+                stock: 10,
+                currency: 'IDR',
+              }}
+            />
+            <PriceDropToggle productId={fav.productId} productName={fav.productName} />
+          </div>
         ))}
       </div>
     </div>
