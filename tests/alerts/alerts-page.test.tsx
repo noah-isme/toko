@@ -72,6 +72,36 @@ describe('My alerts', () => {
     });
   });
 
+  it('says the alert is already gone when deleting it answers 404', async () => {
+    const [first] = products;
+    server.use(
+      http.delete('*/alerts/:id', () =>
+        HttpResponse.json({ error: { code: 'NOT_FOUND', message: 'gone' } }, { status: 404 }),
+      ),
+    );
+    renderPage();
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: `Hapus pengingat ${first.title}` }),
+    );
+
+    await waitFor(() =>
+      expect(toastMock).toHaveBeenCalledWith({
+        variant: 'destructive',
+        description: 'Pengingat ini sudah dihapus.',
+      }),
+    );
+  });
+
+  it('shows a fired alert without a date when notifiedAt is missing', async () => {
+    mockAlerts.items[1].notifiedAt = null;
+    renderPage();
+
+    const items = await findAlertItems();
+    expect(within(items[1]).getByText('Terkirim')).toBeInTheDocument();
+    expect(within(items[1]).queryByText(/Invalid|NaN/)).toBeNull();
+  });
+
   it('re-arms a fired price-drop alert', async () => {
     const [first] = products;
     mockAlerts.items[0].status = 'notified';
@@ -79,7 +109,7 @@ describe('My alerts', () => {
     renderPage();
 
     await userEvent.click(
-      await screen.findByRole('button', { name: `Aktifkan lagi pengingat ${first.title}` }),
+      await screen.findByRole('button', { name: `Aktifkan lagi: ${first.title}` }),
     );
 
     await waitFor(() => expect(mockAlerts.items[0].status).toBe('active'));

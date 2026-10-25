@@ -56,8 +56,11 @@ export function PriceDropToggle({ productId, productName, alertState }: PriceDro
   const isOn = alert?.status === 'active';
   const isBusy = subscribe.isPending || remove.isPending;
 
-  const onError = (error: unknown) =>
-    toast({ variant: 'destructive', description: t(`errors.${alertErrorKind(error)}`) });
+  const onError = (action: 'subscribe' | 'delete') => (error: unknown) =>
+    toast({
+      variant: 'destructive',
+      description: t(`errors.${alertErrorKind(error, { action })}`),
+    });
 
   const handleChange = (checked: boolean) => {
     if (!isAuthenticated) {
@@ -70,13 +73,13 @@ export function PriceDropToggle({ productId, productName, alertState }: PriceDro
         { productId, type: 'PRICE_DROP' },
         {
           onSuccess: () => toast({ variant: 'success', description: t('priceDrop.enabled') }),
-          onError,
+          onError: onError('subscribe'),
         },
       );
     } else if (alert) {
       remove.mutate(alert.id, {
         onSuccess: () => toast({ variant: 'success', description: t('priceDrop.disabled') }),
-        onError,
+        onError: onError('delete'),
       });
     }
   };

@@ -938,6 +938,7 @@
       "errors": {
         "alreadyInStock": "This product is back in stock. You can buy it now.",
         "notFound": "Product not found.",
+        "alertNotFound": "This alert was already removed.",
         "sessionExpired": "Your session has expired. Please sign in again.",
         "failed": "Could not save the alert. Please try again."
       },
@@ -1697,7 +1698,8 @@
       },
       "status": {
         "active": "Active",
-        "notified": "Sent {date}"
+        "notified": "Sent {date}",
+        "notifiedNoDate": "Sent"
       },
       "variant": "Variant {sku}",
       "prices": "Price when set {then} · now {now}",
@@ -1707,7 +1709,7 @@
       "remove": "Remove",
       "removeLabel": "Remove alert for {product}",
       "rearm": "Turn on again",
-      "rearmLabel": "Turn on the alert for {product} again",
+      "rearmLabel": "Turn on again: {product}",
       "removed": "Alert removed.",
       "rearmed": "Alert turned on again.",
       "pagination": "Alert pages",

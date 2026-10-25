@@ -1141,6 +1141,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.invoice.downloading': 'Mengunduh invoice...',
     'account.invoice.errorTitle': 'Invoice tidak dapat diunduh',
     'account.invoice.errors.notAvailable': 'Invoice tersedia setelah pesanan dibayar.',
+    'account.invoice.errors.notAvailableCancelled':
+      'Tidak ada invoice yang diterbitkan sebelum pesanan ini dibatalkan.',
     'account.invoice.errors.notFound': 'Pesanan tidak ditemukan.',
     'account.invoice.errors.sessionExpired': 'Sesi Anda telah berakhir. Silakan masuk lagi.',
     'account.invoice.errors.failed': 'Gagal mengunduh invoice. Silakan coba lagi.',
@@ -2413,6 +2415,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.alerts.types.PRICE_DROP': 'Harga turun',
     'account.alerts.status.active': 'Aktif',
     'account.alerts.status.notified': ['Terkirim 12/10/2026', { date: '12/10/2026' }],
+    'account.alerts.status.notifiedNoDate': 'Terkirim',
     'account.alerts.variant': ['Varian OAK-2', { sku: 'OAK-2' }],
     'account.alerts.prices': [
       'Harga saat dipantau Rp 10.000 · sekarang Rp 9.000',
@@ -2424,7 +2427,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.alerts.remove': 'Hapus',
     'account.alerts.removeLabel': ['Hapus pengingat Oak Chair', { product: 'Oak Chair' }],
     'account.alerts.rearm': 'Aktifkan lagi',
-    'account.alerts.rearmLabel': ['Aktifkan lagi pengingat Oak Chair', { product: 'Oak Chair' }],
+    'account.alerts.rearmLabel': ['Aktifkan lagi: Oak Chair', { product: 'Oak Chair' }],
     'account.alerts.removed': 'Pengingat dihapus.',
     'account.alerts.rearmed': 'Pengingat diaktifkan lagi.',
     'account.alerts.pagination': 'Navigasi halaman pengingat',
@@ -2451,6 +2454,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'product.alerts.errors.alreadyInStock':
       'Produk ini sudah tersedia lagi. Silakan langsung dibeli.',
     'product.alerts.errors.notFound': 'Produk tidak ditemukan.',
+    'product.alerts.errors.alertNotFound': 'Pengingat ini sudah dihapus.',
     'product.alerts.errors.sessionExpired': 'Sesi Anda telah berakhir. Silakan masuk lagi.',
     'product.alerts.errors.failed': 'Gagal menyimpan pengingat. Silakan coba lagi.',
     'product.alerts.login.title': 'Masuk untuk mengaktifkan pengingat',
@@ -3566,6 +3570,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.invoice.downloading': 'Downloading invoice...',
     'account.invoice.errorTitle': 'Invoice unavailable',
     'account.invoice.errors.notAvailable': 'The invoice is available once the order is paid.',
+    'account.invoice.errors.notAvailableCancelled':
+      'No invoice was issued before this order was cancelled.',
     'account.invoice.errors.notFound': 'Order not found.',
     'account.invoice.errors.sessionExpired': 'Your session has expired. Please sign in again.',
     'account.invoice.errors.failed': 'Could not download the invoice. Please try again.',
@@ -4834,6 +4840,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.alerts.types.PRICE_DROP': 'Price drop',
     'account.alerts.status.active': 'Active',
     'account.alerts.status.notified': ['Sent 12/10/2026', { date: '12/10/2026' }],
+    'account.alerts.status.notifiedNoDate': 'Sent',
     'account.alerts.variant': ['Variant OAK-2', { sku: 'OAK-2' }],
     'account.alerts.prices': [
       'Price when set Rp 10.000 · now Rp 9.000',
@@ -4845,10 +4852,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.alerts.remove': 'Remove',
     'account.alerts.removeLabel': ['Remove alert for Oak Chair', { product: 'Oak Chair' }],
     'account.alerts.rearm': 'Turn on again',
-    'account.alerts.rearmLabel': [
-      'Turn on the alert for Oak Chair again',
-      { product: 'Oak Chair' },
-    ],
+    'account.alerts.rearmLabel': ['Turn on again: Oak Chair', { product: 'Oak Chair' }],
     'account.alerts.removed': 'Alert removed.',
     'account.alerts.rearmed': 'Alert turned on again.',
     'account.alerts.pagination': 'Alert pages',
@@ -4874,6 +4878,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'product.alerts.priceDrop.disabled': 'Price alert turned off.',
     'product.alerts.errors.alreadyInStock': 'This product is back in stock. You can buy it now.',
     'product.alerts.errors.notFound': 'Product not found.',
+    'product.alerts.errors.alertNotFound': 'This alert was already removed.',
     'product.alerts.errors.sessionExpired': 'Your session has expired. Please sign in again.',
     'product.alerts.errors.failed': 'Could not save the alert. Please try again.',
     'product.alerts.login.title': 'Sign in to turn on alerts',

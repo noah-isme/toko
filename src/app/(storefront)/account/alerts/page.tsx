@@ -53,8 +53,11 @@ export default function AlertsPage() {
         )?.id
       : undefined;
 
-  const onError = (err: unknown) =>
-    toast({ variant: 'destructive', description: tAlerts(`errors.${alertErrorKind(err)}`) });
+  const onError = (action: 'subscribe' | 'delete') => (err: unknown) =>
+    toast({
+      variant: 'destructive',
+      description: tAlerts(`errors.${alertErrorKind(err, { action })}`),
+    });
 
   const handleRemove = (alert: AlertSubscription) => {
     remove.mutate(alert.id, {
@@ -63,7 +66,7 @@ export default function AlertsPage() {
         // Step back when the last row of a later page was removed.
         if (alerts.length === 1 && page > 1) setPage((p) => p - 1);
       },
-      onError,
+      onError: onError('delete'),
     });
   };
 
@@ -72,7 +75,7 @@ export default function AlertsPage() {
       { productId: alert.productId, variantId: alert.variantId, type: alert.type },
       {
         onSuccess: () => toast({ variant: 'success', description: t('rearmed') }),
-        onError,
+        onError: onError('subscribe'),
       },
     );
   };
@@ -193,7 +196,9 @@ export default function AlertsPage() {
                   >
                     {alert.status === 'active'
                       ? t('status.active')
-                      : t('status.notified', { date: fmt.dateTime(alert.notifiedAt ?? '') })}
+                      : alert.notifiedAt
+                        ? t('status.notified', { date: fmt.dateTime(alert.notifiedAt) })
+                        : t('status.notifiedNoDate')}
                   </span>
                 </div>
                 <Link

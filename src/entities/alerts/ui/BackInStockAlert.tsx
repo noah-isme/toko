@@ -78,7 +78,10 @@ export function BackInStockAlert({ productId, productSlug, variantId }: BackInSt
     remove.mutate(alert.id, {
       onSuccess: () => toast({ variant: 'success', description: t('backInStock.cancelled') }),
       onError: (error) =>
-        toast({ variant: 'destructive', description: t(`errors.${alertErrorKind(error)}`) }),
+        toast({
+          variant: 'destructive',
+          description: t(`errors.${alertErrorKind(error, { action: 'delete' })}`),
+        }),
     });
   };
 
@@ -86,7 +89,7 @@ export function BackInStockAlert({ productId, productSlug, variantId }: BackInSt
     <div className="rounded-xl border border-border/80 bg-muted/40 p-4" aria-live="polite">
       {isActive ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="flex items-center gap-2 text-sm font-medium text-foreground" role="status">
+          <p className="flex items-center gap-2 text-sm font-medium text-foreground">
             <CheckCircle2 className="h-4 w-4 text-primary" aria-hidden="true" />
             {t('backInStock.active')}
           </p>

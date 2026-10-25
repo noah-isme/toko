@@ -938,6 +938,7 @@
       "errors": {
         "alreadyInStock": "Produk ini sudah tersedia lagi. Silakan langsung dibeli.",
         "notFound": "Produk tidak ditemukan.",
+        "alertNotFound": "Pengingat ini sudah dihapus.",
         "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi.",
         "failed": "Gagal menyimpan pengingat. Silakan coba lagi."
       },
@@ -1697,7 +1698,8 @@
       },
       "status": {
         "active": "Aktif",
-        "notified": "Terkirim {date}"
+        "notified": "Terkirim {date}",
+        "notifiedNoDate": "Terkirim"
       },
       "variant": "Varian {sku}",
       "prices": "Harga saat dipantau {then} · sekarang {now}",
@@ -1707,7 +1709,7 @@
       "remove": "Hapus",
       "removeLabel": "Hapus pengingat {product}",
       "rearm": "Aktifkan lagi",
-      "rearmLabel": "Aktifkan lagi pengingat {product}",
+      "rearmLabel": "Aktifkan lagi: {product}",
       "removed": "Pengingat dihapus.",
       "rearmed": "Pengingat diaktifkan lagi.",
       "pagination": "Navigasi halaman pengingat",

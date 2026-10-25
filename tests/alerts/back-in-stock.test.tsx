@@ -203,9 +203,10 @@ describe('notify me on product detail', () => {
     await waitFor(() => expect(screen.getByTestId('notify-me')).toBeEnabled());
     await userEvent.click(screen.getByTestId('notify-me'));
 
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      'Kami akan mengabari Anda saat stok tersedia.',
-    );
+    const active = await screen.findByText('Kami akan mengabari Anda saat stok tersedia.');
+    // Announced once, through the wrapper's polite live region (no nested role=status).
+    expect(active.closest('[aria-live="polite"]')).not.toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
     expect(posted).toEqual([
       { productId: PRODUCT_ID, variantId: SOLD_OUT_VARIANT, type: 'BACK_IN_STOCK' },
     ]);
