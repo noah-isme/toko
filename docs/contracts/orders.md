@@ -211,3 +211,32 @@ Authorization: Bearer <token>
   }
 }
 ```
+
+---
+
+## 4.6 Download Invoice (PDF)
+
+```http
+GET /api/v1/orders/{orderId}/invoice
+Authorization: Bearer <token>
+```
+
+Returns the backend-rendered invoice for one of the caller's orders as
+`application/pdf` with `Content-Disposition: attachment; filename="INV-YYYY-NNNNNN.pdf"`
+and `Cache-Control: private, no-store`. The invoice number is assigned on the
+first download and never changes.
+
+A new invoice is issued for `paid`, `packed`, `shipped`, `out_for_delivery` and
+`delivered` orders; an invoice issued earlier stays downloadable after a
+cancellation. Errors use the JSON envelope: `400 BAD_REQUEST`, `401`,
+`404 NOT_FOUND` (other user or tenant), `409 INVOICE_NOT_AVAILABLE` (not paid,
+or cancelled with no earlier invoice) and `500`.
+
+**Frontend:** `InvoiceDownloadButton` (`src/entities/orders/ui/`) fetches the
+PDF with `apiDownload` (same auth, tenant and error handling as `apiClient`),
+saves it under the server filename and shows a toast per error code. When the
+API is on another origin the backend must list `Content-Disposition` in
+`Access-Control-Expose-Headers` for the filename to be readable; otherwise the
+file is saved as `invoice-<orderNumber>.pdf`. The button appears on the order
+detail page (paid-like and cancelled orders) and on the order confirmation page
+(paid-like orders).
