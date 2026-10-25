@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
 import { Price } from '@/components/price';
-import { ProductImageGallery } from '@/components/product-image-gallery';
+import { galleryImages, ProductImageGallery } from '@/components/product-image-gallery';
 import { ProductRecommendations } from '@/components/product-recommendations';
 import { Rating } from '@/components/rating';
 import { SocialShare } from '@/components/social-share';
@@ -92,7 +92,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] lg:gap-14">
         <div className="space-y-4">
           <ProductImageGallery
-            images={data.imageUrl ? [data.imageUrl, ...(data.images || [])] : data.images || []}
+            images={galleryImages(data.imageUrl, data.images)}
             productName={data.title}
           />
           <div className="flex gap-2 text-sm text-muted-foreground">

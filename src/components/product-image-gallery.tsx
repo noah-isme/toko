@@ -12,6 +12,25 @@ const SWIPE_THRESHOLD = 50;
 const blurPlaceholder =
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+';
 
+/**
+ * Gallery slides for a product: the main image (`thumbnail`) first, then the gallery
+ * images in their saved order, without blanks or repeats (the thumbnail is usually
+ * also one of the gallery images).
+ */
+export function galleryImages(
+  mainImage: string | undefined,
+  images: string[] | undefined,
+): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const url of [mainImage, ...(images ?? [])]) {
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    result.push(url);
+  }
+  return result;
+}
+
 interface ProductImageGalleryProps {
   images: string[];
   productName: string;
