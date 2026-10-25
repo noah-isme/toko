@@ -709,6 +709,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.instructions.proofUnsupported':
       'Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF, HEIC) atau PDF.',
     'checkout.review.instructions.proofTooLarge': ['Ukuran file melebihi 5 MB.', { max: 5 }],
+    'checkout.review.instructions.proofRequestTooLarge':
+      'File terlalu besar untuk diunggah. Pilih file yang lebih kecil.',
     'checkout.review.instructions.proofErrorUnauthorized':
       'Sesi Anda telah berakhir. Masuk kembali, lalu unggah bukti pembayaran.',
     'checkout.review.instructions.proofErrorNotFound':
@@ -3120,6 +3122,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.instructions.proofUnsupported':
       'Unsupported file format. Use an image (JPG, PNG, WebP, GIF, HEIC) or a PDF.',
     'checkout.review.instructions.proofTooLarge': ['File size exceeds 5 MB.', { max: 5 }],
+    'checkout.review.instructions.proofRequestTooLarge':
+      'The file is too large to upload. Choose a smaller file.',
     'checkout.review.instructions.proofErrorUnauthorized':
       'Your session has ended. Sign in again, then upload the proof.',
     'checkout.review.instructions.proofErrorNotFound':

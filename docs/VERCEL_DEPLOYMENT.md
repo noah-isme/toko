@@ -45,6 +45,13 @@ cancel and return creation. Keep it `false` until the API both lists
 in its idempotency middleware; enabling it earlier makes the cross-origin
 preflight for both requests fail.
 
+Payment proof uploads (`POST /payments/{orderId}/proof`) are checked against
+5 MB in the browser and in the API handler, but the API's global request body
+limit (`SECURITY_BODY_LIMIT_BYTES`, 1 MiB by default) applies first. Until the
+API raises that limit or exempts the proof route (5 MiB plus multipart
+overhead), files above about 1 MB are rejected with a 413; the storefront then
+says the file is too large without naming a size.
+
 Preview builds use the real API with the dedicated test tenant. Protect Preview
 deployments with Vercel Deployment Protection. Use the stable staging hostname
 for authenticated tests; do not add every ephemeral \*.vercel.app URL to API

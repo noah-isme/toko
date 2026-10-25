@@ -1193,6 +1193,7 @@
         "proofHint": "JPG, PNG, WebP, GIF, HEIC, or PDF, up to {max} MB.",
         "proofUnsupported": "Unsupported file format. Use an image (JPG, PNG, WebP, GIF, HEIC) or a PDF.",
         "proofTooLarge": "File size exceeds {max} MB.",
+        "proofRequestTooLarge": "The file is too large to upload. Choose a smaller file.",
         "proofSelected": "Selected file: {name}",
         "proofPreviewAlt": "Payment proof preview",
         "proofErrorUnauthorized": "Your session has ended. Sign in again, then upload the proof.",

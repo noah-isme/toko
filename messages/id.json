@@ -1193,6 +1193,7 @@
         "proofHint": "JPG, PNG, WebP, GIF, HEIC, atau PDF, maksimal {max} MB.",
         "proofUnsupported": "Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF, HEIC) atau PDF.",
         "proofTooLarge": "Ukuran file melebihi {max} MB.",
+        "proofRequestTooLarge": "File terlalu besar untuk diunggah. Pilih file yang lebih kecil.",
         "proofSelected": "File dipilih: {name}",
         "proofPreviewAlt": "Pratinjau bukti pembayaran",
         "proofErrorUnauthorized": "Sesi Anda telah berakhir. Masuk kembali, lalu unggah bukti pembayaran.",

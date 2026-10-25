@@ -48,10 +48,10 @@ describe('payment proof upload', () => {
   it('describes the accepted formats and limits the picker to them', () => {
     renderPanel();
     const input = screen.getByLabelText('Proof of payment (optional)');
+    // HEIC/HEIF are left out of `accept` so iOS Safari converts camera photos to JPEG.
     expect(input).toHaveAttribute(
       'accept',
-      'image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,application/pdf,' +
-        '.jpg,.jpeg,.png,.webp,.gif,.heic,.heif,.pdf',
+      'image/jpeg,image/png,image/webp,image/gif,application/pdf,.jpg,.jpeg,.png,.webp,.gif,.pdf',
     );
     expect(input).toHaveAccessibleDescription('JPG, PNG, WebP, GIF, HEIC, or PDF, up to 5 MB.');
   });
@@ -139,7 +139,17 @@ describe('payment proof upload', () => {
       new ApiClientError('payment proof must be a file up to 5MB', 'BAD_REQUEST', 400),
       'File size exceeds 5 MB.',
     ],
-    [new ApiClientError('Request entity too large', 'UNKNOWN', 413), 'File size exceeds 5 MB.'],
+    // The API's global body limit (1 MiB by default) answers before the 5 MB handler check, so a
+    // 413 must not claim the file is over 5 MB.
+    [
+      new ApiClientError('request entity too large', 'UNKNOWN', 413),
+      'The file is too large to upload. Choose a smaller file.',
+    ],
+    [
+      new ApiClientError('request entity too large', 'UNKNOWN', 400),
+      'The file is too large to upload. Choose a smaller file.',
+    ],
+    [new ApiClientError('csrf token invalid', 'FORBIDDEN', 403), 'Failed to upload the proof'],
     [new ApiClientError('order not found', 'NOT_FOUND', 404), 'We could not find this order.'],
     [new ApiClientError('login required', 'UNAUTHORIZED', 401), 'Your session has ended.'],
     [
@@ -159,6 +169,23 @@ describe('payment proof upload', () => {
     await user.click(screen.getByRole('button', { name: 'Upload proof' }));
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(expected));
+  });
+
+  it('does not name a size limit when the request body limit rejects the file', async () => {
+    const user = userEvent.setup();
+    uploadProof.mockRejectedValue(new ApiClientError('request entity too large', 'UNKNOWN', 413));
+    renderPanel('id');
+    // 2 MB passes the client check but can exceed the API's global body limit.
+    selectFile(makeFile('foto.jpg', 'image/jpeg', 2 * 1024 * 1024), 'Bukti pembayaran (opsional)');
+
+    await user.click(screen.getByRole('button', { name: 'Unggah bukti' }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'File terlalu besar untuk diunggah. Pilih file yang lebih kecil.',
+      ),
+    );
+    expect(screen.getByRole('alert')).not.toHaveTextContent('5 MB');
   });
 
   it('shows Indonesian reasons instead of the English server text', async () => {

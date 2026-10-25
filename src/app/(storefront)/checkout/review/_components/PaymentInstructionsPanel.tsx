@@ -11,7 +11,11 @@ import { paymentApi } from '@/lib/api/services/payment';
 import type { PaymentInstructions } from '@/lib/api/services/payment';
 import { ACCEPTED_IMAGE_TYPES, validateFile } from '@/shared/lib/fileValidation';
 
-/** Mirrors the API limit for `POST /payments/{orderId}/proof` (5 MB; the API accepts any type). */
+/**
+ * The proof handler's own limit for `POST /payments/{orderId}/proof` (5 MB; it accepts any type).
+ * The API's global request body limit (`SECURITY_BODY_LIMIT_BYTES`, 1 MiB by default) can reject
+ * smaller files first with a plain 413, so a 413 must not be reported as "over 5 MB".
+ */
 export const PAYMENT_PROOF_MAX_SIZE_MB = 5;
 /** Common receipt formats: web images, phone camera photos (HEIC/HEIF) and PDF. */
 export const PAYMENT_PROOF_TYPES = [
@@ -32,11 +36,20 @@ export const PAYMENT_PROOF_EXTENSIONS = [
   '.pdf',
 ] as const;
 
+/**
+ * Value of the file input's `accept`. HEIC/HEIF stay out on purpose: without them iOS Safari
+ * converts camera photos to JPEG (smaller, previewable); they are still accepted by validation.
+ */
+const PAYMENT_PROOF_ACCEPT = [...PAYMENT_PROOF_TYPES, ...PAYMENT_PROOF_EXTENSIONS]
+  .filter((type) => !/hei[cf]$/i.test(type))
+  .join(',');
+
 /** Only formats every browser can render get an inline preview; others show the file name. */
 const PREVIEWABLE_TYPES: readonly string[] = ACCEPTED_IMAGE_TYPES;
 
 type ProofErrorKey =
   | 'proofTooLarge'
+  | 'proofRequestTooLarge'
   | 'proofUnsupported'
   | 'proofErrorUnauthorized'
   | 'proofErrorNotFound'
@@ -49,8 +62,16 @@ type ProofErrorKey =
  */
 export function paymentProofErrorKey(error: unknown): ProofErrorKey | null {
   if (!(error instanceof ApiClientError)) return 'uploadFailed';
-  if (error.status === 413 || /\b5\s?MB\b|too large/i.test(error.message)) return 'proofTooLarge';
+  // 413 comes from the API's global body limit, which can be lower than the 5 MB handler limit:
+  // say the file is too large without naming a size.
+  if (error.status === 413 || /entity too large/i.test(error.message)) {
+    return 'proofRequestTooLarge';
+  }
+  // The proof handler's own size check (`payment proof must be a file up to 5MB`).
+  if (/\b5\s?MB\b/i.test(error.message)) return 'proofTooLarge';
   if (error.status === 415) return 'proofUnsupported';
+  // CSRF failures and missing store membership: the server's text is English only.
+  if (error.status === 403) return 'uploadFailed';
   switch (error.code) {
     case 'UNAUTHORIZED':
       return 'proofErrorUnauthorized';
@@ -202,7 +223,7 @@ export function PaymentInstructionsPanel({
         <input
           id="payment-proof"
           type="file"
-          accept={[...PAYMENT_PROOF_TYPES, ...PAYMENT_PROOF_EXTENSIONS].join(',')}
+          accept={PAYMENT_PROOF_ACCEPT}
           onChange={handleFileChange}
           disabled={uploading}
           aria-describedby={error ? `${hintId} ${errorId}` : hintId}
