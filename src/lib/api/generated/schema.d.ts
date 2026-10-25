@@ -2371,7 +2371,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Validation failed */
+                /** @description Validation failed, including "product is not available" for draft or archived products */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -2652,6 +2652,24 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /**
+                 * @description `PRODUCT_UNAVAILABLE`: a cart line's product was set to draft or
+                 *     archived (or deleted) after it was added. Nothing is reserved or
+                 *     ordered. `details: {productId, slug}`.
+                 *
+                 *     `CONFLICT`: the checkout lost a row-lock race (deadlock, lock
+                 *     timeout or serialization failure) with another checkout or an
+                 *     admin catalog write. Nothing was committed; retry the request.
+                 *     `details: {retryable: true}`.
+                 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
                 /** @description Address not found, cart empty, or tenant missing */
                 500: {
@@ -3355,7 +3373,18 @@ export interface paths {
         put?: never;
         /**
          * Create webhook endpoint
-         * @description Registers a new webhook endpoint.
+         * @description Registers a new webhook endpoint. Catalog topics `product.price_changed`,
+         *     `product.stock_changed` and `product.status_changed` (payload
+         *     `{tenantId, productId, slug?, variantId?, sku?, field, old, new,
+         *     source: single|bulk|import, requestId, actorUserId?}`) are delivered
+         *     only to endpoints of the emitting tenant. Order, payment and shipment
+         *     events are not tenant-stamped yet and keep broadcasting to every active
+         *     endpoint subscribed to the topic.
+         *
+         *     Known limitation (pre-existing, tracked with the notifications/RBAC
+         *     streams): this endpoint does not yet set `tenant_id` on the new row,
+         *     so tenant-scoped `product.*` delivery only reaches endpoints whose
+         *     tenant was assigned directly in the database until that lands.
          */
         post: {
             parameters: {
@@ -4385,6 +4414,7 @@ export interface paths {
                             /** Format: uuid */
                             productId: string;
                             salePrice: number;
+                            /** @description null or absent means unlimited; 0 is rejected with 400 */
                             stockLimit?: number | null;
                         }[];
                     };
@@ -5095,6 +5125,22 @@ export interface paths {
                     /** @description Brand slug filter */
                     brand?: string;
                     inStock?: boolean;
+                    /**
+                     * @description `field[:asc|desc]` with field `name|price|stock|created|updated`.
+                     *     Bare `name|price|stock` sort ascending, bare `created|updated`
+                     *     descending. Default `created:desc` (the previous fixed order).
+                     *     `stock` is the sum of variant stock. Unknown values return 400.
+                     */
+                    sort?: string;
+                    /** @description Product status filter (omit for all) */
+                    status?: "draft" | "published" | "archived";
+                    /**
+                     * @description Product-level stock status (see AdminProduct.stockStatus): `out` when
+                     *     the summed variant stock is 0, `low` when it is at most the effective
+                     *     low-stock threshold, `in` otherwise. A product without variants
+                     *     follows its inStock flag.
+                     */
+                    stockStatus?: "in" | "low" | "out";
                 };
                 header?: never;
                 path?: never;
@@ -5113,6 +5159,13 @@ export interface paths {
                             pagination: components["schemas"]["Pagination"];
                         };
                     };
+                };
+                /** @description Invalid sort */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
                 /** @description Unauthorized */
                 401: {
@@ -5201,6 +5254,536 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/bulk/price": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk price update (admin)
+         * @description All-or-nothing update of up to 500 items (request body at most 1 MiB).
+         *     A `productId` item sets the product price (and `compareAt` when sent)
+         *     and, with the default `applyTo: both`, every variant price of that
+         *     product, so the storefront listing and the cart agree (the cart charges
+         *     the variant price). `applyTo: product` changes only the listing price
+         *     (the cart keeps charging each variant's own price); `applyTo: variants`
+         *     changes only the variants. A `variantId` item sets one variant price.
+         *     Every target is locked (id order, lock_timeout 5 s) before writing.
+         *     Emits one `product.price_changed` event per changed value after commit
+         *     and writes one audit row (`catalog.bulk.price`, per-item from/to)
+         *     inside the transaction.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "productId": "7f9c2d1e-0000-4000-8000-000000000001",
+                     *           "price": 125000,
+                     *           "compareAt": 150000
+                     *         },
+                     *         {
+                     *           "productId": "7f9c2d1e-0000-4000-8000-000000000002",
+                     *           "price": 99000,
+                     *           "applyTo": "product"
+                     *         },
+                     *         {
+                     *           "variantId": "7f9c2d1e-0000-4000-8000-0000000000a1",
+                     *           "price": 105000
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BulkPriceRequest"];
+                };
+            };
+            responses: {
+                /** @description Applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** @description Items that changed at least one value */
+                                updated: number;
+                                items: ({
+                                    /** Format: uuid */
+                                    productId: string;
+                                    slug: string;
+                                    /** @description Product price after the update */
+                                    price: number;
+                                    compareAt: number | null;
+                                    /** @enum {string} */
+                                    applyTo: "both" | "product" | "variants";
+                                    variantsUpdated: number;
+                                } | {
+                                    /** Format: uuid */
+                                    variantId: string;
+                                    /** Format: uuid */
+                                    productId: string;
+                                    sku: string | null;
+                                    price: number;
+                                })[];
+                            };
+                        };
+                    };
+                };
+                400: components["responses"]["BulkBadRequest"];
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                422: components["responses"]["BulkValidationFailed"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/bulk/stock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk variant stock update (admin)
+         * @description All-or-nothing, up to 500 items. Each item targets one variant and sends
+         *     either an absolute `stock` or a `delta`. Deltas are applied atomically
+         *     against the live stock after locking the row, so concurrent checkout
+         *     reservations are respected; a result below zero rejects the row
+         *     (`NEGATIVE_RESULT`, nothing is clamped) and a result above
+         *     2147483647 is `OUT_OF_RANGE`. `products.in_stock` is
+         *     recomputed for every touched product. Emits `product.stock_changed`
+         *     per changed variant and writes one `catalog.bulk.stock` audit row.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BulkStockRequest"];
+                };
+            };
+            responses: {
+                /** @description Applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                updated: number;
+                                items: {
+                                    /** Format: uuid */
+                                    variantId: string;
+                                    /** Format: uuid */
+                                    productId: string;
+                                    sku: string | null;
+                                    /** @description Stock after the update */
+                                    stock: number;
+                                    /** @description Recomputed product flag; null when the product was not changed */
+                                    inStock: boolean | null;
+                                }[];
+                            };
+                        };
+                    };
+                };
+                400: components["responses"]["BulkBadRequest"];
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                422: components["responses"]["BulkValidationFailed"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/bulk/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk product status (publish / draft / archive)
+         * @description All-or-nothing, up to 500 items. Non-published (draft, archived)
+         *     products disappear from public listing, detail, search, related
+         *     products, recommendations, favourites and flash sales; they cannot be
+         *     added to a cart (400 "product is not available"), and existing cart
+         *     lines fail at checkout with 409 `PRODUCT_UNAVAILABLE`. Emits
+         *     `product.status_changed` and writes one `catalog.bulk.status` audit row.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BulkStatusRequest"];
+                };
+            };
+            responses: {
+                /** @description Applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                updated: number;
+                                items: {
+                                    /** Format: uuid */
+                                    productId: string;
+                                    slug: string;
+                                    /** @enum {string} */
+                                    status: "draft" | "published" | "archived";
+                                }[];
+                            };
+                        };
+                    };
+                };
+                400: components["responses"]["BulkBadRequest"];
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                422: components["responses"]["BulkValidationFailed"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export products as CSV (one row per variant)
+         * @description Streams every product matching the list filters (no pagination), one
+         *     row per variant; a product without variants yields one row with empty
+         *     variant columns. Format: UTF-8 **with BOM** (Excel with Indonesian
+         *     regional settings garbles BOM-less UTF-8), comma delimiter, CRLF line
+         *     endings, RFC 4180 quoting. Text cells starting with `=`, `+`, `-`, `@`,
+         *     TAB or CR are prefixed with `'` (formula-injection safety); numeric
+         *     columns are never prefixed. Timestamps are RFC3339 UTC. Money in minor
+         *     units. Columns, in order:
+         *     `sku, product_id, variant_id, title, slug, status, price, compare_at,
+         *     variant_price, stock, stock_baseline, low_stock_threshold, in_stock,
+         *     stock_status, category_slug, brand_slug, description, attributes,
+         *     created_at, updated_at`. `stock_baseline` repeats the stock at export
+         *     time; keep it unchanged so a later import can detect sales made since
+         *     the export (see import). `attributes` is a JSON object.
+         *     Errors before streaming starts return JSON; a database failure after
+         *     the first rows were sent truncates the file (the status is already
+         *     200), so clients should compare the row count with the list total.
+         *     Download with fetch + blob (the endpoint needs the bearer token).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    search?: string;
+                    /** @description Category slug */
+                    category?: string;
+                    /** @description Brand slug */
+                    brand?: string;
+                    inStock?: boolean;
+                    status?: "draft" | "published" | "archived";
+                    stockStatus?: "in" | "low" | "out";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV file */
+                200: {
+                    headers: {
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Invalid filter */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import products or stock from CSV (dry run by default)
+         * @description Multipart upload (field `file`, at most 5 MiB, at most 5000 data rows,
+         *     CSV only; .xlsx is rejected). This route is exempt from the global
+         *     request-body cap (`SECURITY_BODY_LIMIT_BYTES`, 1 MiB by default); the
+         *     handler enforces the 5 MiB file cap (5 MiB + 64 KiB for the whole
+         *     multipart body) and answers 413 `PAYLOAD_TOO_LARGE` as JSON. The file is held in memory only and its
+         *     contents are never logged. `dryRun` defaults to `true`; send
+         *     `dryRun=false` to apply. Both modes plan the whole file inside one
+         *     transaction against locked current values and return the planned
+         *     writes; nothing is written when any row is rejected (422), and a dry
+         *     run always rolls back.
+         *
+         *     **File format**: optional UTF-8 BOM, `,` or `;` delimiter (detected on
+         *     the header line), lower-case headers in any order. Unknown, duplicate
+         *     or missing required headers fail the whole file with 400
+         *     `INVALID_HEADER | DUPLICATE_HEADER | MISSING_HEADER` (`details.header`).
+         *     A leading `'` before a formula trigger is removed, so exported files
+         *     round-trip (consequence: text that literally starts with `'` followed
+         *     by `=`, `+`, `-`, `@`, TAB or CR cannot be stored through an import).
+         *     `title` and `description` are compared ignoring CR characters, since
+         *     a CSV round trip turns CRLF into LF and drops a lone CR; an unchanged
+         *     export therefore re-imports as `unchanged`. Rows consisting only of empty cells are skipped; `row` in
+         *     the response is the spreadsheet row (header = row 1).
+         *
+         *     **type=products** requires `sku`; optional `variant_id, product_id,
+         *     title, slug, status, price, compare_at, variant_price, stock,
+         *     stock_baseline, low_stock_threshold, category_slug, brand_slug,
+         *     description, attributes`; ignored (accepted for round trip):
+         *     `in_stock, stock_status, created_at, updated_at`.
+         *     **type=stock** requires `sku, stock`; optional `variant_id,
+         *     stock_baseline`. It never creates products or variants.
+         *
+         *     **Row identity**: `variant_id` wins (a non-empty `sku` that differs
+         *     from the stored one is `SKU_MISMATCH`, which catches SKUs mangled by a
+         *     spreadsheet app; a variant without SKU gets the row's `sku`
+         *     assigned). Otherwise `sku` is looked up in the store (`update`).
+         *     Unknown `sku`: with `product_id` it adds a variant (`create_variant`);
+         *     without, rows sharing the same `slug` (or slugified `title`) create one
+         *     new product (`create`), unless that slug already names a product of
+         *     this store (`create_variant`). A derived slug taken by another store
+         *     gets `-2`..`-20`; an explicit taken slug is `SLUG_TAKEN`. A row with
+         *     empty `sku` and `variant_id` but a `product_id` updates only the
+         *     product-level columns (products without variants export this way);
+         *     variant columns on such a row are `NO_VARIANT`.
+         *
+         *     **Prices**: `price` is the product (listing) price only;
+         *     `variant_price` is what the cart charges for that variant. Editing
+         *     `price` alone leaves the variant prices unchanged, so listing and cart
+         *     disagree; edit `variant_price` on every row of the product as well
+         *     (bulk price `applyTo=both` does this in one call).
+         *
+         *     **Empty cells**: for `compare_at`, `low_stock_threshold`,
+         *     `description`, `category_slug`, `brand_slug` an empty cell clears the
+         *     value; for every other column it leaves the value unchanged (or uses
+         *     the default on create: status `published`, stock 0, variant price =
+         *     product price, attributes `{}`). `0` is a value, not empty. Rows of
+         *     the same product must carry identical product-level cells
+         *     (`CONFLICTING_PRODUCT_VALUES`); product-level changes are reported on
+         *     the product's first row.
+         *
+         *     **Stock and sales since the export**: with `stock_baseline` (as
+         *     exported), a stock cell equal to the baseline is treated as untouched
+         *     (no write, whatever the live stock is now); an edited cell is applied
+         *     only while the live stock still equals the baseline, otherwise the row
+         *     is `STALE_STOCK` (export again, or use bulk stock deltas). Without a
+         *     baseline, `type=stock` sets absolute counts, and `type=products`
+         *     refuses to change the stock of an existing variant
+         *     (`STOCK_BASELINE_REQUIRED`); stock always applies on create.
+         *
+         *     Re-importing an unchanged file reports every row `unchanged`, writes
+         *     nothing, emits no events and writes no audit row. A committed import
+         *     writes one `catalog.import.commit` audit row with per-row from/to (in
+         *     the same transaction); a rejected run (either mode) writes
+         *     `catalog.import.rejected`. Price, stock and status changes emit
+         *     `product.*` events after commit.
+         */
+        post: {
+            parameters: {
+                query: {
+                    type: "products" | "stock";
+                    dryRun?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** Format: binary */
+                        file: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Planned (dry run) or applied (dryRun=false); also a no-op commit */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["ImportResult"];
+                        };
+                    };
+                };
+                /**
+                 * @description Bad type/dryRun, missing file, unreadable file (`UNSUPPORTED_FILE`,
+                 *     `INVALID_ENCODING`, `EMPTY_FILE`, `INVALID_CSV` with `details.row`),
+                 *     `TOO_MANY_ROWS`, or a header error (`details.header`). Nothing written.
+                 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                /** @description One or more rows rejected; nothing written. `error.details` is the ImportResult. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error?: {
+                                /** @enum {string} */
+                                code?: "VALIDATION_FAILED";
+                                message?: string;
+                                details?: components["schemas"]["ImportResult"];
+                            };
+                        };
+                    };
                 };
             };
         };
@@ -6094,6 +6677,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/orders/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export orders as CSV (one row per order)
+         * @description Streams every order matching the list filters (no pagination), newest
+         *     first. Same CSV conventions as the products export (UTF-8 BOM, comma,
+         *     CRLF, formula-injection escaping of text cells, RFC3339 UTC). Dates are
+         *     UTC day boundaries exactly like `GET /admin/orders`: `startDate`
+         *     inclusive, `endDate` exclusive (`endDate=2026-03-03` ends at
+         *     2026-03-03T00:00:00Z). Columns, in order: `order_number, order_id,
+         *     status, payment_status, customer_name, customer_email, currency,
+         *     subtotal, discount, tax, shipping, total, voucher_code, items_count,
+         *     courier, tracking_number, created_at, updated_at`. The file contains
+         *     customer personal data (name, email).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    search?: string;
+                    startDate?: string;
+                    endDate?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV file */
+                200: {
+                    headers: {
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Invalid status or date */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/orders/stats": {
         parameters: {
             query?: never;
@@ -6733,10 +7391,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List variant inventory */
+        /**
+         * List variant inventory
+         * @description Every variant of the tenant with its stock status against the effective
+         *     low-stock threshold (product `lowStockThreshold`, else the tenant
+         *     default `settings.inventory.lowStockThreshold`, else 5): `out` at 0,
+         *     `low` at 1..threshold, `in` above. A threshold of 0 never reports `low`.
+         */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    stockStatus?: "in" | "low" | "out";
+                    /** @description true is an alias for stockStatus=low */
+                    lowStock?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -6745,6 +7413,30 @@ export interface paths {
             responses: {
                 /** @description Inventory list */
                 200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                /** Format: uuid */
+                                variantId: string;
+                                /** Format: uuid */
+                                productId: string;
+                                sku: string | null;
+                                productTitle: string;
+                                price: number;
+                                stock: number;
+                                /** @enum {string} */
+                                stockStatus: "in" | "low" | "out";
+                                /** @description Effective threshold for this variant's product */
+                                lowStockThreshold: number;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Invalid stockStatus or lowStock */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -6773,7 +7465,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Set or adjust variant stock */
+        /**
+         * Set or adjust variant stock
+         * @description Emits `product.stock_changed` (source `single`) when the stock changes.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -7058,7 +7753,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read tenant store configuration */
+        /**
+         * Read tenant store configuration
+         * @description Free-form per-key settings. Key `inventory` holds
+         *     `{"lowStockThreshold": n}`, the tenant default low-stock threshold
+         *     (absent means 5).
+         */
         get: {
             parameters: {
                 query?: never;
@@ -7082,7 +7782,12 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update tenant store configuration */
+        /**
+         * Update tenant store configuration
+         * @description Upserts each top-level key. `inventory.lowStockThreshold` must be an
+         *     integer 0..1000000 (0 disables "low"); anything else is 400.
+         *     Example: `{"inventory": {"lowStockThreshold": 10}}`.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -7153,11 +7858,98 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        BulkRowError: {
+            /** @description Zero-based position in items */
+            index: number;
+            field: string;
+            /** @enum {string} */
+            code: "MISSING" | "AMBIGUOUS" | "INVALID_UUID" | "NEGATIVE" | "NOT_FOUND" | "DUPLICATE" | "INVALID_STATUS" | "INVALID_APPLY_TO" | "NEGATIVE_RESULT" | "OUT_OF_RANGE" | "NOT_ALLOWED";
+            message: string;
+        };
+        BulkPriceItem: {
+            /** Format: uuid */
+            productId: string;
+            price: number;
+            /** @description Omit to keep, null to clear; not allowed with applyTo=variants */
+            compareAt?: number | null;
+            /**
+             * @default both
+             * @enum {string}
+             */
+            applyTo: "both" | "product" | "variants";
+        } | {
+            /** Format: uuid */
+            variantId: string;
+            price: number;
+        };
+        BulkPriceRequest: {
+            items: components["schemas"]["BulkPriceItem"][];
+        };
+        BulkStockRequest: {
+            items: ({
+                /** Format: uuid */
+                variantId: string;
+                stock: number;
+            } | {
+                /** Format: uuid */
+                variantId: string;
+                delta: number;
+            })[];
+        };
+        BulkStatusRequest: {
+            items: {
+                /** Format: uuid */
+                productId: string;
+                /** @enum {string} */
+                status: "draft" | "published" | "archived";
+            }[];
+        };
+        ImportRow: {
+            /** @description Spreadsheet row (header is row 1) */
+            row: number;
+            sku: string;
+            /** Format: uuid */
+            variantId?: string;
+            /** Format: uuid */
+            productId?: string;
+            /** @description Product slug; for create rows the slug that will be (or was) used */
+            slug?: string;
+            /** @enum {string} */
+            action: "create" | "create_variant" | "update" | "unchanged" | "reject";
+            /** @description field -> {from, to}; fields: title, slug, status, price, compare_at, low_stock_threshold, category_slug, brand_slug, description, sku, variant_price, stock, attributes */
+            changes: {
+                [key: string]: {
+                    from?: unknown;
+                    to?: unknown;
+                };
+            };
+            errors: {
+                field: string;
+                /** @enum {string} */
+                code: "MISSING" | "INVALID_ROW" | "INVALID_NUMBER" | "INVALID_UUID" | "NEGATIVE" | "OUT_OF_RANGE" | "INVALID_STATUS" | "INVALID_JSON" | "INVALID_SLUG" | "DUPLICATE_SKU" | "DUPLICATE_VARIANT" | "SKU_TAKEN" | "SKU_MISMATCH" | "PRODUCT_MISMATCH" | "SLUG_TAKEN" | "UNKNOWN_SKU" | "UNKNOWN_VARIANT" | "UNKNOWN_PRODUCT" | "MISSING_FOR_CREATE" | "UNKNOWN_CATEGORY" | "UNKNOWN_BRAND" | "CONFLICTING_PRODUCT_VALUES" | "NO_VARIANT" | "STALE_STOCK" | "STOCK_BASELINE_REQUIRED";
+                message: string;
+            }[];
+        };
+        ImportResult: {
+            dryRun: boolean;
+            /** @enum {string} */
+            type: "products" | "stock";
+            summary: {
+                total: number;
+                /** @description Rows creating a new product (several rows may create one product) */
+                create: number;
+                createVariant: number;
+                update: number;
+                unchanged: number;
+                rejected: number;
+            };
+            rows: components["schemas"]["ImportRow"][];
+        };
         ReturnRequest: {
             reason: string;
             notes?: string;
         };
-        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
+        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. `stockLimit` is tri-state: `null` means unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry, absent means unlimited. `0` is rejected with 400. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
         FlashSaleCampaignUpdateRequest: {
             name?: string;
             slug?: string;
@@ -7177,7 +7969,7 @@ export interface components {
                 productId: string;
                 /** @description Must be lower than the product price */
                 salePrice: number;
-                /** @description null or absent means unlimited */
+                /** @description `null` = unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry absent = unlimited; integer must be >= 1 and >= `soldCount`; `0` is rejected with 400 */
                 stockLimit?: number | null;
             }[];
         };
@@ -7265,6 +8057,18 @@ export interface components {
             variantCount: number;
             /** @description Primary variant SKU */
             sku?: string | null;
+            /**
+             * @description Only published products are visible and purchasable on the storefront
+             * @enum {string}
+             */
+            status?: "draft" | "published" | "archived";
+            /**
+             * @description Summed variant stock vs the effective threshold; products without variants follow inStock
+             * @enum {string}
+             */
+            stockStatus?: "in" | "low" | "out";
+            /** @description Product override; null means the tenant default */
+            lowStockThreshold?: number | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -7308,6 +8112,12 @@ export interface components {
             title: string;
             /** @description Derived from title when omitted */
             slug?: string;
+            /**
+             * @default published
+             * @enum {string}
+             */
+            status: "draft" | "published" | "archived";
+            lowStockThreshold?: number | null;
             price: number;
             compareAt?: number | null;
             /** @default true */
@@ -7326,11 +8136,16 @@ export interface components {
         /**
          * @description All properties are optional. Absent keys are left unchanged; an explicit
          *     null clears the corresponding nullable column. Supplying images or specs
-         *     replaces the whole collection.
+         *     replaces the whole collection. Price and status changes emit
+         *     product.price_changed / product.status_changed (source `single`).
          */
         AdminProductUpdateRequest: {
             title?: string;
             slug?: string;
+            /** @enum {string} */
+            status?: "draft" | "published" | "archived";
+            /** @description null clears the override */
+            lowStockThreshold?: number | null;
             price?: number;
             compareAt?: number | null;
             inStock?: boolean;
@@ -7470,6 +8285,10 @@ export interface components {
             shippedOrders?: number;
             deliveredOrders?: number;
             cancelledOrders?: number;
+            /** @description Products whose stockStatus is low */
+            lowStockProducts?: number;
+            /** @description Products whose stockStatus is out */
+            outOfStockProducts?: number;
             topProducts: {
                 /** Format: uuid */
                 productId: string;
@@ -8331,7 +9150,59 @@ export interface components {
             read: boolean;
         };
     };
-    responses: never;
+    responses: {
+        /** @description Malformed JSON, unknown field, empty items, or more than 500 items (`TOO_MANY_ROWS`). Nothing written. */
+        BulkBadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /** @description One or more items are invalid or not found in this store; nothing was changed. */
+        BulkValidationFailed: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    error?: {
+                        /** @enum {string} */
+                        code?: "VALIDATION_FAILED";
+                        message?: string;
+                        details?: {
+                            rows?: components["schemas"]["BulkRowError"][];
+                        };
+                    };
+                };
+            };
+        };
+        /** @description A concurrent change held a row lock longer than 5 s, a deadlock was detected, or a unique slug/SKU was taken concurrently. Nothing was changed; retry. */
+        CatalogConflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /**
+         * @description Request body over the limit; code PAYLOAD_TOO_LARGE in the standard
+         *     JSON error envelope. Every route is capped by the global
+         *     `SECURITY_BODY_LIMIT_BYTES` (1 MiB by default), which bulk endpoints
+         *     also enforce themselves (1 MiB); the CSV import is exempt from the
+         *     global cap and allows a 5 MiB file.
+         */
+        PayloadTooLarge: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+    };
     parameters: never;
     requestBodies: never;
     headers: never;
