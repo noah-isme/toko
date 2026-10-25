@@ -1,9 +1,12 @@
 /**
  * Ordered gallery-image editor for the admin product form.
  *
- * Order is meaningful: the backend stores `sort_order` from the array index and the
- * storefront gallery shows (and preloads) index 0 first, so "primary" simply means
- * "first". Rows reorder by drag-and-drop (pointer) or the move buttons (keyboard).
+ * Order is meaningful: the backend stores `sort_order` from the array index. The
+ * storefront's main image, however, comes from the product's separate `thumbnail`
+ * field (product cards, cart, favorites, recommendations, admin list, and the first
+ * gallery slide). So "Set as primary" moves the image first *and* reports reason
+ * `'primary'`, which the form uses to copy it into `thumbnail` (see `nextThumbnail`).
+ * Rows reorder by drag-and-drop (pointer) or the move buttons (keyboard).
  */
 'use client';
 
@@ -27,6 +30,39 @@ export function moveItem<T>(list: readonly T[], from: number, to: number): T[] {
   return next;
 }
 
+/** First non-empty URL: the image that is saved first (empty rows are dropped on save). */
+export function firstImageUrl(images: readonly string[]): string {
+  return images.find((url) => url.trim() !== '')?.trim() ?? '';
+}
+
+/** Why the image list changed. */
+export type ImagesChangeReason = 'add' | 'edit' | 'remove' | 'move' | 'primary';
+
+/**
+ * The thumbnail to keep after the image list changes.
+ *
+ * - `'primary'`: the chosen image becomes the thumbnail.
+ * - `'move'` / `'remove'` that change the first saved image: the thumbnail follows only
+ *   when it was empty or matched the previous first image, so a hand-picked thumbnail
+ *   is never overwritten by an ordinary reorder.
+ * - Typing in a row or adding one leaves the thumbnail alone.
+ */
+export function nextThumbnail(
+  thumbnail: string,
+  previous: readonly string[],
+  next: readonly string[],
+  reason: ImagesChangeReason,
+): string {
+  const nextFirst = firstImageUrl(next);
+  if (!nextFirst) return thumbnail;
+  if (reason === 'primary') return nextFirst;
+  if (reason !== 'move' && reason !== 'remove') return thumbnail;
+  const previousFirst = firstImageUrl(previous);
+  if (nextFirst === previousFirst) return thumbnail;
+  const current = thumbnail.trim();
+  return current === '' || current === previousFirst ? nextFirst : thumbnail;
+}
+
 /** Only preview URLs the browser can load directly; anything else shows a placeholder. */
 function previewable(url: string): boolean {
   const trimmed = url.trim();
@@ -42,7 +78,7 @@ interface RowKeys {
 
 export interface ProductImagesFieldProps {
   images: string[];
-  onChange: (images: string[]) => void;
+  onChange: (images: string[], reason: ImagesChangeReason) => void;
 }
 
 export function ProductImagesField({ images, onChange }: ProductImagesFieldProps) {
@@ -95,9 +131,10 @@ export function ProductImagesField({ images, onChange }: ProductImagesFieldProps
     if (from === target) return;
     if (focus) pendingFocus.current = { key: keys[from], target: focus };
     setRowKeys((current) => ({ ...current, keys: moveItem(current.keys, from, target) }));
-    onChange(moveItem(images, from, target));
+    const primary = focus === 'primary';
+    onChange(moveItem(images, from, target), primary ? 'primary' : 'move');
     setAnnouncement(
-      target === 0
+      primary
         ? t('imagePrimarySet')
         : t('imageMoved', { position: target + 1, total: images.length }),
     );
@@ -105,19 +142,25 @@ export function ProductImagesField({ images, onChange }: ProductImagesFieldProps
 
   const add = () => {
     setRowKeys((current) => ({ keys: [...current.keys, current.next], next: current.next + 1 }));
-    onChange([...images, '']);
+    onChange([...images, ''], 'add');
   };
 
   const remove = (index: number) => {
     setRowKeys((current) => ({ ...current, keys: current.keys.filter((_, i) => i !== index) }));
-    onChange(images.filter((_, i) => i !== index));
+    onChange(
+      images.filter((_, i) => i !== index),
+      'remove',
+    );
   };
 
   const change = (index: number, url: string) => {
     const next = [...images];
     next[index] = url;
-    onChange(next);
+    onChange(next, 'edit');
   };
+
+  // Empty rows are dropped on save, so the badge marks the first image that will be saved.
+  const primaryIndex = images.findIndex((url) => url.trim() !== '');
 
   const endDrag = () => {
     setDragIndex(null);
@@ -151,7 +194,8 @@ export function ProductImagesField({ images, onChange }: ProductImagesFieldProps
               {images.map((url, index) => {
                 const key = keys[index] ?? index;
                 const position = index + 1;
-                const primary = index === 0;
+                const primary = index === primaryIndex;
+                const empty = url.trim() === '';
                 return (
                   <div
                     key={key}
@@ -235,6 +279,7 @@ export function ProductImagesField({ images, onChange }: ProductImagesFieldProps
                           variant="ghost"
                           size="sm"
                           aria-label={t('setPrimary', { index: position })}
+                          disabled={empty}
                           onClick={() => move(index, 0, 'primary')}
                           data-image-action="primary"
                         >

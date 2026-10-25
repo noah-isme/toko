@@ -11,7 +11,7 @@ import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
-import { ProductImagesField } from '@/components/admin/product-images-field';
+import { nextThumbnail, ProductImagesField } from '@/components/admin/product-images-field';
 import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -373,7 +373,16 @@ export function ProductForm({
         </CardContent>
       </Card>
 
-      <ProductImagesField images={values.images} onChange={(images) => update('images', images)} />
+      <ProductImagesField
+        images={values.images}
+        onChange={(images, reason) =>
+          setValues((current) => ({
+            ...current,
+            images,
+            thumbnail: nextThumbnail(current.thumbnail, current.images, images, reason),
+          }))
+        }
+      />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
