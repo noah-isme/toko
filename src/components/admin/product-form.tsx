@@ -28,6 +28,7 @@ import { useAdminBrands, useAdminCategories } from '@/entities/admin/hooks';
 import type {
   AdminProductDetail,
   AdminProductInput,
+  AdminProductStatus,
   AdminProductVariantInput,
 } from '@/entities/admin/types';
 
@@ -42,6 +43,9 @@ export function slugify(value: string): string {
 
 /** Sentinel for "no category/brand", since Radix Select cannot hold an empty value. */
 const NONE = '__none__';
+
+const PRODUCT_STATUSES: AdminProductStatus[] = ['published', 'draft', 'archived'];
+const MAX_LOW_STOCK_THRESHOLD = 1_000_000;
 
 interface SpecRow {
   key: string;
@@ -69,6 +73,9 @@ export interface ProductFormValues {
   description: string;
   categoryId: string;
   brandId: string;
+  status: AdminProductStatus;
+  /** Empty means "use the store default". */
+  lowStockThreshold: string;
   images: string[];
   specs: SpecRow[];
   variants: VariantRow[];
@@ -85,6 +92,8 @@ const EMPTY_VALUES: ProductFormValues = {
   description: '',
   categoryId: NONE,
   brandId: NONE,
+  status: 'published',
+  lowStockThreshold: '',
   images: [],
   specs: [],
   variants: [],
@@ -102,6 +111,8 @@ export function productToFormValues(product: AdminProductDetail): ProductFormVal
     description: product.description ?? '',
     categoryId: product.categoryId ?? NONE,
     brandId: product.brandId ?? NONE,
+    status: product.status ?? 'published',
+    lowStockThreshold: product.lowStockThreshold == null ? '' : String(product.lowStockThreshold),
     images: product.images.map((image) => image.url),
     specs: product.specs.map((spec) => ({ key: spec.key, value: spec.value })),
     variants: product.variants.map((variant) => ({
@@ -120,6 +131,12 @@ export class VariantAttributesError extends Error {
     super(`Variant ${index}: attributes must be a JSON object`);
     this.name = 'VariantAttributesError';
   }
+}
+
+/** True when the threshold field is empty or a whole number in 0..1000000. */
+export function isValidLowStockThreshold(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed === '' || (/^\d+$/.test(trimmed) && Number(trimmed) <= MAX_LOW_STOCK_THRESHOLD);
 }
 
 /** Throws `VariantAttributesError` when a variant carries unparseable JSON attributes. */
@@ -161,6 +178,10 @@ export function formValuesToInput(values: ProductFormValues): AdminProductInput 
     description: values.description.trim() || null,
     categoryId: values.categoryId === NONE ? null : values.categoryId,
     brandId: values.brandId === NONE ? null : values.brandId,
+    status: values.status,
+    // Empty clears the override (null), so the store default applies.
+    lowStockThreshold:
+      values.lowStockThreshold.trim() === '' ? null : Number(values.lowStockThreshold.trim()),
     images: values.images.map((url) => url.trim()).filter(Boolean),
     specs: values.specs
       .map((spec) => ({ key: spec.key.trim(), value: spec.value.trim() }))
@@ -187,6 +208,7 @@ export function ProductForm({
   onCancel,
 }: ProductFormProps) {
   const t = useTranslations('admin.productForm');
+  const tStatus = useTranslations('admin.catalog.status');
   const tCommon = useTranslations('admin.common');
   const [values, setValues] = useState<ProductFormValues>(initialValues ?? EMPTY_VALUES);
   // Once the slug is hand-edited, stop deriving it from the title.
@@ -203,6 +225,10 @@ export function ProductForm({
     event.preventDefault();
     if (!values.title.trim()) {
       onError(t('errors.titleRequired'));
+      return;
+    }
+    if (!isValidLowStockThreshold(values.lowStockThreshold)) {
+      onError(t('errors.lowStockThreshold'));
       return;
     }
     let input: AdminProductInput;
@@ -338,6 +364,47 @@ export function ProductForm({
                 placeholder="new, bestseller"
               />
               <p className="text-xs text-muted-foreground">{t('badgesHint')}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="product-status">{t('status')}</Label>
+              <Select
+                value={values.status}
+                onValueChange={(value) => update('status', value as AdminProductStatus)}
+              >
+                <SelectTrigger
+                  id="product-status"
+                  data-testid="product-form-status"
+                  aria-describedby="product-status-hint"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRODUCT_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {tStatus(status)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p id="product-status-hint" className="text-xs text-muted-foreground">
+                {t('statusHint')}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="product-low-stock">{t('lowStockThreshold')}</Label>
+              <Input
+                id="product-low-stock"
+                data-testid="product-form-low-stock"
+                inputMode="numeric"
+                value={values.lowStockThreshold}
+                onChange={(event) => update('lowStockThreshold', event.target.value)}
+                placeholder={t('lowStockPlaceholder')}
+                aria-invalid={!isValidLowStockThreshold(values.lowStockThreshold) || undefined}
+                aria-describedby="product-low-stock-hint"
+              />
+              <p id="product-low-stock-hint" className="text-xs text-muted-foreground">
+                {t('lowStockHint')}
+              </p>
             </div>
           </div>
 
