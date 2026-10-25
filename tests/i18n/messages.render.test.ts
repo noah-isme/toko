@@ -1183,6 +1183,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.orderDetail.toast.cancelled': 'Pesanan dibatalkan',
     'account.orderDetail.toast.cancelledDescription': 'Pesanan Anda sudah dibatalkan.',
     'account.orderDetail.toast.cancelFailed': 'Gagal membatalkan pesanan. Silakan coba lagi.',
+    'account.orderDetail.toast.cancelAlreadySubmitted':
+      'Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui.',
     'account.invoice.title': ['Faktur #JNE123', { number: 'JNE123' }],
     'account.invoice.date': ['Tanggal: 12/10/2026', { date: '12/10/2026' }],
     'account.invoice.customer': ['Pelanggan: Jane Doe', { name: 'Jane Doe' }],
@@ -1490,6 +1492,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.confirmation.toast.cancelledDescription':
       'Pesanan Anda sudah dibatalkan. Tim kami akan memproses pengembalian dana jika diperlukan.',
     'account.confirmation.toast.cancelFailed': 'Gagal membatalkan pesanan. Silakan coba lagi.',
+    'account.confirmation.toast.cancelAlreadySubmitted':
+      'Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui.',
     'account.tracking.mapLoading': 'Memuat peta...',
     'account.tracking.mapResolving': 'Memuat peta pelacakan dan koordinat lokasi...',
     'account.tracking.mapEmpty':
@@ -1547,6 +1551,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.returns.listTitle': 'Permintaan saya',
     'account.returns.empty': 'Belum ada permintaan pengembalian.',
     'account.returns.order': ['Pesanan ORD-1', { orderId: 'ORD-1' }],
+    'account.returns.alreadySubmitted':
+      'Permintaan ini sudah dikirim. Cek daftar di bawah untuk statusnya.',
     'catalog.vouchers.percentOff': ['DISKON 20%', { percent: 20 }],
     'catalog.vouchers.minSpend': ['Min. belanja Rp 10.000', { amount: 'Rp 10.000' }],
     'catalog.vouchers.remaining': ['3 kali tersisa', { count: 3 }],
@@ -3577,6 +3583,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.orderDetail.toast.cancelled': 'Order cancelled',
     'account.orderDetail.toast.cancelledDescription': 'Your order has been cancelled.',
     'account.orderDetail.toast.cancelFailed': 'Failed to cancel the order. Please try again.',
+    'account.orderDetail.toast.cancelAlreadySubmitted':
+      'Your cancellation was already submitted. The order status will update shortly.',
     'account.invoice.title': ['Invoice #JNE123', { number: 'JNE123' }],
     'account.invoice.date': ['Date: 12/10/2026', { date: '12/10/2026' }],
     'account.invoice.customer': ['Customer: Jane Doe', { name: 'Jane Doe' }],
@@ -3883,6 +3891,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.confirmation.toast.cancelledDescription':
       'Your order has been cancelled. Our team will process a refund if needed.',
     'account.confirmation.toast.cancelFailed': 'Failed to cancel the order. Please try again.',
+    'account.confirmation.toast.cancelAlreadySubmitted':
+      'Your cancellation was already submitted. The order status will update shortly.',
     'account.tracking.mapLoading': 'Loading map...',
     'account.tracking.mapResolving': 'Loading the tracking map and location coordinates...',
     'account.tracking.mapEmpty':
@@ -3942,6 +3952,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.returns.listTitle': 'My requests',
     'account.returns.empty': 'No return requests yet.',
     'account.returns.order': ['Order ORD-1', { orderId: 'ORD-1' }],
+    'account.returns.alreadySubmitted':
+      'This request was already submitted. Check the list below for its status.',
     'catalog.vouchers.percentOff': ['20% OFF', { percent: 20 }],
     'catalog.vouchers.minSpend': ['Min. spend Rp 10.000', { amount: 'Rp 10.000' }],
     'catalog.vouchers.remaining': ['3 uses left', { count: 3 }],

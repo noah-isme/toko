@@ -4,6 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import OrderDetailPage from '@/app/(storefront)/account/orders/[orderId]/page';
+import { ApiClientError } from '@/lib/api/apiClient';
 
 const mockMutateAsync = vi.fn();
 const mockToast = vi.fn();
@@ -81,7 +82,7 @@ describe('OrderDetailPage - Order Cancellation Flow', () => {
 
   beforeEach(() => {
     queryClient = createQueryClient();
-    mockMutateAsync.mockClear();
+    mockMutateAsync.mockReset();
     mockToast.mockClear();
   });
 
@@ -127,5 +128,42 @@ describe('OrderDetailPage - Order Cancellation Flow', () => {
         }),
       );
     });
+  });
+
+  it('reports a replayed cancel as already submitted instead of failed', async () => {
+    mockMutateAsync.mockRejectedValueOnce(
+      new ApiClientError('request already in progress', 'IDEMPOTENT_REPLAY', 409),
+    );
+    renderPage();
+
+    fireEvent.click(screen.getByRole('button', { name: /batalkan pesanan/i }));
+    fireEvent.click(screen.getByRole('button', { name: /konfirmasi batal/i }));
+
+    await waitFor(() =>
+      expect(mockToast).toHaveBeenCalledWith({
+        description: 'Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui.',
+      }),
+    );
+    expect(mockToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'destructive' }));
+    await waitFor(() =>
+      expect(screen.queryByText('Batalkan pesanan', { selector: 'h2' })).not.toBeInTheDocument(),
+    );
+  });
+
+  it('shows the failure toast for other cancel errors', async () => {
+    mockMutateAsync.mockRejectedValueOnce(new ApiClientError('nope', 'CONFLICT', 409));
+    renderPage();
+
+    fireEvent.click(screen.getByRole('button', { name: /batalkan pesanan/i }));
+    fireEvent.click(screen.getByRole('button', { name: /konfirmasi batal/i }));
+
+    await waitFor(() =>
+      expect(mockToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: 'destructive',
+          description: 'Gagal membatalkan pesanan. Silakan coba lagi.',
+        }),
+      ),
+    );
   });
 });

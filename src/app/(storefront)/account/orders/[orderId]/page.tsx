@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
 import { humanizeStatus, orderStatusLabel, type AccountTranslator } from '@/shared/i18n/status';
 import { useFormat, type StorefrontFormat } from '@/shared/i18n/use-format';
+import { isIdempotentReplay } from '@/shared/lib/idempotency';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
@@ -332,6 +333,12 @@ export default function OrderDetailPage() {
             });
             setCancelOpen(false);
           } catch (error) {
+            if (isIdempotentReplay(error)) {
+              // An earlier attempt of this cancel already reached the server.
+              toast({ description: t('orderDetail.toast.cancelAlreadySubmitted') });
+              setCancelOpen(false);
+              return;
+            }
             toast({
               variant: 'destructive',
               description: t('orderDetail.toast.cancelFailed'),

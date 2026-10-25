@@ -1731,7 +1731,8 @@
       "toast": {
         "cancelled": "Pesanan dibatalkan",
         "cancelledDescription": "Pesanan Anda sudah dibatalkan.",
-        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi."
+        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi.",
+        "cancelAlreadySubmitted": "Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui."
       }
     },
     "invoice": {
@@ -2084,7 +2085,8 @@
       "toast": {
         "cancelled": "Pesanan dibatalkan",
         "cancelledDescription": "Pesanan Anda sudah dibatalkan. Tim kami akan memproses pengembalian dana jika diperlukan.",
-        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi."
+        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi.",
+        "cancelAlreadySubmitted": "Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui."
       }
     },
     "tracking": {
@@ -2139,7 +2141,8 @@
       "submit": "Kirim permintaan",
       "listTitle": "Permintaan saya",
       "empty": "Belum ada permintaan pengembalian.",
-      "order": "Pesanan {orderId}"
+      "order": "Pesanan {orderId}",
+      "alreadySubmitted": "Permintaan ini sudah dikirim. Cek daftar di bawah untuk statusnya."
     }
   },
   "errors": {

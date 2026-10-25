@@ -14,6 +14,7 @@ import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
 import { humanizeStatus, orderStatusLabel } from '@/shared/i18n/status';
 import { useFormat } from '@/shared/i18n/use-format';
+import { isIdempotentReplay } from '@/shared/lib/idempotency';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
 import { useCartStore } from '@/stores/cart-store';
@@ -479,6 +480,12 @@ export default function OrderConfirmationPage() {
             });
             setCancelOpen(false);
           } catch (error) {
+            if (isIdempotentReplay(error)) {
+              // An earlier attempt of this cancel already reached the server.
+              toast({ description: t('toast.cancelAlreadySubmitted') });
+              setCancelOpen(false);
+              return;
+            }
             toast({
               variant: 'destructive',
               description: t('toast.cancelFailed'),

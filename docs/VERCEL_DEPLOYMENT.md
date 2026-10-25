@@ -37,6 +37,13 @@ by the deployment.
 | NEXT_PUBLIC_APP_NAME                             | toko                                 | toko                               | toko                           |
 | NEXT_PUBLIC_RUM_DEST / NEXT_PUBLIC_RUM_SAMPLE    | none / 0                             | none / 0                           | none / 0                       |
 | NEXT_PUBLIC_POSTHOG_KEY / NEXT_PUBLIC_SENTRY_DSN | Unset                                | Unset                              | Unset                          |
+| NEXT_PUBLIC_ORDER_IDEMPOTENCY                    | false                                | false                              | false                          |
+
+`NEXT_PUBLIC_ORDER_IDEMPOTENCY` adds an `Idempotency-Key` header to order
+cancel and return creation. Keep it `false` until the API both lists
+`Idempotency-Key` in `Access-Control-Allow-Headers` and wraps those two routes
+in its idempotency middleware; enabling it earlier makes the cross-origin
+preflight for both requests fail.
 
 Preview builds use the real API with the dedicated test tenant. Protect Preview
 deployments with Vercel Deployment Protection. Use the stable staging hostname

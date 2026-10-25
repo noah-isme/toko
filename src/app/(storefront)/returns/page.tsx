@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { customerOperationsApi, type CustomerReturn } from '@/lib/api/services/customerOperations';
 import { FULL_DATE_TIME, useFormat } from '@/shared/i18n/use-format';
-import { isIdempotentReplay, useIdempotencyKey } from '@/shared/lib/idempotency';
+import {
+  isIdempotentReplay,
+  isOrderIdempotencyEnabled,
+  useIdempotencyKey,
+} from '@/shared/lib/idempotency';
 
 export default function ReturnsPage() {
   const t = useTranslations('account.returns');
@@ -24,7 +28,7 @@ export default function ReturnsPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const idempotency = useIdempotencyKey();
+  const idempotency = useIdempotencyKey({ enabled: isOrderIdempotencyEnabled() });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -58,9 +62,16 @@ export default function ReturnsPage() {
       await load();
     } catch (error) {
       idempotency.settle(error);
-      setMessage(t('createFailed'));
-      // An earlier attempt with this key reached the server; show whatever it created.
-      if (isIdempotentReplay(error)) await load();
+      if (isIdempotentReplay(error)) {
+        // An earlier attempt with this key already reached the server; show what it created.
+        setOrderId('');
+        setReason('');
+        setNotes('');
+        setMessage(t('alreadySubmitted'));
+        await load();
+      } else {
+        setMessage(t('createFailed'));
+      }
     } finally {
       setSaving(false);
     }

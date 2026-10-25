@@ -1731,7 +1731,8 @@
       "toast": {
         "cancelled": "Order cancelled",
         "cancelledDescription": "Your order has been cancelled.",
-        "cancelFailed": "Failed to cancel the order. Please try again."
+        "cancelFailed": "Failed to cancel the order. Please try again.",
+        "cancelAlreadySubmitted": "Your cancellation was already submitted. The order status will update shortly."
       }
     },
     "invoice": {
@@ -2084,7 +2085,8 @@
       "toast": {
         "cancelled": "Order cancelled",
         "cancelledDescription": "Your order has been cancelled. Our team will process a refund if needed.",
-        "cancelFailed": "Failed to cancel the order. Please try again."
+        "cancelFailed": "Failed to cancel the order. Please try again.",
+        "cancelAlreadySubmitted": "Your cancellation was already submitted. The order status will update shortly."
       }
     },
     "tracking": {
@@ -2139,7 +2141,8 @@
       "submit": "Submit request",
       "listTitle": "My requests",
       "empty": "No return requests yet.",
-      "order": "Order {orderId}"
+      "order": "Order {orderId}",
+      "alreadySubmitted": "This request was already submitted. Check the list below for its status."
     }
   },
   "errors": {

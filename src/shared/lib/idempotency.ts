@@ -8,6 +8,17 @@ export const IDEMPOTENCY_HEADER = 'Idempotency-Key';
 /** Error code the API returns when an `Idempotency-Key` was already seen within its TTL. */
 export const IDEMPOTENT_REPLAY_CODE = 'IDEMPOTENT_REPLAY';
 
+/**
+ * Whether order cancel and return creation send `Idempotency-Key`. Off unless
+ * `NEXT_PUBLIC_ORDER_IDEMPOTENCY='true'`: the API does not list `Idempotency-Key` in its CORS
+ * `Access-Control-Allow-Headers` yet (a cross-origin storefront would fail the preflight) and does
+ * not wrap those two routes in its idempotency middleware. Turn it on once the API ships both.
+ */
+export function isOrderIdempotencyEnabled(): boolean {
+  // Static property access so Next.js inlines the value into browser bundles.
+  return process.env.NEXT_PUBLIC_ORDER_IDEMPOTENCY?.trim() === 'true';
+}
+
 export function createIdempotencyKey(): string {
   const cryptoApi = typeof globalThis !== 'undefined' ? globalThis.crypto : undefined;
   if (cryptoApi?.randomUUID) {
@@ -49,16 +60,21 @@ export function isIdempotentReplay(error: unknown): boolean {
  * One idempotency key per user action. `getKey(scope)` returns the pending key, or a new one when
  * none is pending or the action's `scope` (e.g. the submitted payload) changed. Call `settle(error)`
  * when the request finishes: the key is kept for a retry only after a network failure.
+ * With `enabled: false`, `getKey` returns `undefined` so no header is sent.
  */
-export function useIdempotencyKey() {
+export function useIdempotencyKey({ enabled = true }: { enabled?: boolean } = {}) {
   const pendingRef = useRef<{ key: string; scope: string } | null>(null);
 
-  const getKey = useCallback((scope = '') => {
-    if (!pendingRef.current || pendingRef.current.scope !== scope) {
-      pendingRef.current = { key: createIdempotencyKey(), scope };
-    }
-    return pendingRef.current.key;
-  }, []);
+  const getKey = useCallback(
+    (scope = ''): string | undefined => {
+      if (!enabled) return undefined;
+      if (!pendingRef.current || pendingRef.current.scope !== scope) {
+        pendingRef.current = { key: createIdempotencyKey(), scope };
+      }
+      return pendingRef.current.key;
+    },
+    [enabled],
+  );
 
   const settle = useCallback((error?: unknown) => {
     if (error === undefined || !shouldReuseIdempotencyKey(error)) {
