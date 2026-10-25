@@ -1,6 +1,5 @@
 'use client';
 
-import { Download } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -11,8 +10,10 @@ import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
+import { canOfferInvoice } from '@/entities/orders/api/invoice';
+import { InvoiceDownloadButton } from '@/entities/orders/ui/InvoiceDownloadButton';
 import { humanizeStatus, orderStatusLabel, type AccountTranslator } from '@/shared/i18n/status';
-import { useFormat, type StorefrontFormat } from '@/shared/i18n/use-format';
+import { useFormat } from '@/shared/i18n/use-format';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
@@ -58,19 +59,6 @@ export default function OrderDetailPage() {
   const canCancel = order.status.toLowerCase() === 'pending_payment';
   const timeline = buildStatusTimeline(order);
 
-  const handleDownloadInvoice = () => {
-    const invoiceText = buildInvoiceText(t, fmt, order);
-    const blob = new Blob([invoiceText], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `invoice-${order.orderNumber || order.id}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
-  };
-
   return (
     <div className="mx-auto w-full max-w-5xl space-y-7">
       <Breadcrumbs
@@ -105,10 +93,9 @@ export default function OrderDetailPage() {
             <Link href={`/order/tracking/${order.id}`}>{t('orderDetail.trackShipment')}</Link>
           </Button>
         ) : null}
-        <Button type="button" variant="outline" onClick={handleDownloadInvoice} className="gap-2">
-          <Download className="h-4 w-4" />
-          {t('orderDetail.downloadInvoice')}
-        </Button>
+        {canOfferInvoice(order.status) ? (
+          <InvoiceDownloadButton orderId={order.id} orderNumber={order.orderNumber} />
+        ) : null}
         {canCancel ? (
           <Button type="button" variant="destructive" onClick={() => setCancelOpen(true)}>
             {t('orderDetail.cancelOrder')}
@@ -376,100 +363,4 @@ function getStatusColor(status: string) {
     return 'bg-red-100 text-red-700';
   }
   return 'bg-slate-100 text-slate-700';
-}
-
-function buildInvoiceText(
-  t: AccountTranslator,
-  fmt: StorefrontFormat,
-  order: {
-    id: string;
-    orderNumber: string;
-    createdAt: string;
-    currency: string;
-    user: { name: string; email: string };
-    shippingAddress: {
-      receiverName: string;
-      phone: string;
-      addressLine1: string;
-      addressLine2?: string | null;
-      city: string;
-      province: string;
-      postalCode: string;
-      country: string;
-    };
-    items: Array<{
-      productTitle: string;
-      variantName?: string | null;
-      qty: number;
-      unitPrice: number;
-      subtotal: number;
-    }>;
-    pricing: {
-      subtotal: number;
-      discount: number;
-      tax: number;
-      shipping: number;
-      total: number;
-    };
-    shipping?: {
-      courier: string;
-      service: string;
-      trackingNumber?: string | null;
-      estimatedDelivery?: string | null;
-    } | null;
-  },
-) {
-  const currency = order.currency || 'IDR';
-  const address = [
-    order.shippingAddress.addressLine1,
-    order.shippingAddress.addressLine2,
-    order.shippingAddress.city,
-    order.shippingAddress.province,
-    order.shippingAddress.postalCode,
-    order.shippingAddress.country,
-  ]
-    .filter(Boolean)
-    .join(', ');
-
-  const lines = [
-    t('invoice.title', { number: order.orderNumber || order.id }),
-    t('invoice.date', { date: fmt.dateTime(order.createdAt) }),
-    '',
-    t('invoice.customer', { name: order.user.name }),
-    t('invoice.email', { email: order.user.email }),
-    '',
-    t('invoice.address'),
-    `${order.shippingAddress.receiverName} (${order.shippingAddress.phone})`,
-    address,
-    '',
-    t('invoice.products'),
-    ...order.items.map((item) => {
-      const variant = item.variantName ? ` (${item.variantName})` : '';
-      return `- ${item.productTitle}${variant} x${item.qty} @ ${fmt.currency(
-        Number(item.unitPrice) || 0,
-        currency,
-      )} = ${fmt.currency(Number(item.subtotal) || 0, currency)}`;
-    }),
-    '',
-    t('invoice.subtotal', { amount: fmt.currency(order.pricing.subtotal, currency) }),
-    t('invoice.discount', { amount: fmt.currency(order.pricing.discount, currency) }),
-    t('invoice.tax', { amount: fmt.currency(order.pricing.tax, currency) }),
-    t('invoice.shipping', { amount: fmt.currency(order.pricing.shipping, currency) }),
-    t('invoice.total', { amount: fmt.currency(order.pricing.total, currency) }),
-  ];
-
-  if (order.shipping) {
-    lines.push('');
-    lines.push(
-      t('invoice.courier', { courier: order.shipping.courier, service: order.shipping.service }),
-    );
-    if (order.shipping.trackingNumber) {
-      lines.push(t('invoice.trackingNumber', { number: order.shipping.trackingNumber }));
-    }
-    if (order.shipping.estimatedDelivery) {
-      lines.push(t('invoice.eta', { date: fmt.dateTime(order.shipping.estimatedDelivery) }));
-    }
-  }
-
-  return lines.join('\n');
 }

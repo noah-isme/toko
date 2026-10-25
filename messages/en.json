@@ -1693,7 +1693,6 @@
       "createdAt": "Placed {date}",
       "payNow": "Pay now",
       "trackShipment": "Track shipment",
-      "downloadInvoice": "Download invoice",
       "cancelOrder": "Cancel order",
       "items": "Items in this order",
       "qtyPrice": "Qty {qty} - {price}",
@@ -1722,20 +1721,15 @@
       }
     },
     "invoice": {
-      "title": "Invoice #{number}",
-      "date": "Date: {date}",
-      "customer": "Customer: {name}",
-      "email": "Email: {email}",
-      "address": "Shipping address:",
-      "products": "Products:",
-      "subtotal": "Subtotal: {amount}",
-      "discount": "Discount: {amount}",
-      "tax": "Tax: {amount}",
-      "shipping": "Shipping: {amount}",
-      "total": "Total: {amount}",
-      "courier": "Courier: {courier} - {service}",
-      "trackingNumber": "Tracking number: {number}",
-      "eta": "Estimated arrival: {date}"
+      "download": "Download invoice",
+      "downloading": "Downloading invoice...",
+      "errorTitle": "Invoice unavailable",
+      "errors": {
+        "notAvailable": "The invoice is available once the order is paid.",
+        "notFound": "Order not found.",
+        "sessionExpired": "Your session has expired. Please sign in again.",
+        "failed": "Could not download the invoice. Please try again."
+      }
     },
     "cancelModal": {
       "reasons": {
