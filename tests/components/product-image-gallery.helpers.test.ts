@@ -17,4 +17,9 @@ describe('galleryImages', () => {
     expect(galleryImages('/t.jpg', undefined)).toEqual(['/t.jpg']);
     expect(galleryImages('', [])).toEqual([]);
   });
+
+  it('drops whitespace-only URLs and trims the rest before de-duplicating', () => {
+    expect(galleryImages('  ', [' /a.jpg ', '   ', '/a.jpg'])).toEqual(['/a.jpg']);
+    expect(galleryImages(' /t.jpg', ['/t.jpg ', '/b.jpg'])).toEqual(['/t.jpg', '/b.jpg']);
+  });
 });

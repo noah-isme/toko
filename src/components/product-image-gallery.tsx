@@ -14,7 +14,7 @@ const blurPlaceholder =
 
 /**
  * Gallery slides for a product: the main image (`thumbnail`) first, then the gallery
- * images in their saved order, without blanks or repeats (the thumbnail is usually
+ * images in their saved order, trimmed, without blanks or repeats (the thumbnail is usually
  * also one of the gallery images).
  */
 export function galleryImages(
@@ -23,7 +23,8 @@ export function galleryImages(
 ): string[] {
   const seen = new Set<string>();
   const result: string[] = [];
-  for (const url of [mainImage, ...(images ?? [])]) {
+  for (const raw of [mainImage, ...(images ?? [])]) {
+    const url = raw?.trim();
     if (!url || seen.has(url)) continue;
     seen.add(url);
     result.push(url);
