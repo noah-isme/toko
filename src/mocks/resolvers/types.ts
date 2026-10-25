@@ -18,3 +18,12 @@ export type MockResult = Record<string, any> | unknown[];
 
 /** Returns `undefined` when the request is not one this resolver handles. */
 export type MockResolver = (req: MockRequest) => MockResult | undefined;
+
+/**
+ * A non-JSON body (for example an invoice PDF). Both mock layers send `body`
+ * verbatim with `headers` and `status`; build it with `mockBinary()`.
+ */
+export type MockBinaryResult = {
+  status: number;
+  __binary: { body: Uint8Array; headers: Record<string, string> };
+};

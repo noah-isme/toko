@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import type { MockResult } from '@/mocks/route';
+import type { MockBinaryResult, MockResult } from '@/mocks/route';
 
 // The built-in API is a development/test fixture (implementation in src/mocks/).
 // Development keeps mocks on unless NEXT_PUBLIC_API_MOCKING=false; production
@@ -13,8 +13,17 @@ const SESSION_COOKIE = 'mockSessionId';
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 type Context = { params: Promise<{ path?: string[] }> };
 
+function isBinary(result: MockResult): result is MockBinaryResult {
+  return !Array.isArray(result) && ArrayBuffer.isView(result.__binary?.body);
+}
+
 function buildResponse(result: MockResult | null): NextResponse {
   if (!result) return NextResponse.json({ message: 'Not Found' }, { status: 404 });
+  // Non-JSON payloads (invoice PDFs) are sent as-is with their own headers.
+  if (isBinary(result)) {
+    const { body, headers } = result.__binary;
+    return new NextResponse(body.slice().buffer, { status: result.status, headers });
+  }
   if (!Array.isArray(result) && typeof result.status === 'number') {
     const { status, ...rest } = result;
     // 204 No Content must not carry a body (NextResponse.json throws for it).
@@ -26,7 +35,7 @@ function buildResponse(result: MockResult | null): NextResponse {
 
 function jsonResponse(result: MockResult | null, sessionId: string, isNewSession: boolean) {
   const response = buildResponse(result);
-  response.headers.set('Cache-Control', NO_STORE);
+  if (!response.headers.has('Cache-Control')) response.headers.set('Cache-Control', NO_STORE);
   if (isNewSession) response.cookies.set(SESSION_COOKIE, sessionId, { path: '/', httpOnly: false });
   return response;
 }

@@ -6,9 +6,11 @@ import { brands, categories, products as catalogProducts } from './fixtures';
 import { addressHandlers } from './handlers/addressHandlers';
 import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
+import { alertsHandlers } from './handlers.alerts';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
+import { invoiceHandlers } from './handlers.invoice';
 import { newsletterHandlers } from './handlers.newsletter';
 import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
@@ -467,6 +469,8 @@ export const handlers = [
   ...customerOperationsHandlers,
   ...favoritesHandlers,
   ...notificationsHandlers,
+  ...alertsHandlers,
+  ...invoiceHandlers,
   ...pushHandlers,
   ...newsletterHandlers,
   ...promoHandlers,

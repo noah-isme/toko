@@ -5,6 +5,7 @@
  */
 import { resolveAddress } from './resolvers/address';
 import { resolveAdmin } from './resolvers/admin';
+import { resolveAlerts } from './resolvers/alerts';
 import { resolveAuth } from './resolvers/auth';
 import { resolveCartRead, resolveCartWrite } from './resolvers/cart';
 import { resolveCatalog } from './resolvers/catalog';
@@ -22,7 +23,7 @@ import { resolvePush } from './resolvers/push';
 import type { MockRequest, MockResolver, MockResult } from './resolvers/types';
 
 export { MOCK_ADMIN_TOKEN, MOCK_SESSION_COOKIE } from './fixtures';
-export type { MockResult } from './resolvers/types';
+export type { MockBinaryResult, MockResult } from './resolvers/types';
 
 /**
  * First match wins, so the order matters: several matchers use substring or
@@ -34,6 +35,7 @@ const RESOLVERS: MockResolver[] = [
   resolvePaymentStatus,
   resolvePaymentInstructions,
   resolveNotifications,
+  resolveAlerts,
   resolvePush,
   resolveNewsletter,
   resolveCatalog,

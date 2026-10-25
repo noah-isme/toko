@@ -1,5 +1,6 @@
 import { HttpResponse } from 'msw';
 
+import { isMockBinary } from './resolvers/binary';
 import type { MockResult } from './resolvers/types';
 
 import type { CartView } from '@/lib/api/schemas';
@@ -15,6 +16,10 @@ export function apiPath(path: string) {
  * is stripped from the body, and 204 carries no body.
  */
 export function mockResultResponse(result: MockResult) {
+  if (isMockBinary(result)) {
+    const { body, headers } = result.__binary;
+    return new HttpResponse(body.slice().buffer, { status: result.status, headers });
+  }
   if (!Array.isArray(result) && typeof result.status === 'number') {
     const { status, ...rest } = result;
     if (status === 204) return new HttpResponse(null, { status });
