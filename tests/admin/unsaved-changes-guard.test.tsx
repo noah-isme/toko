@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
-import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
+import {
+  confirmLeaveUnsaved,
+  isFormDirty,
+  useUnsavedChangesGuard,
+} from '@/hooks/use-unsaved-changes-guard';
 
 function Harness({ onProgrammatic }: { onProgrammatic?: () => void }) {
   const [value, setValue] = useState('');
@@ -135,29 +139,104 @@ describe('useUnsavedChangesGuard', () => {
     // Registered first, like the app router's listener.
     window.addEventListener('popstate', routerPopState);
     cleanups.push(() => window.removeEventListener('popstate', routerPopState));
+    const formState = { __NA: true, tree: 'form' };
+    const listState = { __NA: true, tree: 'list' };
+    window.history.pushState(formState, '', '/admin/products/p1/edit?tab=media');
+    const formUrl = window.location.href;
+    cleanups.push(() => window.history.replaceState(null, '', '/'));
+    render(<Harness />);
+    await user.type(screen.getByLabelText('Field'), 'x');
+
+    // The browser has already moved to the popped entry when popstate fires.
+    const goBack = async () => {
+      window.history.replaceState(listState, '', '/admin/products');
+      await act(async () => {
+        window.dispatchEvent(new PopStateEvent('popstate', { state: listState }));
+      });
+    };
     const pushState = vi.spyOn(window.history, 'pushState');
     cleanups.push(() => pushState.mockRestore());
-    render(<Harness />);
 
-    await user.type(screen.getByLabelText('Field'), 'x');
-    await act(async () => {
-      window.dispatchEvent(new PopStateEvent('popstate', { state: { __NA: true } }));
-    });
+    await goBack();
     expect(routerPopState).not.toHaveBeenCalled();
     await screen.findByRole('alertdialog');
 
-    // Staying restores the form's history entry.
+    // Staying restores the form's own history entry: its state and its URL.
     await user.click(screen.getByRole('button', { name: 'Lanjut mengedit' }));
     expect(pushState).toHaveBeenCalledTimes(1);
+    expect(pushState).toHaveBeenCalledWith(formState, '', formUrl);
+    expect(window.location.href).toBe(formUrl);
+    expect(window.history.state).toEqual(formState);
     expect(routerPopState).not.toHaveBeenCalled();
 
-    await act(async () => {
-      window.dispatchEvent(new PopStateEvent('popstate', { state: { __NA: true } }));
-    });
+    await goBack();
     await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
     // Leaving replays the traversal for the router.
     expect(routerPopState).toHaveBeenCalledTimes(1);
-    expect(routerPopState.mock.calls[0][0].state).toEqual({ __NA: true });
+    expect(routerPopState.mock.calls[0][0].state).toEqual(listState);
+  });
+
+  it('lets hash-only history entries of the form page through', async () => {
+    const user = userEvent.setup();
+    const routerPopState = vi.fn();
+    window.addEventListener('popstate', routerPopState);
+    cleanups.push(() => window.removeEventListener('popstate', routerPopState));
+    window.history.pushState(null, '', '/admin/settings');
+    cleanups.push(() => window.history.replaceState(null, '', '/'));
+    render(<Harness />);
+    await user.type(screen.getByLabelText('Field'), 'x');
+
+    window.history.replaceState(null, '', '/admin/settings#billing');
+    await act(async () => {
+      window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+    });
+    expect(routerPopState).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('re-arms when the form is still mounted and dirty after a discarded navigation', async () => {
+    const user = userEvent.setup();
+    // The router ignores this navigation, so the form stays on screen.
+    render(<Harness onProgrammatic={() => {}} />);
+    await user.type(screen.getByLabelText('Field'), 'x');
+    await user.click(screen.getByRole('button', { name: 'programmatic' }));
+    await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(fireBeforeUnload().defaultPrevented).toBe(true);
+    await user.click(screen.getByRole('link', { name: 'Orders' }));
+    expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
+  });
+
+  it('lets navigation from outside the form ask first via confirmLeaveUnsaved', async () => {
+    const user = userEvent.setup();
+    const signOut = vi.fn();
+    render(
+      <>
+        <Harness />
+        {/* Lives outside the form, like the admin shell's sign-out button. */}
+        <button type="button" onClick={() => confirmLeaveUnsaved(signOut)}>
+          sign out
+        </button>
+      </>,
+    );
+    const clickSignOut = () => user.click(screen.getByRole('button', { name: 'sign out' }));
+
+    await clickSignOut();
+    expect(signOut).toHaveBeenCalledTimes(1);
+
+    await user.type(screen.getByLabelText('Field'), 'x');
+    await clickSignOut();
+    expect(signOut).toHaveBeenCalledTimes(1);
+    await user.click(await screen.findByRole('button', { name: 'Lanjut mengedit' }));
+    expect(signOut).toHaveBeenCalledTimes(1);
+
+    await clickSignOut();
+    await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
+    expect(signOut).toHaveBeenCalledTimes(2);
   });
 
   it('confirms programmatic navigation only when dirty', async () => {

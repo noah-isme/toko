@@ -15,6 +15,7 @@ import { AdminNav } from '@/components/admin/admin-nav';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { confirmLeaveUnsaved } from '@/hooks/use-unsaved-changes-guard';
 
 function SidebarBrand() {
   const t = useTranslations('admin.shell');
@@ -34,9 +35,14 @@ function SidebarFooter() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await logout();
-    router.replace('/');
+  const handleLogout = () => {
+    // A dirty admin form gets to ask before sign-out throws its changes away.
+    confirmLeaveUnsaved(() => {
+      void (async () => {
+        await logout();
+        router.replace('/');
+      })();
+    });
   };
 
   return (

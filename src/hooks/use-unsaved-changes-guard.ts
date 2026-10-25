@@ -75,6 +75,31 @@ function navigatingAnchor(event: MouseEvent): { anchor: HTMLAnchorElement; url: 
   return { anchor, url };
 }
 
+const LEAVE_EVENT = 'toko:unsaved-changes-leave';
+
+type LeaveEvent = CustomEvent<{ proceed: () => void }>;
+
+/**
+ * For navigation started outside a guarded form (e.g. sign-out in the admin shell):
+ * runs `proceed` right away when no mounted form has unsaved changes, otherwise lets the
+ * dirty form ask first and run `proceed` only if the user discards.
+ */
+export function confirmLeaveUnsaved(proceed: () => void): void {
+  const event: LeaveEvent = new CustomEvent(LEAVE_EVENT, { cancelable: true, detail: { proceed } });
+  if (window.dispatchEvent(event)) proceed();
+}
+
+/** Same path and query (only the hash may differ). */
+function samePage(a: string, b: string): boolean {
+  try {
+    const left = new URL(a);
+    const right = new URL(b);
+    return left.pathname === right.pathname && left.search === right.search;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Warns before unsaved form changes are lost.
  *
@@ -83,16 +108,22 @@ function navigatingAnchor(event: MouseEvent): { anchor: HTMLAnchorElement; url: 
  * - in-app link clicks (`<Link>` and plain same-origin `<a>`), caught in the capture phase
  *   before Next.js handles them;
  * - browser back/forward (`popstate`), caught before the app router's own listener;
- * - anything routed through `confirmNavigation`.
+ * - anything routed through `confirmNavigation`, or `confirmLeaveUnsaved` from outside the form.
  *
  * In-app cases open the dialog rendered by `UnsavedChangesDialog`. Pass `when = false`
  * (e.g. reset the form baseline) after a successful save so the guard stays quiet.
+ *
+ * Known gaps: the history entry restored on "Keep editing" after back/forward is captured
+ * when the form first becomes dirty, so a later Next.js `replaceState` (router.refresh,
+ * search-param updates) is not reflected in it. Programmatic navigation started outside
+ * the form must go through `confirmLeaveUnsaved` (as sign-out does) to be intercepted.
  */
 export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
   const [dialogOpen, setDialogOpen] = useState(false);
   const pendingRef = useRef<PendingNavigation | null>(null);
   /** Set once the user chose to leave, so the navigation they confirmed is let through. */
   const bypassRef = useRef(false);
+  const rearmTimerRef = useRef<number | undefined>(undefined);
   const whenRef = useRef(when);
 
   const requestConfirmation = useCallback((pending: PendingNavigation) => {
@@ -136,6 +167,8 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
 
     const onPopState = (event: PopStateEvent) => {
       if (bypassRef.current) return;
+      // Hash-only entries of this page keep the form mounted: nothing to lose.
+      if (samePage(window.location.href, saved.url)) return;
       // Keep the app router from rendering the popped entry until the user decides.
       event.stopImmediatePropagation();
       const poppedState: unknown = event.state;
@@ -149,15 +182,25 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
       });
     };
 
+    const onLeaveRequest = (event: Event) => {
+      if (bypassRef.current || event.defaultPrevented) return;
+      event.preventDefault();
+      requestConfirmation({ proceed: (event as LeaveEvent).detail.proceed });
+    };
+
     window.addEventListener('beforeunload', onBeforeUnload);
+    window.addEventListener(LEAVE_EVENT, onLeaveRequest);
     window.addEventListener('click', onClick, true);
     window.addEventListener('popstate', onPopState, true);
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload);
+      window.removeEventListener(LEAVE_EVENT, onLeaveRequest);
       window.removeEventListener('click', onClick, true);
       window.removeEventListener('popstate', onPopState, true);
     };
   }, [when, requestConfirmation]);
+
+  useEffect(() => () => window.clearTimeout(rearmTimerRef.current), []);
 
   const confirmNavigation = useCallback(
     (proceed: () => void) => {
@@ -183,6 +226,13 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
     setDialogOpen(false);
     bypassRef.current = true;
     pending?.proceed();
+    // Link clicks, history replays and `router.push` reach the router synchronously inside
+    // `proceed`. If the form is still mounted afterwards (the router ignored a replayed
+    // same-document entry, or only the query changed), it is still dirty, so re-arm.
+    window.clearTimeout(rearmTimerRef.current);
+    rearmTimerRef.current = window.setTimeout(() => {
+      bypassRef.current = false;
+    }, 0);
   }, []);
 
   return { isDirty: when, dialogOpen, confirmNavigation, stay, leave };
