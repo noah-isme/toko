@@ -11,6 +11,7 @@ export * from './hooks/inventory';
 export * from './hooks/orders';
 export * from './hooks/products';
 export * from './hooks/queue';
+export * from './hooks/reports';
 export * from './hooks/returns';
 export * from './hooks/store';
 export * from './hooks/support';

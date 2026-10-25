@@ -16,6 +16,7 @@ export const adminKeys = {
   flashSales: (params?: object) => ['admin', 'flash-sales', params] as const,
   flashSale: (id: string) => ['admin', 'flash-sale', id] as const,
   analyticsOverview: (range: string) => ['admin', 'analytics', 'overview', range] as const,
+  report: (report: string, params?: object) => ['admin', 'reports', report, params] as const,
   auditLogs: (params?: object) => ['admin', 'audit-logs', params] as const,
   queueStats: (kind: string) => ['admin', 'queue', 'stats', kind] as const,
   deadLetters: (params?: object) => ['admin', 'queue', 'dlq', params] as const,

@@ -4,6 +4,7 @@ export type * from './flash-sales';
 export type * from './orders';
 export type * from './products';
 export type * from './queue';
+export type * from './reports';
 export type * from './store';
 export type * from './taxonomy';
 export type * from './vouchers';
