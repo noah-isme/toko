@@ -7,6 +7,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useState } from 'react';
 
+import { alertsKeys } from '../../entities/alerts/keys';
 import { AuthError, getAccessToken, setAccessToken } from '../../lib/api/apiClient';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { authApi, cartApi } from '../../lib/api/services';
@@ -133,6 +134,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Remove cart queries to clear sensitive data and ensure fresh state
       queryClient.removeQueries({ queryKey: queryKeys.cart() });
+      // Alerts are per user; the next account in this tab must not see them.
+      queryClient.removeQueries({ queryKey: alertsKeys.all });
     } finally {
       setIsLoading(false);
     }
