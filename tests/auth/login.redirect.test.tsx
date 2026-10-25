@@ -42,6 +42,17 @@ afterEach(() => {
   window.history.replaceState(null, '', '/');
 });
 
+function renderLogin() {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(
+    <QueryClientProvider client={client}>
+      <AuthProvider>
+        <LoginPage />
+      </AuthProvider>
+    </QueryClientProvider>,
+  );
+}
+
 async function signIn() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
@@ -81,4 +92,28 @@ describe('login redirect', () => {
       expect(await signIn()).toBe('/');
     },
   );
+
+  it('keeps the target on the sign-up link', async () => {
+    window.history.replaceState(null, '', `/login?redirect=${encodeURIComponent('/favorites')}`);
+    renderLogin();
+
+    expect(await screen.findByRole('link', { name: 'Daftar' })).toHaveAttribute(
+      'href',
+      '/register?redirect=%2Ffavorites',
+    );
+  });
+
+  it('links to plain /register without a (safe) target', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      `/login?redirect=${encodeURIComponent('//evil.example')}`,
+    );
+    renderLogin();
+
+    expect(await screen.findByRole('link', { name: 'Daftar' })).toHaveAttribute(
+      'href',
+      '/register',
+    );
+  });
 });

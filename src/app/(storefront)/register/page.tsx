@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -20,6 +21,11 @@ import { useAuthErrorMessage } from '@/entities/auth/hooks';
 import type { RegisterInput } from '@/entities/auth/schemas';
 import { registerInputSchema } from '@/entities/auth/schemas';
 import { getErrorMessage } from '@/lib/api/utils';
+import {
+  readRedirectParam,
+  useRedirectParam,
+  withRedirectParam,
+} from '@/shared/lib/use-redirect-param';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
@@ -32,6 +38,7 @@ export default function RegisterPage() {
   const tErrors = useTranslations('errors');
   const errorText = useAuthErrorMessage();
   const { register: registerUser, isLoading: authLoading } = useAuth();
+  const redirect = useRedirectParam();
   const { register, handleSubmit, formState, setError, watch } = useForm<RegisterInput>({
     resolver: zodResolver(registerInputSchema),
     defaultValues: {
@@ -55,7 +62,8 @@ export default function RegisterPage() {
         ...registerData
       } = values;
       await registerUser(registerData);
-      router.push('/');
+      // Same `?redirect=` contract as the login page (sign-in prompts link here).
+      router.push(readRedirectParam() as Route);
     } catch (error) {
       const message = getErrorMessage(error, tErrors);
       setError('root', { message });
@@ -225,7 +233,7 @@ export default function RegisterPage() {
           login: (chunks) => (
             <Link
               className="font-semibold text-primary underline-offset-4 hover:underline"
-              href="/login"
+              href={withRedirectParam('/login', redirect) as Route}
             >
               {chunks}
             </Link>
