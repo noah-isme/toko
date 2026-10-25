@@ -5,7 +5,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { products } from '../fixtures';
+import { products, soldOutDemoProduct } from '../fixtures';
 import { resetMockAlerts } from '../handlers.alerts';
 import { isMockBinary } from '../resolvers/binary';
 import { resetMockState } from '../resolvers/session';
@@ -105,6 +105,41 @@ describe('alerts mocks', () => {
     expect(viaRoute({ method: 'GET', path: 'alerts?page=99999999' }).body).toMatchObject({
       data: [],
     });
+  });
+});
+
+describe('sold-out QA product', () => {
+  it('is served on detail by both layers but stays out of listings', async () => {
+    const detail = { method: 'GET', path: `products/${soldOutDemoProduct.slug}` };
+    await expectSameSequence([detail]);
+    expect((await viaMsw(detail)).body).toMatchObject({
+      data: { id: soldOutDemoProduct.id, stock: 0, inStock: false },
+    });
+    const list = viaRoute({ method: 'GET', path: 'products?limit=100' }).body as {
+      data: Array<{ id: string }>;
+    };
+    expect(list.data.some((p) => p.id === soldOutDemoProduct.id)).toBe(false);
+  });
+
+  it('accepts a BACK_IN_STOCK subscription in both layers', async () => {
+    await expectSameSequence([
+      {
+        method: 'POST',
+        path: 'alerts',
+        body: { productId: soldOutDemoProduct.id, type: 'BACK_IN_STOCK' },
+      },
+      { method: 'GET', path: `alerts?productId=${soldOutDemoProduct.id}` },
+    ]);
+    const listed = viaRoute({
+      method: 'GET',
+      path: `alerts?productId=${soldOutDemoProduct.id}`,
+    }).body as { data: Array<{ status: string; product: { title: string; inStock: boolean } }> };
+    expect(listed.data).toEqual([
+      expect.objectContaining({
+        status: 'active',
+        product: expect.objectContaining({ title: soldOutDemoProduct.title, inStock: false }),
+      }),
+    ]);
   });
 });
 

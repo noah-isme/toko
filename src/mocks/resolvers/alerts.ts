@@ -1,4 +1,4 @@
-import { products } from '../fixtures';
+import { products, soldOutDemoProduct } from '../fixtures';
 
 import { sessionValue } from './session';
 import type { MockResolver, MockResult } from './types';
@@ -62,8 +62,14 @@ function notFound(message: string): MockResult {
   return { status: 404, error: { code: 'NOT_FOUND', message } };
 }
 
+/** Catalog products plus the off-catalog sold-out QA product. */
+function findProduct(id: string) {
+  if (id === soldOutDemoProduct.id) return soldOutDemoProduct;
+  return products.find((p) => p.id === id);
+}
+
 function toDto(record: AlertRecord): AlertSubscription {
-  const product = products.find((p) => p.id === record.productId);
+  const product = findProduct(record.productId);
   return {
     ...record,
     product: {
@@ -112,7 +118,7 @@ export function subscribeAlert(store: AlertStore, body: unknown): MockResult {
     return badRequest('type must be BACK_IN_STOCK or PRICE_DROP');
   }
 
-  const product = products.find((p) => p.id === productId);
+  const product = findProduct(productId);
   // Mock catalog products have no variants, so any variant id is "not of product".
   if (!product || rawVariant) return notFound('product or variant not found');
   if (type === 'BACK_IN_STOCK' && product.inStock) {

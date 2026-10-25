@@ -1,5 +1,5 @@
 import type { MockProduct } from '../factories/product';
-import { brands, categories, products } from '../fixtures';
+import { brands, categories, products, soldOutDemoProduct } from '../fixtures';
 
 import { resolveQa } from './qa';
 import type { MockResolver, MockResult } from './types';
@@ -62,7 +62,9 @@ export function listProducts(searchParams: URLSearchParams): ProductPage {
   };
 }
 
+/** Catalog product by slug; also serves the off-catalog sold-out QA product. */
 export function getProduct(slug: string): MockProduct | undefined {
+  if (slug === soldOutDemoProduct.slug) return soldOutDemoProduct;
   return products.find((p) => p.slug === slug);
 }
 

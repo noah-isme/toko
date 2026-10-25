@@ -80,6 +80,14 @@ sent to webhooks.
 | `/account/alerts` | "My alerts": list, remove, re-arm, pagination.                |
 | Signed out        | `AlertLoginPrompt` links to `/login?redirect=<current page>`. |
 
-Data layer: `src/entities/alerts/` (`api.ts`, `hooks.ts`, `keys.ts`). Mocks:
-`src/mocks/resolvers/alerts.ts`, shared by `src/mocks/handlers.alerts.ts` (MSW)
-and the `/api/v1` route.
+Data layer: `src/entities/alerts/` (`api.ts`, `hooks.ts`, `keys.ts`). Pages
+that show many products must not query per product: the favorites page reads
+every alert once with `useAllMyAlertsQuery` (`GET /alerts?limit=100`, following
+pages while `totalItems` says more exist) and passes each toggle its alert, so
+it sends one request instead of one per favorite (the API rate limits are per
+user, per IP and global). The `productId`-filtered query is for the product
+detail page. Logout removes every `['alerts', ...]` query.
+
+Mocks: `src/mocks/resolvers/alerts.ts`, shared by `src/mocks/handlers.alerts.ts`
+(MSW) and the `/api/v1` route. `/products/sold-out-demo` is a sold-out product
+(off the catalog listings) for manual QA of "Notify me".
