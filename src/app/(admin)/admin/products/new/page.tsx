@@ -27,17 +27,19 @@ export default function NewProductPage() {
     if (brands.isError) void brands.refetch();
   };
 
-  const handleSubmit = async (input: AdminProductInput) => {
+  const handleSubmit = async (input: AdminProductInput): Promise<boolean> => {
     try {
       const created = await createProduct.mutateAsync(input);
       toast({ title: t('toast.created'), description: created.slug, variant: 'success' });
       router.push('/admin/products' as never);
+      return true;
     } catch (error) {
       toast({
         title: t('toast.createFailed'),
         description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
+      return false;
     }
   };
 

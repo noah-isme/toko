@@ -11,6 +11,8 @@ import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { ProductImagesField } from '@/components/admin/product-images-field';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,6 +32,7 @@ import type {
   AdminProductInput,
   AdminProductVariantInput,
 } from '@/entities/admin/types';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 
 /** Mirrors the backend `slugify` closely enough for a form default. */
 export function slugify(value: string): string {
@@ -173,7 +176,8 @@ export interface ProductFormProps {
   initialValues?: ProductFormValues;
   submitLabel: string;
   saving: boolean;
-  onSubmit: (input: AdminProductInput) => void | Promise<void>;
+  /** Resolve `true` once the product is saved, so the unsaved-changes guard stands down. */
+  onSubmit: (input: AdminProductInput) => boolean | void | Promise<boolean | void>;
   onError: (message: string) => void;
   onCancel: () => void;
 }
@@ -189,6 +193,9 @@ export function ProductForm({
   const t = useTranslations('admin.productForm');
   const tCommon = useTranslations('admin.common');
   const [values, setValues] = useState<ProductFormValues>(initialValues ?? EMPTY_VALUES);
+  /** Last saved (or initial) values; the guard compares against these. */
+  const [baseline, setBaseline] = useState<ProductFormValues>(values);
+  const guard = useUnsavedChangesGuard(isFormDirty(values, baseline));
   // Once the slug is hand-edited, stop deriving it from the title.
   const [slugTouched, setSlugTouched] = useState(Boolean(initialValues?.slug));
 
@@ -216,7 +223,8 @@ export function ProductForm({
       );
       return;
     }
-    await onSubmit(input);
+    const saved = await onSubmit(input);
+    if (saved === true) setBaseline(values);
   };
 
   return (
@@ -365,54 +373,7 @@ export function ProductForm({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{t('images')}</CardTitle>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => update('images', [...values.images, ''])}
-          >
-            <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            {t('addImage')}
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {values.images.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('noImages')}</p>
-          ) : (
-            values.images.map((url, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <Input
-                  value={url}
-                  onChange={(event) => {
-                    const next = [...values.images];
-                    next[index] = event.target.value;
-                    update('images', next);
-                  }}
-                  placeholder="https://..."
-                  aria-label={t('imageUrl', { index: index + 1 })}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('removeImage', { index: index + 1 })}
-                  onClick={() =>
-                    update(
-                      'images',
-                      values.images.filter((_, i) => i !== index),
-                    )
-                  }
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <ProductImagesField images={values.images} onChange={(images) => update('images', images)} />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -586,10 +547,16 @@ export function ProductForm({
           )}
           {submitLabel}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => guard.confirmNavigation(onCancel)}
+          disabled={saving}
+        >
           {tCommon('cancel')}
         </Button>
       </div>
+      <UnsavedChangesDialog guard={guard} />
     </form>
   );
 }

@@ -24,18 +24,20 @@ export default function EditProductPage() {
   const query = useAdminProduct(productId);
   const updateProduct = useUpdateAdminProduct();
 
-  const handleSubmit = async (input: AdminProductInput) => {
-    if (!productId) return;
+  const handleSubmit = async (input: AdminProductInput): Promise<boolean> => {
+    if (!productId) return false;
     try {
       await updateProduct.mutateAsync({ id: productId, data: input });
       toast({ title: t('toast.updated'), description: input.title, variant: 'success' });
       router.push('/admin/products' as never);
+      return true;
     } catch (error) {
       toast({
         title: t('toast.updateFailed'),
         description: error instanceof Error ? error.message : tCommon('unknownError'),
         variant: 'destructive',
       });
+      return false;
     }
   };
 
