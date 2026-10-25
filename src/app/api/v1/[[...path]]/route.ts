@@ -15,6 +15,17 @@ type Context = { params: Promise<{ path?: string[] }> };
 
 function buildResponse(result: MockResult | null): NextResponse {
   if (!result) return NextResponse.json({ message: 'Not Found' }, { status: 404 });
+  // A `{ file }` result (see MockFile in src/mocks/resolvers/types.ts) is an attachment.
+  if (!Array.isArray(result) && typeof result.file?.body === 'string') {
+    const { body, contentType, filename } = result.file;
+    return new NextResponse(body, {
+      status: 200,
+      headers: {
+        'Content-Type': contentType,
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
+    });
+  }
   if (!Array.isArray(result) && typeof result.status === 'number') {
     const { status, ...rest } = result;
     // 204 No Content must not carry a body (NextResponse.json throws for it).
