@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,7 @@ import { useAdminProducts } from '@/entities/admin/hooks';
 import { useCreateAdminFlashSale } from '@/entities/admin/hooks';
 import type { AdminFlashSaleStatus } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -97,6 +99,9 @@ export default function FlashSaleNewPage() {
   const { toast } = useToast();
 
   const [values, setValues] = useState<FlashSaleFormValues>(EMPTY_VALUES);
+  /** Values last persisted; the unsaved-changes guard compares against them. */
+  const [baseline, setBaseline] = useState<FlashSaleFormValues>(EMPTY_VALUES);
+  const guard = useUnsavedChangesGuard(isFormDirty(values, baseline));
   const [slugTouched, setSlugTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -165,6 +170,7 @@ export default function FlashSaleNewPage() {
     try {
       const input = formValuesToInput(values);
       const result = await createMutation.mutateAsync(input);
+      setBaseline(values);
       toast({ title: t('toast.created'), variant: 'success' });
       router.push(`/admin/flash-sales/${result.id}/edit`);
     } catch (err) {
@@ -402,13 +408,14 @@ export default function FlashSaleNewPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/admin/flash-sales')}
+            onClick={() => guard.confirmNavigation(() => router.push('/admin/flash-sales'))}
             disabled={createMutation.isPending}
           >
             {tCommon('cancel')}
           </Button>
         </div>
       </form>
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

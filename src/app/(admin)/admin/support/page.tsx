@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -14,6 +15,7 @@ import {
 } from '@/entities/admin/hooks';
 import type { TicketStatus } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 
 const statuses: TicketStatus[] = [
   'OPEN',
@@ -48,6 +50,8 @@ export default function AdminSupportPage() {
   const updateTicket = useUpdateAdminTicket();
   const sendMessage = useSendAdminTicketMessage();
   const [reply, setReply] = useState<Record<string, string>>({});
+  // Drafted but unsent replies.
+  const guard = useUnsavedChangesGuard(Object.values(reply).some((text) => text.trim() !== ''));
   const [error, setError] = useState<string | null>(null);
   const items = ticketsQuery.data ?? [];
 
@@ -125,6 +129,7 @@ export default function AdminSupportPage() {
           ))}
         </div>
       )}
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

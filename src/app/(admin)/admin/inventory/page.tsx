@@ -4,10 +4,12 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAdminInventory, useUpdateAdminInventory } from '@/entities/admin/hooks';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { useToast } from '@/shared/ui/toast';
 
 export default function InventoryPage() {
@@ -17,6 +19,8 @@ export default function InventoryPage() {
   const update = useUpdateAdminInventory();
   const { toast } = useToast();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  // Typed but unsaved stock counts.
+  const guard = useUnsavedChangesGuard(Object.values(drafts).some((draft) => draft.trim() !== ''));
 
   if (query.isLoading) return <AdminLoading label={t('loading')} />;
   if (query.error) return <AdminError error={query.error} onRetry={() => void query.refetch()} />;
@@ -86,6 +90,7 @@ export default function InventoryPage() {
           </div>
         </CardContent>
       </Card>
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -33,6 +34,7 @@ import {
 import type { AdminProduct } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -49,6 +51,8 @@ export default function ProductsPage() {
 
   const [stockTarget, setStockTarget] = useState<AdminProduct | null>(null);
   const [quickStock, setQuickStock] = useState(0);
+  const guard = useUnsavedChangesGuard(stockTarget !== null && quickStock !== stockTarget.stock);
+  const closeStock = () => setStockTarget(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminProduct | null>(null);
 
   const query = useAdminProducts({ page, limit: PAGE_SIZE, search: debouncedSearch || undefined });
@@ -300,7 +304,10 @@ export default function ProductsPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={stockTarget !== null} onOpenChange={(open) => !open && setStockTarget(null)}>
+      <Dialog
+        open={stockTarget !== null}
+        onOpenChange={(open) => !open && guard.confirmNavigation(closeStock)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('stockDialogTitle', { title: stockTarget?.title ?? '' })}</DialogTitle>
@@ -377,6 +384,8 @@ export default function ProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }
