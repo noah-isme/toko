@@ -13,6 +13,8 @@ import type {
   Shipment,
 } from '../types';
 
+import { idempotencyHeaders } from '@/shared/lib/idempotency';
+
 export const ordersApi = {
   /**
    * Create order (checkout)
@@ -53,14 +55,19 @@ export const ordersApi = {
   },
 
   /**
-   * Cancel order
+   * Cancel order. `idempotencyKey` is sent as `Idempotency-Key` (reuse it when retrying the same
+   * cancel after a network failure).
    */
-  async cancelOrder(orderId: string): Promise<CancelOrderResponse> {
+  async cancelOrder(
+    orderId: string,
+    options: { idempotencyKey?: string } = {},
+  ): Promise<CancelOrderResponse> {
     const response = await apiClient<ApiResponse<CancelOrderResponse>>(
       `/orders/${orderId}/cancel`,
       {
         method: 'POST',
         requiresAuth: true,
+        headers: idempotencyHeaders(options.idempotencyKey),
       },
     );
     return response.data;

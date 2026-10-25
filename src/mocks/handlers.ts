@@ -16,7 +16,8 @@ import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
 import { getProduct, listProducts } from './resolvers/catalog';
-import { apiPath, type MockCart } from './utils';
+import { resolveOrders } from './resolvers/orders';
+import { apiPath, mockResultResponse, type MockCart } from './utils';
 
 import { addToCartInputSchema, updateCartItemInputSchema } from '@/lib/api/schemas';
 import type { Cart as ApiCart } from '@/lib/api/types';
@@ -210,6 +211,18 @@ export const handlers = [
   http.get(apiPath('/carts'), () => HttpResponse.json({ data: mapCartToApiCart() })),
   http.get(apiPath('/carts/:cartId'), ({ params }) =>
     HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) }),
+  ),
+  http.post(apiPath('/orders/:orderId/cancel'), ({ request, params }) =>
+    mockResultResponse(
+      resolveOrders({
+        path: `orders/${String(params.orderId)}/cancel`,
+        method: 'POST',
+        body: null,
+        sessionId: '',
+        searchParams: new URL(request.url).searchParams,
+        headers: request.headers,
+      }) ?? { status: 404, error: { code: 'NOT_FOUND', message: 'Order not found' } },
+    ),
   ),
   http.get(apiPath('/orders/:orderId/shipment'), ({ params }) =>
     HttpResponse.json({

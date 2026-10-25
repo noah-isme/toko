@@ -14,6 +14,7 @@ import { apiClient, ApiClientError } from '@/lib/api/apiClient';
 import { queryKeys } from '@/lib/api/queryKeys';
 import { ordersApi } from '@/lib/api/services';
 import { type ApiResponse } from '@/lib/api/types';
+import { isIdempotentReplay, useIdempotencyKey } from '@/shared/lib/idempotency';
 
 const ordersQueryParamsSchema = z.object({
   status: z.string().optional(),
@@ -95,14 +96,29 @@ export function useOrderQuery(orderId: string) {
   });
 }
 
+/**
+ * Cancels an order with an `Idempotency-Key` per cancel action: a retry after a network failure
+ * reuses the key, any server response settles it.
+ */
 export function useCancelOrderMutation(orderId: string) {
   const queryClient = useQueryClient();
+  const idempotency = useIdempotencyKey();
 
   return useMutation({
-    mutationFn: () => ordersApi.cancelOrder(orderId),
+    mutationFn: () =>
+      ordersApi.cancelOrder(orderId, { idempotencyKey: idempotency.getKey(`cancel:${orderId}`) }),
     onSuccess: async () => {
+      idempotency.settle();
       await queryClient.invalidateQueries({ queryKey: queryKeys.order(orderId) });
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+    onError: async (error) => {
+      idempotency.settle(error);
+      if (isIdempotentReplay(error)) {
+        // An earlier attempt with this key reached the server; refresh to show its outcome.
+        await queryClient.invalidateQueries({ queryKey: queryKeys.order(orderId) });
+        await queryClient.invalidateQueries({ queryKey: ['orders'] });
+      }
     },
   });
 }
