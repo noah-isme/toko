@@ -82,6 +82,15 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   // of silently adding the default variant the shopper may never have seen.
   const needsVariantChoice =
     selectedVariantId === null && variants.filter((variant) => variant.stock > 0).length > 1;
+  // Until a variant is picked, the bar must not show the default variant's price as if chosen:
+  // when buyable variants differ in price it shows the lowest one as "From ...".
+  const buyablePrices = needsVariantChoice
+    ? variants.filter((variant) => variant.stock > 0).map((variant) => variant.price)
+    : [];
+  const stickyFromPrice =
+    buyablePrices.length > 0 && Math.min(...buyablePrices) !== Math.max(...buyablePrices)
+      ? Math.min(...buyablePrices)
+      : null;
 
   const showVariantPicker = () => {
     if (!variantPickerElement) return;
@@ -258,7 +267,8 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       {isAddToCartOffScreen ? (
         <ProductStickyAddToCart
           title={data.title}
-          price={displayPrice}
+          price={stickyFromPrice ?? displayPrice}
+          isFromPrice={stickyFromPrice !== null}
           currency={data.currency || 'IDR'}
           variantLabel={
             selectedVariant && !needsVariantChoice ? variantLabel(selectedVariant) : null

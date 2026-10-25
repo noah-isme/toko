@@ -172,6 +172,10 @@ describe('sticky mobile add-to-cart bar', () => {
     expect(within(bar).getByText('Oak Chair')).toBeInTheDocument();
     const action = within(bar).getByTestId('sticky-add-to-cart');
     expect(action).toHaveTextContent('Choose a variant');
+    // Variants differ in price and none is picked: show the lowest buyable price as "From".
+    expect(within(bar).getByTestId('sticky-add-to-cart-price')).toHaveTextContent(
+      /^From\s*IDR\s*250,000$/,
+    );
 
     await user.click(action);
 
@@ -194,6 +198,7 @@ describe('sticky mobile add-to-cart bar', () => {
     act(() => observerCallback?.([{ isIntersecting: false }]));
     const action = screen.getByTestId('sticky-add-to-cart');
     expect(action).toHaveTextContent('Add to cart');
+    expect(screen.getByTestId('sticky-add-to-cart-price')).not.toHaveTextContent('From');
 
     await user.click(action);
 

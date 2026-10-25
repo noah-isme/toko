@@ -668,7 +668,8 @@
       "addToCart": "Tambah ke keranjang",
       "outOfStock": "Stok habis",
       "stickyBar": {
-        "label": "Tambah cepat ke keranjang"
+        "label": "Tambah cepat ke keranjang",
+        "from": "Mulai"
       }
     },
     "gallery": {

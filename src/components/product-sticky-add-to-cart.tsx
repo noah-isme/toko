@@ -9,6 +9,8 @@ import { GuardedButton } from '@/shared/ui/GuardedButton';
 interface ProductStickyAddToCartProps {
   title: string;
   price: number;
+  /** Shows the price as "From ..." (the lowest variant price while no variant is picked). */
+  isFromPrice?: boolean;
   currency: string;
   variantLabel?: string | null;
   /** Replaces the "Add to cart" text, e.g. "Choose a variant" when the button leads to the picker. */
@@ -28,6 +30,7 @@ interface ProductStickyAddToCartProps {
 export function ProductStickyAddToCart({
   title,
   price,
+  isFromPrice = false,
   currency,
   variantLabel,
   actionLabel,
@@ -57,7 +60,12 @@ export function ProductStickyAddToCart({
           <p className="truncate text-xs text-muted-foreground">
             {variantLabel ? `${title} · ${variantLabel}` : title}
           </p>
-          <Price amount={price} currency={currency} className="text-lg font-extrabold" />
+          <p className="flex items-baseline gap-1" data-testid="sticky-add-to-cart-price">
+            {isFromPrice ? (
+              <span className="text-xs text-muted-foreground">{t('stickyBar.from')}</span>
+            ) : null}
+            <Price amount={price} currency={currency} className="text-lg font-extrabold" />
+          </p>
         </div>
         <GuardedButton
           data-testid="sticky-add-to-cart"

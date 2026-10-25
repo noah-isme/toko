@@ -668,7 +668,8 @@
       "addToCart": "Add to cart",
       "outOfStock": "Out of stock",
       "stickyBar": {
-        "label": "Quick add to cart"
+        "label": "Quick add to cart",
+        "from": "From"
       }
     },
     "gallery": {
