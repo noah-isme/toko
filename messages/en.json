@@ -393,7 +393,10 @@
       "emptyQuery": "Try another keyword or remove some filters",
       "emptyDefault": "No products are available yet",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "fuzzyNotice": "No exact matches for \"{query}\". Showing similar products.",
+      "didYouMean": "Did you mean:",
+      "suggestionsLabel": "Search suggestions"
     },
     "chips": {
       "query": "Search: \"{query}\"",
@@ -404,7 +407,8 @@
       "inStock": "In Stock",
       "discount": "Promo/Discount",
       "remove": "Remove filter",
-      "clearAll": "Clear All ({count})"
+      "clearAll": "Clear All ({count})",
+      "priceFrom": "Price: from {min}"
     },
     "sort": {
       "label": "Sort",
@@ -437,7 +441,14 @@
       "apply": "Apply",
       "save": "Save",
       "notify": "Alert",
-      "savedSearchName": "Search {date}"
+      "savedSearchName": "Search {date}",
+      "allCategories": "All categories",
+      "allBrands": "All brands",
+      "allPrices": "Any price",
+      "priceBetween": "{min} - {max}",
+      "priceFrom": "{min} and above",
+      "availability": "Availability",
+      "inStockOnly": "In stock only"
     },
     "savedSearch": {
       "saved": "Search saved",

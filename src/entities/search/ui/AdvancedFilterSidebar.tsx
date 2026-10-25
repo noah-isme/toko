@@ -2,7 +2,7 @@
 
 import { AlertCircle, Bell, ChevronDown, Save, SlidersHorizontal, Star, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { PriceRangeFilter } from '@/components/price-range-filter';
 import { Button } from '@/components/ui/button';
@@ -13,15 +13,39 @@ import {
   useSaveSearchMutation,
   useActiveFilterCount,
 } from '@/entities/search/hooks';
+import {
+  hasPriceFilter,
+  isPriceBucketSelected,
+  priceRangeForBucket,
+} from '@/entities/search/lib/facets';
 import type { SearchFilters, SearchFacet } from '@/entities/search/types';
+import type { ProductFacets, ProductPriceBucket } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { NUMERIC_DATE, useFormat } from '@/shared/i18n/use-format';
+
+/**
+ * Facet counts from the product list response (GET /products?include=facets).
+ * `data` is undefined while loading, or when the API returned no facets; the
+ * sidebar then falls back to the category/brand taxonomy without counts.
+ */
+export interface FacetCountsState {
+  data?: ProductFacets;
+  isLoading: boolean;
+}
 
 interface FilterSidebarProps {
   filters: SearchFilters;
   onFiltersChange: (filters: Partial<SearchFilters>) => void;
   onClearFilters?: () => void;
+  facetCounts?: FacetCountsState;
   className?: string;
+}
+
+/** One selectable facet value; `count` is null when the source has no counts. */
+interface FacetOption {
+  value: string;
+  label: string;
+  count: number | null;
 }
 
 function FilterSection({
@@ -55,53 +79,131 @@ function FilterSection({
   );
 }
 
-function toggleFacetValue(currentValues: string[], value: string, label: string): string[] {
-  const normalizedFacetValues = new Set([value, label].map((item) => item.trim().toLowerCase()));
-  const isSelected = currentValues.some((currentValue) =>
-    normalizedFacetValues.has(currentValue.trim().toLowerCase()),
-  );
-
-  return isSelected
-    ? currentValues.filter(
-        (currentValue) => !normalizedFacetValues.has(currentValue.trim().toLowerCase()),
-      )
-    : [...currentValues, value];
+function matchesOption(option: FacetOption, selectedValue: string): boolean {
+  const normalized = selectedValue.trim().toLowerCase();
+  return option.value.toLowerCase() === normalized || option.label.toLowerCase() === normalized;
 }
 
-function renderFacetValues(
-  facet: SearchFacet,
-  filters: SearchFilters,
-  onToggle: (value: string, label: string) => void,
-) {
-  const isMultiSelect = facet.multiSelect ?? true;
-  const selectedValues =
-    facet.type === 'category' || facet.name === 'categories'
-      ? (filters.categories ?? [])
-      : facet.type === 'brand' || facet.name === 'brands'
-        ? (filters.brands ?? [])
-        : null;
+/**
+ * Keeps the selected value visible even when it is not among the returned
+ * options (facets list the top 50 by count), so it can still be cleared.
+ */
+function withSelectedOption(
+  options: FacetOption[],
+  selected: string | undefined,
+  missingCount: number | null,
+): FacetOption[] {
+  if (!selected || options.some((option) => matchesOption(option, selected))) return options;
+  return [...options, { value: selected, label: selected, count: missingCount }];
+}
 
-  const isSelected = (value: string, label: string, fallback?: boolean) => {
-    if (!selectedValues) return fallback ?? false;
+function taxonomyOptions(facets: SearchFacet[], type: 'category' | 'brand'): FacetOption[] {
+  const name = type === 'category' ? 'categories' : 'brands';
+  const facet = facets.find((f) => f.type === type || f.name === name);
+  // The taxonomy endpoints carry no product counts (count 0 is "unknown").
+  return facet?.values.map(({ value, label }) => ({ value, label, count: null })) ?? [];
+}
 
-    const normalizedValues = new Set([value.toLowerCase(), label.toLowerCase()]);
-    return selectedValues.some((selectedValue) =>
-      normalizedValues.has(selectedValue.toLowerCase()),
-    );
-  };
+function FacetCount({ count }: { count: number | null }) {
+  const fmt = useFormat();
+  if (count === null) return null;
+  return <span className="text-xs tabular-nums text-muted-foreground">({fmt.number(count)})</span>;
+}
+
+/**
+ * Single-select facet as a native radio group with an "all" option, because
+ * the product API filters by one category and one brand at a time.
+ */
+function FacetRadioGroup({
+  name,
+  label,
+  allLabel,
+  options,
+  selected,
+  onSelect,
+}: {
+  name: string;
+  label: string;
+  allLabel: string;
+  options: FacetOption[];
+  selected: string | undefined;
+  onSelect: (value: string | undefined) => void;
+}) {
+  return (
+    <div role="radiogroup" aria-label={label} className="space-y-2">
+      <label className="flex cursor-pointer items-center gap-2">
+        <input
+          type="radio"
+          name={name}
+          checked={!selected}
+          onChange={() => onSelect(undefined)}
+          className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        />
+        <span className="flex-1 truncate text-sm">{allLabel}</span>
+      </label>
+      {options.map((option) => (
+        <label key={option.value} className="flex cursor-pointer items-center gap-2">
+          <input
+            type="radio"
+            name={name}
+            value={option.value}
+            checked={!!selected && matchesOption(option, selected)}
+            onChange={() => onSelect(option.value)}
+            className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          />
+          <span className="flex-1 truncate text-sm">{option.label}</span>
+          <FacetCount count={option.count} />
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function PriceBucketGroup({
+  name,
+  buckets,
+  value,
+  onChange,
+}: {
+  name: string;
+  buckets: ProductPriceBucket[];
+  value: SearchFilters['priceRange'];
+  onChange: (range: [number, number] | undefined) => void;
+}) {
+  const t = useTranslations('catalog.filters');
+  const fmt = useFormat();
+  const visible = buckets.filter(
+    (bucket) => bucket.count > 0 || isPriceBucketSelected(bucket, value),
+  );
 
   return (
-    <div className="space-y-2">
-      {facet.values.map(({ value, label, count, selected }) => (
-        <label key={value} className="flex cursor-pointer items-center gap-2">
+    <div role="radiogroup" aria-label={t('price')} className="space-y-2">
+      <label className="flex cursor-pointer items-center gap-2">
+        <input
+          type="radio"
+          name={name}
+          checked={!hasPriceFilter(value)}
+          onChange={() => onChange(undefined)}
+          className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        />
+        <span className="flex-1 truncate text-sm">{t('allPrices')}</span>
+      </label>
+      {visible.map((bucket) => (
+        <label key={bucket.min} className="flex cursor-pointer items-center gap-2">
           <input
-            type={isMultiSelect ? 'checkbox' : 'radio'}
-            checked={isSelected(value, label, selected)}
-            onChange={() => onToggle(value, label)}
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            type="radio"
+            name={name}
+            value={bucket.min}
+            checked={isPriceBucketSelected(bucket, value)}
+            onChange={() => onChange(priceRangeForBucket(bucket))}
+            className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
           />
-          <span className="flex-1 truncate text-sm">{label}</span>
-          {count > 0 && <span className="text-xs text-muted-foreground">({count})</span>}
+          <span className="flex-1 truncate text-sm">
+            {bucket.max === null
+              ? t('priceFrom', { min: fmt.currency(bucket.min) })
+              : t('priceBetween', { min: fmt.currency(bucket.min), max: fmt.currency(bucket.max) })}
+          </span>
+          <FacetCount count={bucket.count} />
         </label>
       ))}
     </div>
@@ -112,25 +214,57 @@ export function AdvancedFilterSidebar({
   filters,
   onFiltersChange,
   onClearFilters,
+  facetCounts,
   className,
 }: FilterSidebarProps) {
   const t = useTranslations('catalog.filters');
   const fmt = useFormat();
+  const radioName = useId();
   const [open, setOpen] = useState(false);
   const activeCount = useActiveFilterCount(filters);
 
+  const serverFacets = facetCounts?.data;
+  const waitingForServerFacets = !!facetCounts && !serverFacets && facetCounts.isLoading;
+  // Without counts from the product response, list the catalog taxonomy instead.
+  const useTaxonomy = !serverFacets && !waitingForServerFacets;
   const {
-    data: facets = [],
-    isLoading: facetsLoading,
-    isError: facetsError,
-    refetch: refetchFacets,
-  } = useSearchFacetsQuery(filters);
+    data: taxonomyFacets = [],
+    isLoading: taxonomyLoading,
+    isError: taxonomyError,
+    refetch: refetchTaxonomy,
+  } = useSearchFacetsQuery(filters, { enabled: useTaxonomy });
+  const facets = useTaxonomy ? taxonomyFacets : [];
+  const facetsLoading = waitingForServerFacets || (useTaxonomy && taxonomyLoading);
+  const facetsError = useTaxonomy && taxonomyError;
+
+  const selectedCategory = filters.categories?.[0];
+  const selectedBrand = filters.brands?.[0];
+  const missingCount = serverFacets ? 0 : null;
+  const categoryOptions = withSelectedOption(
+    serverFacets
+      ? serverFacets.categories.map(({ slug, name, count }) => ({
+          value: slug,
+          label: name,
+          count,
+        }))
+      : taxonomyOptions(facets, 'category'),
+    selectedCategory,
+    missingCount,
+  );
+  const brandOptions = withSelectedOption(
+    serverFacets
+      ? serverFacets.brands.map(({ slug, name, count }) => ({ value: slug, label: name, count }))
+      : taxonomyOptions(facets, 'brand'),
+    selectedBrand,
+    missingCount,
+  );
 
   const saveSearch = useSaveSearchMutation();
 
   const hasActiveFilters = activeCount > 0;
 
-  const filterContent = (
+  // Rendered twice (mobile sheet and desktop panel); radio names are scoped per copy.
+  const renderFilterContent = (scope: 'mobile' | 'desktop') => (
     <div className="space-y-1">
       {facetsLoading && (
         <div className="space-y-2 py-2" role="status" aria-label={t('loading')}>
@@ -148,50 +282,74 @@ export function AdvancedFilterSidebar({
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
           <div className="space-y-2">
             <p>{t('unavailable')}</p>
-            <Button variant="outline" size="sm" onClick={() => refetchFacets()}>
+            <Button variant="outline" size="sm" onClick={() => refetchTaxonomy()}>
               {t('retry')}
             </Button>
           </div>
         </div>
       )}
 
-      {/* Categories from facets */}
-      {facets
-        .filter((f) => f.type === 'category' || f.name === 'categories')
-        .map((facet) => (
-          <FilterSection key={facet.name} title={t('categories')}>
-            {renderFacetValues(facet, filters, (value, label) => {
-              const current = filters.categories || [];
-              onFiltersChange({
-                categories: toggleFacetValue(current, value, label),
-              });
-            })}
-          </FilterSection>
-        ))}
-
-      {/* Brands from facets */}
-      {facets
-        .filter((f) => f.type === 'brand' || f.name === 'brands')
-        .map((facet) => (
-          <FilterSection key={facet.name} title={t('brands')}>
-            {renderFacetValues(facet, filters, (value, label) => {
-              const current = filters.brands || [];
-              onFiltersChange({
-                brands: toggleFacetValue(current, value, label),
-              });
-            })}
-          </FilterSection>
-        ))}
-
-      {/* Price Range */}
-      {filters.priceRange && (
-        <FilterSection title={t('price')}>
-          <PriceRangeFilter
-            min={filters.priceRange[0]}
-            max={filters.priceRange[1]}
-            value={filters.priceRange}
-            onChange={(value) => onFiltersChange({ priceRange: value })}
+      {categoryOptions.length > 0 && (
+        <FilterSection title={t('categories')}>
+          <FacetRadioGroup
+            name={`${radioName}-${scope}-category`}
+            label={t('categories')}
+            allLabel={t('allCategories')}
+            options={categoryOptions}
+            selected={selectedCategory}
+            onSelect={(value) => onFiltersChange({ categories: value ? [value] : [] })}
           />
+        </FilterSection>
+      )}
+
+      {brandOptions.length > 0 && (
+        <FilterSection title={t('brands')}>
+          <FacetRadioGroup
+            name={`${radioName}-${scope}-brand`}
+            label={t('brands')}
+            allLabel={t('allBrands')}
+            options={brandOptions}
+            selected={selectedBrand}
+            onSelect={(value) => onFiltersChange({ brands: value ? [value] : [] })}
+          />
+        </FilterSection>
+      )}
+
+      {/* Price: bucket counts from the API, else the range slider for a URL price */}
+      {serverFacets ? (
+        <FilterSection title={t('price')}>
+          <PriceBucketGroup
+            name={`${radioName}-${scope}-price`}
+            buckets={serverFacets.price.buckets}
+            value={filters.priceRange}
+            onChange={(priceRange) => onFiltersChange({ priceRange })}
+          />
+        </FilterSection>
+      ) : (
+        filters.priceRange && (
+          <FilterSection title={t('price')}>
+            <PriceRangeFilter
+              min={filters.priceRange[0]}
+              max={filters.priceRange[1]}
+              value={filters.priceRange}
+              onChange={(value) => onFiltersChange({ priceRange: value })}
+            />
+          </FilterSection>
+        )
+      )}
+
+      {serverFacets && (
+        <FilterSection title={t('availability')}>
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={filters.inStockOnly ?? false}
+              onChange={(e) => onFiltersChange({ inStockOnly: e.target.checked })}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            />
+            <span className="flex-1 text-sm">{t('inStockOnly')}</span>
+            <FacetCount count={serverFacets.inStock.true} />
+          </label>
         </FilterSection>
       )}
 
@@ -343,7 +501,9 @@ export function AdvancedFilterSidebar({
               )}
             </div>
           </SheetHeader>
-          <div className="max-h-[calc(100vh-160px)] overflow-y-auto p-4">{filterContent}</div>
+          <div className="max-h-[calc(100vh-160px)] overflow-y-auto p-4">
+            {renderFilterContent('mobile')}
+          </div>
           <div className="sticky bottom-0 border-t bg-background p-4">
             <div className="flex w-full gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
@@ -374,7 +534,7 @@ export function AdvancedFilterSidebar({
           )}
         </div>
         <Separator className="mb-4" />
-        {filterContent}
+        {renderFilterContent('desktop')}
         <Separator className="my-4" />
         <div className="flex gap-2">
           <Button

@@ -393,7 +393,10 @@
       "emptyQuery": "Coba kata kunci lain atau hapus beberapa filter",
       "emptyDefault": "Belum ada produk yang tersedia",
       "previous": "Sebelumnya",
-      "next": "Berikutnya"
+      "next": "Berikutnya",
+      "fuzzyNotice": "Tidak ada hasil yang persis untuk \"{query}\". Menampilkan produk yang mirip.",
+      "didYouMean": "Mungkin maksud Anda:",
+      "suggestionsLabel": "Saran pencarian"
     },
     "chips": {
       "query": "Pencarian: \"{query}\"",
@@ -404,7 +407,8 @@
       "inStock": "Stok Tersedia",
       "discount": "Promo/Diskon",
       "remove": "Hapus filter",
-      "clearAll": "Hapus Semua ({count})"
+      "clearAll": "Hapus Semua ({count})",
+      "priceFrom": "Harga: mulai {min}"
     },
     "sort": {
       "label": "Urutkan",
@@ -437,7 +441,14 @@
       "apply": "Terapkan",
       "save": "Simpan",
       "notify": "Notif",
-      "savedSearchName": "Pencarian {date}"
+      "savedSearchName": "Pencarian {date}",
+      "allCategories": "Semua kategori",
+      "allBrands": "Semua merek",
+      "allPrices": "Semua harga",
+      "priceBetween": "{min} - {max}",
+      "priceFrom": "{min} ke atas",
+      "availability": "Ketersediaan",
+      "inStockOnly": "Hanya yang tersedia"
     },
     "savedSearch": {
       "saved": "Pencarian disimpan",
