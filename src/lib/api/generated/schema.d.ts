@@ -968,17 +968,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List products */
+        /**
+         * List products
+         * @description Lists products with filters, sorting and pagination. When `q` is set the search uses full-text matching (`simple` config, no stemming) over title and description; if that finds nothing and `q` has 3 to 64 characters, it falls back to typo-tolerant trigram matching on the title (`meta.searchMode = fuzzy`). When both find nothing, `meta.suggestions` offers up to 5 closest titles. Longer queries (65-200 characters) get full-text matching only. The fuzzy pass and suggestions run under a short server-side time limit; if it is exceeded the response is the (empty) full-text result with `searchMode = fts` and no suggestions, never an error. `include=facets` adds facet counts. `meta` is present only when `q` is non-empty and `facets` only when requested, so the response is unchanged for clients that send neither.
+         */
         get: {
             parameters: {
                 query?: {
+                    /** @description Search text (websearch syntax), trimmed. At most 200 characters (Unicode code points) after trimming; longer values return 400 with `error.details.field = "q"`. Typo-tolerant fallback and suggestions apply to 3-64 characters. */
                     q?: string;
                     category?: string;
                     brand?: string;
                     minPrice?: number;
                     maxPrice?: number;
                     inStock?: boolean;
-                    sort?: "price:asc" | "price:desc" | "title:asc" | "title:desc";
+                    /** @description Sort order. `popularity:desc` = units sold in paid orders of this tenant (PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED), recomputed by the worker every few minutes, so it can lag slightly. `rating:desc` = average review rating, ties broken by review count. Bare `popularity` / `rating` are aliases of the `:desc` forms. Unknown values fall back to the default order (relevance when `q` is set, otherwise newest first). */
+                    sort?: "price:asc" | "price:desc" | "title:asc" | "title:desc" | "popularity:desc" | "rating:desc" | "popularity" | "rating";
+                    /** @description Comma-separated extras. Only `facets` is recognised; any other token returns 400 with `details.field = "include"`. Empty tokens are ignored. */
+                    include?: string;
                     page?: number;
                     limit?: number;
                 };
@@ -997,7 +1004,18 @@ export interface paths {
                         "application/json": {
                             data?: components["schemas"]["ProductListItem"][];
                             pagination?: components["schemas"]["Pagination"];
+                            meta?: components["schemas"]["ProductSearchMeta"];
+                            facets?: components["schemas"]["ProductFacets"];
                         };
+                    };
+                };
+                /** @description Invalid filter (`q` longer than 200 characters, `page`, `limit`, `minPrice`, `maxPrice`, `price`, `inStock` or `include`); `error.details.field` names it. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
                     };
                 };
             };
@@ -4385,6 +4403,7 @@ export interface paths {
                             /** Format: uuid */
                             productId: string;
                             salePrice: number;
+                            /** @description null or absent means unlimited; 0 is rejected with 400 */
                             stockLimit?: number | null;
                         }[];
                     };
@@ -7157,7 +7176,7 @@ export interface components {
             reason: string;
             notes?: string;
         };
-        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
+        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. `stockLimit` is tri-state: `null` means unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry, absent means unlimited. `0` is rejected with 400. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
         FlashSaleCampaignUpdateRequest: {
             name?: string;
             slug?: string;
@@ -7177,7 +7196,7 @@ export interface components {
                 productId: string;
                 /** @description Must be lower than the product price */
                 salePrice: number;
-                /** @description null or absent means unlimited */
+                /** @description `null` = unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry absent = unlimited; integer must be >= 1 and >= `soldCount`; `0` is rejected with 400 */
                 stockLimit?: number | null;
             }[];
         };
@@ -7800,6 +7819,55 @@ export interface components {
             id: string;
             name: string;
             slug: string;
+        };
+        /** @description Present only when `q` is non-empty. */
+        ProductSearchMeta: {
+            /**
+             * @description `fts` = full-text matches (or nothing matched); `fuzzy` = full-text found nothing and `data` holds typo-tolerant title matches (show "results for similar products").
+             * @enum {string}
+             */
+            searchMode: "fts" | "fuzzy";
+            /** @description Closest titles; present only when `pagination.totalItems` is 0, `q` has 3-64 characters and suggestions exist. */
+            suggestions?: components["schemas"]["Suggestion"][];
+        };
+        Suggestion: {
+            title: string;
+            slug: string;
+        };
+        /** @description Present only when `include=facets`. Each dimension honours `q` (in the same `searchMode` as `data`) and every other active filter, but ignores its own filter. */
+        ProductFacets: {
+            /** @description Top 50 by count desc, then name. Ignores `category`. */
+            categories: components["schemas"]["FacetTerm"][];
+            /** @description Top 50 by count desc, then name. Ignores `brand`. */
+            brands: components["schemas"]["FacetTerm"][];
+            price: {
+                /** @description Always all 9 buckets in ascending order, zero counts included. Edges (IDR): 50000, 100000, 250000, 500000, 1000000, 2500000, 5000000, 10000000. Ignores `minPrice`/`maxPrice`. */
+                buckets: components["schemas"]["PriceBucket"][];
+            };
+            /** @description Ignores `inStock`. */
+            inStock: {
+                /** Format: int64 */
+                true: number;
+                /** Format: int64 */
+                false: number;
+            };
+        };
+        FacetTerm: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            slug: string;
+            /** Format: int64 */
+            count: number;
+        };
+        /** @description Covers `min <= price < max`; `max` is null for the last, open-ended bucket. */
+        PriceBucket: {
+            /** Format: int64 */
+            min: number;
+            /** Format: int64 */
+            max: number | null;
+            /** Format: int64 */
+            count: number;
         };
         /** @description Summary shape returned by list endpoints. description, images, variants and specs are only present on GET /products/{slug}. */
         ProductListItem: {

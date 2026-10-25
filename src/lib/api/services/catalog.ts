@@ -5,10 +5,10 @@ import { apiClient } from '../apiClient';
 import { mapApiProductToProduct } from '../mappers/product';
 import type {
   ApiResponse,
-  PaginatedResponse,
   Product,
   ProductDetail,
   ProductFilters,
+  ProductListResponse,
   Category,
   Brand,
 } from '../types';
@@ -42,7 +42,7 @@ export function createCatalogApi(get: CatalogGet) {
     /**
      * List products with optional filters
      */
-    async getProducts(filters?: ProductFilters): Promise<PaginatedResponse<Product>> {
+    async getProducts(filters?: ProductFilters): Promise<ProductListResponse> {
       const params = new URLSearchParams();
 
       if (filters?.q) params.append('q', filters.q);
@@ -52,6 +52,7 @@ export function createCatalogApi(get: CatalogGet) {
       if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
       if (filters?.inStock !== undefined) params.append('inStock', filters.inStock.toString());
       if (filters?.sort) params.append('sort', filters.sort);
+      if (filters?.include) params.append('include', filters.include);
       if (filters?.page) params.append('page', filters.page.toString());
       if (filters?.limit) {
         params.append('limit', filters.limit.toString());
@@ -62,10 +63,11 @@ export function createCatalogApi(get: CatalogGet) {
       const query = params.toString();
       const path = query ? `/products?${query}` : '/products';
 
-      const response = await get<PaginatedResponse<any>>(path);
+      // `meta` (searches) and `facets` (include=facets) pass through unchanged.
+      const response = await get<Omit<ProductListResponse, 'data'> & { data: any[] }>(path);
       return {
         ...response,
-        data: response.data.map(mapApiProductToProduct) as any,
+        data: response.data.map(mapApiProductToProduct) as Product[],
       };
     },
 
