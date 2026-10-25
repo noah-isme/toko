@@ -2252,6 +2252,12 @@
       "status": "Status",
       "guest": "Guest"
     },
+    "unsavedChanges": {
+      "title": "Discard unsaved changes?",
+      "description": "You have changes that have not been saved. If you leave now, they will be lost.",
+      "stay": "Keep editing",
+      "leave": "Discard changes"
+    },
     "status": {
       "PENDING_PAYMENT": "Pending Payment",
       "PAID": "Paid",

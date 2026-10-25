@@ -1879,6 +1879,11 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.common.actions': 'Aksi',
     'admin.common.status': 'Status',
     'admin.common.guest': 'Tamu',
+    'admin.unsavedChanges.title': 'Buang perubahan yang belum disimpan?',
+    'admin.unsavedChanges.description':
+      'Ada perubahan yang belum disimpan. Jika Anda keluar sekarang, perubahan tersebut akan hilang.',
+    'admin.unsavedChanges.stay': 'Lanjut mengedit',
+    'admin.unsavedChanges.leave': 'Buang perubahan',
     'admin.status.PENDING_PAYMENT': 'Menunggu Pembayaran',
     'admin.status.PAID': 'Dibayar',
     'admin.status.PACKED': 'Dikemas',
@@ -4254,6 +4259,11 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.common.actions': 'Actions',
     'admin.common.status': 'Status',
     'admin.common.guest': 'Guest',
+    'admin.unsavedChanges.title': 'Discard unsaved changes?',
+    'admin.unsavedChanges.description':
+      'You have changes that have not been saved. If you leave now, they will be lost.',
+    'admin.unsavedChanges.stay': 'Keep editing',
+    'admin.unsavedChanges.leave': 'Discard changes',
     'admin.status.PENDING_PAYMENT': 'Pending Payment',
     'admin.status.PAID': 'Paid',
     'admin.status.PACKED': 'Packed',
