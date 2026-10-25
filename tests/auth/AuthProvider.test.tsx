@@ -97,18 +97,22 @@ describe('AuthProvider logout', () => {
     queryClient.setQueryData(alertsKeys.product('p1'), [{ id: 'a1' }]);
     queryClient.setQueryData(alertsKeys.everything(), [{ id: 'a1' }]);
     queryClient.setQueryData(alertsKeys.list({ page: 1 }), { data: [] });
-    let logout: (() => Promise<void>) | undefined;
-    function Capture() {
-      logout = useAuth().logout;
-      return null;
+    function LogoutButton() {
+      const { logout } = useAuth();
+      return (
+        <button type="button" onClick={() => void logout()}>
+          logout
+        </button>
+      );
     }
 
-    renderProvider(<Capture />, queryClient);
-    await waitFor(() => expect(logout).toBeDefined());
+    renderProvider(<LogoutButton />, queryClient);
     await act(async () => {
-      await logout?.();
+      screen.getByRole('button', { name: 'logout' }).click();
     });
-
-    expect(queryClient.getQueriesData({ queryKey: alertsKeys.all })).toEqual([]);
+    await waitFor(() => expect(authApi.logout).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(queryClient.getQueriesData({ queryKey: alertsKeys.all })).toEqual([]),
+    );
   });
 });
