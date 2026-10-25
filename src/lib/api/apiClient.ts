@@ -182,15 +182,12 @@ async function refreshAccessToken(): Promise<string | null> {
   return newToken;
 }
 
-export async function apiClient<T>(path: string, options: ApiClientSchemaOptions<T>): Promise<T>;
-export async function apiClient<T = unknown>(
-  path: string,
-  options?: ApiClientBaseOptions,
-): Promise<T>;
-export async function apiClient<T = unknown>(
-  path: string,
-  options: ApiClientSchemaOptions<T> | ApiClientBaseOptions = {},
-): Promise<T> {
+/**
+ * The shared request pipeline: tenant header, bearer token, double-submit CSRF,
+ * one refresh on 401 and one CSRF retry on 403. Resolves with the successful
+ * `Response` (body unread) and throws the mapped error for any non-2xx.
+ */
+async function sendRequest(path: string, options: ApiClientBaseOptions = {}): Promise<Response> {
   const { headers, requiresAuth = false, ...init } = options;
   const isCsrfRetry = Boolean((options as Record<string, unknown>)._isCsrfRetry);
   const requestHeaders = new Headers(headers);
@@ -263,17 +260,31 @@ export async function apiClient<T = unknown>(
     const refreshedCsrf = await ensureCsrfToken(true);
     if (refreshedCsrf) {
       requestHeaders.set(CSRF_HEADER_NAME, refreshedCsrf);
-      return apiClient(path, {
+      return sendRequest(path, {
         ...options,
         _isCsrfRetry: true,
         headers: requestHeaders,
-      } as any);
+      } as ApiClientBaseOptions);
     }
   }
 
   if (!response.ok) {
     throw await createResponseError(response);
   }
+
+  return response;
+}
+
+export async function apiClient<T>(path: string, options: ApiClientSchemaOptions<T>): Promise<T>;
+export async function apiClient<T = unknown>(
+  path: string,
+  options?: ApiClientBaseOptions,
+): Promise<T>;
+export async function apiClient<T = unknown>(
+  path: string,
+  options: ApiClientSchemaOptions<T> | ApiClientBaseOptions = {},
+): Promise<T> {
+  const response = await sendRequest(path, options);
 
   if (response.status === 204) {
     return undefined as T;
@@ -285,6 +296,55 @@ export async function apiClient<T = unknown>(
   }
 
   return data as T;
+}
+
+export interface ApiDownload {
+  blob: Blob;
+  /** From `Content-Disposition`; null when absent or not exposed to the page (CORS). */
+  filename: string | null;
+}
+
+/**
+ * GETs a binary resource (for example an invoice PDF) through the same auth,
+ * tenant and error pipeline as `apiClient`. Error responses still carry the
+ * JSON error envelope and surface as `ApiClientError` / `AuthError`.
+ */
+export async function apiDownload(
+  path: string,
+  options: ApiClientBaseOptions = {},
+): Promise<ApiDownload> {
+  const response = await sendRequest(path, { method: 'GET', ...options });
+  const blob = await response.blob();
+  return {
+    blob,
+    filename: parseContentDispositionFilename(response.headers.get('Content-Disposition')),
+  };
+}
+
+/**
+ * Extracts the filename from a `Content-Disposition` header, preferring the
+ * RFC 5987 `filename*` form. Path separators are stripped so the value is
+ * always a bare file name.
+ */
+export function parseContentDispositionFilename(header: string | null): string | null {
+  if (!header) return null;
+  let name: string | null = null;
+  const extended = /filename\*\s*=\s*([^']*)'[^']*'([^;]+)/i.exec(header);
+  if (extended) {
+    try {
+      name = decodeURIComponent(extended[2].trim().replace(/^"|"$/g, ''));
+    } catch {
+      name = null;
+    }
+  }
+  if (!name) {
+    const plain = /filename\s*=\s*("((?:\\.|[^"\\])*)"|[^;]+)/i.exec(header);
+    if (plain) {
+      name = plain[2] !== undefined ? plain[2].replace(/\\(.)/g, '$1') : plain[1].trim();
+    }
+  }
+  const bare = name?.split(/[\\/]/).pop()?.trim();
+  return bare ? bare : null;
 }
 
 async function executeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
