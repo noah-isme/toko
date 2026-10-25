@@ -2,8 +2,12 @@
 
 import { HeartCrack, HeartOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 import { ProductCard } from '@/components/product-card';
+import { useOptionalAuth } from '@/components/providers/AuthProvider';
+import { useAllMyAlertsQuery } from '@/entities/alerts/hooks';
+import type { AlertSubscription } from '@/entities/alerts/types';
 import { PriceDropToggle } from '@/entities/alerts/ui/PriceDropToggle';
 import { useFavoritesQuery } from '@/entities/favorites/hooks';
 import { getGuestId } from '@/entities/favorites/storage';
@@ -17,6 +21,21 @@ export default function FavoritesPage() {
   const tEmpty = useTranslations('common.empty');
   const userId = getGuestId() ?? undefined;
   const { data: favorites, isLoading: isLoadingFavorites } = useFavoritesQuery(userId);
+  const isAuthenticated = useOptionalAuth()?.isAuthenticated ?? false;
+  // One alerts query for the whole page; per-product queries would send one
+  // request per favorite and run into the API rate limits.
+  const alertsQuery = useAllMyAlertsQuery({
+    enabled: isAuthenticated && (favorites?.length ?? 0) > 0,
+  });
+  const priceDropByProduct = useMemo(() => {
+    const map = new Map<string, AlertSubscription>();
+    for (const alert of alertsQuery.data ?? []) {
+      if (alert.type === 'PRICE_DROP' && alert.variantId === null) {
+        map.set(alert.productId, alert);
+      }
+    }
+    return map;
+  }, [alertsQuery.data]);
 
   if (isLoadingFavorites) {
     return (
@@ -60,7 +79,14 @@ export default function FavoritesPage() {
                 currency: 'IDR',
               }}
             />
-            <PriceDropToggle productId={fav.productId} productName={fav.productName} />
+            <PriceDropToggle
+              productId={fav.productId}
+              productName={fav.productName}
+              alertState={{
+                alert: priceDropByProduct.get(fav.productId),
+                isLoading: alertsQuery.isLoading,
+              }}
+            />
           </div>
         ))}
       </div>

@@ -6,6 +6,7 @@ import { useId, useState } from 'react';
 
 import { useDeleteAlertMutation, useProductAlertsQuery, useSubscribeAlertMutation } from '../hooks';
 import { findAlert } from '../sellable';
+import type { AlertSubscription } from '../types';
 
 import { AlertLoginPrompt, currentReturnPath } from './AlertLoginPrompt';
 import { alertErrorKind } from './messages';
@@ -15,13 +16,26 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/shared/ui/toast';
 
+/** Alert state supplied by a parent that already loaded the user's alerts. */
+export interface PriceDropAlertState {
+  /** The product-level PRICE_DROP subscription, if any. */
+  alert: AlertSubscription | undefined;
+  isLoading: boolean;
+}
+
 interface PriceDropToggleProps {
   productId: string;
   productName: string;
+  /**
+   * When given, the toggle uses it instead of fetching this product's alerts
+   * itself. Lists of products (favorites) must pass it so they send one
+   * `/alerts` request in total rather than one per product.
+   */
+  alertState?: PriceDropAlertState;
 }
 
 /** Product-level PRICE_DROP subscription as a labelled switch (favorites). */
-export function PriceDropToggle({ productId, productName }: PriceDropToggleProps) {
+export function PriceDropToggle({ productId, productName, alertState }: PriceDropToggleProps) {
   const t = useTranslations('product.alerts');
   const switchId = useId();
   const auth = useOptionalAuth();
@@ -30,11 +44,15 @@ export function PriceDropToggle({ productId, productName }: PriceDropToggleProps
   const [loginOpen, setLoginOpen] = useState(false);
   const [returnTo, setReturnTo] = useState('/');
 
-  const alertsQuery = useProductAlertsQuery(productId, { enabled: isAuthenticated });
+  const alertsQuery = useProductAlertsQuery(productId, {
+    enabled: isAuthenticated && !alertState,
+  });
   const subscribe = useSubscribeAlertMutation();
   const remove = useDeleteAlertMutation();
 
-  const alert = isAuthenticated ? findAlert(alertsQuery.data, 'PRICE_DROP') : undefined;
+  const ownAlert = alertState ? alertState.alert : findAlert(alertsQuery.data, 'PRICE_DROP');
+  const alertsLoading = alertState ? alertState.isLoading : alertsQuery.isLoading;
+  const alert = isAuthenticated ? ownAlert : undefined;
   const isOn = alert?.status === 'active';
   const isBusy = subscribe.isPending || remove.isPending;
 
@@ -74,7 +92,7 @@ export function PriceDropToggle({ productId, productName }: PriceDropToggleProps
         aria-label={t('priceDrop.labelFor', { product: productName })}
         checked={isOn}
         onCheckedChange={handleChange}
-        disabled={isBusy || (isAuthenticated && alertsQuery.isLoading)}
+        disabled={isBusy || (isAuthenticated && alertsLoading)}
         aria-busy={isBusy || undefined}
       />
       <AlertLoginPrompt open={loginOpen} onOpenChange={setLoginOpen} returnTo={returnTo} />
