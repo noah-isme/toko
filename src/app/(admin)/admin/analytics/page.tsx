@@ -49,13 +49,19 @@ export default function AnalyticsPage() {
   const overview = useAdminAnalyticsOverview(range);
   const data = overview.data;
 
-  const summary = [
-    { label: t('summary.revenue'), value: currency(data?.totalRevenue ?? 0), icon: DollarSign },
+  const summary: { label: string; value: string; icon: typeof DollarSign; hint?: string }[] = [
+    {
+      label: t('summary.revenue'),
+      value: currency(data?.totalRevenue ?? 0),
+      icon: DollarSign,
+      hint: t('summary.revenueBasis'),
+    },
     { label: t('summary.orders'), value: String(data?.totalOrders ?? 0), icon: ShoppingCart },
     {
       label: t('summary.averageOrderValue'),
       value: currency(data?.averageOrderValue ?? 0),
       icon: TrendingUp,
+      hint: t('summary.averageOrderValueBasis', { count: data?.revenueOrders ?? 0 }),
     },
     { label: t('summary.customers'), value: String(data?.totalCustomers ?? 0), icon: Users },
     { label: t('summary.products'), value: String(data?.totalProducts ?? 0), icon: Package },
@@ -107,6 +113,9 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold">{item.value}</p>
+                    {item.hint ? (
+                      <p className="mt-1 text-xs text-muted-foreground">{item.hint}</p>
+                    ) : null}
                   </CardContent>
                 </Card>
               );
