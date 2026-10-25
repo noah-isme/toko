@@ -703,12 +703,18 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.instructions.qrAlt': 'QR pembayaran',
     'checkout.review.instructions.proofLabel': 'Bukti pembayaran (opsional)',
     'checkout.review.instructions.proofHint': [
-      'JPG, PNG, WebP, GIF, atau PDF, maksimal 5 MB.',
+      'JPG, PNG, WebP, GIF, HEIC, atau PDF, maksimal 5 MB.',
       { max: 5 },
     ],
     'checkout.review.instructions.proofUnsupported':
-      'Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF) atau PDF.',
+      'Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF, HEIC) atau PDF.',
     'checkout.review.instructions.proofTooLarge': ['Ukuran file melebihi 5 MB.', { max: 5 }],
+    'checkout.review.instructions.proofErrorUnauthorized':
+      'Sesi Anda telah berakhir. Masuk kembali, lalu unggah bukti pembayaran.',
+    'checkout.review.instructions.proofErrorNotFound':
+      'Pesanan ini tidak ditemukan. Muat ulang halaman lalu coba lagi.',
+    'checkout.review.instructions.proofErrorRejected':
+      'File tidak diterima. Pilih file lain lalu coba lagi.',
     'checkout.review.instructions.proofSelected': [
       'File dipilih: bukti.pdf',
       { name: 'bukti.pdf' },
@@ -3108,12 +3114,18 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.instructions.qrAlt': 'Payment QR',
     'checkout.review.instructions.proofLabel': 'Proof of payment (optional)',
     'checkout.review.instructions.proofHint': [
-      'JPG, PNG, WebP, GIF, or PDF, up to 5 MB.',
+      'JPG, PNG, WebP, GIF, HEIC, or PDF, up to 5 MB.',
       { max: 5 },
     ],
     'checkout.review.instructions.proofUnsupported':
-      'Unsupported file format. Use an image (JPG, PNG, WebP, GIF) or a PDF.',
+      'Unsupported file format. Use an image (JPG, PNG, WebP, GIF, HEIC) or a PDF.',
     'checkout.review.instructions.proofTooLarge': ['File size exceeds 5 MB.', { max: 5 }],
+    'checkout.review.instructions.proofErrorUnauthorized':
+      'Your session has ended. Sign in again, then upload the proof.',
+    'checkout.review.instructions.proofErrorNotFound':
+      'We could not find this order. Refresh the page and try again.',
+    'checkout.review.instructions.proofErrorRejected':
+      'The file was not accepted. Choose another file and try again.',
     'checkout.review.instructions.proofSelected': [
       'Selected file: proof.pdf',
       { name: 'proof.pdf' },

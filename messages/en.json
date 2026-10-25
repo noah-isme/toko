@@ -1190,11 +1190,14 @@
         "uploading": "Uploading...",
         "upload": "Upload proof",
         "uploadFailed": "Failed to upload the proof of payment.",
-        "proofHint": "JPG, PNG, WebP, GIF, or PDF, up to {max} MB.",
-        "proofUnsupported": "Unsupported file format. Use an image (JPG, PNG, WebP, GIF) or a PDF.",
+        "proofHint": "JPG, PNG, WebP, GIF, HEIC, or PDF, up to {max} MB.",
+        "proofUnsupported": "Unsupported file format. Use an image (JPG, PNG, WebP, GIF, HEIC) or a PDF.",
         "proofTooLarge": "File size exceeds {max} MB.",
         "proofSelected": "Selected file: {name}",
-        "proofPreviewAlt": "Payment proof preview"
+        "proofPreviewAlt": "Payment proof preview",
+        "proofErrorUnauthorized": "Your session has ended. Sign in again, then upload the proof.",
+        "proofErrorNotFound": "We could not find this order. Refresh the page and try again.",
+        "proofErrorRejected": "The file was not accepted. Choose another file and try again."
       }
     },
     "success": {

@@ -11,9 +11,66 @@ import { paymentApi } from '@/lib/api/services/payment';
 import type { PaymentInstructions } from '@/lib/api/services/payment';
 import { ACCEPTED_IMAGE_TYPES, validateFile } from '@/shared/lib/fileValidation';
 
-/** Mirrors the API limit for `POST /payments/{orderId}/proof` (5 MB, images or PDF). */
+/** Mirrors the API limit for `POST /payments/{orderId}/proof` (5 MB; the API accepts any type). */
 export const PAYMENT_PROOF_MAX_SIZE_MB = 5;
-export const PAYMENT_PROOF_TYPES = [...ACCEPTED_IMAGE_TYPES, 'application/pdf'] as const;
+/** Common receipt formats: web images, phone camera photos (HEIC/HEIF) and PDF. */
+export const PAYMENT_PROOF_TYPES = [
+  ...ACCEPTED_IMAGE_TYPES,
+  'image/heic',
+  'image/heif',
+  'application/pdf',
+] as const;
+/** Accepted when the picker reports no MIME type (some Android / Windows pickers). */
+export const PAYMENT_PROOF_EXTENSIONS = [
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.gif',
+  '.heic',
+  '.heif',
+  '.pdf',
+] as const;
+
+/** Only formats every browser can render get an inline preview; others show the file name. */
+const PREVIEWABLE_TYPES: readonly string[] = ACCEPTED_IMAGE_TYPES;
+
+type ProofErrorKey =
+  | 'proofTooLarge'
+  | 'proofUnsupported'
+  | 'proofErrorUnauthorized'
+  | 'proofErrorNotFound'
+  | 'proofErrorRejected'
+  | 'uploadFailed';
+
+/**
+ * Maps an upload failure to a localized message key. The API's messages are English only
+ * (`internal/payment/handlers.go`), so its text is shown only for codes not listed here (`null`).
+ */
+export function paymentProofErrorKey(error: unknown): ProofErrorKey | null {
+  if (!(error instanceof ApiClientError)) return 'uploadFailed';
+  if (error.status === 413 || /\b5\s?MB\b|too large/i.test(error.message)) return 'proofTooLarge';
+  if (error.status === 415) return 'proofUnsupported';
+  switch (error.code) {
+    case 'UNAUTHORIZED':
+      return 'proofErrorUnauthorized';
+    case 'NOT_FOUND':
+      return 'proofErrorNotFound';
+    case 'BAD_REQUEST':
+    case 'VALIDATION_ERROR':
+      return 'proofErrorRejected';
+    case 'UNKNOWN':
+    case 'INTERNAL':
+    case 'INTERNAL_ERROR':
+    case 'PAYMENT_NOT_CONFIGURED':
+      return 'uploadFailed';
+    default:
+      if (error.status === 401) return 'proofErrorUnauthorized';
+      if (error.status === 404) return 'proofErrorNotFound';
+      if (error.status >= 500) return 'uploadFailed';
+      return error.message.trim() ? null : 'uploadFailed';
+  }
+}
 
 export function PaymentInstructionsPanel({
   orderId,
@@ -37,7 +94,11 @@ export function PaymentInstructionsPanel({
 
   // Object URL for the image preview; revoked when the file changes or the panel unmounts.
   useEffect(() => {
-    if (!file || !file.type.startsWith('image/') || typeof URL.createObjectURL !== 'function') {
+    if (
+      !file ||
+      !PREVIEWABLE_TYPES.includes(file.type) ||
+      typeof URL.createObjectURL !== 'function'
+    ) {
       return;
     }
     const url = URL.createObjectURL(file);
@@ -58,6 +119,7 @@ export function PaymentInstructionsPanel({
     }
     const validation = validateFile(selected, {
       acceptedTypes: PAYMENT_PROOF_TYPES,
+      acceptedExtensions: PAYMENT_PROOF_EXTENSIONS,
       maxSizeMB: PAYMENT_PROOF_MAX_SIZE_MB,
     });
     if (validation) {
@@ -82,13 +144,12 @@ export function PaymentInstructionsPanel({
       await paymentApi.uploadProof(orderId, file);
       setUploaded(true);
     } catch (uploadError) {
-      // Show the server's reason (e.g. size limit) when it sent one; network failures and
-      // message-less responses fall back to the generic text.
-      const serverMessage =
-        uploadError instanceof ApiClientError && uploadError.code !== 'UNKNOWN'
-          ? uploadError.message.trim()
-          : '';
-      setError(serverMessage || t('uploadFailed'));
+      // Known API failures get a localized reason; the server's own (English) text is the last
+      // resort for codes we do not recognise.
+      const key = paymentProofErrorKey(uploadError);
+      if (key === 'proofTooLarge') setError(t(key, { max: PAYMENT_PROOF_MAX_SIZE_MB }));
+      else if (key) setError(t(key));
+      else setError((uploadError as ApiClientError).message.trim());
     } finally {
       setUploading(false);
     }
@@ -141,7 +202,7 @@ export function PaymentInstructionsPanel({
         <input
           id="payment-proof"
           type="file"
-          accept={PAYMENT_PROOF_TYPES.join(',')}
+          accept={[...PAYMENT_PROOF_TYPES, ...PAYMENT_PROOF_EXTENSIONS].join(',')}
           onChange={handleFileChange}
           disabled={uploading}
           aria-describedby={error ? `${hintId} ${errorId}` : hintId}

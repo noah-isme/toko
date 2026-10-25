@@ -1190,11 +1190,14 @@
         "uploading": "Mengunggah...",
         "upload": "Unggah bukti",
         "uploadFailed": "Bukti pembayaran gagal diunggah.",
-        "proofHint": "JPG, PNG, WebP, GIF, atau PDF, maksimal {max} MB.",
-        "proofUnsupported": "Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF) atau PDF.",
+        "proofHint": "JPG, PNG, WebP, GIF, HEIC, atau PDF, maksimal {max} MB.",
+        "proofUnsupported": "Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF, HEIC) atau PDF.",
         "proofTooLarge": "Ukuran file melebihi {max} MB.",
         "proofSelected": "File dipilih: {name}",
-        "proofPreviewAlt": "Pratinjau bukti pembayaran"
+        "proofPreviewAlt": "Pratinjau bukti pembayaran",
+        "proofErrorUnauthorized": "Sesi Anda telah berakhir. Masuk kembali, lalu unggah bukti pembayaran.",
+        "proofErrorNotFound": "Pesanan ini tidak ditemukan. Muat ulang halaman lalu coba lagi.",
+        "proofErrorRejected": "File tidak diterima. Pilih file lain lalu coba lagi."
       }
     },
     "success": {

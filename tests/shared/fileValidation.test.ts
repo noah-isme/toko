@@ -19,4 +19,22 @@ describe('validateFile', () => {
       'tooLarge',
     );
   });
+
+  it('falls back to the extension only when the browser reports no MIME type', () => {
+    const withExtensions = { ...options, acceptedExtensions: ['.png', '.pdf'] };
+    expect(validateFile({ type: '', size: 10, name: 'scan.PDF' }, withExtensions)).toBeNull();
+    expect(validateFile({ type: '', size: 10, name: 'notes.txt' }, withExtensions)).toBe(
+      'unsupported',
+    );
+    expect(validateFile({ type: '', size: 10, name: 'noextension' }, withExtensions)).toBe(
+      'unsupported',
+    );
+    // A reported MIME type is still authoritative.
+    expect(validateFile({ type: 'text/plain', size: 10, name: 'a.png' }, withExtensions)).toBe(
+      'unsupported',
+    );
+    expect(
+      validateFile({ type: '', size: 5 * 1024 * 1024 + 1, name: 'a.png' }, withExtensions),
+    ).toBe('tooLarge');
+  });
 });
