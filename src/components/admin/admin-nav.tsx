@@ -1,5 +1,6 @@
 /**
- * Admin sidebar navigation.
+ * Admin sidebar navigation. Items the signed-in user lacks the permission for
+ * (see `requirementForPath`) are hidden; `AdminRouteGate` blocks the pages.
  *
  * Route hrefs are plain strings cast through `Route` because Next's typed routes
  * only resolve after a build; the paths correspond to real pages under
@@ -20,6 +21,7 @@ import {
   RotateCcw,
   Tag,
   Ticket,
+  UserCog,
   Webhook,
   Zap,
 } from 'lucide-react';
@@ -28,6 +30,8 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { ComponentType } from 'react';
 
+import { requirementForPath, type AdminAccess } from '@/entities/admin/access';
+import { useAdminAccess } from '@/entities/admin/use-admin-access';
 import { cn } from '@/lib/utils';
 
 type NavLabelKey =
@@ -45,7 +49,8 @@ type NavLabelKey =
   | 'analytics'
   | 'webhooks'
   | 'auditLogs'
-  | 'settings';
+  | 'settings'
+  | 'staff';
 
 interface NavItem {
   href: string;
@@ -72,15 +77,22 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin/webhooks', labelKey: 'webhooks', icon: Webhook },
   { href: '/admin/audit-logs', labelKey: 'auditLogs', icon: ClipboardList },
   { href: '/admin/settings', labelKey: 'settings', icon: Settings },
+  { href: '/admin/staff', labelKey: 'staff', icon: UserCog },
 ];
+
+/** Nav items `access` may open, in sidebar order. */
+export function accessibleNavItems(access: AdminAccess): NavItem[] {
+  return NAV_ITEMS.filter((item) => access.can(requirementForPath(item.href)));
+}
 
 export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
   const t = useTranslations('admin.nav');
   const pathname = usePathname();
+  const access = useAdminAccess();
 
   return (
     <nav aria-label={t('label')} className="flex flex-col gap-1 p-3">
-      {NAV_ITEMS.map(({ href, labelKey, icon: Icon, exact }) => {
+      {accessibleNavItems(access).map(({ href, labelKey, icon: Icon, exact }) => {
         const active = exact
           ? pathname === href
           : pathname === href || pathname.startsWith(`${href}/`);
@@ -108,3 +120,4 @@ export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export { NAV_ITEMS as ADMIN_NAV_ITEMS };
+export type { NavItem as AdminNavItem };

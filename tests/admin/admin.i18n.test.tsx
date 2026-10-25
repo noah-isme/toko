@@ -23,6 +23,12 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
 }));
 
+const PLATFORM_ADMIN_USER = {
+  id: 'user-1',
+  name: 'Admin',
+  email: 'admin@toko.com',
+  roles: ['admin'],
+};
 const auth = vi.hoisted(() => ({
   current: { isLoading: false, isAuthenticated: true, isAdmin: true } as Record<string, unknown>,
 }));
@@ -100,7 +106,12 @@ const money = (text: string) => new RegExp(text.replace(/\s/g, '\\s').replace(/\
 
 describe('admin UI in English', () => {
   beforeEach(() => {
-    auth.current = { isLoading: false, isAuthenticated: true, isAdmin: true };
+    auth.current = {
+      isLoading: false,
+      isAuthenticated: true,
+      isAdmin: true,
+      user: PLATFORM_ADMIN_USER,
+    };
   });
 
   it('renders the dashboard with English copy and IDR formatting', () => {
@@ -149,7 +160,12 @@ describe('admin UI in English', () => {
     );
     expect(within(nav).getByRole('link', { name: 'Audit Logs' })).toBeInTheDocument();
 
-    auth.current = { isLoading: false, isAuthenticated: true, isAdmin: false };
+    auth.current = {
+      isLoading: false,
+      isAuthenticated: true,
+      isAdmin: false,
+      user: { ...PLATFORM_ADMIN_USER, roles: ['customer'], role: 'customer', permissions: [] },
+    };
     renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
     expect(screen.getByRole('heading', { name: 'Admin access required' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to store' })).toBeInTheDocument();
@@ -166,6 +182,15 @@ describe('admin UI in English', () => {
 });
 
 describe('admin UI in Indonesian (default)', () => {
+  beforeEach(() => {
+    auth.current = {
+      isLoading: false,
+      isAuthenticated: true,
+      isAdmin: true,
+      user: PLATFORM_ADMIN_USER,
+    };
+  });
+
   it('renders the dashboard in Indonesian with rupiah formatting', () => {
     render(<AdminDashboard />);
 

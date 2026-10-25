@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +17,7 @@ export default function InventoryPage() {
   const query = useAdminInventory();
   const update = useUpdateAdminInventory();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   if (query.isLoading) return <AdminLoading label={t('loading')} />;
@@ -35,7 +37,7 @@ export default function InventoryPage() {
     } catch (error) {
       toast({
         title: t('toast.failed'),
-        description: String(error),
+        description: adminErrorMessage(error, String(error)),
         variant: 'destructive',
       });
     }

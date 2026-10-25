@@ -4,6 +4,7 @@ import { Calendar, DollarSign, Edit, Percent, Plus, Search, Trash2 } from 'lucid
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import {
   ActiveBadge,
   AdminEmpty,
@@ -124,6 +125,7 @@ export default function VouchersPage() {
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminVoucher | null>(null);
@@ -176,7 +178,7 @@ export default function VouchersPage() {
     } catch (error) {
       toast({
         title: t('toast.saveFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -191,7 +193,7 @@ export default function VouchersPage() {
     } catch (error) {
       toast({
         title: t('toast.deleteFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }

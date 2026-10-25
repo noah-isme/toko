@@ -4,6 +4,7 @@ import { Eye, Package, Search, Truck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import {
   AdminEmpty,
   AdminError,
@@ -121,6 +122,7 @@ export default function OrdersPage() {
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const [shipmentTarget, setShipmentTarget] = useState<AdminOrder | null>(null);
@@ -161,7 +163,7 @@ export default function OrdersPage() {
     } catch (error) {
       toast({
         title: t('toast.statusFailed'),
-        description: error instanceof Error ? error.message : t('toast.transitionNotAllowed'),
+        description: adminErrorMessage(error, t('toast.transitionNotAllowed')),
         variant: 'destructive',
       });
     }
@@ -187,7 +189,7 @@ export default function OrdersPage() {
     } catch (error) {
       toast({
         title: t('toast.shipmentFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { ProductForm } from '@/components/admin/product-form';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ export default function NewProductPage() {
   const t = useTranslations('admin.products');
   const tCommon = useTranslations('admin.common');
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const createProduct = useCreateAdminProduct();
   // The form's category/brand pickers share these queries; gate the form on them.
   const categories = useAdminCategories();
@@ -35,7 +37,7 @@ export default function NewProductPage() {
     } catch (error) {
       toast({
         title: t('toast.createFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }

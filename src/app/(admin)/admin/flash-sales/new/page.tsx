@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -95,6 +96,7 @@ export default function FlashSaleNewPage() {
   const { currency } = useAdminFormat();
   const router = useRouter();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const [values, setValues] = useState<FlashSaleFormValues>(EMPTY_VALUES);
   const [slugTouched, setSlugTouched] = useState(false);
@@ -168,7 +170,7 @@ export default function FlashSaleNewPage() {
       toast({ title: t('toast.created'), variant: 'success' });
       router.push(`/admin/flash-sales/${result.id}/edit`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('form.errors.createFailed');
+      const message = adminErrorMessage(err, t('form.errors.createFailed'));
       setError(message);
       toast({ title: t('toast.createFailed'), description: message, variant: 'destructive' });
     }
