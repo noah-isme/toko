@@ -42,6 +42,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const { cartId } = useCartStore();
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [addToCartElement, setAddToCartElement] = useState<HTMLDivElement | null>(null);
+  const [variantPickerElement, setVariantPickerElement] = useState<HTMLDivElement | null>(null);
   const isAddToCartOffScreen = useIsOffScreen(addToCartElement);
 
   useEffect(() => {
@@ -77,6 +78,24 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const availableStock = selectedVariant?.stock ?? data.stock;
   const displayPrice = selectedVariant?.price ?? data.price;
   const isOutOfStock = !data.inStock || availableStock <= 0;
+  // With several buyable variants and no explicit pick, the sticky bar leads to the picker instead
+  // of silently adding the default variant the shopper may never have seen.
+  const needsVariantChoice =
+    selectedVariantId === null && variants.filter((variant) => variant.stock > 0).length > 1;
+
+  const showVariantPicker = () => {
+    if (!variantPickerElement) return;
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    variantPickerElement.scrollIntoView?.({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'center',
+    });
+    variantPickerElement
+      .querySelector<HTMLButtonElement>('button[aria-pressed="true"], button:not(:disabled)')
+      ?.focus({ preventScroll: true });
+  };
 
   const handleAddToCart = async () => {
     // Ensure cart exists before adding
@@ -158,7 +177,11 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             image={data.imageUrl || (data.images && data.images[0])}
           />
           {variants.length > 0 && (
-            <div className="space-y-2" aria-label={t('variants.label')}>
+            <div
+              ref={setVariantPickerElement}
+              className="space-y-2"
+              aria-label={t('variants.label')}
+            >
               <p className="text-sm font-semibold">{t('variants.label')}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {variants.map((variant) => {
@@ -237,10 +260,13 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
           title={data.title}
           price={displayPrice}
           currency={data.currency || 'IDR'}
-          variantLabel={selectedVariant ? variantLabel(selectedVariant) : null}
+          variantLabel={
+            selectedVariant && !needsVariantChoice ? variantLabel(selectedVariant) : null
+          }
+          actionLabel={needsVariantChoice ? t('variants.label') : undefined}
           isOutOfStock={isOutOfStock}
           isLoading={isProductInFlight(data.id, activeVariantId)}
-          onAddToCart={handleAddToCart}
+          onAddToCart={needsVariantChoice ? showVariantPicker : handleAddToCart}
         />
       ) : null}
     </>

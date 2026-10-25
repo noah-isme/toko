@@ -11,6 +11,8 @@ interface ProductStickyAddToCartProps {
   price: number;
   currency: string;
   variantLabel?: string | null;
+  /** Replaces the "Add to cart" text, e.g. "Choose a variant" when the button leads to the picker. */
+  actionLabel?: string;
   isOutOfStock: boolean;
   isLoading: boolean;
   onAddToCart: () => void;
@@ -28,6 +30,7 @@ export function ProductStickyAddToCart({
   price,
   currency,
   variantLabel,
+  actionLabel,
   isOutOfStock,
   isLoading,
   onAddToCart,
@@ -64,7 +67,7 @@ export function ProductStickyAddToCart({
           loadingLabel={t('adding')}
           className="min-h-[44px] shrink-0"
         >
-          {isOutOfStock ? t('outOfStock') : t('addToCart')}
+          {isOutOfStock ? t('outOfStock') : (actionLabel ?? t('addToCart'))}
         </GuardedButton>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 
 import { renderWithIntl } from '../utils/renderWithIntl';
 
@@ -136,22 +136,68 @@ describe('sticky mobile add-to-cart bar', () => {
     expect(observed[0]).toContainElement(screen.getByTestId('add-to-cart'));
     expect(screen.queryByTestId('sticky-add-to-cart-bar')).not.toBeInTheDocument();
 
+    // An explicit variant pick lets the bar add straight away.
+    await user.click(screen.getByRole('button', { name: /Walnut/ }));
     act(() => observerCallback?.([{ isIntersecting: false }]));
 
     const bar = screen.getByRole('region', { name: 'Quick add to cart' });
     expect(bar).toHaveClass('lg:hidden', 'fixed');
-    expect(within(bar).getByText('Oak Chair · Natural')).toBeInTheDocument();
+    expect(within(bar).getByText('Oak Chair · Walnut')).toBeInTheDocument();
     expect(document.body.dataset.stickyCta).toBe('');
 
     await user.click(within(bar).getByTestId('sticky-add-to-cart'));
     expect(state.mutate).toHaveBeenCalledWith(
-      expect.objectContaining({ productId: 'p1', variantId: 'v1', quantity: 1 }),
+      expect.objectContaining({ productId: 'p1', variantId: 'v2', quantity: 1 }),
     );
 
     act(() => observerCallback?.([{ isIntersecting: true }]));
 
     expect(screen.queryByTestId('sticky-add-to-cart-bar')).not.toBeInTheDocument();
     expect(document.body.dataset.stickyCta).toBeUndefined();
+  });
+
+  it('leads to the variant picker when several variants exist and none was chosen', async () => {
+    vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
+    const scrollIntoView = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollIntoView;
+    onTestFinished(() => {
+      Element.prototype.scrollIntoView = original;
+    });
+    const user = userEvent.setup();
+    renderWithIntl(<ProductDetail slug="oak-chair" />, { locale: 'en' });
+
+    act(() => observerCallback?.([{ isIntersecting: false }]));
+    const bar = screen.getByRole('region', { name: 'Quick add to cart' });
+    expect(within(bar).getByText('Oak Chair')).toBeInTheDocument();
+    const action = within(bar).getByTestId('sticky-add-to-cart');
+    expect(action).toHaveTextContent('Choose a variant');
+
+    await user.click(action);
+
+    expect(state.mutate).not.toHaveBeenCalled();
+    expect(scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({ block: 'center' }));
+    expect(screen.getByRole('button', { name: /Natural/ })).toHaveFocus();
+  });
+
+  it('adds directly when only one variant can be bought', async () => {
+    vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
+    state.product = {
+      ...detail,
+      variants: detail.variants?.map((variant) =>
+        variant.id === 'v2' ? { ...variant, stock: 0 } : variant,
+      ),
+    };
+    const user = userEvent.setup();
+    renderWithIntl(<ProductDetail slug="oak-chair" />, { locale: 'en' });
+
+    act(() => observerCallback?.([{ isIntersecting: false }]));
+    const action = screen.getByTestId('sticky-add-to-cart');
+    expect(action).toHaveTextContent('Add to cart');
+
+    await user.click(action);
+
+    expect(state.mutate).toHaveBeenCalledWith(expect.objectContaining({ variantId: 'v1' }));
   });
 
   it('shows the out-of-stock state in the bar', () => {
