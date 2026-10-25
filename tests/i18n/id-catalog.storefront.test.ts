@@ -31,6 +31,7 @@ const SHARED_WITH_ENGLISH = [
   'cart.view.summary.total',
   'catalog.chips.rating',
   'catalog.comparePage.rows.rating',
+  'catalog.filters.priceBetween',
   'catalog.listing.chips.discount',
   'checkout.header.breadcrumbCheckout',
   'checkout.header.title',
