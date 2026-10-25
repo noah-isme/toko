@@ -77,16 +77,24 @@ function navigatingAnchor(event: MouseEvent): { anchor: HTMLAnchorElement; url: 
 
 const LEAVE_EVENT = 'toko:unsaved-changes-leave';
 
-type LeaveEvent = CustomEvent<{ proceed: () => void }>;
+/** A dirty form's confirmation step: asks, then calls `next` only if the user discards. */
+type LeaveStep = (next: () => void) => void;
+
+type LeaveEvent = CustomEvent<{ steps: LeaveStep[] }>;
 
 /**
  * For navigation started outside a guarded form (e.g. sign-out in the admin shell):
- * runs `proceed` right away when no mounted form has unsaved changes, otherwise lets the
- * dirty form ask first and run `proceed` only if the user discards.
+ * runs `proceed` right away when no mounted form has unsaved changes. Otherwise every
+ * dirty form asks in turn, and `proceed` runs only once all of them were discarded.
  */
 export function confirmLeaveUnsaved(proceed: () => void): void {
-  const event: LeaveEvent = new CustomEvent(LEAVE_EVENT, { cancelable: true, detail: { proceed } });
-  if (window.dispatchEvent(event)) proceed();
+  const steps: LeaveStep[] = [];
+  window.dispatchEvent(new CustomEvent(LEAVE_EVENT, { detail: { steps } }) as LeaveEvent);
+  const run = (index: number) => {
+    if (index >= steps.length) proceed();
+    else steps[index](() => run(index + 1));
+  };
+  run(0);
 }
 
 /** Same path and query (only the hash may differ). */
@@ -113,6 +121,10 @@ function samePage(a: string, b: string): boolean {
  * In-app cases open the dialog rendered by `UnsavedChangesDialog`. Pass `when = false`
  * (e.g. reset the form baseline) after a successful save so the guard stays quiet.
  *
+ * After Discard, in-app paths re-arm right away if the form is still mounted, but tab
+ * close stays quiet until the form is clean again or unmounts, so a full-page fallback
+ * of the confirmed navigation does not ask a second time.
+ *
  * Known gaps: the history entry restored on "Keep editing" after back/forward is captured
  * when the form first becomes dirty, so a later Next.js `replaceState` (router.refresh,
  * search-param updates) is not reflected in it. Programmatic navigation started outside
@@ -123,6 +135,12 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
   const pendingRef = useRef<PendingNavigation | null>(null);
   /** Set once the user chose to leave, so the navigation they confirmed is let through. */
   const bypassRef = useRef(false);
+  /**
+   * Also set on Discard, but only cleared when the form becomes clean or unmounts: client
+   * navigation is asynchronous and may fall back to a full page load, whose `beforeunload`
+   * must not ask again after the user already chose to discard.
+   */
+  const discardedRef = useRef(false);
   const rearmTimerRef = useRef<number | undefined>(undefined);
   const whenRef = useRef(when);
 
@@ -136,6 +154,7 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
     if (!when) {
       // Clean again: a later edit must re-arm the guard.
       bypassRef.current = false;
+      discardedRef.current = false;
       return;
     }
 
@@ -143,7 +162,7 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
     const saved = { state: window.history.state as unknown, url: window.location.href };
 
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (bypassRef.current) return;
+      if (bypassRef.current || discardedRef.current) return;
       event.preventDefault();
       // Legacy browsers only show the prompt when returnValue is set.
       event.returnValue = '';
@@ -183,9 +202,8 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
     };
 
     const onLeaveRequest = (event: Event) => {
-      if (bypassRef.current || event.defaultPrevented) return;
-      event.preventDefault();
-      requestConfirmation({ proceed: (event as LeaveEvent).detail.proceed });
+      if (bypassRef.current) return;
+      (event as LeaveEvent).detail.steps.push((next) => requestConfirmation({ proceed: next }));
     };
 
     window.addEventListener('beforeunload', onBeforeUnload);
@@ -225,10 +243,13 @@ export function useUnsavedChangesGuard(when: boolean): UnsavedChangesGuard {
     pendingRef.current = null;
     setDialogOpen(false);
     bypassRef.current = true;
+    discardedRef.current = true;
     pending?.proceed();
     // Link clicks, history replays and `router.push` reach the router synchronously inside
     // `proceed`. If the form is still mounted afterwards (the router ignored a replayed
-    // same-document entry, or only the query changed), it is still dirty, so re-arm.
+    // same-document entry, or only the query changed), it is still dirty, so re-arm the
+    // in-app paths (clicks, back/forward, leave requests). Tab close stays quiet until the
+    // form is clean again or unmounts (see `discardedRef`).
     window.clearTimeout(rearmTimerRef.current);
     rearmTimerRef.current = window.setTimeout(() => {
       bypassRef.current = false;

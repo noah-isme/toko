@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -206,9 +206,58 @@ describe('useUnsavedChangesGuard', () => {
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
-    expect(fireBeforeUnload().defaultPrevented).toBe(true);
     await user.click(screen.getByRole('link', { name: 'Orders' }));
     expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
+  });
+
+  it('does not prompt on unload after Discard until the form is clean again', async () => {
+    const user = userEvent.setup();
+    // Client navigation is async and may fall back to a full page load.
+    render(<Harness onProgrammatic={() => {}} />);
+    await user.type(screen.getByLabelText('Field'), 'x');
+    await user.click(screen.getByRole('button', { name: 'programmatic' }));
+    await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    expect(fireBeforeUnload().defaultPrevented).toBe(false);
+
+    // Saving makes the form clean; the next edit arms tab close again.
+    await user.click(screen.getByRole('button', { name: 'save' }));
+    await user.type(screen.getByLabelText('Field'), 'y');
+    expect(fireBeforeUnload().defaultPrevented).toBe(true);
+  });
+
+  it('asks every dirty form before navigating from outside', async () => {
+    const user = userEvent.setup();
+    const signOut = vi.fn();
+    render(
+      <>
+        <div data-testid="first">
+          <Harness />
+        </div>
+        <div data-testid="second">
+          <Harness />
+        </div>
+        <button type="button" onClick={() => confirmLeaveUnsaved(signOut)}>
+          sign out
+        </button>
+      </>,
+    );
+    // Both harnesses share an input id, so find each input inside its own wrapper.
+    const first = within(screen.getByTestId('first')).getByRole('textbox');
+    const second = within(screen.getByTestId('second')).getByRole('textbox');
+    await user.type(first, 'x');
+    await user.type(second, 'y');
+
+    await user.click(screen.getByRole('button', { name: 'sign out' }));
+    await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
+    expect(signOut).not.toHaveBeenCalled();
+    // The second form asks too.
+    await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
+    expect(signOut).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
   it('lets navigation from outside the form ask first via confirmLeaveUnsaved', async () => {
