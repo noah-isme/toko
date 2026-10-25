@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -19,6 +20,7 @@ import { useAuthErrorMessage } from '@/entities/auth/hooks';
 import type { LoginInput } from '@/entities/auth/schemas';
 import { loginInputSchema } from '@/entities/auth/schemas';
 import { getErrorMessage } from '@/lib/api/utils';
+import { safeRedirectPath } from '@/shared/lib/safe-redirect';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
@@ -44,7 +46,10 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginInput) => {
     try {
       await login(values);
-      router.push('/');
+      // `?redirect=` comes from route guards and sign-in prompts (e.g. product
+      // alerts); read at submit time so the page needs no Suspense boundary.
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      router.push(safeRedirectPath(redirect) as Route);
     } catch (error) {
       const message = getErrorMessage(error, tErrors);
       setError('root', { message });
