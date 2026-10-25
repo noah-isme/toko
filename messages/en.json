@@ -2379,7 +2379,7 @@
       "noImages": "No gallery images.",
       "imageUrl": "Image URL {index}",
       "removeImage": "Remove image {index}",
-      "imagesHint": "Set as primary moves an image to the top and makes it the Thumbnail URL, the main photo on product cards and the product page. Reordering only updates the Thumbnail URL when it is empty or matches the current primary image. Drag rows or use the arrow buttons to reorder.",
+      "imagesHint": "Set as primary moves an image to the top and makes it the Thumbnail URL, the main photo on product cards and the product page. The Primary badge marks the image used as the Thumbnail URL. Reordering only updates the Thumbnail URL when it is empty or matches the first image. Drag rows or use the arrow buttons to reorder.",
       "imagePreview": "Preview of image {index}",
       "primaryImage": "Primary",
       "setPrimary": "Set as primary, image {index}",

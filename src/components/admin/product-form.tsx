@@ -375,6 +375,7 @@ export function ProductForm({
 
       <ProductImagesField
         images={values.images}
+        thumbnail={values.thumbnail}
         onChange={(images, reason) =>
           setValues((current) => ({
             ...current,

@@ -45,7 +45,9 @@ export type ImagesChangeReason = 'add' | 'edit' | 'remove' | 'move' | 'primary';
  * - `'move'` / `'remove'` that change the first saved image: the thumbnail follows only
  *   when it was empty or matched the previous first image, so a hand-picked thumbnail
  *   is never overwritten by an ordinary reorder.
- * - Typing in a row or adding one leaves the thumbnail alone.
+ * - `'edit'` of the first saved image: the thumbnail follows the corrected URL only when
+ *   it matched that image before and the row is still filled in.
+ * - Adding a row, or typing in any other row, leaves the thumbnail alone.
  */
 export function nextThumbnail(
   thumbnail: string,
@@ -56,11 +58,32 @@ export function nextThumbnail(
   const nextFirst = firstImageUrl(next);
   if (!nextFirst) return thumbnail;
   if (reason === 'primary') return nextFirst;
-  if (reason !== 'move' && reason !== 'remove') return thumbnail;
   const previousFirst = firstImageUrl(previous);
   if (nextFirst === previousFirst) return thumbnail;
   const current = thumbnail.trim();
+  if (reason === 'edit') {
+    const previousFirstIndex = previous.findIndex((url) => url.trim() !== '');
+    const editedIndex = previous.findIndex((url, index) => url !== next[index]);
+    const editedFirst =
+      previous.length === next.length &&
+      previousFirstIndex !== -1 &&
+      editedIndex === previousFirstIndex &&
+      next[editedIndex].trim() === nextFirst;
+    return editedFirst && current !== '' && current === previousFirst ? nextFirst : thumbnail;
+  }
+  if (reason !== 'move' && reason !== 'remove') return thumbnail;
   return current === '' || current === previousFirst ? nextFirst : thumbnail;
+}
+
+/**
+ * Index of the row the storefront shows as the main image: the first row matching the
+ * thumbnail or, with no thumbnail, the first saved row (product cards fall back to
+ * `images[0]`). -1 when the thumbnail is none of the rows.
+ */
+export function primaryImageIndex(images: readonly string[], thumbnail: string): number {
+  const current = thumbnail.trim();
+  if (current === '') return images.findIndex((url) => url.trim() !== '');
+  return images.findIndex((url) => url.trim() === current);
 }
 
 /** Only preview URLs the browser can load directly; anything else shows a placeholder. */
@@ -78,10 +101,12 @@ interface RowKeys {
 
 export interface ProductImagesFieldProps {
   images: string[];
+  /** The product's thumbnail; the row matching it is labelled as the primary image. */
+  thumbnail: string;
   onChange: (images: string[], reason: ImagesChangeReason) => void;
 }
 
-export function ProductImagesField({ images, onChange }: ProductImagesFieldProps) {
+export function ProductImagesField({ images, thumbnail, onChange }: ProductImagesFieldProps) {
   const t = useTranslations('admin.productForm');
   // Stable row identities so inputs and focus follow an image when it moves.
   const [rowKeys, setRowKeys] = useState<RowKeys>(() => ({
@@ -102,6 +127,8 @@ export function ProductImagesField({ images, onChange }: ProductImagesFieldProps
     }));
   }
   const keys = rowKeys.keys;
+  // The badge follows the thumbnail, which is what the storefront shows first.
+  const primaryIndex = primaryImageIndex(images, thumbnail);
 
   useEffect(() => {
     const pending = pendingFocus.current;
@@ -124,14 +151,23 @@ export function ProductImagesField({ images, onChange }: ProductImagesFieldProps
       }
     }
     row.querySelector<HTMLInputElement>('input')?.focus();
-  }, [keys]);
+    // primaryIndex too: "Set as primary" on the first row changes only the thumbnail.
+  }, [keys, primaryIndex]);
 
   const move = (from: number, to: number, focus?: FocusTarget) => {
     const target = Math.max(0, Math.min(images.length - 1, to));
-    if (from === target) return;
+    const primary = focus === 'primary';
+    if (from === target) {
+      // Already first, but not the thumbnail yet: only the thumbnail changes.
+      if (primary) {
+        pendingFocus.current = { key: keys[from], target: focus };
+        onChange(images, 'primary');
+        setAnnouncement(t('imagePrimarySet'));
+      }
+      return;
+    }
     if (focus) pendingFocus.current = { key: keys[from], target: focus };
     setRowKeys((current) => ({ ...current, keys: moveItem(current.keys, from, target) }));
-    const primary = focus === 'primary';
     onChange(moveItem(images, from, target), primary ? 'primary' : 'move');
     setAnnouncement(
       primary
@@ -158,9 +194,6 @@ export function ProductImagesField({ images, onChange }: ProductImagesFieldProps
     next[index] = url;
     onChange(next, 'edit');
   };
-
-  // Empty rows are dropped on save, so the badge marks the first image that will be saved.
-  const primaryIndex = images.findIndex((url) => url.trim() !== '');
 
   const endDrag = () => {
     setDragIndex(null);

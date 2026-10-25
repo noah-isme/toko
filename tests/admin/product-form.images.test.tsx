@@ -8,7 +8,11 @@ vi.mock('@/entities/admin/hooks', () => ({
 }));
 
 import { ProductForm, type ProductFormValues } from '@/components/admin/product-form';
-import { moveItem, nextThumbnail } from '@/components/admin/product-images-field';
+import {
+  moveItem,
+  nextThumbnail,
+  primaryImageIndex,
+} from '@/components/admin/product-images-field';
 import type { AdminProductInput } from '@/entities/admin/types';
 
 // Radix Switch measures itself with ResizeObserver, which jsdom lacks.
@@ -103,11 +107,34 @@ describe('nextThumbnail', () => {
     expect(nextThumbnail('x', before, ['a', 'c', 'b'], 'move')).toBe('x');
   });
 
-  it('ignores typing, adding, empty rows and an empty list', () => {
-    expect(nextThumbnail('a', before, ['z', 'b', 'c'], 'edit')).toBe('a');
+  it('follows a corrected first image only when the thumbnail matched it', () => {
+    expect(nextThumbnail('a', before, ['a2', 'b', 'c'], 'edit')).toBe('a2');
+    expect(nextThumbnail(' a ', ['', 'a', 'b'], ['', 'a2', 'b'], 'edit')).toBe('a2');
+    // A hand-picked or empty thumbnail stays.
+    expect(nextThumbnail('x', before, ['a2', 'b', 'c'], 'edit')).toBe('x');
+    expect(nextThumbnail('', before, ['a2', 'b', 'c'], 'edit')).toBe('');
+    // Another row was edited, or the first row was cleared.
+    expect(nextThumbnail('a', before, ['a', 'b2', 'c'], 'edit')).toBe('a');
+    expect(nextThumbnail('a', before, ['', 'b', 'c'], 'edit')).toBe('a');
+  });
+
+  it('ignores adding, empty rows and an empty list', () => {
     expect(nextThumbnail('a', before, [...before, ''], 'add')).toBe('a');
     expect(nextThumbnail('a', ['', 'a', 'b'], ['', 'b', 'a'], 'move')).toBe('b');
     expect(nextThumbnail('a', ['a'], [], 'remove')).toBe('a');
+  });
+});
+
+describe('primaryImageIndex', () => {
+  it('finds the row matching the thumbnail', () => {
+    expect(primaryImageIndex(['a', 'b'], ' b ')).toBe(1);
+    expect(primaryImageIndex(['a', ' b '], 'b')).toBe(1);
+    expect(primaryImageIndex(['a', 'b'], 't')).toBe(-1);
+  });
+
+  it('falls back to the first saved row without a thumbnail', () => {
+    expect(primaryImageIndex(['', 'a', 'b'], '')).toBe(1);
+    expect(primaryImageIndex(['', ' '], '')).toBe(-1);
   });
 });
 
@@ -222,11 +249,92 @@ describe('ProductForm images', () => {
     });
 
     await user.click(screen.getByRole('button', { name: 'Pindahkan gambar 2 ke atas' }));
+    // The thumbnail is none of the gallery images, so no row claims to be primary and
+    // every row (the first included) offers "Set as primary".
+    expect(screen.queryByTestId('product-form-image-primary')).not.toBeInTheDocument();
+    for (const position of [1, 2, 3]) {
+      expect(
+        screen.getByRole('button', { name: `Jadikan utama, gambar ${position}` }),
+      ).toBeEnabled();
+    }
     await user.click(screen.getByTestId('product-form-submit'));
 
     const input = onSubmit.mock.calls[0][0];
     expect(input.thumbnail).toBe('https://cdn.test/thumb.jpg');
     expect(input.images?.[0]).toBe('https://cdn.test/b.jpg');
+  });
+
+  it('badges the image matching the thumbnail, wherever it is', () => {
+    renderForm(undefined, { ...VALUES, thumbnail: 'https://cdn.test/b.jpg' });
+
+    const rows = screen.getAllByTestId('product-form-image-row');
+    expect(within(rows[1]).getByTestId('product-form-image-primary')).toBeInTheDocument();
+    expect(screen.getAllByTestId('product-form-image-primary')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Jadikan utama, gambar 1' })).toBeEnabled();
+    expect(
+      screen.queryByRole('button', { name: 'Jadikan utama, gambar 2' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('sets the first image as primary when the thumbnail is another image', async () => {
+    const user = userEvent.setup();
+    const { onSubmit } = renderForm(undefined, {
+      ...VALUES,
+      thumbnail: 'https://cdn.test/thumb.jpg',
+      images: ['https://cdn.test/a.jpg', 'https://cdn.test/b.jpg'],
+    });
+
+    expect(screen.queryByTestId('product-form-image-primary')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Jadikan utama, gambar 1' }));
+
+    expect(screen.getByTestId('product-form-thumbnail')).toHaveValue('https://cdn.test/a.jpg');
+    const rows = screen.getAllByTestId('product-form-image-row');
+    expect(within(rows[0]).getByTestId('product-form-image-primary')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Gambar dijadikan utama dan dipakai sebagai thumbnail.',
+    );
+    // The pressed button became the badge; focus stays on the row.
+    expect(screen.getByRole('button', { name: 'Pindahkan gambar 1 ke bawah' })).toHaveFocus();
+
+    await user.click(screen.getByTestId('product-form-submit'));
+    const input = onSubmit.mock.calls[0][0];
+    expect(input.thumbnail).toBe('https://cdn.test/a.jpg');
+    expect(input.images).toEqual(['https://cdn.test/a.jpg', 'https://cdn.test/b.jpg']);
+  });
+
+  it('does not badge a first image added to a product that only has a thumbnail', async () => {
+    const user = userEvent.setup();
+    const { onSubmit } = renderForm(undefined, {
+      ...VALUES,
+      thumbnail: 'https://cdn.test/thumb.jpg',
+      images: [],
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Tambah gambar' }));
+    await user.type(screen.getByRole('textbox', { name: 'URL gambar 1' }), '/img/a.jpg');
+
+    expect(screen.queryByTestId('product-form-image-primary')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Jadikan utama, gambar 1' })).toBeEnabled();
+    expect(screen.getByTestId('product-form-thumbnail')).toHaveValue('https://cdn.test/thumb.jpg');
+
+    await user.click(screen.getByTestId('product-form-submit'));
+    const input = onSubmit.mock.calls[0][0];
+    expect(input.thumbnail).toBe('https://cdn.test/thumb.jpg');
+    expect(input.images).toEqual(['/img/a.jpg']);
+  });
+
+  it('keeps the thumbnail on the first image while its URL is corrected', async () => {
+    const user = userEvent.setup();
+    renderForm(undefined, { ...VALUES, thumbnail: 'https://cdn.test/a.jpg' });
+
+    await user.type(screen.getByRole('textbox', { name: 'URL gambar 1' }), '?v=2');
+    expect(screen.getByTestId('product-form-thumbnail')).toHaveValue('https://cdn.test/a.jpg?v=2');
+    const rows = screen.getAllByTestId('product-form-image-row');
+    expect(within(rows[0]).getByTestId('product-form-image-primary')).toBeInTheDocument();
+
+    // It keeps following later reorders.
+    await user.click(screen.getByRole('button', { name: 'Pindahkan gambar 1 ke bawah' }));
+    expect(screen.getByTestId('product-form-thumbnail')).toHaveValue('https://cdn.test/b.jpg');
   });
 
   it('moves a thumbnail that matched the first image along with reorders', async () => {

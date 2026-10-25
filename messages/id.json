@@ -2379,7 +2379,7 @@
       "noImages": "Belum ada gambar galeri.",
       "imageUrl": "URL gambar {index}",
       "removeImage": "Hapus gambar {index}",
-      "imagesHint": "Jadikan utama memindahkan gambar ke urutan teratas dan menjadikannya URL thumbnail, foto utama di kartu produk dan halaman produk. Mengubah urutan hanya memperbarui URL thumbnail jika kosong atau sama dengan gambar utama saat ini. Seret baris atau gunakan tombol panah untuk mengubah urutan.",
+      "imagesHint": "Jadikan utama memindahkan gambar ke urutan teratas dan menjadikannya URL thumbnail, foto utama di kartu produk dan halaman produk. Lencana Utama menandai gambar yang dipakai sebagai URL thumbnail. Mengubah urutan hanya memperbarui URL thumbnail jika kosong atau sama dengan gambar pertama. Seret baris atau gunakan tombol panah untuk mengubah urutan.",
       "imagePreview": "Pratinjau gambar {index}",
       "primaryImage": "Utama",
       "setPrimary": "Jadikan utama, gambar {index}",

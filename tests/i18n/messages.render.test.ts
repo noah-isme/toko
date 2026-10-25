@@ -1986,7 +1986,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.productForm.imageUrl': ['URL gambar X', { index: 'X' }],
     'admin.productForm.removeImage': ['Hapus gambar X', { index: 'X' }],
     'admin.productForm.imagesHint':
-      'Jadikan utama memindahkan gambar ke urutan teratas dan menjadikannya URL thumbnail, foto utama di kartu produk dan halaman produk. Mengubah urutan hanya memperbarui URL thumbnail jika kosong atau sama dengan gambar utama saat ini. Seret baris atau gunakan tombol panah untuk mengubah urutan.',
+      'Jadikan utama memindahkan gambar ke urutan teratas dan menjadikannya URL thumbnail, foto utama di kartu produk dan halaman produk. Lencana Utama menandai gambar yang dipakai sebagai URL thumbnail. Mengubah urutan hanya memperbarui URL thumbnail jika kosong atau sama dengan gambar pertama. Seret baris atau gunakan tombol panah untuk mengubah urutan.',
     'admin.productForm.imagePreview': ['Pratinjau gambar X', { index: 'X' }],
     'admin.productForm.primaryImage': 'Utama',
     'admin.productForm.setPrimary': ['Jadikan utama, gambar X', { index: 'X' }],
@@ -4380,7 +4380,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.productForm.imageUrl': ['Image URL X', { index: 'X' }],
     'admin.productForm.removeImage': ['Remove image X', { index: 'X' }],
     'admin.productForm.imagesHint':
-      'Set as primary moves an image to the top and makes it the Thumbnail URL, the main photo on product cards and the product page. Reordering only updates the Thumbnail URL when it is empty or matches the current primary image. Drag rows or use the arrow buttons to reorder.',
+      'Set as primary moves an image to the top and makes it the Thumbnail URL, the main photo on product cards and the product page. The Primary badge marks the image used as the Thumbnail URL. Reordering only updates the Thumbnail URL when it is empty or matches the first image. Drag rows or use the arrow buttons to reorder.',
     'admin.productForm.imagePreview': ['Preview of image X', { index: 'X' }],
     'admin.productForm.primaryImage': 'Primary',
     'admin.productForm.setPrimary': ['Set as primary, image X', { index: 'X' }],
