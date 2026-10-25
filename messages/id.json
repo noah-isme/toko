@@ -1710,6 +1710,7 @@
       "items": "Produk dalam pesanan",
       "qtyPrice": "Jml {qty} - {price}",
       "subtotal": "Subtotal",
+      "rateProduct": "Beri ulasan",
       "statusTitle": "Status pesanan",
       "paymentSummary": "Ringkasan pembayaran",
       "status": "Status",

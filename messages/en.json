@@ -1710,6 +1710,7 @@
       "items": "Items in this order",
       "qtyPrice": "Qty {qty} - {price}",
       "subtotal": "Subtotal",
+      "rateProduct": "Rate this product",
       "statusTitle": "Order status",
       "paymentSummary": "Payment summary",
       "status": "Status",

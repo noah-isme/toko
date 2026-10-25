@@ -7,6 +7,8 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { OrderItemReviewCta } from './_components/OrderItemReviewCta';
+
 import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -56,6 +58,7 @@ export default function OrderDetailPage() {
   const statusClass = getStatusColor(order.status);
   const isPendingPayment = order.status.toLowerCase().includes('pending');
   const canCancel = order.status.toLowerCase() === 'pending_payment';
+  const canReview = order.status.toLowerCase() === 'delivered';
   const timeline = buildStatusTimeline(order);
 
   const handleDownloadInvoice = () => {
@@ -148,11 +151,20 @@ export default function OrderDetailPage() {
                       })}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">{t('orderDetail.subtotal')}</p>
-                    <p className="font-semibold">
-                      {fmt.currency(Number(item.subtotal) || 0, currency)}
-                    </p>
+                  <div className="flex flex-col items-end gap-2 text-right">
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t('orderDetail.subtotal')}</p>
+                      <p className="font-semibold">
+                        {fmt.currency(Number(item.subtotal) || 0, currency)}
+                      </p>
+                    </div>
+                    {canReview ? (
+                      <OrderItemReviewCta
+                        productId={item.productId}
+                        productSlug={item.productSlug}
+                        productTitle={item.productTitle}
+                      />
+                    ) : null}
                   </div>
                 </li>
               ))}
