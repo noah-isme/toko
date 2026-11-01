@@ -6,6 +6,7 @@ import { brands, categories, products as catalogProducts } from './fixtures';
 import { addressHandlers } from './handlers/addressHandlers';
 import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
+import { adminReportsHandlers } from './handlers.adminReports';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
@@ -462,6 +463,7 @@ export const handlers = [
     HttpResponse.json({ data: { message: 'verification email sent' } }),
   ),
   ...checkoutHandlers,
+  ...adminReportsHandlers,
   ...addressHandlers,
   ...paymentHandlers,
   ...customerOperationsHandlers,

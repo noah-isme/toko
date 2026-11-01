@@ -18,3 +18,19 @@ export type MockResult = Record<string, any> | unknown[];
 
 /** Returns `undefined` when the request is not one this resolver handles. */
 export type MockResolver = (req: MockRequest) => MockResult | undefined;
+
+/**
+ * A file attachment (e.g. a CSV export). Both the `/api/v1` route and MSW turn
+ * `{ file }` into a 200 response with the body sent verbatim and
+ * `Content-Disposition: attachment`, instead of JSON.
+ */
+export type MockFile = { body: string; contentType: string; filename: string };
+
+export function isMockFileResult(result: MockResult): result is { file: MockFile } {
+  return (
+    !Array.isArray(result) &&
+    typeof result.file === 'object' &&
+    result.file !== null &&
+    typeof result.file.body === 'string'
+  );
+}

@@ -3,6 +3,7 @@ import { stableUuid } from '../factories/product';
 import { adminOrders, adminProducts, brands, categories } from '../fixtures';
 
 import { isAdminRequest } from './auth';
+import { isRevenueOrder, resolveReports } from './reports';
 import { adminStore, type AdminStore } from './session';
 import type { MockRequest, MockResult } from './types';
 
@@ -163,14 +164,20 @@ function resolveProducts(
   return undefined;
 }
 
+/**
+ * Order counters. Revenue follows the backend revenue rule (PAID through
+ * DELIVERED, not fully refunded; fixtures carry no refunds), and
+ * averageOrderValue = totalRevenue / revenueOrders.
+ */
 function orderStats(admin: AdminStore) {
   const count = (status: AdminOrderStatus) =>
     admin.orders.filter((o) => o.status === status).length;
-  const billable = admin.orders.filter((o) => o.status !== 'CANCELLED');
+  const billable = admin.orders.filter(isRevenueOrder);
   const totalRevenue = billable.reduce((sum, o) => sum + o.total, 0);
   return {
     totalOrders: admin.orders.length,
     totalRevenue,
+    revenueOrders: billable.length,
     pendingOrders: count('PENDING_PAYMENT'),
     paidOrders: count('PAID'),
     shippedOrders: count('SHIPPED'),
@@ -225,7 +232,7 @@ function analyticsOverview(admin: AdminStore, range: string) {
     string,
     { productId: string; title: string; slug: string; unitsSold: number; revenue: number }
   >();
-  for (const order of admin.orders.filter((o) => o.status !== 'CANCELLED')) {
+  for (const order of admin.orders.filter(isRevenueOrder)) {
     for (const item of order.items) {
       const key = item.productId ?? item.slug;
       const entry = sold.get(key) ?? {
@@ -243,6 +250,7 @@ function analyticsOverview(admin: AdminStore, range: string) {
   return {
     range,
     totalRevenue: stats.totalRevenue,
+    revenueOrders: stats.revenueOrders,
     totalOrders: stats.totalOrders,
     totalCustomers: new Set(admin.orders.map((o) => o.userId)).size,
     totalProducts: admin.products.length,
@@ -273,6 +281,8 @@ export function resolveAdmin(req: MockRequest): MockResult | undefined {
   let result: MockResult | undefined;
   if (parts[0] === 'products') result = resolveProducts(admin, req, parts);
   else if (parts[0] === 'orders') result = resolveOrders(admin, req, parts);
+  else if (parts[0] === 'reports')
+    result = resolveReports(admin, req.method, parts, req.searchParams);
   else if (parts.length === 1 && req.method === 'GET' && parts[0] === 'categories') {
     result = { data: categories.map((c) => buildAdminTaxonomy(c, countBy('categoryId', c.id))) };
   } else if (parts.length === 1 && req.method === 'GET' && parts[0] === 'brands') {

@@ -213,8 +213,9 @@ export default function OrdersPage() {
                 {t('stats.revenue')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-2xl font-bold">
-              {currency(stats.data.totalRevenue)}
+            <CardContent>
+              <p className="text-2xl font-bold">{currency(stats.data.totalRevenue)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t('stats.revenueBasis')}</p>
             </CardContent>
           </Card>
           <Card>
@@ -231,8 +232,13 @@ export default function OrdersPage() {
                 {t('stats.averageOrderValue')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-2xl font-bold">
-              {currency(Math.round(stats.data.averageOrderValue))}
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {currency(Math.round(stats.data.averageOrderValue))}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t('stats.averageOrderValueBasis', { count: stats.data.revenueOrders ?? 0 })}
+              </p>
             </CardContent>
           </Card>
         </div>

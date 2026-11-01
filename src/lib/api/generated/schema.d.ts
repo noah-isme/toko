@@ -3988,7 +3988,7 @@ export interface paths {
         };
         /**
          * Sales trend (daily)
-         * @description Returns daily sales aggregates for the requested date range. Range is inclusive of `from` and exclusive of `to`.
+         * @description Returns daily sales aggregates for the requested date range, bucketed by tenant-local day (tenants.timezone). Range is inclusive of `from` and exclusive of `to`. When `from`/`to` are omitted the `days` window ends at the next tenant-local midnight. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md.
          */
         get: {
             parameters: {
@@ -4003,7 +4003,7 @@ export interface paths {
                      * @example 2025-12-01T00:00:00Z
                      */
                     to?: string;
-                    /** @description Number of days to look back when from/to are omitted */
+                    /** @description Number of whole tenant-local days to look back when from/to are omitted */
                     days?: number;
                 };
                 header?: never;
@@ -4023,7 +4023,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid date range */
+                /** @description Invalid date range or missing tenant (TENANT_REQUIRED) */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -4070,15 +4070,19 @@ export interface paths {
         };
         /**
          * Top products by qty
-         * @description Returns top-selling products ordered by quantity sold.
+         * @description Returns the tenant's top-selling products ordered by quantity sold (all time unless `from`/`to` are given). Item-level gross: sums order_items.subtotal of orders matching the revenue rule (partially refunded orders keep their full item value, fully refunded orders are excluded). Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Number of items to return */
+                    /** @description Number of items to return (values above 100 are clamped) */
                     limit?: number;
                     /** @description Number of items to skip */
                     offset?: number;
+                    /** @description Optional inclusive lower bound on order created_at (RFC3339) */
+                    from?: string;
+                    /** @description Optional exclusive upper bound on order created_at (RFC3339); must be after `from` */
+                    to?: string;
                 };
                 header?: never;
                 path?: never;
@@ -4096,6 +4100,13 @@ export interface paths {
                             data: components["schemas"]["AnalyticsTopProduct"][];
                         };
                     };
+                };
+                /** @description Invalid range or missing tenant (TENANT_REQUIRED) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
                 /** @description Unauthorized */
                 401: {
@@ -4137,11 +4148,15 @@ export interface paths {
         };
         /**
          * Overview for dashboard
-         * @description Aggregated order and revenue metrics for the requested date range.
+         * @description Aggregated order and revenue metrics for the requested date range (sum of /analytics/sales rows). Default window is `days` (default 30) whole tenant-local days. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md.
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    days?: number;
+                    from?: string;
+                    to?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -4385,6 +4400,7 @@ export interface paths {
                             /** Format: uuid */
                             productId: string;
                             salePrice: number;
+                            /** @description null or absent means unlimited; 0 is rejected with 400 */
                             stockLimit?: number | null;
                         }[];
                     };
@@ -6101,11 +6117,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Order statistics (admin) */
+        /**
+         * Order statistics (admin)
+         * @description Order counters for the tenant in [startDate, endDate). totalRevenue, revenueOrders and averageOrderValue follow the revenue rule; totalOrders and the status counters count every order. Note: a date-only startDate/endDate is UTC midnight here (unlike the /admin/reports endpoints, which use tenant-local midnight), so pass RFC3339 bounds with the tenant offset to get tenant-day totals. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md.
+         */
         get: {
             parameters: {
                 query?: {
+                    /** @description Inclusive lower bound, RFC3339 or YYYY-MM-DD (UTC midnight) */
                     startDate?: string;
+                    /** @description Exclusive upper bound, RFC3339 or YYYY-MM-DD (UTC midnight) */
                     endDate?: string;
                 };
                 header?: never;
@@ -6310,7 +6331,7 @@ export interface paths {
         };
         /**
          * Dashboard overview (admin)
-         * @description Revenue, order, customer, and product counters plus top products by revenue.
+         * @description Revenue, order, customer, and product counters plus top products by revenue (item-level gross of revenue-rule orders). totalRevenue, revenueOrders and averageOrderValue follow the revenue rule. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md.
          */
         get: {
             parameters: {
@@ -6350,6 +6371,348 @@ export interface paths {
                     content?: never;
                 };
                 /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/sales-by-category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sales by category (admin report)
+         * @description Item-level sales per category for the tenant in [from, to): units, distinct orders and gross item revenue (order_items.subtotal) of orders matching the revenue rule. Partially refunded orders keep their full item value; fully refunded orders are excluded, so totals can differ from order-level revenue. Products without a category are grouped as Uncategorized (categoryId null). Sorted by revenue desc.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="sales-by-category_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportSalesByCategory"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (admin required) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/sales-by-product": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sales by product (admin report, paginated)
+         * @description Item-level sales per product for the tenant in [from, to), same rule and amount basis as sales-by-category, sorted by revenue desc. format=csv ignores page/limit and streams up to 100,000 rows.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                    page?: number;
+                    limit?: number;
+                    /** @description Only products in this category (400 BAD_REQUEST if not a UUID) */
+                    categoryId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="sales-by-product_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportProductRow"][];
+                            pagination: components["schemas"]["Pagination"];
+                            range: components["schemas"]["AdminReportRange"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (admin required) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/conversion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Checkout conversion funnel (admin report)
+         * @description Carts created -> checkouts started (orders created) -> paid orders for the tenant in [from, to). checkoutsStarted = paidOrders + pendingOrders + cancelledOrders + refundedOrders. Rates are 4-decimal fractions, 0 when the denominator is 0, and can exceed 1 (a cart can be checked out several times). Approximation: anonymous carts that never reach checkout are included.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="conversion_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportConversion"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (admin required) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * New vs returning customers (admin report)
+         * @description Customers (signed-in users with at least one revenue-rule order in [from, to)) split into new (first revenue-rule order at this tenant is at or after from) and returning; each user counted once. revenueFromNew + revenueFromReturning + guestRevenue equals the range's net revenue. daily is per tenant-local day over customer orders only; daily rows do not sum to the summary.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="customers_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportCustomers"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (admin required) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
                 500: {
                     headers: {
                         [name: string]: unknown;
@@ -7157,7 +7520,7 @@ export interface components {
             reason: string;
             notes?: string;
         };
-        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
+        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. `stockLimit` is tri-state: `null` means unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry, absent means unlimited. `0` is rejected with 400. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
         FlashSaleCampaignUpdateRequest: {
             name?: string;
             slug?: string;
@@ -7177,7 +7540,7 @@ export interface components {
                 productId: string;
                 /** @description Must be lower than the product price */
                 salePrice: number;
-                /** @description null or absent means unlimited */
+                /** @description `null` = unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry absent = unlimited; integer must be >= 1 and >= `soldCount`; `0` is rejected with 400 */
                 stockLimit?: number | null;
             }[];
         };
@@ -7421,14 +7784,18 @@ export interface components {
             }[];
         };
         AdminOrderStats: {
+            /** @description All orders in range, any status */
             totalOrders: number;
-            /** @description Excludes cancelled orders */
+            /** @description Net revenue (IDR) of orders matching the revenue rule */
             totalRevenue: number;
+            /** @description Orders matching the revenue rule */
+            revenueOrders: number;
             pendingOrders: number;
             paidOrders: number;
             shippedOrders: number;
             deliveredOrders: number;
             cancelledOrders: number;
+            /** @description totalRevenue / revenueOrders (rounded), 0 when none */
             averageOrderValue: number;
         };
         AdminVoucher: {
@@ -7460,10 +7827,15 @@ export interface components {
         AdminAnalyticsOverview: {
             /** @enum {string} */
             range: "7d" | "30d" | "90d" | "all";
+            /** @description Net revenue (IDR) of orders matching the revenue rule */
             totalRevenue: number;
+            /** @description Orders matching the revenue rule */
+            revenueOrders: number;
+            /** @description All orders in range, any status */
             totalOrders: number;
             totalCustomers: number;
             totalProducts: number;
+            /** @description totalRevenue / revenueOrders (rounded), 0 when none */
             averageOrderValue: number;
             pendingOrders?: number;
             paidOrders?: number;
@@ -7478,6 +7850,109 @@ export interface components {
                 unitsSold: number;
                 revenue: number;
             }[];
+        };
+        AdminReportRange: {
+            /**
+             * Format: date-time
+             * @description Resolved start, RFC3339 with the tenant offset
+             */
+            from: string;
+            /**
+             * Format: date-time
+             * @description Resolved exclusive end, RFC3339 with the tenant offset
+             */
+            to: string;
+            /** @description IANA timezone used (UTC when the tenant value is empty or invalid) */
+            timezone: string;
+        };
+        AdminReportCategoryRow: {
+            /**
+             * Format: uuid
+             * @description null for Uncategorized
+             */
+            categoryId: string | null;
+            categoryName: string;
+            categorySlug: string | null;
+            unitsSold: number;
+            /** @description Distinct orders containing the category */
+            orders: number;
+            /** @description Gross item revenue (IDR) */
+            revenue: number;
+            /** @description revenue / totalRevenue, 4 decimals */
+            share: number;
+        };
+        AdminReportSalesByCategory: components["schemas"]["AdminReportRange"] & {
+            totalRevenue: number;
+            totalUnits: number;
+            rows: components["schemas"]["AdminReportCategoryRow"][];
+        };
+        AdminReportProductRow: {
+            /** Format: uuid */
+            productId: string | null;
+            /** @description Title as recorded on the order items */
+            title: string;
+            slug: string;
+            /** Format: uuid */
+            categoryId: string | null;
+            /** @description Uncategorized when the product has no category */
+            categoryName: string;
+            unitsSold: number;
+            orders: number;
+            /** @description Gross item revenue (IDR) */
+            revenue: number;
+        };
+        AdminReportConversion: components["schemas"]["AdminReportRange"] & {
+            /** @description Carts (incl. anonymous) created in range */
+            cartsCreated: number;
+            /** @description Orders created in range (one per checkout) */
+            checkoutsStarted: number;
+            /** @description Orders matching the revenue rule (includes partially refunded) */
+            paidOrders: number;
+            /** @description PENDING_PAYMENT */
+            pendingOrders: number;
+            /** @description CANCELLED */
+            cancelledOrders: number;
+            /** @description Revenue-status orders fully refunded (PENDING+SUCCEEDED refunds >= total) */
+            refundedOrders: number;
+            /** @description Net revenue (IDR) of paidOrders */
+            paidRevenue: number;
+            /** @description PENDING+SUCCEEDED refunds recorded against orders created in range */
+            refundedAmount: number;
+            /** @description checkoutsStarted / cartsCreated */
+            checkoutRate: number;
+            /** @description paidOrders / checkoutsStarted */
+            paymentRate: number;
+            /** @description paidOrders / cartsCreated */
+            conversionRate: number;
+        };
+        AdminReportCustomersDay: {
+            /**
+             * Format: date
+             * @description Tenant-local date
+             */
+            day: string;
+            /** @description Users whose first revenue-rule order at this tenant is on this day */
+            newCustomers: number;
+            /** @description Users ordering this day whose first order was on an earlier day */
+            returningCustomers: number;
+            /** @description Customer (non-guest) revenue-rule orders */
+            orders: number;
+            /** @description Net revenue (IDR) of those orders */
+            revenue: number;
+        };
+        AdminReportCustomers: components["schemas"]["AdminReportRange"] & {
+            newCustomers: number;
+            returningCustomers: number;
+            totalCustomers: number;
+            /** @description returningCustomers / totalCustomers, 4 decimals */
+            repeatRate: number;
+            ordersFromNew: number;
+            ordersFromReturning: number;
+            revenueFromNew: number;
+            revenueFromReturning: number;
+            guestOrders: number;
+            guestRevenue: number;
+            daily: components["schemas"]["AdminReportCustomersDay"][];
         };
         CheckoutRequest: {
             /**
@@ -7566,14 +8041,15 @@ export interface components {
         AnalyticsSalesDay: {
             /**
              * Format: date-time
-             * @description Aggregation day
+             * @description Tenant-local midnight of the aggregation day, with the tenant offset (e.g. 2026-10-01T00:00:00+07:00)
+             * @example 2026-10-01T00:00:00+07:00
              */
             day: string;
-            /** @description Paid orders in the period */
+            /** @description Orders matching the revenue rule (PAID through DELIVERED, not fully refunded) */
             paid_orders: number;
-            /** @description Total orders in the period */
+            /** @description Total orders in the period (any status) */
             all_orders: number;
-            /** @description Gross revenue from paid orders in IDR */
+            /** @description Net revenue in IDR (pricing_total minus PENDING/SUCCEEDED refunds) of revenue-rule orders */
             revenue: number;
         };
         AnalyticsTopProduct: {
@@ -7582,9 +8058,9 @@ export interface components {
              * @description Product ID
              */
             product_id: string;
-            /** @description Total units sold */
+            /** @description Total units sold in revenue-rule orders */
             qty_sold: number;
-            /** @description Gross revenue for the product in IDR */
+            /** @description Sum of order_items.subtotal (gross item value, IDR) in revenue-rule orders */
             gross: number;
         };
         Review: {
@@ -8332,7 +8808,19 @@ export interface components {
         };
     };
     responses: never;
-    parameters: never;
+    parameters: {
+        /**
+         * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+         * @example 2026-10-01
+         */
+        ReportFrom: string;
+        /**
+         * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+         * @example 2026-11-01
+         */
+        ReportTo: string;
+        ReportFormat: "json" | "csv";
+    };
     requestBodies: never;
     headers: never;
     pathItems: never;

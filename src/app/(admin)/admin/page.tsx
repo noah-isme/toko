@@ -44,11 +44,12 @@ export default function AdminDashboard() {
   }
 
   const data = overview.data;
-  const stats = [
+  const stats: { label: string; value: string; icon: typeof DollarSign; hint?: string }[] = [
     {
       label: t('stats.revenue'),
       value: currency(data?.totalRevenue ?? 0),
       icon: DollarSign,
+      hint: t('stats.revenueBasis'),
     },
     { label: t('stats.orders'), value: String(data?.totalOrders ?? 0), icon: ShoppingCart },
     { label: t('stats.products'), value: String(data?.totalProducts ?? 0), icon: Package },
@@ -94,6 +95,9 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
+                {stat.hint ? (
+                  <p className="mt-1 text-xs text-muted-foreground">{stat.hint}</p>
+                ) : null}
               </CardContent>
             </Card>
           );
@@ -107,8 +111,13 @@ export default function AdminDashboard() {
               {t('stats.averageOrderValue')}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-bold">
-            {currency(Math.round(data?.averageOrderValue ?? 0))}
+          <CardContent>
+            <p className="text-2xl font-bold">
+              {currency(Math.round(data?.averageOrderValue ?? 0))}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t('stats.averageOrderValueBasis', { count: data?.revenueOrders ?? 0 })}
+            </p>
           </CardContent>
         </Card>
         <Card>

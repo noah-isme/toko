@@ -70,6 +70,7 @@ vi.mock('@/entities/admin/hooks', () => ({
     loaded({
       range: '30d',
       totalRevenue: 1500000,
+      revenueOrders: 1,
       totalOrders: 1,
       totalCustomers: 1,
       totalProducts: 1,
@@ -108,6 +109,9 @@ describe('admin UI in English', () => {
 
     expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
     expect(screen.getByText('Total Revenue')).toBeInTheDocument();
+    // Revenue is net under the revenue rule and AOV divides by revenue orders.
+    expect(screen.getByText('Net of refunds, paid to delivered orders')).toBeInTheDocument();
+    expect(screen.getByText('Across 1 paid order')).toBeInTheDocument();
     expect(screen.getByText('Recent Orders')).toBeInTheDocument();
     expect(screen.getByText('3 sold')).toBeInTheDocument();
     expect(screen.getAllByText(money('IDR 1,500,000')).length).toBeGreaterThan(0);
@@ -148,6 +152,10 @@ describe('admin UI in English', () => {
       'page',
     );
     expect(within(nav).getByRole('link', { name: 'Audit Logs' })).toBeInTheDocument();
+    expect(within(nav).getByRole('link', { name: 'Reports' })).toHaveAttribute(
+      'href',
+      '/admin/reports',
+    );
 
     auth.current = { isLoading: false, isAuthenticated: true, isAdmin: false };
     renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
@@ -194,6 +202,7 @@ describe('admin UI in Indonesian (default)', () => {
     const nav = screen.getByRole('navigation', { name: 'Bagian admin' });
     expect(within(nav).getByRole('link', { name: 'Dasbor' })).toBeInTheDocument();
     expect(within(nav).getByRole('link', { name: 'Log Audit' })).toBeInTheDocument();
+    expect(within(nav).getByRole('link', { name: 'Laporan' })).toBeInTheDocument();
   });
 });
 
