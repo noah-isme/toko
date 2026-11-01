@@ -1,5 +1,7 @@
 import { apiClient } from '../apiClient';
 
+import { idempotencyHeaders } from '@/shared/lib/idempotency';
+
 export type ReturnStatus =
   | 'REQUESTED'
   | 'APPROVED'
@@ -46,10 +48,21 @@ export const customerOperationsApi = {
     });
     return response.data ?? [];
   },
-  async createReturn(orderId: string, reason: string, notes?: string): Promise<CustomerReturn> {
+  /** `idempotencyKey` is sent as `Idempotency-Key`; reuse it when retrying the same request. */
+  async createReturn(
+    orderId: string,
+    reason: string,
+    notes?: string,
+    options: { idempotencyKey?: string } = {},
+  ): Promise<CustomerReturn> {
     const response = await apiClient<{ data: CustomerReturn }>(
       `/orders/${encodeURIComponent(orderId)}/returns`,
-      { method: 'POST', requiresAuth: true, body: JSON.stringify({ reason, notes }) },
+      {
+        method: 'POST',
+        requiresAuth: true,
+        body: JSON.stringify({ reason, notes }),
+        headers: idempotencyHeaders(options.idempotencyKey),
+      },
     );
     return response.data;
   },

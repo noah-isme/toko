@@ -47,7 +47,7 @@ export function BackToTop({ threshold = 400, className }: BackToTopProps) {
       onClick={handleClick}
       aria-label={t('backToTop')}
       className={cn(
-        'prm:no-anim fixed bottom-24 right-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-colors duration-150 ease-out hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:bottom-8',
+        'prm:no-anim fixed bottom-24 right-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-colors duration-150 ease-out hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:bottom-8 [body[data-sticky-cta]_&]:bottom-[calc(9.5rem+env(safe-area-inset-bottom))] md:[body[data-sticky-cta]_&]:bottom-24 lg:[body[data-sticky-cta]_&]:bottom-8',
         className,
       )}
     >

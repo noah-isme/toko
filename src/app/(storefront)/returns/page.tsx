@@ -9,6 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { customerOperationsApi, type CustomerReturn } from '@/lib/api/services/customerOperations';
 import { FULL_DATE_TIME, useFormat } from '@/shared/i18n/use-format';
+import {
+  isIdempotentReplay,
+  isOrderIdempotencyEnabled,
+  useIdempotencyKey,
+} from '@/shared/lib/idempotency';
 
 export default function ReturnsPage() {
   const t = useTranslations('account.returns');
@@ -23,6 +28,7 @@ export default function ReturnsPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const idempotency = useIdempotencyKey({ enabled: isOrderIdempotencyEnabled() });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -42,15 +48,30 @@ export default function ReturnsPage() {
     event.preventDefault();
     setSaving(true);
     setMessage(null);
+    const payload = { orderId: orderId.trim(), reason: reason.trim(), notes: notes.trim() };
     try {
-      await customerOperationsApi.createReturn(orderId.trim(), reason.trim(), notes.trim());
+      // Same form contents after a network failure -> same key, so the API can drop a duplicate.
+      await customerOperationsApi.createReturn(payload.orderId, payload.reason, payload.notes, {
+        idempotencyKey: idempotency.getKey(JSON.stringify(payload)),
+      });
+      idempotency.settle();
       setOrderId('');
       setReason('');
       setNotes('');
       setMessage(t('created'));
       await load();
-    } catch {
-      setMessage(t('createFailed'));
+    } catch (error) {
+      idempotency.settle(error);
+      if (isIdempotentReplay(error)) {
+        // An earlier attempt with this key already reached the server; show what it created.
+        setOrderId('');
+        setReason('');
+        setNotes('');
+        setMessage(t('alreadySubmitted'));
+        await load();
+      } else {
+        setMessage(t('createFailed'));
+      }
     } finally {
       setSaving(false);
     }

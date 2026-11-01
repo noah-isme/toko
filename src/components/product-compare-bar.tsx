@@ -29,7 +29,7 @@ export function CompareBar() {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 md:bottom-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 md:bottom-6 [body[data-sticky-cta]_&]:bottom-[calc(9.5rem+env(safe-area-inset-bottom))] md:[body[data-sticky-cta]_&]:bottom-24 lg:[body[data-sticky-cta]_&]:bottom-6">
       <div className="pointer-events-auto flex w-full max-w-2xl flex-wrap items-center gap-3 rounded-xl border border-border bg-background/95 p-3 shadow-lg backdrop-blur">
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <GitCompare className="h-4 w-4" aria-hidden="true" />

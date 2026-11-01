@@ -50,7 +50,10 @@ export function resolveOrderInvoice(orderId: string): MockResult {
 
 const INVOICE_PATH = /^orders\/([^/]+)\/invoice$/;
 
-/** Order history (`status`, `page`, `limit`, plus `empty`/`error` test switches) and detail. */
+/**
+ * Order history (`status`, `page`, `limit`, plus `empty`/`error` test switches), detail and
+ * cancel (`Idempotency-Key` is accepted and ignored, as the API treats it as optional).
+ */
 export const resolveOrders: MockResolver = ({ path, method, searchParams }) => {
   const invoice = method === 'GET' ? INVOICE_PATH.exec(path) : null;
   if (invoice) return resolveOrderInvoice(decodeURIComponent(invoice[1]));
@@ -74,6 +77,14 @@ export const resolveOrders: MockResolver = ({ path, method, searchParams }) => {
       data: filtered.slice(start, start + limit),
       meta: { page, limit, total: filtered.length, totalPages: Math.ceil(filtered.length / limit) },
     };
+  }
+
+  const cancelMatch = /^orders\/([^/]+)\/cancel$/.exec(path);
+  if (cancelMatch && method === 'POST') {
+    if (cancelMatch[1] === 'non-existent-order') {
+      return { status: 404, error: { code: 'NOT_FOUND', message: 'Order not found' } };
+    }
+    return { data: { status: 'cancelled' } };
   }
 
   if (path.startsWith('orders/') && method === 'GET') {

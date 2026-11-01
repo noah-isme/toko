@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Locate, MapPin } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type HTMLAttributes } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { addressInputSchema, isAddressValidationKey, type AddressInput } from '../schemas';
@@ -87,6 +87,10 @@ export function AddressForm({
   const watchedCity = useWatch({ control: form.control, name: 'city' });
   const watchedProvince = useWatch({ control: form.control, name: 'province' });
   const watchedPostalCode = useWatch({ control: form.control, name: 'postalCode' });
+  const watchedCountry = useWatch({ control: form.control, name: 'country' });
+  // Indonesian postal codes are 5 digits; other countries may use letters, so keep the full
+  // keyboard there (the schema accepts alphanumeric codes).
+  const postalInputMode = isIndonesia(watchedCountry) ? 'numeric' : 'text';
 
   const regionMatch = useMemo(() => {
     const provinceName = normalizeText(watchedProvince ?? '');
@@ -576,6 +580,8 @@ export function AddressForm({
           name="phone"
           error={errorText(errors.phone?.message)}
           autoComplete="tel"
+          type="tel"
+          inputMode="tel"
           register={form.register}
           disabled={isSubmitting}
         />
@@ -612,13 +618,14 @@ export function AddressForm({
           name="postalCode"
           error={errorText(errors.postalCode?.message)}
           autoComplete="postal-code"
+          inputMode={postalInputMode}
           register={form.register}
           disabled={isSubmitting}
         />
         <Field
           name="country"
           error={errorText(errors.country?.message)}
-          autoComplete="country-name"
+          autoComplete="country"
           register={form.register}
           disabled={isSubmitting}
         />
@@ -659,11 +666,22 @@ interface FieldProps {
   error?: string;
   disabled?: boolean;
   autoComplete?: string;
+  type?: 'text' | 'tel';
+  inputMode?: HTMLAttributes<HTMLInputElement>['inputMode'];
   optional?: boolean;
   register: RegisterFn;
 }
 
-function Field({ name, error, disabled, autoComplete, optional, register }: FieldProps) {
+function Field({
+  name,
+  error,
+  disabled,
+  autoComplete,
+  type = 'text',
+  inputMode,
+  optional,
+  register,
+}: FieldProps) {
   const t = useTranslations('checkout.address.form');
   const label = t(`fields.${name}`);
   const errorId = error ? `${name}-error` : undefined;
@@ -682,6 +700,8 @@ function Field({ name, error, disabled, autoComplete, optional, register }: Fiel
         {...attributes}
         placeholder={label}
         autoComplete={autoComplete}
+        type={type}
+        inputMode={inputMode}
         disabled={disabled}
       />
       {error ? (
@@ -691,6 +711,11 @@ function Field({ name, error, disabled, autoComplete, optional, register }: Fiel
       ) : null}
     </div>
   );
+}
+
+function isIndonesia(country: string | undefined) {
+  const value = normalizeText(country ?? '');
+  return value === '' || value === 'id' || value === 'idn' || value === 'indonesia';
 }
 
 function normalizePostalCode(value: string) {

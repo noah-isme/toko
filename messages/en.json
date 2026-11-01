@@ -672,11 +672,16 @@
         "label": "Choose a variant",
         "available": "{count} available",
         "soldOut": "Sold out",
-        "selectColor": "Select {name} color"
+        "selectColor": "Select {name} color",
+        "lowStock": "Only {count} left"
       },
       "adding": "Adding…",
       "addToCart": "Add to cart",
-      "outOfStock": "Out of stock"
+      "outOfStock": "Out of stock",
+      "stickyBar": {
+        "label": "Quick add to cart",
+        "from": "From"
+      }
     },
     "gallery": {
       "noImage": "No image available",
@@ -1209,7 +1214,10 @@
         "checking": "Checking payment status...",
         "contacting": "Contacting the payment provider.",
         "current": "Current status: <strong>{status}</strong>",
-        "checkError": "Could not check the payment status. Please try again."
+        "checkError": "Could not check the payment status. Please try again.",
+        "stillWaiting": "Still waiting for payment confirmation",
+        "stillWaitingDescription": "We stopped checking automatically. If you have already paid, check again now or come back in a little while.",
+        "checkAgain": "Check again"
       },
       "instructions": {
         "title": "Payment instructions",
@@ -1224,7 +1232,16 @@
         "proofUploaded": "Proof sent",
         "uploading": "Uploading...",
         "upload": "Upload proof",
-        "uploadFailed": "Failed to upload the proof of payment."
+        "uploadFailed": "Failed to upload the proof of payment.",
+        "proofHint": "JPG, PNG, WebP, GIF, HEIC, or PDF, up to {max} MB.",
+        "proofUnsupported": "Unsupported file format. Use an image (JPG, PNG, WebP, GIF, HEIC) or a PDF.",
+        "proofTooLarge": "File size exceeds {max} MB.",
+        "proofRequestTooLarge": "The file is too large to upload. Choose a smaller file.",
+        "proofSelected": "Selected file: {name}",
+        "proofPreviewAlt": "Payment proof preview",
+        "proofErrorUnauthorized": "Your session has ended. Sign in again, then upload the proof.",
+        "proofErrorNotFound": "We could not find this order. Refresh the page and try again.",
+        "proofErrorRejected": "The file was not accepted. Choose another file and try again."
       }
     },
     "success": {
@@ -1774,6 +1791,7 @@
       "items": "Items in this order",
       "qtyPrice": "Qty {qty} - {price}",
       "subtotal": "Subtotal",
+      "rateProduct": "Rate this product",
       "statusTitle": "Order status",
       "paymentSummary": "Payment summary",
       "status": "Status",
@@ -1794,7 +1812,8 @@
       "toast": {
         "cancelled": "Order cancelled",
         "cancelledDescription": "Your order has been cancelled.",
-        "cancelFailed": "Failed to cancel the order. Please try again."
+        "cancelFailed": "Failed to cancel the order. Please try again.",
+        "cancelAlreadySubmitted": "Your cancellation was already submitted. The order status will update shortly."
       }
     },
     "invoice": {
@@ -2148,7 +2167,8 @@
       "toast": {
         "cancelled": "Order cancelled",
         "cancelledDescription": "Your order has been cancelled. Our team will process a refund if needed.",
-        "cancelFailed": "Failed to cancel the order. Please try again."
+        "cancelFailed": "Failed to cancel the order. Please try again.",
+        "cancelAlreadySubmitted": "Your cancellation was already submitted. The order status will update shortly."
       }
     },
     "tracking": {
@@ -2203,7 +2223,8 @@
       "submit": "Submit request",
       "listTitle": "My requests",
       "empty": "No return requests yet.",
-      "order": "Order {orderId}"
+      "order": "Order {orderId}",
+      "alreadySubmitted": "This request was already submitted. Check the list below for its status."
     }
   },
   "errors": {

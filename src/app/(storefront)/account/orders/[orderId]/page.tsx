@@ -6,6 +6,8 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { OrderItemReviewCta } from './_components/OrderItemReviewCta';
+
 import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -14,6 +16,7 @@ import { canOfferInvoice, isCancelledStatus } from '@/entities/orders/api/invoic
 import { InvoiceDownloadButton } from '@/entities/orders/ui/InvoiceDownloadButton';
 import { humanizeStatus, orderStatusLabel, type AccountTranslator } from '@/shared/i18n/status';
 import { useFormat } from '@/shared/i18n/use-format';
+import { isIdempotentReplay } from '@/shared/lib/idempotency';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
 import { useToast } from '@/shared/ui/toast';
@@ -57,6 +60,7 @@ export default function OrderDetailPage() {
   const statusClass = getStatusColor(order.status);
   const isPendingPayment = order.status.toLowerCase().includes('pending');
   const canCancel = order.status.toLowerCase() === 'pending_payment';
+  const canReview = order.status.toLowerCase() === 'delivered';
   const timeline = buildStatusTimeline(order);
 
   return (
@@ -139,11 +143,20 @@ export default function OrderDetailPage() {
                       })}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">{t('orderDetail.subtotal')}</p>
-                    <p className="font-semibold">
-                      {fmt.currency(Number(item.subtotal) || 0, currency)}
-                    </p>
+                  <div className="flex flex-col items-end gap-2 text-right">
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t('orderDetail.subtotal')}</p>
+                      <p className="font-semibold">
+                        {fmt.currency(Number(item.subtotal) || 0, currency)}
+                      </p>
+                    </div>
+                    {canReview ? (
+                      <OrderItemReviewCta
+                        productId={item.productId}
+                        productSlug={item.productSlug}
+                        productTitle={item.productTitle}
+                      />
+                    ) : null}
                   </div>
                 </li>
               ))}
@@ -311,6 +324,12 @@ export default function OrderDetailPage() {
             });
             setCancelOpen(false);
           } catch (error) {
+            if (isIdempotentReplay(error)) {
+              // An earlier attempt of this cancel already reached the server.
+              toast({ description: t('orderDetail.toast.cancelAlreadySubmitted') });
+              setCancelOpen(false);
+              return;
+            }
             toast({
               variant: 'destructive',
               description: t('orderDetail.toast.cancelFailed'),

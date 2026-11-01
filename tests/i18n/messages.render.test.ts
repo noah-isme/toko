@@ -304,6 +304,9 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'product.detail.variants.label': 'Pilih varian',
     'product.detail.variants.available': ['3 tersedia', { count: 3 }],
     'product.detail.variants.soldOut': 'Habis',
+    'product.detail.variants.lowStock': ['Hanya tersisa 3', { count: 3 }],
+    'product.detail.stickyBar.label': 'Tambah cepat ke keranjang',
+    'product.detail.stickyBar.from': 'Mulai',
     'product.detail.adding': 'Menambahkan…',
     'product.detail.addToCart': 'Tambah ke keranjang',
     'product.detail.outOfStock': 'Stok habis',
@@ -702,6 +705,10 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.watcher.checking': 'Memeriksa status pembayaran...',
     'checkout.review.watcher.contacting': 'Menghubungi penyedia pembayaran.',
     'checkout.review.watcher.current': ['Status saat ini: EXPIRED', { status: 'EXPIRED' }],
+    'checkout.review.watcher.stillWaiting': 'Masih menunggu konfirmasi pembayaran',
+    'checkout.review.watcher.stillWaitingDescription':
+      'Kami berhenti memeriksa otomatis. Jika Anda sudah membayar, periksa lagi sekarang atau kembali beberapa saat lagi.',
+    'checkout.review.watcher.checkAgain': 'Periksa lagi',
     'checkout.review.watcher.checkError':
       'Tidak dapat memeriksa status pembayaran. Silakan coba lagi.',
     'checkout.review.instructions.title': 'Instruksi pembayaran',
@@ -713,6 +720,26 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.instructions.qrTitle': 'QR pembayaran',
     'checkout.review.instructions.qrAlt': 'QR pembayaran',
     'checkout.review.instructions.proofLabel': 'Bukti pembayaran (opsional)',
+    'checkout.review.instructions.proofHint': [
+      'JPG, PNG, WebP, GIF, HEIC, atau PDF, maksimal 5 MB.',
+      { max: 5 },
+    ],
+    'checkout.review.instructions.proofUnsupported':
+      'Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF, HEIC) atau PDF.',
+    'checkout.review.instructions.proofTooLarge': ['Ukuran file melebihi 5 MB.', { max: 5 }],
+    'checkout.review.instructions.proofRequestTooLarge':
+      'File terlalu besar untuk diunggah. Pilih file yang lebih kecil.',
+    'checkout.review.instructions.proofErrorUnauthorized':
+      'Sesi Anda telah berakhir. Masuk kembali, lalu unggah bukti pembayaran.',
+    'checkout.review.instructions.proofErrorNotFound':
+      'Pesanan ini tidak ditemukan. Muat ulang halaman lalu coba lagi.',
+    'checkout.review.instructions.proofErrorRejected':
+      'File tidak diterima. Pilih file lain lalu coba lagi.',
+    'checkout.review.instructions.proofSelected': [
+      'File dipilih: bukti.pdf',
+      { name: 'bukti.pdf' },
+    ],
+    'checkout.review.instructions.proofPreviewAlt': 'Pratinjau bukti pembayaran',
     'checkout.review.instructions.proofUploaded': 'Bukti terkirim',
     'checkout.review.instructions.uploading': 'Mengunggah...',
     'checkout.review.instructions.upload': 'Unggah bukti',
@@ -1167,6 +1194,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.orderDetail.items': 'Produk dalam pesanan',
     'account.orderDetail.qtyPrice': ['Jml 3 - Rp 10.000', { qty: 3, price: 'Rp 10.000' }],
     'account.orderDetail.subtotal': 'Subtotal',
+    'account.orderDetail.rateProduct': 'Beri ulasan',
     'account.orderDetail.statusTitle': 'Status pesanan',
     'account.orderDetail.paymentSummary': 'Ringkasan pembayaran',
     'account.orderDetail.status': 'Status',
@@ -1189,6 +1217,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.orderDetail.toast.cancelled': 'Pesanan dibatalkan',
     'account.orderDetail.toast.cancelledDescription': 'Pesanan Anda sudah dibatalkan.',
     'account.orderDetail.toast.cancelFailed': 'Gagal membatalkan pesanan. Silakan coba lagi.',
+    'account.orderDetail.toast.cancelAlreadySubmitted':
+      'Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui.',
     'account.cancelModal.reasons.changedMind': 'Berubah pikiran',
     'account.cancelModal.reasons.betterPrice': 'Menemukan harga lebih baik',
     'account.cancelModal.reasons.accidental': 'Pesanan tidak sengaja dibuat',
@@ -1482,6 +1512,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.confirmation.toast.cancelledDescription':
       'Pesanan Anda sudah dibatalkan. Tim kami akan memproses pengembalian dana jika diperlukan.',
     'account.confirmation.toast.cancelFailed': 'Gagal membatalkan pesanan. Silakan coba lagi.',
+    'account.confirmation.toast.cancelAlreadySubmitted':
+      'Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui.',
     'account.tracking.mapLoading': 'Memuat peta...',
     'account.tracking.mapResolving': 'Memuat peta pelacakan dan koordinat lokasi...',
     'account.tracking.mapEmpty':
@@ -1539,6 +1571,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.returns.listTitle': 'Permintaan saya',
     'account.returns.empty': 'Belum ada permintaan pengembalian.',
     'account.returns.order': ['Pesanan ORD-1', { orderId: 'ORD-1' }],
+    'account.returns.alreadySubmitted':
+      'Permintaan ini sudah dikirim. Cek daftar di bawah untuk statusnya.',
     'catalog.vouchers.percentOff': ['DISKON 20%', { percent: 20 }],
     'catalog.vouchers.minSpend': ['Min. belanja Rp 10.000', { amount: 'Rp 10.000' }],
     'catalog.vouchers.remaining': ['3 kali tersisa', { count: 3 }],
@@ -3309,6 +3343,9 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'product.detail.variants.label': 'Choose a variant',
     'product.detail.variants.available': ['3 available', { count: 3 }],
     'product.detail.variants.soldOut': 'Sold out',
+    'product.detail.variants.lowStock': ['Only 3 left', { count: 3 }],
+    'product.detail.stickyBar.label': 'Quick add to cart',
+    'product.detail.stickyBar.from': 'From',
     'product.detail.adding': 'Adding…',
     'product.detail.addToCart': 'Add to cart',
     'product.detail.outOfStock': 'Out of stock',
@@ -3696,6 +3733,10 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.watcher.checking': 'Checking payment status...',
     'checkout.review.watcher.contacting': 'Contacting the payment provider.',
     'checkout.review.watcher.current': ['Current status: EXPIRED', { status: 'EXPIRED' }],
+    'checkout.review.watcher.stillWaiting': 'Still waiting for payment confirmation',
+    'checkout.review.watcher.stillWaitingDescription':
+      'We stopped checking automatically. If you have already paid, check again now or come back in a little while.',
+    'checkout.review.watcher.checkAgain': 'Check again',
     'checkout.review.watcher.checkError': 'Could not check the payment status. Please try again.',
     'checkout.review.instructions.title': 'Payment instructions',
     'checkout.review.instructions.providerFallback': 'Payment provider',
@@ -3706,6 +3747,26 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'checkout.review.instructions.qrTitle': 'Payment QR',
     'checkout.review.instructions.qrAlt': 'Payment QR',
     'checkout.review.instructions.proofLabel': 'Proof of payment (optional)',
+    'checkout.review.instructions.proofHint': [
+      'JPG, PNG, WebP, GIF, HEIC, or PDF, up to 5 MB.',
+      { max: 5 },
+    ],
+    'checkout.review.instructions.proofUnsupported':
+      'Unsupported file format. Use an image (JPG, PNG, WebP, GIF, HEIC) or a PDF.',
+    'checkout.review.instructions.proofTooLarge': ['File size exceeds 5 MB.', { max: 5 }],
+    'checkout.review.instructions.proofRequestTooLarge':
+      'The file is too large to upload. Choose a smaller file.',
+    'checkout.review.instructions.proofErrorUnauthorized':
+      'Your session has ended. Sign in again, then upload the proof.',
+    'checkout.review.instructions.proofErrorNotFound':
+      'We could not find this order. Refresh the page and try again.',
+    'checkout.review.instructions.proofErrorRejected':
+      'The file was not accepted. Choose another file and try again.',
+    'checkout.review.instructions.proofSelected': [
+      'Selected file: proof.pdf',
+      { name: 'proof.pdf' },
+    ],
+    'checkout.review.instructions.proofPreviewAlt': 'Payment proof preview',
     'checkout.review.instructions.proofUploaded': 'Proof sent',
     'checkout.review.instructions.uploading': 'Uploading...',
     'checkout.review.instructions.upload': 'Upload proof',
@@ -4154,6 +4215,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.orderDetail.items': 'Items in this order',
     'account.orderDetail.qtyPrice': ['Qty 3 - Rp 10.000', { qty: 3, price: 'Rp 10.000' }],
     'account.orderDetail.subtotal': 'Subtotal',
+    'account.orderDetail.rateProduct': 'Rate this product',
     'account.orderDetail.statusTitle': 'Order status',
     'account.orderDetail.paymentSummary': 'Payment summary',
     'account.orderDetail.status': 'Status',
@@ -4177,6 +4239,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.orderDetail.toast.cancelled': 'Order cancelled',
     'account.orderDetail.toast.cancelledDescription': 'Your order has been cancelled.',
     'account.orderDetail.toast.cancelFailed': 'Failed to cancel the order. Please try again.',
+    'account.orderDetail.toast.cancelAlreadySubmitted':
+      'Your cancellation was already submitted. The order status will update shortly.',
     'account.cancelModal.reasons.changedMind': 'Changed my mind',
     'account.cancelModal.reasons.betterPrice': 'Found a better price',
     'account.cancelModal.reasons.accidental': 'Order placed by mistake',
@@ -4469,6 +4533,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.confirmation.toast.cancelledDescription':
       'Your order has been cancelled. Our team will process a refund if needed.',
     'account.confirmation.toast.cancelFailed': 'Failed to cancel the order. Please try again.',
+    'account.confirmation.toast.cancelAlreadySubmitted':
+      'Your cancellation was already submitted. The order status will update shortly.',
     'account.tracking.mapLoading': 'Loading map...',
     'account.tracking.mapResolving': 'Loading the tracking map and location coordinates...',
     'account.tracking.mapEmpty':
@@ -4528,6 +4594,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'account.returns.listTitle': 'My requests',
     'account.returns.empty': 'No return requests yet.',
     'account.returns.order': ['Order ORD-1', { orderId: 'ORD-1' }],
+    'account.returns.alreadySubmitted':
+      'This request was already submitted. Check the list below for its status.',
     'catalog.vouchers.percentOff': ['20% OFF', { percent: 20 }],
     'catalog.vouchers.minSpend': ['Min. spend Rp 10.000', { amount: 'Rp 10.000' }],
     'catalog.vouchers.remaining': ['3 uses left', { count: 3 }],
