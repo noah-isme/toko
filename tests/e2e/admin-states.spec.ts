@@ -22,6 +22,7 @@ const RECOVERABLE_PAGES = [
   '/admin/orders',
   '/admin/products',
   '/admin/products/new',
+  '/admin/settings',
 ];
 
 const ERROR_ONLY_PAGES = [
@@ -32,7 +33,6 @@ const ERROR_ONLY_PAGES = [
   '/admin/flash-sales/missing-id/edit',
   '/admin/products/missing-id/edit',
   '/admin/returns',
-  '/admin/settings',
   '/admin/support',
   '/admin/vouchers',
   '/admin/webhooks',
