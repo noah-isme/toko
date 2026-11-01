@@ -271,6 +271,8 @@ exports[`mock API route golden responses > auth > auth routes 7`] = `
       "emailVerified": true,
       "id": "user-123",
       "name": "John Doe",
+      "permissions": [],
+      "role": "customer",
       "roles": [],
     },
   },
@@ -289,6 +291,8 @@ exports[`mock API route golden responses > auth > auth routes 8`] = `
       "emailVerified": true,
       "id": "user-123",
       "name": "John Doe",
+      "permissions": [],
+      "role": "customer",
       "roles": [],
     },
   },
@@ -308,6 +312,7 @@ exports[`mock API route golden responses > auth > auth routes 9`] = `
       "id": "user-123",
       "name": "Johnny",
       "phone": "0812",
+      "roles": [],
     },
   },
   "cacheControl": "private, no-store, max-age=0, must-revalidate",
@@ -373,12 +378,18 @@ exports[`mock API route golden responses > auth > auth routes 14`] = `
   "body": {
     "data": [
       {
-        "current": true,
-        "device": "Chrome",
-        "id": "session-1",
-        "ipAddress": "127.0.0.1",
-        "lastActive": "2026-03-15T09:30:00.000Z",
-        "location": "Jakarta, ID",
+        "current": false,
+        "device": "Chrome on macOS",
+        "id": "5e55a0e1-0000-4000-8000-000000000001",
+        "ipAddress": "203.0.113.9",
+        "lastActive": "2026-10-25T08:00:00.000Z",
+      },
+      {
+        "current": false,
+        "device": "Safari on iOS",
+        "id": "5e55a0e1-0000-4000-8000-000000000002",
+        "ipAddress": "198.51.100.24",
+        "lastActive": "2026-10-24T19:30:00.000Z",
       },
     ],
   },
@@ -390,14 +401,10 @@ exports[`mock API route golden responses > auth > auth routes 14`] = `
 
 exports[`mock API route golden responses > auth > auth routes 15`] = `
 {
-  "body": {
-    "data": {
-      "message": "Semua sesi telah keluar.",
-    },
-  },
+  "body": null,
   "cacheControl": "private, no-store, max-age=0, must-revalidate",
   "setCookie": [],
-  "status": 200,
+  "status": 204,
 }
 `;
 

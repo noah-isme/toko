@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { BulkActionDialog, type BulkKind } from '@/components/admin/catalog/bulk-action-dialog';
 import { CsvExportButton } from '@/components/admin/catalog/csv-export-button';
@@ -102,6 +103,7 @@ function ProductsPageContent() {
     if (urlState.q !== debouncedSearch) setSearch(urlState.q);
   }
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const [stockTarget, setStockTarget] = useState<AdminProduct | null>(null);
   const [quickStock, setQuickStock] = useState(0);
@@ -192,7 +194,7 @@ function ProductsPageContent() {
     } catch (error) {
       toast({
         title: t('toast.stockFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -207,7 +209,7 @@ function ProductsPageContent() {
     } catch (error) {
       toast({
         title: t('toast.deleteFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }

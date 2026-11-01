@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +19,7 @@ const statuses: ReturnStatus[] = ['APPROVED', 'REJECTED', 'RECEIVED', 'CANCELLED
 
 export default function AdminReturnsPage() {
   const t = useTranslations('admin.returns');
+  const adminErrorMessage = useAdminErrorMessage({ preferFallback: true });
   const { date } = useAdminFormat();
   const returnsQuery = useAdminReturns();
   const updateReturn = useUpdateAdminReturn();
@@ -27,8 +29,8 @@ export default function AdminReturnsPage() {
   const update = async (id: string, status: ReturnStatus) => {
     try {
       await updateReturn.mutateAsync({ id, status });
-    } catch {
-      setError(t('updateFailed'));
+    } catch (error) {
+      setError(adminErrorMessage(error, t('updateFailed')));
     }
   };
   return (
@@ -76,8 +78,8 @@ export default function AdminReturnsPage() {
                       onClick={async () => {
                         try {
                           await refundReturn.mutateAsync(item.id);
-                        } catch {
-                          setError(t('refundFailed'));
+                        } catch (error) {
+                          setError(adminErrorMessage(error, t('refundFailed')));
                         }
                       }}
                     >

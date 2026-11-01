@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useId, useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { StockStatusBadge } from '@/components/admin/catalog/status-badges';
 import { Button } from '@/components/ui/button';
@@ -137,6 +138,7 @@ function InventoryPageContent() {
   const query = useAdminInventory(filter ? { stockStatus: filter } : {});
   const update = useUpdateAdminInventory();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   // Normalise the `lowStock=true` alias to the canonical parameter.
@@ -165,7 +167,7 @@ function InventoryPageContent() {
     } catch (error) {
       toast({
         title: t('toast.failed'),
-        description: error instanceof Error ? error.message : String(error),
+        description: adminErrorMessage(error, String(error)),
         variant: 'destructive',
       });
     }

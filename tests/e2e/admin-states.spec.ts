@@ -24,6 +24,7 @@ const RECOVERABLE_PAGES = [
   '/admin/products/new',
   '/admin/reports',
   '/admin/settings',
+  '/admin/staff',
 ];
 
 const ERROR_ONLY_PAGES = [

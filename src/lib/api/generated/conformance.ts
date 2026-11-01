@@ -20,6 +20,12 @@ import type { components } from './schema';
 
 import type { AlertSubscription } from '@/entities/alerts/types';
 import type {
+  AdminPermission,
+  RoleDefinition,
+  StaffMember,
+  StaffRole,
+} from '@/entities/admin/types';
+import type {
   ApiAddressResponse,
   ApiProduct,
   Brand,
@@ -54,6 +60,13 @@ type _PaginationMatches = Expect<IsExactly<Required<Wire['Pagination']>, Paginat
 // Auth
 // ---------------------------------------------------------------------------
 type _UserSatisfiesClient = Expect<IsAssignable<Wire['User'], User>>;
+
+// The client's role/permission vocabularies must match the documented enums
+// exactly, so a role or permission added on either side fails the build.
+type _StaffRoleMatches = Expect<IsExactly<Wire['Role'], StaffRole>>;
+type _PermissionMatches = Expect<IsExactly<Wire['Permission'], AdminPermission>>;
+type _StaffMemberMatches = Expect<IsExactly<Required<Wire['StaffMember']>, StaffMember>>;
+type _RoleDefinitionMatches = Expect<IsExactly<Wire['RoleDefinition'], RoleDefinition>>;
 
 // ---------------------------------------------------------------------------
 // Catalog

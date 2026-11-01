@@ -9,6 +9,7 @@ import { promoHandlers } from './handlers/promoHandlers';
 import { adminReportsHandlers } from './handlers.adminReports';
 import { alertsHandlers } from './handlers.alerts';
 import { adminCatalogHandlers } from './handlers.adminCatalog';
+import { adminStaffHandlers } from './handlers.adminStaff';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
@@ -19,8 +20,9 @@ import { paymentHandlers } from './handlers.payment';
 import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
+import { accessFor, rolesFor } from './resolvers/auth';
 import { getProduct, listProducts } from './resolvers/catalog';
-import { apiPath, type MockCart } from './utils';
+import { apiPath, mockSessionId, type MockCart } from './utils';
 
 import { addToCartInputSchema, updateCartItemInputSchema } from '@/lib/api/schemas';
 import type { Cart as ApiCart } from '@/lib/api/types';
@@ -428,7 +430,7 @@ export const handlers = [
 
     return HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) });
   }),
-  http.get(apiPath('/auth/me'), () =>
+  http.get(apiPath('/auth/me'), ({ request }) =>
     HttpResponse.json({
       data: {
         id: faker.string.uuid(),
@@ -437,10 +439,14 @@ export const handlers = [
         emailVerified: faker.datatype.boolean(),
         phone: faker.phone.number(),
         createdAt: new Date().toISOString(),
+        // Tenant role and permissions follow the bearer token, as in the route mock.
+        ...accessFor(request.headers, mockSessionId(request)),
       },
     }),
   ),
   // PATCH /users/me — partial profile update, echoing back the merged user.
+  // Like the backend, it carries the global `roles` but not the tenant
+  // `role`/`permissions`, which only GET /auth/me returns.
   http.patch(apiPath('/users/me'), async ({ request }) => {
     const body = (await request.json()) as { name?: string; phone?: string };
     return HttpResponse.json({
@@ -449,6 +455,7 @@ export const handlers = [
         email: faker.internet.email(),
         name: body.name ?? faker.person.fullName(),
         phone: body.phone,
+        roles: rolesFor(request.headers),
         emailVerified: false,
         createdAt: new Date().toISOString(),
       },
@@ -469,6 +476,7 @@ export const handlers = [
   ),
   ...checkoutHandlers,
   ...adminReportsHandlers,
+  ...adminStaffHandlers,
   ...addressHandlers,
   ...paymentHandlers,
   ...customerOperationsHandlers,

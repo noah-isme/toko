@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +46,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
   const t = useTranslations('admin.settings');
   const update = useUpdateStoreSettings();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const [form, setForm] = useState<FormState>(initialForm);
 
   const set = (key: keyof FormState, value: string) =>
@@ -56,7 +58,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
     } catch (error) {
       toast({
         title: t('toast.saveFailed'),
-        description: String(error),
+        description: adminErrorMessage(error, String(error)),
         variant: 'destructive',
       });
     }

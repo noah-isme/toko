@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -44,6 +45,7 @@ function TicketMessages({ ticketId }: { ticketId: string }) {
 
 export default function AdminSupportPage() {
   const t = useTranslations('admin.support');
+  const adminErrorMessage = useAdminErrorMessage({ preferFallback: true });
   const ticketsQuery = useAdminTickets();
   const updateTicket = useUpdateAdminTicket();
   const sendMessage = useSendAdminTicketMessage();
@@ -54,8 +56,8 @@ export default function AdminSupportPage() {
   const update = async (id: string, status: TicketStatus) => {
     try {
       await updateTicket.mutateAsync({ id, status });
-    } catch {
-      setError(t('updateFailed'));
+    } catch (error) {
+      setError(adminErrorMessage(error, t('updateFailed')));
     }
   };
 
@@ -65,8 +67,8 @@ export default function AdminSupportPage() {
     try {
       await sendMessage.mutateAsync({ id, message: text });
       setReply((value) => ({ ...value, [id]: '' }));
-    } catch {
-      setError(t('sendFailed'));
+    } catch (error) {
+      setError(adminErrorMessage(error, t('sendFailed')));
     }
   };
 

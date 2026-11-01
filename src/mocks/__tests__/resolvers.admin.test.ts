@@ -22,13 +22,17 @@ function admin(
 afterEach(() => resetMockState());
 
 describe('admin resolver', () => {
-  it('rejects admin paths without the admin token', () => {
+  it('rejects admin paths without a staff role', () => {
     for (const headers of [new Headers(), new Headers({ authorization: 'Bearer mock-token' })]) {
       expect(
         handleMockRequest('admin/products', 'GET', null, 's1', undefined, { headers }),
       ).toEqual({
         status: 403,
-        error: { code: 'FORBIDDEN', message: 'Admin access required' },
+        error: {
+          code: 'FORBIDDEN',
+          message: 'staff role required',
+          details: { required: 'staff' },
+        },
       });
     }
   });
@@ -40,6 +44,8 @@ describe('admin resolver', () => {
 
   it('gives the admin token the admin role on auth/me and auth/session', () => {
     expect(admin('GET', 'auth/me').data.roles).toEqual(['admin']);
+    expect(admin('GET', 'auth/me').data.role).toBe('owner');
+    expect(admin('GET', 'auth/me').data.permissions).toContain('staff:manage');
     expect(admin('GET', 'auth/session').data.user.roles).toEqual(['admin']);
   });
 

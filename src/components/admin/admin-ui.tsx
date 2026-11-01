@@ -8,8 +8,10 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
+import { AdminForbidden } from '@/components/admin/admin-access-ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { forbiddenInfo } from '@/entities/admin/access';
 import { orderStatusLabel } from '@/entities/admin/format';
 import type { AdminOrderStatus } from '@/entities/admin/types';
 import { cn } from '@/lib/utils';
@@ -52,7 +54,17 @@ export function AdminLoading({ label }: { label?: string }) {
   );
 }
 
+/**
+ * Load-error state. A 403 from the admin API renders the friendly no-access
+ * state instead, since retrying cannot help.
+ */
 export function AdminError({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+  const forbidden = forbiddenInfo(error);
+  if (forbidden) return <AdminForbidden required={forbidden.required} code={forbidden.code} />;
+  return <AdminLoadError error={error} onRetry={onRetry} />;
+}
+
+function AdminLoadError({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const t = useTranslations('admin.ui');
   const message = error instanceof Error ? error.message : t('errorFallback');
   return (

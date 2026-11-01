@@ -4,6 +4,7 @@ import { Plus, RefreshCw, Repeat, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import {
   ActiveBadge,
   AdminEmpty,
@@ -109,6 +110,7 @@ export default function WebhooksPage() {
   const tCommon = useTranslations('admin.common');
   const { relative } = useAdminFormat();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminWebhookEndpoint | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminWebhookEndpoint | null>(null);
@@ -176,7 +178,7 @@ export default function WebhooksPage() {
     } catch (error) {
       toast({
         title: t('toast.saveFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -191,7 +193,7 @@ export default function WebhooksPage() {
     } catch (error) {
       toast({
         title: t('toast.deleteFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -204,7 +206,7 @@ export default function WebhooksPage() {
     } catch (error) {
       toast({
         title: t('toast.replayFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }

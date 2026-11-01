@@ -1,7 +1,8 @@
 import { HttpResponse, http } from 'msw';
 
 import { mockFaker as faker } from '../factories/faker';
-import { apiPath } from '../utils';
+import { resolveAuth, rolesFor } from '../resolvers/auth';
+import { apiPath, mockResultResponse, mockSessionId } from '../utils';
 
 import type {
   AuthResponse,
@@ -9,13 +10,24 @@ import type {
   RegisterRequest,
   ResendVerificationRequest,
   ResetPasswordRequest,
-  SessionInfo,
   UpdateProfileRequest,
   User,
   VerifyEmailRequest,
 } from '@/lib/api/types';
 
-const sessionStore = globalThis as { __tokoSessionsRevoked?: boolean };
+const NOT_FOUND = { status: 404, error: { code: 'NOT_FOUND', message: 'Not Found' } };
+
+function viaAuthResolver(request: Request, path: string) {
+  const result = resolveAuth({
+    path,
+    method: request.method,
+    body: null,
+    sessionId: mockSessionId(request),
+    searchParams: new URL(request.url).searchParams,
+    headers: request.headers,
+  });
+  return mockResultResponse(result ?? NOT_FOUND);
+}
 
 export const authHandlers = [
   http.get(apiPath('/users/me'), () => {
@@ -91,37 +103,11 @@ export const authHandlers = [
 
     return HttpResponse.json({ data: response });
   }),
-  http.get(apiPath('/auth/sessions'), () => {
-    const now = new Date();
-    const sessions: SessionInfo[] = [
-      {
-        id: faker.string.uuid(),
-        device: 'Chrome on macOS',
-        ipAddress: faker.internet.ip(),
-        location: 'Jakarta, ID',
-        lastActive: now.toISOString(),
-        current: true,
-      },
-      {
-        id: faker.string.uuid(),
-        device: 'Safari on iOS',
-        ipAddress: faker.internet.ip(),
-        location: 'Bandung, ID',
-        lastActive: new Date(now.getTime() - 1000 * 60 * 45).toISOString(),
-        current: false,
-      },
-    ];
-
-    if (sessionStore.__tokoSessionsRevoked) {
-      return HttpResponse.json({ data: sessions.filter((session) => session.current) });
-    }
-
-    return HttpResponse.json({ data: sessions });
-  }),
-  http.post(apiPath('/auth/logout/all'), () => {
-    sessionStore.__tokoSessionsRevoked = true;
-    return HttpResponse.json({ data: { message: 'Semua sesi telah keluar.' } });
-  }),
+  // Sessions and logout-all share the route mock's resolver and per-session state.
+  http.get(apiPath('/auth/sessions'), ({ request }) => viaAuthResolver(request, 'auth/sessions')),
+  http.post(apiPath('/auth/logout/all'), ({ request }) =>
+    viaAuthResolver(request, 'auth/logout/all'),
+  ),
   http.post(apiPath('/auth/password/forgot'), async ({ request }) => {
     const payload = (await request.json()) as ForgotPasswordRequest;
 
@@ -211,6 +197,7 @@ export const authHandlers = [
       email: faker.internet.email(),
       emailVerified: faker.datatype.boolean(),
       phone: payload.phone,
+      roles: rolesFor(request.headers),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

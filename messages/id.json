@@ -1940,7 +1940,7 @@
       "save": "Simpan perubahan",
       "security": {
         "title": "Keamanan Akun",
-        "description": "Kelola sesi aktif dan keluarkan perangkat lain.",
+        "description": "Tinjau perangkat tempat Anda masuk dan keluar dari semua perangkat.",
         "processing": "Memproses...",
         "logoutAll": "Logout semua perangkat",
         "loggedOutAll": "Semua sesi telah keluar.",
@@ -1948,7 +1948,12 @@
         "empty": "Belum ada sesi aktif.",
         "thisDevice": "Perangkat ini",
         "ip": "IP: {ip}",
-        "lastActive": "Terakhir aktif: {date}"
+        "signedIn": "Masuk: {date}",
+        "expiredHint": "Sesi yang sudah kedaluwarsa masih dapat tercantum sampai dibersihkan.",
+        "confirmTitle": "Keluar dari semua perangkat?",
+        "confirmDescription": "Tindakan ini mengeluarkan Anda dari semua perangkat, termasuk perangkat ini. Anda perlu masuk kembali.",
+        "confirm": "Keluar dari semua perangkat",
+        "cancel": "Batal"
       }
     },
     "push": {
@@ -2278,8 +2283,65 @@
     "guard": {
       "checking": "Memeriksa izin akses...",
       "title": "Akses admin diperlukan",
-      "description": "Akun Anda tidak memiliki peran admin. Minta pemilik toko untuk memberikannya, lalu muat ulang halaman ini.",
+      "description": "Akun Anda belum memiliki peran staf di toko ini. Minta pemilik atau admin toko menambahkan Anda sebagai staf, lalu muat ulang halaman ini.",
       "backToStore": "Kembali ke toko"
+    },
+    "access": {
+      "title": "Anda tidak memiliki akses ke halaman ini",
+      "description": "Peran Anda tidak mencakup izin yang dibutuhkan halaman ini: {permission}. Minta pemilik atau admin toko jika Anda membutuhkannya.",
+      "descriptionGeneric": "Peran Anda tidak mengizinkan tindakan ini. Minta pemilik atau admin toko jika Anda membutuhkan akses.",
+      "platformDescription": "Bagian ini hanya tersedia untuk administrator platform.",
+      "tenantDescription": "Anda tidak lagi menjadi anggota aktif toko ini. Masuk kembali atau hubungi pemilik toko.",
+      "goTo": "Buka {section}",
+      "backToStore": "Kembali ke toko",
+      "actionForbidden": "Anda tidak memiliki izin untuk melakukan ini ({permission}).",
+      "actionForbiddenGeneric": "Anda tidak memiliki izin untuk melakukan ini.",
+      "platformOnly": "Hanya administrator platform yang dapat melakukan ini.",
+      "tenantForbidden": "Anda tidak lagi menjadi anggota aktif toko ini.",
+      "ownerRequired": "Hanya pemilik yang dapat memberikan atau mengubah peran pemilik.",
+      "yourRole": "Peran: {role}",
+      "platformAdmin": "Administrator platform",
+      "roles": {
+        "owner": "Pemilik",
+        "admin": "Admin",
+        "manager": "Manajer",
+        "catalog": "Katalog",
+        "fulfillment": "Pemenuhan pesanan",
+        "support": "Dukungan pelanggan",
+        "analyst": "Analis"
+      },
+      "roleDescriptions": {
+        "owner": "Akses penuh, termasuk pemilik, staf, dan pengaturan toko.",
+        "admin": "Akses penuh ke toko; tidak dapat memberikan atau mengubah peran pemilik.",
+        "manager": "Menjalankan toko sehari-hari; tidak dapat mengubah pengaturan atau staf.",
+        "catalog": "Produk, kategori, merek, dan stok; dapat melihat promosi.",
+        "fulfillment": "Pesanan, pengiriman, retur, dan tingkat stok; dapat melihat pelanggan.",
+        "support": "Tiket dukungan, pesanan, dan retur; dapat melihat pelanggan.",
+        "analyst": "Akses baca saja ke analitik, pesanan, katalog, promosi, dan pelanggan."
+      },
+      "permissions": {
+        "catalogRead": "Melihat katalog",
+        "catalogWrite": "Mengubah katalog",
+        "inventoryRead": "Melihat inventaris",
+        "inventoryWrite": "Menyesuaikan inventaris",
+        "ordersRead": "Melihat pesanan",
+        "ordersWrite": "Memperbarui pesanan dan pengiriman",
+        "returnsRead": "Melihat retur",
+        "returnsWrite": "Memproses retur",
+        "refundsWrite": "Mengembalikan dana",
+        "customersRead": "Melihat pelanggan",
+        "supportRead": "Melihat tiket dukungan",
+        "supportWrite": "Membalas tiket dukungan",
+        "promotionsRead": "Melihat promosi",
+        "promotionsWrite": "Mengelola promosi",
+        "analyticsRead": "Melihat analitik",
+        "settingsRead": "Melihat pengaturan",
+        "settingsWrite": "Mengubah pengaturan",
+        "staffRead": "Melihat staf",
+        "staffManage": "Mengelola staf",
+        "platformAdmin": "Administrator platform",
+        "staff": "Peran staf"
+      }
     },
     "nav": {
       "label": "Bagian admin",
@@ -2299,7 +2361,8 @@
         "reports": "Laporan",
         "webhooks": "Webhook",
         "auditLogs": "Log Audit",
-        "settings": "Pengaturan"
+        "settings": "Pengaturan",
+        "staff": "Staf"
       }
     },
     "ui": {
@@ -2887,6 +2950,79 @@
         "saveFailed": "Gagal menyimpan pengaturan",
         "onboardingComplete": "Onboarding ditandai selesai"
       }
+    },
+    "staff": {
+      "title": "Staf",
+      "description": "Atur siapa yang dapat bekerja di admin toko ini dan apa yang dapat dilakukan setiap orang.",
+      "loading": "Memuat staf...",
+      "empty": "Belum ada staf.",
+      "readOnly": "Anda dapat melihat staf, tetapi hanya pemilik dan admin yang dapat mengubah peran.",
+      "add": {
+        "title": "Tambah anggota staf",
+        "description": "Orang tersebut harus sudah memiliki akun pelanggan di toko ini. Masukkan email yang digunakan saat mendaftar.",
+        "email": "Email",
+        "emailPlaceholder": "nama@contoh.com",
+        "role": "Peran",
+        "submit": "Tambah staf",
+        "submitting": "Menambahkan...",
+        "emailRequired": "Masukkan alamat email.",
+        "emailInvalid": "Masukkan alamat email yang valid.",
+        "success": "{name} sekarang menjadi {role}.",
+        "failed": "Gagal menambahkan anggota staf"
+      },
+      "table": {
+        "caption": "Anggota staf",
+        "name": "Nama",
+        "role": "Peran",
+        "status": "Status",
+        "added": "Ditambahkan",
+        "actions": "Aksi",
+        "you": "Anda"
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "INVITED": "Diundang",
+        "SUSPENDED": "Ditangguhkan"
+      },
+      "changeRole": "Ubah peran",
+      "changeRoleLabel": "Ubah peran untuk {name}",
+      "ownerLocked": "Hanya pemilik yang dapat mengubah pemilik.",
+      "revoke": "Cabut",
+      "revokeLabel": "Cabut akses staf untuk {name}",
+      "confirmChange": {
+        "title": "Ubah peran?",
+        "description": "Pilih peran baru untuk {name}. Peran saat ini: {from}.",
+        "roleLabel": "Peran baru",
+        "selfWarning": "Anda mengubah peran Anda sendiri. Anda mungkin kehilangan akses ke beberapa halaman admin.",
+        "confirm": "Ubah peran",
+        "processing": "Menyimpan...",
+        "success": "{name} sekarang menjadi {role}.",
+        "failed": "Gagal mengubah peran"
+      },
+      "confirmRevoke": {
+        "title": "Cabut akses staf?",
+        "description": "{name} akan kehilangan akses ke area admin. Akun pelanggannya tetap aktif.",
+        "selfWarning": "Anda mencabut akses Anda sendiri. Anda akan langsung keluar dari area admin.",
+        "confirm": "Cabut akses",
+        "processing": "Mencabut...",
+        "success": "{name} tidak lagi memiliki akses staf.",
+        "failed": "Gagal mencabut akses"
+      },
+      "errors": {
+        "USER_NOT_FOUND": "Tidak ada akun pelanggan di toko ini dengan email tersebut. Minta orang tersebut mendaftar terlebih dahulu, lalu coba lagi.",
+        "STAFF_EXISTS": "Orang ini sudah menjadi staf. Ubah perannya di daftar.",
+        "LAST_OWNER": "Toko harus memiliki setidaknya satu pemilik aktif. Jadikan orang lain pemilik terlebih dahulu.",
+        "STAFF_NOT_FOUND": "Orang ini sudah bukan staf. Daftar telah diperbarui.",
+        "VALIDATION_ERROR": "Periksa email dan peran, lalu coba lagi."
+      },
+      "matrix": {
+        "title": "Apa yang dapat dilakukan setiap peran",
+        "loading": "Memuat peran...",
+        "none": "Tidak ada izin"
+      },
+      "pageSummary": "Halaman {page} dari {total} ({count} staf)",
+      "previousPage": "Halaman sebelumnya",
+      "nextPage": "Halaman berikutnya"
     },
     "webhooks": {
       "title": "Webhook",

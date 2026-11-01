@@ -10,6 +10,7 @@ import { Edit, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState, type ComponentType } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,6 +70,7 @@ export function TaxonomyManager({
   const tKind = useTranslations(`admin.taxonomy.${kind}`);
   const tCommon = useTranslations('admin.common');
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminTaxonomy | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminTaxonomy | null>(null);
@@ -117,7 +119,7 @@ export function TaxonomyManager({
     } catch (error) {
       toast({
         title: tKind('saveFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -136,7 +138,7 @@ export function TaxonomyManager({
     } catch (error) {
       toast({
         title: tKind('deleteFailed'),
-        description: error instanceof Error ? error.message : t('deleteFailedHint'),
+        description: adminErrorMessage(error, t('deleteFailedHint')),
         variant: 'destructive',
       });
     }

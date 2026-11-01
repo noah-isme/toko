@@ -1,5 +1,6 @@
 import { HttpResponse } from 'msw';
 
+import { MOCK_SESSION_COOKIE } from './fixtures';
 import { isMockBinary } from './resolvers/binary';
 import { isMockFileResult, type MockResult } from './resolvers/types';
 
@@ -8,6 +9,23 @@ import type { CartView } from '@/lib/api/schemas';
 export function apiPath(path: string) {
   const normalized = path.startsWith('/') ? path.slice(1) : path;
   return `*/${normalized}`;
+}
+
+/** Fallback mock session for MSW requests made without the session cookie. */
+export const MSW_SESSION = 'msw';
+
+/**
+ * The `/api/v1` route keys per-session mock stores by the `mockSessionId`
+ * cookie; MSW handlers reuse it (they run in the page, so `document.cookie` is
+ * readable) so both mock layers share one browser session's state.
+ */
+export function mockSessionId(request: Request): string {
+  const cookies = [
+    request.headers.get('cookie') ?? '',
+    typeof document === 'undefined' ? '' : document.cookie,
+  ].join('; ');
+  const match = new RegExp(`(?:^|;\\s*)${MOCK_SESSION_COOKIE}=([^;]+)`).exec(cookies);
+  return match ? decodeURIComponent(match[1]) : MSW_SESSION;
 }
 
 /**

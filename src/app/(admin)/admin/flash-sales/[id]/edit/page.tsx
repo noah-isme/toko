@@ -6,6 +6,7 @@ import { notFound, useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -122,6 +123,7 @@ export default function FlashSaleEditPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const flashSaleId = params.id as string;
 
@@ -197,7 +199,7 @@ export default function FlashSaleEditPage() {
       });
       setValues((current) => (current ? { ...current, status: newStatus } : null));
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('form.errors.statusFailed');
+      const message = adminErrorMessage(err, t('form.errors.statusFailed'));
       toast({ title: t('toast.statusFailed'), description: message, variant: 'destructive' });
     }
   };
@@ -237,7 +239,7 @@ export default function FlashSaleEditPage() {
       await updateMutation.mutateAsync({ id: flashSaleId, data: formValuesToInput(values) });
       toast({ title: t('toast.updated'), variant: 'success' });
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('form.errors.updateFailed');
+      const message = adminErrorMessage(err, t('form.errors.updateFailed'));
       setError(message);
       toast({ title: t('toast.updateFailed'), description: message, variant: 'destructive' });
     }
