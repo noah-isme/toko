@@ -81,7 +81,8 @@ export function getAdminAccess(user: User | null | undefined): AdminAccess {
 /**
  * Permission each admin page needs, matched against the pathname. Patterns are
  * checked in order, so the more specific `new`/`edit` routes come first. Pages
- * not listed here (none today) are open to every staff member.
+ * not listed here would be open to every staff member, so
+ * tests/admin/admin-route-coverage.test.ts requires a row for every admin page.
  */
 const ADMIN_ROUTE_REQUIREMENTS: ReadonlyArray<{ pattern: RegExp; requirement: AdminRequirement }> =
   [
