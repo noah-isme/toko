@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { getAdminAccess } from '../../entities/admin/access';
+import { adminKeys } from '../../entities/admin/keys';
 import { AuthError, getAccessToken, setAccessToken } from '../../lib/api/apiClient';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { authApi, cartApi } from '../../lib/api/services';
@@ -140,6 +141,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Remove cart queries to clear sensitive data and ensure fresh state
     queryClient.removeQueries({ queryKey: queryKeys.cart() });
+    // Admin data is role-scoped: never show it to the next user of this tab.
+    queryClient.removeQueries({ queryKey: adminKeys.all() });
   };
 
   const logout = async () => {
@@ -176,8 +179,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (data: { name: string; phone?: string }) => {
     const updatedUser = await authApi.updateProfile(data);
-    setUser(updatedUser);
-    return updatedUser;
+    // PATCH /users/me returns the user without the tenant `role`/`permissions`
+    // (only GET /auth/me sets them); keep the ones already known so admin
+    // access does not fall back to the legacy global-role rule.
+    const merged = withKnownTenantRole(updatedUser, user);
+    setUser((prev) => withKnownTenantRole(updatedUser, prev));
+    return merged;
   };
 
   return (
@@ -221,6 +228,19 @@ async function withTenantRole(user: User): Promise<User> {
   } catch {
     return user;
   }
+}
+
+/**
+ * `updated` (the signed-in user's own profile) with the tenant
+ * `role`/`permissions` of `previous` when `updated` lacks them.
+ */
+function withKnownTenantRole(updated: User, previous: User | null): User {
+  if (!previous) return updated;
+  return {
+    ...updated,
+    role: updated.role ?? previous.role,
+    permissions: updated.permissions ?? previous.permissions,
+  };
 }
 
 function shouldEvictAccessToken(error: unknown): boolean {

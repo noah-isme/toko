@@ -314,6 +314,24 @@ describe('MSW and route mocks agree on staff and sessions', () => {
     expect(removed).toEqual({ status: 204, body: null });
   });
 
+  it('answers a profile save like the backend: global roles, no tenant role', async () => {
+    const body = { name: 'Johnny' };
+    for (const [auth, roles] of [
+      [OWNER, ['admin']],
+      [staffToken('support'), []],
+    ] as const) {
+      for (const user of [
+        (await viaMsw('PATCH', 'users/me', body, auth)).body.data,
+        viaRoute('PATCH', 'users/me', body, auth).body.data,
+      ]) {
+        expect(user.name).toBe('Johnny');
+        expect(user.roles).toEqual(roles);
+        expect(user).not.toHaveProperty('role');
+        expect(user).not.toHaveProperty('permissions');
+      }
+    }
+  });
+
   it('serves sessions and logout-all per the documented contract', async () => {
     expect(await viaMsw('GET', 'auth/sessions')).toEqual(viaRoute('GET', 'auth/sessions'));
     const sessions = viaRoute('GET', 'auth/sessions').body.data as Json[];

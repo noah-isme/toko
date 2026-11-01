@@ -3,6 +3,8 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import type { ReactNode } from 'react';
 
 import { AuthProvider, useAuth } from '@/components/providers/AuthProvider';
+import { adminKeys } from '@/entities/admin/keys';
+import { useAdminAccess } from '@/entities/admin/use-admin-access';
 import {
   AbortError,
   AuthError,
@@ -92,14 +94,16 @@ describe('AuthProvider initialization', () => {
 describe('AuthProvider session actions', () => {
   const loginUser = { id: 'u1', name: 'Jane', email: 'jane@shop.id', createdAt: '2026-01-01' };
 
+  let queryClient: QueryClient;
+
   function renderAuth() {
-    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const wrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>
         <AuthProvider>{children}</AuthProvider>
       </QueryClientProvider>
     );
-    return renderHook(() => useAuth(), { wrapper });
+    return renderHook(() => ({ ...useAuth(), access: useAdminAccess() }), { wrapper });
   }
 
   async function signedIn() {
@@ -172,5 +176,76 @@ describe('AuthProvider session actions', () => {
 
     expect(getAccessToken()).toBe('fresh-token');
     expect(result.current.user?.email).toBe('jane@shop.id');
+  });
+
+  describe('profile save', () => {
+    // PATCH /users/me echoes the user with global `roles` but without the
+    // tenant `role`/`permissions`, which only GET /auth/me returns.
+    function patchEchoes(roles: string[]) {
+      vi.mocked(authApi.updateProfile).mockImplementation(async (data) => ({
+        ...loginUser,
+        name: data.name,
+        roles,
+      }));
+    }
+
+    it('keeps the tenant role of a manager without a global admin role', async () => {
+      vi.mocked(authApi.getCurrentUser).mockResolvedValue({
+        ...loginUser,
+        roles: ['customer'],
+        role: 'manager',
+        permissions: ['orders:read', 'catalog:read', 'analytics:read'],
+      });
+      patchEchoes(['customer']);
+      const { result } = await signedIn();
+      expect(result.current.access.canEnter).toBe(true);
+
+      let saved: Awaited<ReturnType<typeof result.current.updateProfile>> | undefined;
+      await act(async () => {
+        saved = await result.current.updateProfile({ name: 'Jane Doe' });
+      });
+
+      expect(result.current.user?.name).toBe('Jane Doe');
+      expect(saved?.role).toBe('manager');
+      expect(result.current.access.role).toBe('manager');
+      expect(result.current.access.canEnter).toBe(true);
+      expect(result.current.access.can('orders:read')).toBe(true);
+      expect(result.current.access.can('staff:read')).toBe(false);
+      expect(result.current.isAdmin).toBe(true);
+    });
+
+    it('keeps a revoked global admin locked out of the admin area', async () => {
+      vi.mocked(authApi.getCurrentUser).mockResolvedValue({
+        ...loginUser,
+        roles: ['admin'],
+        role: 'customer',
+        permissions: [],
+      });
+      patchEchoes(['admin']);
+      const { result } = await signedIn();
+      expect(result.current.access.canEnter).toBe(false);
+
+      await act(async () => {
+        await result.current.updateProfile({ name: 'Jane Doe' });
+      });
+
+      expect(result.current.user?.name).toBe('Jane Doe');
+      expect(result.current.user?.permissions).toEqual([]);
+      expect(result.current.access.canEnter).toBe(false);
+      expect(result.current.access.isPlatformAdmin).toBe(false);
+      expect(result.current.access.can('catalog:read')).toBe(false);
+      expect(result.current.isAdmin).toBe(false);
+    });
+  });
+
+  it('drops cached admin data on sign-out', async () => {
+    vi.mocked(authApi.getCurrentUser).mockResolvedValue(loginUser);
+    vi.mocked(authApi.logout).mockResolvedValue(undefined as never);
+    const { result } = await signedIn();
+    queryClient.setQueryData(adminKeys.categories(), [{ id: 'c1' }]);
+
+    await act(() => result.current.logout());
+
+    expect(queryClient.getQueryData(adminKeys.categories())).toBeUndefined();
   });
 });

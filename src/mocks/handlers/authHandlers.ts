@@ -1,7 +1,7 @@
 import { HttpResponse, http } from 'msw';
 
 import { mockFaker as faker } from '../factories/faker';
-import { resolveAuth } from '../resolvers/auth';
+import { resolveAuth, rolesFor } from '../resolvers/auth';
 import { apiPath, mockResultResponse, mockSessionId } from '../utils';
 
 import type {
@@ -197,6 +197,7 @@ export const authHandlers = [
       email: faker.internet.email(),
       emailVerified: faker.datatype.boolean(),
       phone: payload.phone,
+      roles: rolesFor(request.headers),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

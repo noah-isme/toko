@@ -111,6 +111,51 @@ describe('AdminGuard', () => {
     expect(screen.queryByRole('link', { name: 'Audit Logs' })).not.toBeInTheDocument();
   });
 
+  it('re-reads /auth/me once when the user has no tenant permissions yet', async () => {
+    // A login response kept after /auth/me failed: no role, no permissions.
+    const loginOnly: User = {
+      ...staffUser('customer', []),
+      role: undefined,
+      permissions: undefined,
+    };
+    const refreshUser = vi.fn(async () => {
+      auth.current = { ...auth.current, user: staffUser('support', ['support:read']) };
+    });
+    signIn(loginOnly, { refreshUser });
+
+    renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
+    expect(screen.getByRole('status')).toHaveTextContent(/checking/i);
+    expect(screen.queryByRole('heading', { name: 'Admin access required' })).toBeNull();
+
+    expect(await screen.findByText('secret')).toBeInTheDocument();
+    expect(refreshUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('decides with the legacy rule when /auth/me still has no permissions', async () => {
+    const loginOnly: User = {
+      ...staffUser('customer', []),
+      role: undefined,
+      permissions: undefined,
+    };
+    const refreshUser = vi.fn(async () => undefined);
+    signIn(loginOnly, { refreshUser });
+
+    renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Admin access required' }),
+    ).toBeInTheDocument();
+    expect(refreshUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not re-read /auth/me when the permissions are known', () => {
+    const refreshUser = vi.fn();
+    signIn(CATALOG, { refreshUser });
+    renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
+    expect(screen.getByText('secret')).toBeInTheDocument();
+    expect(refreshUser).not.toHaveBeenCalled();
+  });
+
   it('lets any staff role in and sends signed-out users to login', () => {
     renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
     expect(screen.getByText('secret')).toBeInTheDocument();

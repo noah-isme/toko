@@ -8,6 +8,8 @@
  *
  * - `AdminGuard` wraps the whole shell: signed-out users go to login, members
  *   without any staff role see a full-screen "admin access required" state.
+ *   A user object that lacks the tenant `permissions` re-reads `/auth/me`
+ *   once before that decision.
  * - `AdminRouteGate` wraps the page inside the shell: a staff member without the
  *   page's permission sees the friendly no-access state (the nav stays usable),
  *   and the dashboard sends them to the first section they may open instead.
@@ -18,7 +20,7 @@ import { ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { AdminForbidden } from '@/components/admin/admin-access-ui';
 import { accessibleNavItems } from '@/components/admin/admin-nav';
@@ -44,11 +46,42 @@ function CheckingAccess({ fullScreen = false }: { fullScreen?: boolean }) {
   );
 }
 
+/**
+ * A user object without `permissions` did not come from `GET /auth/me` (a
+ * login response kept after `/auth/me` failed, for example), so its admin
+ * access is unknown. Re-reads `/auth/me` once per user before deciding;
+ * returns true while that read is pending.
+ */
+function useTenantRoleSync(): boolean {
+  const { user, refreshUser } = useAuth();
+  const userId = user?.id ?? null;
+  const needsSync = Boolean(user) && !Array.isArray(user?.permissions);
+  const [syncedUserId, setSyncedUserId] = useState<string | null>(null);
+  const inFlight = useRef<string | null>(null);
+  const pending = needsSync && syncedUserId !== userId;
+
+  useEffect(() => {
+    if (!pending || !userId || inFlight.current === userId) return;
+    inFlight.current = userId;
+    void (async () => {
+      try {
+        await refreshUser?.();
+      } finally {
+        inFlight.current = null;
+        setSyncedUserId(userId);
+      }
+    })();
+  }, [pending, userId, refreshUser]);
+
+  return pending;
+}
+
 export function AdminGuard({ children }: { children: ReactNode }) {
   const t = useTranslations('admin.guard');
   const { isLoading, isAuthenticated } = useAuth();
   const access = useAdminAccess();
   const router = useRouter();
+  const syncingRole = useTenantRoleSync();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -56,7 +89,7 @@ export function AdminGuard({ children }: { children: ReactNode }) {
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading) {
+  if (isLoading || (isAuthenticated && syncingRole)) {
     return <CheckingAccess fullScreen />;
   }
 

@@ -312,6 +312,7 @@ exports[`mock API route golden responses > auth > auth routes 9`] = `
       "id": "user-123",
       "name": "Johnny",
       "phone": "0812",
+      "roles": [],
     },
   },
   "cacheControl": "private, no-store, max-age=0, must-revalidate",

@@ -11,7 +11,8 @@ export function isAdminRequest(headers: Headers): boolean {
   return headers.get('authorization') === `Bearer ${MOCK_ADMIN_TOKEN}`;
 }
 
-function rolesFor(headers: Headers): string[] {
+/** Legacy global `roles` of the caller, as every user payload carries them. */
+export function rolesFor(headers: Headers): string[] {
   return isAdminRequest(headers) ? ['admin'] : [];
 }
 
@@ -137,11 +138,14 @@ export const resolveAuth: MockResolver = ({ path, method, body, headers, session
   }
 
   if (path === 'users/me' && method === 'PATCH') {
+    // Backend shape: global `roles` included, tenant `role`/`permissions` are
+    // only on GET /auth/me.
     return {
       data: {
         ...MOCK_USER,
         name: body?.name || MOCK_USER.name,
         phone: body?.phone,
+        roles: rolesFor(headers),
         emailVerified: true,
         createdAt: now,
       },

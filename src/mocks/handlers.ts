@@ -16,7 +16,7 @@ import { paymentHandlers } from './handlers.payment';
 import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
-import { accessFor } from './resolvers/auth';
+import { accessFor, rolesFor } from './resolvers/auth';
 import { getProduct, listProducts } from './resolvers/catalog';
 import { apiPath, mockSessionId, type MockCart } from './utils';
 
@@ -439,6 +439,8 @@ export const handlers = [
     }),
   ),
   // PATCH /users/me — partial profile update, echoing back the merged user.
+  // Like the backend, it carries the global `roles` but not the tenant
+  // `role`/`permissions`, which only GET /auth/me returns.
   http.patch(apiPath('/users/me'), async ({ request }) => {
     const body = (await request.json()) as { name?: string; phone?: string };
     return HttpResponse.json({
@@ -447,6 +449,7 @@ export const handlers = [
         email: faker.internet.email(),
         name: body.name ?? faker.person.fullName(),
         phone: body.phone,
+        roles: rolesFor(request.headers),
         emailVerified: false,
         createdAt: new Date().toISOString(),
       },
