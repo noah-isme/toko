@@ -92,7 +92,7 @@ describe('Staff page', () => {
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'andi@example.com' } });
     fireEvent.change(screen.getByLabelText('Role'), { target: { value: 'fulfillment' } });
     expect(screen.getByLabelText('Role')).toHaveAccessibleDescription(
-      'Orders, shipments, returns and stock levels.',
+      'Orders, shipments, returns and stock levels; can view customers.',
     );
     fireEvent.click(screen.getByRole('button', { name: 'Add staff' }));
 

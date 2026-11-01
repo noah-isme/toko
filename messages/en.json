@@ -2243,8 +2243,8 @@
         "admin": "Full access to the store; cannot grant or change the owner role.",
         "manager": "Runs the store day to day; cannot change settings or staff.",
         "catalog": "Products, categories, brands and stock; can view promotions.",
-        "fulfillment": "Orders, shipments, returns and stock levels.",
-        "support": "Support tickets, orders and returns.",
+        "fulfillment": "Orders, shipments, returns and stock levels; can view customers.",
+        "support": "Support tickets, orders and returns; can view customers.",
         "analyst": "Read-only access to analytics, orders, catalog, promotions and customers."
       },
       "permissions": {

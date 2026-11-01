@@ -2243,8 +2243,8 @@
         "admin": "Akses penuh ke toko; tidak dapat memberikan atau mengubah peran pemilik.",
         "manager": "Menjalankan toko sehari-hari; tidak dapat mengubah pengaturan atau staf.",
         "catalog": "Produk, kategori, merek, dan stok; dapat melihat promosi.",
-        "fulfillment": "Pesanan, pengiriman, retur, dan tingkat stok.",
-        "support": "Tiket dukungan, pesanan, dan retur.",
+        "fulfillment": "Pesanan, pengiriman, retur, dan tingkat stok; dapat melihat pelanggan.",
+        "support": "Tiket dukungan, pesanan, dan retur; dapat melihat pelanggan.",
         "analyst": "Akses baca saja ke analitik, pesanan, katalog, promosi, dan pelanggan."
       },
       "permissions": {

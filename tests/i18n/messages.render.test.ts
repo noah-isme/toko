@@ -2452,8 +2452,10 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
       'Menjalankan toko sehari-hari; tidak dapat mengubah pengaturan atau staf.',
     'admin.access.roleDescriptions.catalog':
       'Produk, kategori, merek, dan stok; dapat melihat promosi.',
-    'admin.access.roleDescriptions.fulfillment': 'Pesanan, pengiriman, retur, dan tingkat stok.',
-    'admin.access.roleDescriptions.support': 'Tiket dukungan, pesanan, dan retur.',
+    'admin.access.roleDescriptions.fulfillment':
+      'Pesanan, pengiriman, retur, dan tingkat stok; dapat melihat pelanggan.',
+    'admin.access.roleDescriptions.support':
+      'Tiket dukungan, pesanan, dan retur; dapat melihat pelanggan.',
     'admin.access.roleDescriptions.analyst':
       'Akses baca saja ke analitik, pesanan, katalog, promosi, dan pelanggan.',
     'admin.access.permissions.catalogRead': 'Melihat katalog',
@@ -4969,8 +4971,10 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
       'Runs the store day to day; cannot change settings or staff.',
     'admin.access.roleDescriptions.catalog':
       'Products, categories, brands and stock; can view promotions.',
-    'admin.access.roleDescriptions.fulfillment': 'Orders, shipments, returns and stock levels.',
-    'admin.access.roleDescriptions.support': 'Support tickets, orders and returns.',
+    'admin.access.roleDescriptions.fulfillment':
+      'Orders, shipments, returns and stock levels; can view customers.',
+    'admin.access.roleDescriptions.support':
+      'Support tickets, orders and returns; can view customers.',
     'admin.access.roleDescriptions.analyst':
       'Read-only access to analytics, orders, catalog, promotions and customers.',
     'admin.access.permissions.catalogRead': 'View catalog',
