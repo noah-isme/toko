@@ -34,3 +34,12 @@ export function isMockFileResult(result: MockResult): result is { file: MockFile
     typeof result.file.body === 'string'
   );
 }
+
+/**
+ * A non-JSON body (for example an invoice PDF). Both mock layers send `body`
+ * verbatim with `headers` and `status`; build it with `mockBinary()`.
+ */
+export type MockBinaryResult = {
+  status: number;
+  __binary: { body: Uint8Array; headers: Record<string, string> };
+};

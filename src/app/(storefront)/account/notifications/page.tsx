@@ -13,6 +13,7 @@ import {
   useMarkNotificationRead,
   useNotifications,
 } from '@/entities/notifications/hooks';
+import { notificationHref } from '@/entities/notifications/href';
 import type { Notification } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { useFormat } from '@/shared/i18n/use-format';
@@ -20,11 +21,6 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { BaseSkeleton } from '@/shared/ui/skeletons/BaseSkeleton';
 
 const PAGE_SIZE = 20;
-
-function notificationHref(notification: Notification): string {
-  const orderId = notification.data?.orderId;
-  return orderId ? `/account/orders/${orderId}` : '/account/notifications';
-}
 
 export default function NotificationsPage() {
   const t = useTranslations('account.notifications');

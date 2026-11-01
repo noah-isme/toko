@@ -14,7 +14,7 @@ describe('parseContentDispositionFilename', () => {
       'laporan penjualan.csv',
     ],
     ['attachment; filename="a\\"b.csv"', 'a"b.csv'],
-    ['attachment; filename="../../etc/passwd"', '....etcpasswd'],
+    ['attachment; filename="../../etc/passwd"', 'passwd'],
   ])('reads %s', (header, expected) => {
     expect(parseContentDispositionFilename(header)).toBe(expected);
   });

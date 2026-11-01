@@ -18,6 +18,7 @@
  */
 import type { components } from './schema';
 
+import type { AlertSubscription } from '@/entities/alerts/types';
 import type {
   ApiAddressResponse,
   ApiProduct,
@@ -80,6 +81,15 @@ type _CartItemMatches = Expect<IsExactly<Required<Wire['CartItem']>, Required<Ca
 type _AddressSatisfiesClient = Expect<
   IsAssignable<Wire['Address'], Omit<ApiAddressResponse, 'createdAt' | 'updatedAt'>>
 >;
+
+// ---------------------------------------------------------------------------
+// Product alerts
+//
+// The wire payload is camelCase and parsed as-is (no mapper), so the key sets
+// must match exactly: a renamed field would otherwise parse to a zod error or
+// silently fall back.
+// ---------------------------------------------------------------------------
+type _AlertSubscriptionMatches = Expect<IsExactly<Wire['AlertSubscription'], AlertSubscription>>;
 
 // A named export keeps this a module rather than a global script, and gives the
 // file a reason to be imported by the type-only barrel below.

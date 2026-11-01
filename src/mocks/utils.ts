@@ -1,5 +1,6 @@
 import { HttpResponse } from 'msw';
 
+import { isMockBinary } from './resolvers/binary';
 import { isMockFileResult, type MockResult } from './resolvers/types';
 
 import type { CartView } from '@/lib/api/schemas';
@@ -26,6 +27,10 @@ export function mockResultResponse(result: MockResult) {
         'Cache-Control': 'no-store',
       },
     });
+  }
+  if (isMockBinary(result)) {
+    const { body, headers } = result.__binary;
+    return new HttpResponse(body.slice().buffer, { status: result.status, headers });
   }
   if (!Array.isArray(result) && typeof result.status === 'number') {
     const { status, ...rest } = result;

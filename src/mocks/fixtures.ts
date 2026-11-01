@@ -9,7 +9,7 @@ import { buildAdminOrderList, buildAdminProduct } from './factories/admin';
 import { buildBrandList } from './factories/brand';
 import { buildCart } from './factories/cart';
 import { buildCategoryList } from './factories/category';
-import { buildProductList } from './factories/product';
+import { buildProduct, buildProductList, stableUuid } from './factories/product';
 import { buildUserList } from './factories/user';
 
 /** Bearer token that the mock API treats as an admin session. */
@@ -19,6 +19,21 @@ export const MOCK_ADMIN_TOKEN = 'mock-admin-token';
 export const MOCK_SESSION_COOKIE = 'mockSessionId';
 
 export const products = buildProductList();
+
+/**
+ * A sold-out product for manual and mobile QA of "Notify me when available"
+ * (`/products/sold-out-demo`). It is served by the product detail endpoint
+ * and accepted by the alerts endpoints, but kept out of `products` so
+ * listings, counts and golden snapshots are unchanged.
+ */
+export const SOLD_OUT_DEMO_SLUG = 'sold-out-demo';
+export const soldOutDemoProduct = buildProduct(undefined, {
+  id: stableUuid(SOLD_OUT_DEMO_SLUG),
+  slug: SOLD_OUT_DEMO_SLUG,
+  title: 'MacBook Pro 14 M3 (Sold-out demo)',
+  stock: 0,
+  inStock: false,
+});
 export const categories = buildCategoryList();
 export const brands = buildBrandList();
 

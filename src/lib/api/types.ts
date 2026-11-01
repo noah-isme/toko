@@ -51,6 +51,8 @@ export type NotificationType =
   | 'shipment_shipped'
   | 'shipment_out_for_delivery'
   | 'shipment_delivered'
+  | 'back_in_stock'
+  | 'price_drop'
   | (string & {});
 
 export interface Notification {

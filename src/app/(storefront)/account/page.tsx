@@ -1,6 +1,16 @@
 'use client';
 
-import { Bell, Clock, Heart, LogOut, MapPin, Package, UserCircle, Award } from 'lucide-react';
+import {
+  Award,
+  Bell,
+  BellRing,
+  Clock,
+  Heart,
+  LogOut,
+  MapPin,
+  Package,
+  UserCircle,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -91,6 +101,12 @@ export default function AccountPage() {
           <Link href="/favorites" className="flex flex-col items-center gap-2">
             <Heart className="h-6 w-6" aria-hidden="true" />
             <span>{t('links.favorites')}</span>
+          </Link>
+        </Button>
+        <Button asChild size="lg" variant="ghost" className="h-auto py-6">
+          <Link href="/account/alerts" className="flex flex-col items-center gap-2">
+            <BellRing className="h-6 w-6" aria-hidden="true" />
+            <span>{t('links.alerts')}</span>
           </Link>
         </Button>
         <Button asChild size="lg" variant="ghost" className="h-auto py-6">

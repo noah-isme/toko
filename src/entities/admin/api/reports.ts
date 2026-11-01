@@ -13,7 +13,7 @@ import { buildQuery } from './query';
 
 import { apiClient, apiDownload } from '@/lib/api/apiClient';
 import type { ApiResponse } from '@/lib/api/types';
-import { parseContentDispositionFilename, saveBlob } from '@/lib/download';
+import { saveBlob } from '@/lib/download';
 
 async function getReport<T>(report: AdminReportKind, params: object): Promise<T> {
   const response = await apiClient<ApiResponse<T>>(
@@ -54,12 +54,11 @@ export const adminReportsApi = {
     report: AdminReportKind,
     params: Required<AdminReportRangeParams> & { categoryId?: string },
   ): Promise<string> {
-    const { blob, contentDisposition } = await apiDownload(
+    const { blob, filename: suggested } = await apiDownload(
       `/admin/reports/${report}${buildQuery({ ...params, format: 'csv' })}`,
       { requiresAuth: true, accept: 'text/csv' },
     );
-    const filename =
-      parseContentDispositionFilename(contentDisposition) ?? reportCsvFilename(report, params);
+    const filename = suggested ?? reportCsvFilename(report, params);
     saveBlob(blob, filename);
     return filename;
   },

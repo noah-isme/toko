@@ -2238,6 +2238,220 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my product alert subscriptions
+         * @description Returns the caller's back-in-stock / price-drop subscriptions in the active tenant, newest first. Prices are whole currency units (rupiah).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    /** @description Clamped to 100 */
+                    limit?: number;
+                    /** @description Optional filter to one product */
+                    productId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Paginated subscriptions */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlertListResponse"];
+                    };
+                };
+                /** @description Invalid productId (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Subscribe to (or re-arm) a product alert
+         * @description Creates a BACK_IN_STOCK or PRICE_DROP subscription for a product or one of its variants. Posting again for the same (product, variant, type) re-arms it (status active, notifiedAt null, priceAtSubscribe refreshed for PRICE_DROP) and returns 200. BACK_IN_STOCK is rejected with 409 ALREADY_IN_STOCK while the target is sellable, using the cart rule (variant: stock > 0; product-level: inStock). Alerts fire once, delivered as an in-app notification (type back_in_stock / price_drop) and a queued, retried email; they are never sent to webhooks.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AlertSubscribeRequest"];
+                };
+            };
+            responses: {
+                /** @description Existing subscription re-armed */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlertSubscriptionResponse"];
+                    };
+                };
+                /** @description Subscription created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlertSubscriptionResponse"];
+                    };
+                };
+                /** @description Invalid payload, ids or type (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Product not in tenant or variant not of product (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description BACK_IN_STOCK requested while the target is sellable (ALREADY_IN_STOCK) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/alerts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete one of my product alert subscriptions */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Subscription ID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid id (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not found for this user in this tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/carts": {
         parameters: {
             query?: never;
@@ -2890,6 +3104,92 @@ export interface paths {
             };
             requestBody?: never;
             responses: never;
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{orderId}/invoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download invoice PDF for my order
+         * @description Order owner only, tenant-scoped. A number (INV-YYYY-NNNNNN, per-tenant counter, year in tenant timezone) is assigned on first download and never changes. New invoices require status PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED; an already issued invoice stays downloadable. Amounts are whole rupiah.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    orderId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Invoice PDF (attachment) */
+                200: {
+                    headers: {
+                        /** @description attachment; filename="INV-YYYY-NNNNNN.pdf" */
+                        "Content-Disposition"?: string;
+                        /** @description private, no-store */
+                        "Cache-Control"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": string;
+                    };
+                };
+                /** @description Invalid order id (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Order not found, not owned by caller, or other tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Order not paid yet / cancelled and no invoice issued (INVOICE_NOT_AVAILABLE) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -6277,6 +6577,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/orders/{id}/invoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download invoice PDF for an order (admin)
+         * @description Same document and numbering as GET /api/v1/orders/{orderId}/invoice, for any order in the active tenant. Requires admin role; audited.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Invoice PDF (attachment) */
+                200: {
+                    headers: {
+                        /** @description attachment; filename="INV-YYYY-NNNNNN.pdf" */
+                        "Content-Disposition"?: string;
+                        /** @description private, no-store */
+                        "Cache-Control"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": string;
+                    };
+                };
+                /** @description Invalid order id (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Order not in this tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Order not paid yet / cancelled and no invoice issued (INVOICE_NOT_AVAILABLE) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/vouchers/stats": {
         parameters: {
             query?: never;
@@ -7534,6 +7927,65 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AlertSubscribeRequest: {
+            /** Format: uuid */
+            productId: string;
+            /**
+             * Format: uuid
+             * @description Omit or null for a product-level subscription
+             */
+            variantId?: string | null;
+            /**
+             * @description Case-insensitive on input
+             * @enum {string}
+             */
+            type: "BACK_IN_STOCK" | "PRICE_DROP";
+        };
+        AlertSubscription: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            productId: string;
+            /** Format: uuid */
+            variantId: string | null;
+            /** @enum {string} */
+            type: "BACK_IN_STOCK" | "PRICE_DROP";
+            /**
+             * Format: int64
+             * @description Whole currency units; null for BACK_IN_STOCK
+             */
+            priceAtSubscribe: number | null;
+            /** @enum {string} */
+            status: "active" | "notified";
+            /** Format: date-time */
+            notifiedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            product: {
+                title: string;
+                slug: string;
+                thumbnail: string | null;
+                /** Format: int64 */
+                price: number;
+                inStock: boolean;
+            };
+            /** @description Omitted when variantId is null */
+            variant?: {
+                /** Format: uuid */
+                id: string;
+                sku: string | null;
+                /** Format: int64 */
+                price: number;
+                stock: number;
+            };
+        };
+        AlertSubscriptionResponse: {
+            data: components["schemas"]["AlertSubscription"];
+        };
+        AlertListResponse: {
+            data: components["schemas"]["AlertSubscription"][];
+            pagination: components["schemas"]["Pagination"];
+        };
         ReturnRequest: {
             reason: string;
             notes?: string;

@@ -12,6 +12,8 @@ import { CancelOrderModal } from '@/components/cancel-order-modal';
 import { Button } from '@/components/ui/button';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useCancelOrderMutation, useOrderQuery } from '@/entities/orders/api/hooks';
+import { isInvoiceIssuable } from '@/entities/orders/api/invoice';
+import { InvoiceDownloadButton } from '@/entities/orders/ui/InvoiceDownloadButton';
 import { humanizeStatus, orderStatusLabel } from '@/shared/i18n/status';
 import { useFormat } from '@/shared/i18n/use-format';
 import { OrderTrackingSkeleton } from '@/shared/ui/skeletons/OrderTrackingSkeleton';
@@ -457,6 +459,9 @@ export default function OrderConfirmationPage() {
           <Button variant="destructive" onClick={() => setCancelOpen(true)}>
             {t('cancelOrder')}
           </Button>
+        ) : null}
+        {isInvoiceIssuable(order.status) ? (
+          <InvoiceDownloadButton orderId={order.id} orderNumber={order.orderNumber} />
         ) : null}
         <Button asChild variant="outline">
           <Link href="/account/orders">{t('viewMyOrders')}</Link>

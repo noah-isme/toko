@@ -928,6 +928,37 @@
         "answerFailed": "Gagal mengirim jawaban",
         "voteFailed": "Gagal voting"
       }
+    },
+    "alerts": {
+      "saving": "Menyimpan...",
+      "backInStock": {
+        "hint": "Stok sedang habis. Kami bisa mengabari Anda lewat notifikasi dan email saat tersedia lagi.",
+        "subscribe": "Ingatkan saya saat tersedia",
+        "active": "Kami akan mengabari Anda saat stok tersedia.",
+        "cancel": "Batalkan pengingat",
+        "subscribedTitle": "Pengingat stok aktif",
+        "subscribedDescription": "Anda akan menerima notifikasi dan email saat produk tersedia.",
+        "cancelled": "Pengingat stok dibatalkan."
+      },
+      "priceDrop": {
+        "label": "Kabari jika harga turun",
+        "labelFor": "Kabari jika harga turun: {product}",
+        "enabled": "Kami akan mengabari Anda jika harganya turun.",
+        "disabled": "Pantauan harga dimatikan."
+      },
+      "errors": {
+        "alreadyInStock": "Produk ini sudah tersedia lagi. Silakan langsung dibeli.",
+        "notFound": "Produk tidak ditemukan.",
+        "alertNotFound": "Pengingat ini sudah dihapus.",
+        "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi.",
+        "failed": "Gagal menyimpan pengingat. Silakan coba lagi."
+      },
+      "login": {
+        "title": "Masuk untuk mengaktifkan pengingat",
+        "description": "Setelah masuk, Anda akan kembali ke halaman ini.",
+        "signIn": "Masuk",
+        "cancel": "Nanti saja"
+      }
     }
   },
   "cart": {
@@ -1516,7 +1547,8 @@
       "orders": "Pesanan",
       "loyalty": "Loyalitas",
       "pushSettings": "Notifikasi Push",
-      "searches": "Riwayat Pencarian"
+      "searches": "Riwayat Pencarian",
+      "alerts": "Pengingat Produk"
     },
     "backToAccount": "Kembali ke akun",
     "login": "Login",
@@ -1537,7 +1569,8 @@
         "searches": "Riwayat Pencarian",
         "loyalty": "Loyalitas",
         "push": "Notifikasi Push",
-        "logout": "Keluar"
+        "logout": "Keluar",
+        "alerts": "Pengingat Produk"
       }
     },
     "addresses": {
@@ -1662,6 +1695,39 @@
         "viewAll": "Lihat semua"
       }
     },
+    "alerts": {
+      "title": "Pengingat produk",
+      "description": "Kami akan mengabari Anda saat produk kembali tersedia atau harganya turun.",
+      "loadFailed": "Gagal memuat pengingat.",
+      "retry": "Coba lagi",
+      "emptyTitle": "Belum ada pengingat",
+      "emptyDescription": "Aktifkan “Ingatkan saya” pada produk yang habis, atau pantau harga dari halaman Favorit.",
+      "browse": "Jelajahi produk",
+      "types": {
+        "BACK_IN_STOCK": "Stok kembali",
+        "PRICE_DROP": "Harga turun"
+      },
+      "status": {
+        "active": "Aktif",
+        "notified": "Terkirim {date}",
+        "notifiedNoDate": "Terkirim"
+      },
+      "variant": "Varian {sku}",
+      "prices": "Harga saat dipantau {then} · sekarang {now}",
+      "availableNow": "Sudah tersedia lagi",
+      "stillSoldOut": "Masih habis",
+      "createdAt": "Dibuat {date}",
+      "remove": "Hapus",
+      "removeLabel": "Hapus pengingat {product}",
+      "rearm": "Aktifkan lagi",
+      "rearmLabel": "Aktifkan lagi: {product}",
+      "removed": "Pengingat dihapus.",
+      "rearmed": "Pengingat diaktifkan lagi.",
+      "pagination": "Navigasi halaman pengingat",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "pageOf": "Halaman {page} dari {total}"
+    },
     "orderStatus": {
       "all": "Semua Status",
       "pending_payment": "Menunggu Pembayaran",
@@ -1704,7 +1770,6 @@
       "createdAt": "Dibuat {date}",
       "payNow": "Bayar sekarang",
       "trackShipment": "Lacak pengiriman",
-      "downloadInvoice": "Unduh invoice",
       "cancelOrder": "Batalkan pesanan",
       "items": "Produk dalam pesanan",
       "qtyPrice": "Jml {qty} - {price}",
@@ -1733,20 +1798,16 @@
       }
     },
     "invoice": {
-      "title": "Faktur #{number}",
-      "date": "Tanggal: {date}",
-      "customer": "Pelanggan: {name}",
-      "email": "Email: {email}",
-      "address": "Alamat pengiriman:",
-      "products": "Produk:",
-      "subtotal": "Subtotal: {amount}",
-      "discount": "Diskon: {amount}",
-      "tax": "Pajak: {amount}",
-      "shipping": "Ongkir: {amount}",
-      "total": "Total: {amount}",
-      "courier": "Kurir: {courier} - {service}",
-      "trackingNumber": "Nomor resi: {number}",
-      "eta": "Estimasi tiba: {date}"
+      "download": "Unduh invoice",
+      "downloading": "Mengunduh invoice...",
+      "errorTitle": "Invoice tidak dapat diunduh",
+      "errors": {
+        "notAvailable": "Invoice tersedia setelah pesanan dibayar.",
+        "notAvailableCancelled": "Tidak ada invoice yang diterbitkan sebelum pesanan ini dibatalkan.",
+        "notFound": "Pesanan tidak ditemukan.",
+        "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi.",
+        "failed": "Gagal mengunduh invoice. Silakan coba lagi."
+      }
     },
     "cancelModal": {
       "reasons": {

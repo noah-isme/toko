@@ -8,6 +8,8 @@ import { ProductImageGallery } from '@/components/product-image-gallery';
 import { ProductRecommendations } from '@/components/product-recommendations';
 import { Rating } from '@/components/rating';
 import { SocialShare } from '@/components/social-share';
+import { isTargetSellable } from '@/entities/alerts/sellable';
+import { BackInStockAlert } from '@/entities/alerts/ui/BackInStockAlert';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useProduct } from '@/entities/catalog/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
@@ -62,7 +64,10 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const selectedVariant = variants.find((variant) => variant.id === activeVariantId);
   const availableStock = selectedVariant?.stock ?? data.stock;
   const displayPrice = selectedVariant?.price ?? data.price;
-  const isOutOfStock = !data.inStock || availableStock <= 0;
+  // Same rule as the cart and the alerts API: a variant is sellable when its
+  // stock is above zero, a product without variants when it is in stock.
+  const isSellable = isTargetSellable(data, selectedVariant);
+  const isOutOfStock = !isSellable || availableStock <= 0;
 
   const handleAddToCart = async () => {
     // Ensure cart exists before adding
@@ -154,13 +159,13 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
                     <button
                       key={variant.id}
                       type="button"
-                      disabled={variant.stock <= 0}
+                      aria-pressed={activeVariantId === variant.id}
                       onClick={() => setSelectedVariantId(variant.id)}
                       className={`rounded-xl border px-3 py-3 text-left text-sm transition ${
                         activeVariantId === variant.id
                           ? 'border-primary bg-primary/10'
                           : 'border-border hover:border-primary/60'
-                      } ${variant.stock <= 0 ? 'cursor-not-allowed opacity-45' : ''}`}
+                      } ${variant.stock <= 0 ? 'opacity-60' : ''}`}
                     >
                       <span className="block font-medium">{label}</span>
                       <span className="text-xs text-muted-foreground">
@@ -186,6 +191,13 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             >
               {isOutOfStock ? t('outOfStock') : t('addToCart')}
             </GuardedButton>
+            {!isSellable ? (
+              <BackInStockAlert
+                productId={data.id}
+                productSlug={slug}
+                variantId={selectedVariant?.id ?? null}
+              />
+            ) : null}
           </div>
         </div>
       </div>

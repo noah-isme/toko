@@ -3,24 +3,28 @@
  * a Blob through a temporary object URL.
  */
 
-/** Strips path separators and control characters so a header cannot pick a directory. */
+/**
+ * Keeps only the last path segment and drops control characters, so a header
+ * cannot pick a directory (`../../etc/passwd` becomes `passwd`).
+ */
 function sanitizeFilename(name: string): string {
-  const cleaned = name.replace(/[\u0000-\u001f\u007f/\\]/g, '').trim();
+  const base = name.split(/[\\/]/).pop() ?? '';
+  const cleaned = base.replace(/[\u0000-\u001f\u007f]/g, '').trim();
   return cleaned === '.' || cleaned === '..' ? '' : cleaned;
 }
 
 /**
  * The filename from a Content-Disposition header (RFC 6266): `filename*`
- * (RFC 5987, UTF-8) wins over `filename`. Returns null when absent or unusable.
+ * (RFC 5987) wins over `filename`. Returns null when absent or unusable.
  */
 export function parseContentDispositionFilename(header: string | null | undefined): string | null {
   if (!header) return null;
 
-  const extended = /filename\*\s*=\s*(?:UTF-8|utf-8)''([^;]+)/.exec(header);
+  const extended = /filename\*\s*=\s*([^']*)'[^']*'([^;]+)/i.exec(header);
   if (extended) {
     try {
       const decoded = sanitizeFilename(
-        decodeURIComponent(extended[1].trim().replace(/^"|"$/g, '')),
+        decodeURIComponent(extended[2].trim().replace(/^"|"$/g, '')),
       );
       if (decoded) return decoded;
     } catch {
@@ -28,10 +32,10 @@ export function parseContentDispositionFilename(header: string | null | undefine
     }
   }
 
-  const quoted = /filename\s*=\s*"((?:\\.|[^"\\])*)"/.exec(header);
+  const quoted = /filename\s*=\s*"((?:\\.|[^"\\])*)"/i.exec(header);
   const plain = quoted
     ? quoted[1].replace(/\\(.)/g, '$1')
-    : /filename\s*=\s*([^;]+)/.exec(header)?.[1];
+    : /filename\s*=\s*([^;]+)/i.exec(header)?.[1];
   const name = plain ? sanitizeFilename(plain.trim()) : '';
   return name || null;
 }
