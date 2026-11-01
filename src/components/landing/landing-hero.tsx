@@ -124,7 +124,7 @@ export function LandingHero() {
 
         {/* Card 3: Fashion Shortcut */}
         <Link
-          href="/products?category=clothing"
+          href="/products?category=fashion"
           className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-all duration-150 hover:border-primary/50 hover:bg-accent/50 active:scale-[0.98]"
         >
           <div className="flex items-center justify-between">

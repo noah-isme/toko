@@ -2,6 +2,7 @@
 
 import { Search, Filter, X, Loader2, Star, Tag, Truck, Zap } from 'lucide-react';
 import type { Route } from 'next';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
@@ -28,12 +29,18 @@ import {
   buildSearchUrl,
 } from '@/entities/search/hooks';
 import {
+  PRICE_FILTER_MAX,
   PRODUCTS_PAGE_SIZE,
   parseSearchStateFromUrl,
   toProductApiParams,
 } from '@/entities/search/lib/apiParams';
+import { hasPriceFilter, priceRangeDisplayBounds } from '@/entities/search/lib/facets';
 import type { SearchFilters, SortOption } from '@/entities/search/types';
-import { AdvancedFilterSidebar as AdvancedFilterSidebarComponent } from '@/entities/search/ui/AdvancedFilterSidebar';
+import {
+  AdvancedFilterSidebar as AdvancedFilterSidebarComponent,
+  type FacetCountsState,
+} from '@/entities/search/ui/AdvancedFilterSidebar';
+import type { ProductFacets } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { useFormat } from '@/shared/i18n/use-format';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -99,7 +106,7 @@ export function AdvancedSearchResults() {
     const cleared: SearchFilters = {
       categories: [],
       brands: [],
-      priceRange: [0, 10000000],
+      priceRange: [0, PRICE_FILTER_MAX],
       rating: null,
       inStockOnly: false,
       discountOnly: false,
@@ -129,6 +136,19 @@ export function AdvancedSearchResults() {
     enabled: true,
   });
 
+  // Keep the last facet counts while a new filter combination loads, so the
+  // sidebar does not collapse into a skeleton on every click.
+  const [lastFacets, setLastFacets] = useState<ProductFacets | undefined>(productsData?.facets);
+  if (productsData && productsData.facets !== lastFacets) {
+    setLastFacets(productsData.facets);
+  }
+  const facetCounts: FacetCountsState = {
+    data: productsData ? productsData.facets : lastFacets,
+    isLoading: !productsData && isFetching,
+  };
+  const searchMeta = productsData?.meta;
+  const suggestions = searchMeta?.suggestions ?? [];
+
   const products = productsData?.data ?? [];
   const totalItems = productsData?.pagination?.totalItems ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
@@ -157,13 +177,15 @@ export function AdvancedSearchResults() {
         onRemove: () => handleFiltersChange({ brands: filters.brands!.filter((b) => b !== brand) }),
       });
     });
-    if (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000)) {
+    if (hasPriceFilter(filters.priceRange)) {
+      // Same bounds as the sidebar's price buckets (exclusive upper edge).
+      const { min, max } = priceRangeDisplayBounds(filters.priceRange);
       items.push({
-        label: t('chips.price', {
-          min: fmt.currency(filters.priceRange[0]),
-          max: fmt.currency(filters.priceRange[1]),
-        }),
-        onRemove: () => handleFiltersChange({ priceRange: [0, 10000000] }),
+        label:
+          max === null
+            ? t('chips.priceFrom', { min: fmt.currency(min) })
+            : t('chips.price', { min: fmt.currency(min), max: fmt.currency(max) }),
+        onRemove: () => handleFiltersChange({ priceRange: undefined }),
       });
     }
     if (filters.rating) {
@@ -262,6 +284,7 @@ export function AdvancedSearchResults() {
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onClearFilters={handleClearFilters}
+          facetCounts={facetCounts}
         />
 
         {/* Results Area */}
@@ -301,15 +324,40 @@ export function AdvancedSearchResults() {
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
               <EmptyState
                 icon={<Search className="h-12 w-12 text-muted-foreground/50" />}
                 title={t('results.emptyTitle')}
                 description={filters.query ? t('results.emptyQuery') : t('results.emptyDefault')}
               />
+              {suggestions.length > 0 && (
+                <nav aria-label={t('results.suggestionsLabel')} className="space-y-2">
+                  <p className="text-sm font-medium">{t('results.didYouMean')}</p>
+                  <ul className="flex flex-wrap justify-center gap-2">
+                    {suggestions.map((suggestion) => (
+                      <li key={suggestion.slug}>
+                        <Link
+                          href={`/products/${suggestion.slug}` as Route}
+                          className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                          {suggestion.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              )}
             </div>
           ) : (
             <>
+              {searchMeta?.searchMode === 'fuzzy' && filters.query && (
+                <p
+                  role="status"
+                  className="rounded-md border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
+                >
+                  {t('results.fuzzyNotice', { query: filters.query })}
+                </p>
+              )}
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
