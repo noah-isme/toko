@@ -2,9 +2,9 @@ import { ADMIN_ORDER_STATUSES, buildAdminTaxonomy, toAdminOrderRow } from '../fa
 import { stableUuid } from '../factories/product';
 import { adminOrders, adminProducts, brands, categories } from '../fixtures';
 
-import { isAdminRequest, mockTenantRole } from './auth';
+import { isAdminRequest, tokenTenantRole } from './auth';
 import { adminStore, type AdminStore } from './session';
-import { adminRoutePermission, ROLE_PERMISSIONS, resolveStaff } from './staff';
+import { adminRoutePermission, effectiveTenantRole, ROLE_PERMISSIONS, resolveStaff } from './staff';
 import type { MockRequest, MockResult } from './types';
 
 import type {
@@ -268,7 +268,8 @@ function analyticsOverview(admin: AdminStore, range: string) {
  */
 export function resolveAdmin(req: MockRequest): MockResult | undefined {
   if (req.path !== 'admin' && !req.path.startsWith('admin/')) return undefined;
-  const role = mockTenantRole(req.headers);
+  const tokenRole = tokenTenantRole(req.headers);
+  const role = effectiveTenantRole(req.sessionId, tokenRole);
   if (role === 'customer') return forbidden('staff role required', 'staff');
 
   const parts = req.path.split('/').slice(1);
@@ -280,7 +281,7 @@ export function resolveAdmin(req: MockRequest): MockResult | undefined {
     return forbidden('insufficient permissions', required);
   }
 
-  const staff = resolveStaff(req, parts, role);
+  const staff = resolveStaff(req, parts, role, tokenRole);
   if (staff) return staff;
 
   const admin = store(req.sessionId);

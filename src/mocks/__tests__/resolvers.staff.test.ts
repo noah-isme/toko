@@ -179,23 +179,79 @@ describe('staff endpoints', () => {
       status: 409,
       error: { code: 'LAST_OWNER' },
     });
+    // As an admin, the tenant's owner is admin@toko.com (see the seeding test).
+    const adminView = call('GET', 'admin/staff', { auth: staffToken('admin') }).data as Json[];
+    const tenantOwner = adminView.find((m) => m.role === 'owner');
     expect(
-      call('PATCH', `admin/staff/${owner.userId}`, {
+      call('PATCH', `admin/staff/${tenantOwner.userId}`, {
         auth: staffToken('admin'),
         body: { role: 'admin' },
       }),
     ).toMatchObject({ status: 403, error: { code: 'OWNER_REQUIRED' } });
 
-    // A second owner lifts the last-owner block.
-    call('PATCH', `admin/staff/${budi.userId}`, { body: { role: 'owner' } });
-    expect(call('DELETE', `admin/staff/${owner.userId}`)).toEqual({ status: 204 });
-    expect(call('DELETE', `admin/staff/${owner.userId}`)).toMatchObject({
-      status: 404,
-      error: { code: 'STAFF_NOT_FOUND' },
-    });
     expect(
       call('PATCH', `admin/staff/${budi.userId}`, { body: { role: 'customer' } }).error.code,
     ).toBe('VALIDATION_ERROR');
+
+    // A second owner lifts the last-owner block. The revoked caller is no
+    // longer staff, so their next admin request is refused.
+    call('PATCH', `admin/staff/${budi.userId}`, { body: { role: 'owner' } });
+    expect(call('DELETE', `admin/staff/${owner.userId}`)).toEqual({ status: 204 });
+    expect(call('DELETE', `admin/staff/${owner.userId}`)).toMatchObject({
+      status: 403,
+      error: { code: 'FORBIDDEN', details: { required: 'staff' } },
+    });
+  });
+
+  it('validates the PATCH role before looking up the target, like the backend', () => {
+    expect(call('PATCH', 'admin/staff/no-such-user', { body: { role: 'wizard' } })).toMatchObject({
+      status: 400,
+      error: { code: 'VALIDATION_ERROR' },
+    });
+    expect(call('PATCH', 'admin/staff/no-such-user', { body: { role: 'manager' } })).toMatchObject({
+      status: 404,
+      error: { code: 'STAFF_NOT_FOUND' },
+    });
+  });
+
+  it('seeds the signed-in user with the role their token names', () => {
+    const asAdmin = call('GET', 'admin/staff', { auth: staffToken('admin') }).data as Json[];
+    expect(asAdmin.find((m) => m.email === 'john.doe@example.com').role).toBe('admin');
+    // Someone else owns the tenant, so the owner rules can be tried as an admin.
+    expect(asAdmin.filter((m) => m.role === 'owner').map((m) => m.email)).toEqual([
+      'admin@toko.com',
+    ]);
+  });
+
+  it('applies a self role change or revoke to /auth/me and admin permissions', () => {
+    const auth = staffToken('admin');
+    const me = (call('GET', 'admin/staff', { auth }).data as Json[]).find(
+      (m) => m.email === 'john.doe@example.com',
+    );
+    call('PATCH', `admin/staff/${me.userId}`, { auth, body: { role: 'support' } });
+    expect(call('GET', 'auth/me', { auth }).data).toMatchObject({
+      role: 'support',
+      permissions: permissionsFor('support'),
+    });
+    expect(call('GET', 'admin/staff', { auth }).error.details.required).toBe('staff:read');
+    // Another session keeps the token's role.
+    expect(call('GET', 'auth/me', { auth, session: 's2' }).data.role).toBe('admin');
+  });
+
+  it('turns a revoked global admin into a customer who is refused everywhere', () => {
+    const staff = call('GET', 'admin/staff').data as Json[];
+    const me = staff.find((m) => m.email === 'john.doe@example.com');
+    const budi = staff.find((m) => m.email === 'budi@example.com');
+    call('PATCH', `admin/staff/${budi.userId}`, { body: { role: 'owner' } });
+    expect(call('DELETE', `admin/staff/${me.userId}`)).toEqual({ status: 204 });
+
+    expect(call('GET', 'auth/me').data).toMatchObject({
+      roles: ['admin'],
+      role: 'customer',
+      permissions: [],
+    });
+    // Platform routes sit behind the staff check too.
+    expect(call('GET', 'admin/audit-logs').error.details.required).toBe('staff');
   });
 
   it('keeps staff changes per session', () => {

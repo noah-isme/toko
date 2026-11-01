@@ -18,7 +18,7 @@ import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
 import { accessFor } from './resolvers/auth';
 import { getProduct, listProducts } from './resolvers/catalog';
-import { apiPath, type MockCart } from './utils';
+import { apiPath, mockSessionId, type MockCart } from './utils';
 
 import { addToCartInputSchema, updateCartItemInputSchema } from '@/lib/api/schemas';
 import type { Cart as ApiCart } from '@/lib/api/types';
@@ -434,7 +434,7 @@ export const handlers = [
         phone: faker.phone.number(),
         createdAt: new Date().toISOString(),
         // Tenant role and permissions follow the bearer token, as in the route mock.
-        ...accessFor(request.headers),
+        ...accessFor(request.headers, mockSessionId(request)),
       },
     }),
   ),

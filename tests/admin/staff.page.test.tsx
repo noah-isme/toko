@@ -190,7 +190,10 @@ describe('Staff page', () => {
   it('locks owners and hides the owner role from non-owner admins', async () => {
     signInAs('admin');
     renderPage();
-    const owner = await rowFor('john.doe@example.com');
+    // Signed in as an admin, the mock tenant's owner is admin@toko.com.
+    const me = await rowFor('john.doe@example.com');
+    expect(within(me).getByText('You')).toBeInTheDocument();
+    const owner = await rowFor('admin@toko.com');
     expect(within(owner).queryByRole('combobox')).not.toBeInTheDocument();
     expect(within(owner).queryByRole('button')).not.toBeInTheDocument();
     expect(within(owner).getAllByText('Only an owner can change an owner.').length).toBeGreaterThan(

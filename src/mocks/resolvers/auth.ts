@@ -2,7 +2,7 @@ import { MOCK_USER } from '../factories/user';
 import { MOCK_ADMIN_TOKEN, MOCK_STAFF_TOKEN_PREFIX } from '../fixtures';
 
 import { sessionValue } from './session';
-import { isStaffRoleSlug, permissionsFor, type MockTenantRole } from './staff';
+import { effectiveTenantRole, isStaffRoleSlug, permissionsFor, type MockTenantRole } from './staff';
 import type { MockResolver } from './types';
 
 const ACCESS_TOKEN = 'mock-access-token-12345';
@@ -16,10 +16,10 @@ function rolesFor(headers: Headers): string[] {
 }
 
 /**
- * The caller's role in the mock tenant: `owner` for `MOCK_ADMIN_TOKEN`, the
+ * The role the caller's token names: `owner` for `MOCK_ADMIN_TOKEN`, the
  * named role for `mock-staff-token-<role>`, `customer` for any other token.
  */
-export function mockTenantRole(headers: Headers): MockTenantRole {
+export function tokenTenantRole(headers: Headers): MockTenantRole {
   if (isAdminRequest(headers)) return 'owner';
   const token = headers.get('authorization')?.replace(/^Bearer /, '') ?? '';
   if (token.startsWith(MOCK_STAFF_TOKEN_PREFIX)) {
@@ -29,9 +29,17 @@ export function mockTenantRole(headers: Headers): MockTenantRole {
   return 'customer';
 }
 
+/**
+ * The caller's current role in the mock tenant: the token's role, as changed
+ * by staff changes to the signed-in user in this mock session.
+ */
+export function mockTenantRole(headers: Headers, sessionId: string): MockTenantRole {
+  return effectiveTenantRole(sessionId, tokenTenantRole(headers));
+}
+
 /** `/auth/me` fields for the caller: legacy global roles plus tenant role and permissions. */
-export function accessFor(headers: Headers) {
-  const role = mockTenantRole(headers);
+export function accessFor(headers: Headers, sessionId: string) {
+  const role = mockTenantRole(headers, sessionId);
   return { roles: rolesFor(headers), role, permissions: permissionsFor(role) };
 }
 
@@ -124,7 +132,7 @@ export const resolveAuth: MockResolver = ({ path, method, body, headers, session
 
   if (path === 'auth/me' && method === 'GET') {
     return {
-      data: { ...MOCK_USER, emailVerified: true, createdAt: now, ...accessFor(headers) },
+      data: { ...MOCK_USER, emailVerified: true, createdAt: now, ...accessFor(headers, sessionId) },
     };
   }
 

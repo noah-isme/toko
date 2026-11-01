@@ -117,25 +117,33 @@ function timestamp(index: number): string {
   return new Date(Date.UTC(2026, 0, 5 + index, 8)).toISOString();
 }
 
-/** Every member of the mock tenant: the signed-in user (owner), seeded staff, customers. */
-function seedMemberships(): Membership[] {
-  const owner: Membership = {
+/**
+ * Every member of the mock tenant: the signed-in user with the role their
+ * token names, seeded staff, customers. When the signed-in user is not the
+ * owner, `admin@toko.com` is, so the tenant always has an owner.
+ */
+function seedMemberships(selfRole: MockTenantRole): Membership[] {
+  const self: Membership = {
     userId: MOCK_USER.id,
     name: MOCK_USER.name,
     email: MOCK_USER.email,
-    role: 'owner',
+    role: selfRole,
     status: 'ACTIVE',
     createdAt: timestamp(0),
     updatedAt: timestamp(0),
   };
+  const seedRole = (email: string): MockTenantRole =>
+    selfRole !== 'owner' && email === 'admin@toko.com'
+      ? 'owner'
+      : (SEED_ROLES[email] ?? 'customer');
   return [
-    owner,
+    self,
     ...users.map(
       (user, index): Membership => ({
         userId: user.id,
         name: user.name,
         email: user.email,
-        role: SEED_ROLES[user.email] ?? 'customer',
+        role: seedRole(user.email),
         status: 'ACTIVE',
         createdAt: timestamp(index + 1),
         updatedAt: timestamp(index + 1),
@@ -144,8 +152,25 @@ function seedMemberships(): Membership[] {
   ];
 }
 
-function memberships(sessionId: string): Membership[] {
-  return sessionValue('staff', sessionId, seedMemberships);
+/**
+ * The session's tenant as seen by a signed-in user whose token names
+ * `tokenRole`. Each token role gets its own store, so switching mock tokens
+ * starts from a consistent tenant instead of one where the token and the
+ * stored role disagree.
+ */
+function memberships(sessionId: string, tokenRole: MockTenantRole): Membership[] {
+  return sessionValue(`staff:${tokenRole}`, sessionId, () => seedMemberships(tokenRole));
+}
+
+/**
+ * The signed-in user's current tenant role: the role their token names until a
+ * staff change in this session moves it (a self demotion or revoke), as the
+ * backend's `/auth/me` and permission checks read the role per request.
+ */
+export function effectiveTenantRole(sessionId: string, tokenRole: MockTenantRole): MockTenantRole {
+  if (tokenRole === 'customer') return tokenRole;
+  const self = memberships(sessionId, tokenRole).find((member) => member.userId === MOCK_USER.id);
+  return self?.role ?? tokenRole;
 }
 
 const rank = (role: StaffRole) => STAFF_ROLES.indexOf(role);
@@ -185,12 +210,15 @@ function listStaff(all: Membership[], searchParams: URLSearchParams): MockResult
 
 /**
  * `admin/roles` and `admin/staff[/{userId}]` for an actor whose permission the
- * caller has already checked. Returns `undefined` for other paths.
+ * caller has already checked. `actorRole` is the actor's current role and
+ * `tokenRole` the role their token names (it selects the store). Returns
+ * `undefined` for other paths.
  */
 export function resolveStaff(
   req: MockRequest,
   parts: string[],
   actorRole: MockTenantRole,
+  tokenRole: MockTenantRole = actorRole,
 ): MockResult | undefined {
   const { method, body, sessionId, searchParams } = req;
 
@@ -203,7 +231,7 @@ export function resolveStaff(
   }
   if (parts[0] !== 'staff') return undefined;
 
-  const all = memberships(sessionId);
+  const all = memberships(sessionId, tokenRole);
   const now = new Date().toISOString();
 
   if (parts.length === 1 && method === 'GET') return listStaff(all, searchParams);
@@ -226,18 +254,20 @@ export function resolveStaff(
     return { status: 201, data: target };
   }
 
-  if (parts.length !== 2) return undefined;
-  const target = all.find((member) => member.userId === parts[1]);
-  if (!target || !isStaff(target)) {
-    if (method === 'PATCH' || method === 'DELETE') return STAFF_NOT_FOUND;
-    return undefined;
+  if (parts.length !== 2 || (method !== 'PATCH' && method !== 'DELETE')) return undefined;
+  // Like the backend, PATCH validates the payload before looking up the target.
+  const role = body?.role;
+  if (method === 'PATCH' && !isStaffRoleSlug(role)) {
+    return error(
+      400,
+      'VALIDATION_ERROR',
+      'role must be one of the staff roles; use DELETE to revoke',
+    );
   }
+  const target = all.find((member) => member.userId === parts[1]);
+  if (!target || !isStaff(target)) return STAFF_NOT_FOUND;
 
   if (method === 'PATCH') {
-    const role = body?.role;
-    if (!isStaffRoleSlug(role)) {
-      return error(400, 'VALIDATION_ERROR', 'role must be one of the staff roles');
-    }
     if ((target.role === 'owner' || role === 'owner') && actorRole !== 'owner') {
       return OWNER_REQUIRED;
     }
