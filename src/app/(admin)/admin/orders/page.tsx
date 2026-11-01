@@ -11,6 +11,7 @@ import {
   AdminPageHeader,
   OrderStatusBadge,
 } from '@/components/admin/admin-ui';
+import { CsvExportButton } from '@/components/admin/catalog/csv-export-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -44,6 +45,7 @@ import {
   useAdminOrders,
   useAdminOrderStats,
   useCreateAdminShipment,
+  useExportOrdersCsv,
   useUpdateAdminOrderStatus,
 } from '@/entities/admin/hooks';
 import type { AdminOrder, AdminOrderStatus } from '@/entities/admin/types';
@@ -114,6 +116,8 @@ function paymentStatusClass(status: string): string {
 export default function OrdersPage() {
   const t = useTranslations('admin.orders');
   const tAdmin = useTranslations('admin');
+  const tExport = useTranslations('admin.catalog.export');
+  const exportOrders = useExportOrdersCsv();
   const tCommon = useTranslations('admin.common');
   const { currency, date } = useAdminFormat();
   const [search, setSearch] = useState('');
@@ -195,7 +199,22 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title={t('title')} description={t('description')} />
+      <AdminPageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <CsvExportButton
+            label={tExport('ordersLabel')}
+            onExport={() =>
+              exportOrders.mutateAsync({
+                search: debouncedSearch || undefined,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+              })
+            }
+            testId="admin-orders-export"
+          />
+        }
+      />
 
       {stats.data ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

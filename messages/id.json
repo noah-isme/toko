@@ -2361,6 +2361,11 @@
         "pending": "Tertunda",
         "shipped": "Dikirim",
         "delivered": "Diterima",
+        "lowStock": "Stok menipis",
+        "outOfStock": "Stok habis",
+        "lowStockLink": "Lihat inventaris stok menipis",
+        "outOfStockLink": "Lihat inventaris stok habis",
+        "productsCount": "{count, plural, other {# produk}}",
         "revenueBasis": "Bersih setelah refund, pesanan dibayar hingga diterima",
         "averageOrderValueBasis": "Dari {count, number} pesanan dibayar"
       },
@@ -2466,8 +2471,14 @@
       "errors": {
         "titleRequired": "Judul wajib diisi",
         "invalid": "Isian formulir tidak valid",
-        "variantAttributes": "Varian {index}: atribut harus berupa objek JSON"
-      }
+        "variantAttributes": "Varian {index}: atribut harus berupa objek JSON",
+        "lowStockThreshold": "Batas stok menipis harus bilangan bulat dari 0 sampai 1.000.000."
+      },
+      "status": "Status",
+      "statusHint": "Hanya produk berstatus terbit yang tampil dan dapat dibeli di toko.",
+      "lowStockThreshold": "Batas stok menipis",
+      "lowStockPlaceholder": "Bawaan toko",
+      "lowStockHint": "Kosongkan untuk memakai bawaan toko. 0 menonaktifkan peringatan stok menipis untuk produk ini."
     },
     "taxonomy": {
       "name": "Nama",
@@ -2787,6 +2798,20 @@
         "invalid": "Masukkan jumlah stok yang tidak negatif",
         "updated": "Inventaris diperbarui",
         "failed": "Gagal memperbarui inventaris"
+      },
+      "filterLabel": "Tingkat stok",
+      "filterAll": "Semua varian",
+      "emptyFiltered": "Tidak ada varian yang sesuai filter ini.",
+      "thresholdHint": "Menipis pada {threshold, number} atau kurang",
+      "thresholdOff": "Peringatan stok menipis nonaktif",
+      "threshold": {
+        "title": "Batas stok menipis",
+        "description": "Nilai bawaan toko untuk produk yang tidak punya batas sendiri. 0 menonaktifkan peringatan stok menipis.",
+        "label": "Batas bawaan",
+        "save": "Simpan batas",
+        "saved": "Batas stok menipis disimpan",
+        "failed": "Gagal menyimpan batas",
+        "invalid": "Masukkan bilangan bulat dari 0 sampai 1.000.000."
       }
     },
     "customers": {
@@ -3046,6 +3071,226 @@
           "createFailed": "Gagal membuat flash sale",
           "updateFailed": "Gagal memperbarui flash sale",
           "statusFailed": "Gagal memperbarui status"
+        }
+      }
+    },
+    "catalog": {
+      "status": {
+        "draft": "Draf",
+        "published": "Terbit",
+        "archived": "Diarsipkan"
+      },
+      "stockStatus": {
+        "in": "Stok tersedia",
+        "low": "Stok menipis",
+        "out": "Stok habis"
+      },
+      "filters": {
+        "status": "Status produk",
+        "stockStatus": "Tingkat stok",
+        "allStatuses": "Semua status",
+        "allStock": "Semua tingkat stok",
+        "clear": "Hapus filter"
+      },
+      "sort": {
+        "by": "Urutkan menurut {column}"
+      },
+      "columns": {
+        "status": "Status",
+        "updated": "Diperbarui"
+      },
+      "selection": {
+        "selectPage": "Pilih semua produk di halaman ini",
+        "selectRow": "Pilih {title}",
+        "selected": "{count, plural, other {# produk dipilih}}",
+        "clear": "Batalkan pilihan",
+        "limit": "Anda dapat memilih hingga {max, number} produk sekaligus."
+      },
+      "bulk": {
+        "toolbar": "Aksi massal",
+        "setPrice": "Atur harga",
+        "adjustStock": "Sesuaikan stok",
+        "changeStatus": "Ubah status",
+        "titles": {
+          "price": "Atur harga untuk {count, plural, other {# produk}}",
+          "stock": "Sesuaikan stok untuk {count, plural, other {# produk}}",
+          "status": "Ubah status {count, plural, other {# produk}}"
+        },
+        "price": {
+          "label": "Harga baru (Rp)",
+          "applyTo": "Terapkan ke",
+          "applyBoth": "Produk dan semua varian (disarankan)",
+          "applyProduct": "Harga tampilan saja",
+          "applyProductHint": "Keranjang tetap memakai harga masing-masing varian, sehingga harga tampilan dan keranjang bisa berbeda.",
+          "compareAt": "Harga coret",
+          "compareKeep": "Biarkan",
+          "compareSet": "Atur nilai baru",
+          "compareClear": "Hapus",
+          "compareValue": "Harga coret baru (Rp)"
+        },
+        "stock": {
+          "mode": "Perubahan",
+          "modeSet": "Atur stok menjadi",
+          "modeAdjust": "Ubah stok sebanyak",
+          "value": "Jumlah",
+          "setHint": "Mengatur setiap varian dari produk terpilih ke jumlah ini.",
+          "adjustHint": "Ditambahkan ke setiap varian dari produk terpilih. Gunakan angka negatif untuk mengurangi stok.",
+          "noVariants": "{count, plural, other {# produk}} tidak memiliki varian dan akan dilewati.",
+          "loadingVariants": "Memuat varian…",
+          "variantsFailed": "Gagal memuat varian dari produk terpilih.",
+          "tooManyVariants": "Produk terpilih memiliki {variants} varian. Satu pembaruan massal dapat mengubah paling banyak {max}; pilih lebih sedikit produk."
+        },
+        "status": {
+          "label": "Status baru",
+          "hint": "Hanya produk berstatus terbit yang tampil dan dapat dibeli di toko."
+        },
+        "review": "Tinjau perubahan",
+        "back": "Kembali",
+        "confirmTitle": "Konfirmasi pembaruan massal",
+        "confirmPrice": "Atur harga {count, plural, other {# produk}} menjadi {price}.",
+        "confirmApplyBoth": "Harga semua varian ikut berubah.",
+        "confirmApplyProduct": "Harga varian tidak berubah.",
+        "confirmCompareSet": "Harga coret menjadi {price}.",
+        "confirmCompareClear": "Harga coret dihapus.",
+        "confirmStockSet": "Atur stok {variants, plural, other {# varian}} menjadi {value, number}.",
+        "confirmStockAdjust": "Ubah stok {variants, plural, other {# varian}} sebanyak {value, number}.",
+        "confirmStatus": "Ubah {count, plural, other {# produk}} menjadi {status}.",
+        "allOrNothing": "Semua perubahan diterapkan bersamaan. Jika ada item yang ditolak, tidak ada yang berubah.",
+        "apply": "Terapkan perubahan",
+        "applying": "Menerapkan…",
+        "success": "{count, plural, other {# item diperbarui}}",
+        "failed": "Pembaruan massal gagal",
+        "rejected": "Tidak ada yang diubah. Perbaiki produk yang ditandai di bawah lalu coba lagi.",
+        "conflict": "Katalog sedang diproses oleh perubahan lain. Tidak ada yang diubah; coba lagi sebentar lagi.",
+        "retry": "Coba lagi",
+        "invalidPrice": "Masukkan harga 0 atau lebih.",
+        "invalidStock": "Masukkan bilangan bulat selain 0.",
+        "invalidStockSet": "Masukkan stok 0 atau lebih.",
+        "rowErrorsLabel": "Masalah pada {title}",
+        "unknownItem": "Item {index, number}",
+        "rowErrors": {
+          "MISSING": "Ada nilai wajib yang belum diisi.",
+          "AMBIGUOUS": "Nilai yang dikirim untuk item ini saling bertentangan.",
+          "INVALID_UUID": "ID tidak valid.",
+          "NEGATIVE": "Nilai harus 0 atau lebih.",
+          "NOT_FOUND": "Produk atau varian ini sudah tidak ada.",
+          "DUPLICATE": "Item ini muncul lebih dari sekali dalam permintaan.",
+          "INVALID_STATUS": "Status tidak valid.",
+          "INVALID_APPLY_TO": "Target harga tidak valid.",
+          "NEGATIVE_RESULT": "Stok akan menjadi kurang dari 0.",
+          "OUT_OF_RANGE": "Nilainya terlalu besar.",
+          "NOT_ALLOWED": "Perubahan ini tidak diizinkan untuk item ini."
+        }
+      },
+      "export": {
+        "button": "Ekspor CSV",
+        "exporting": "Mengekspor…",
+        "success": "{filename} diunduh",
+        "failed": "Ekspor gagal",
+        "productsLabel": "Ekspor produk yang sesuai filter saat ini sebagai CSV",
+        "ordersLabel": "Ekspor pesanan yang sesuai filter saat ini sebagai CSV"
+      },
+      "import": {
+        "button": "Impor CSV",
+        "title": "Impor produk",
+        "description": "Unggah CSV, tinjau hasil uji coba, lalu konfirmasi. Tidak ada yang berubah sebelum Anda mengonfirmasi.",
+        "back": "Kembali ke produk",
+        "type": "Yang diimpor",
+        "typeProducts": "Produk",
+        "typeProductsHint": "Buat dan perbarui produk serta varian (kolom dari ekspor produk).",
+        "typeStock": "Stok saja",
+        "typeStockHint": "Atur jumlah stok per SKU (kolom sku, stock, opsional stock_baseline).",
+        "file": "File CSV",
+        "fileHint": "Hanya CSV, maksimal 5 MB dan 5.000 baris. Dipisahkan koma atau titik koma.",
+        "selected": "Dipilih: {name}",
+        "tooLarge": "File lebih besar dari 5 MB.",
+        "notCsv": "Pilih file .csv. Simpan workbook Excel sebagai CSV terlebih dahulu.",
+        "noFile": "Pilih file CSV terlebih dahulu.",
+        "preview": "Periksa file",
+        "previewing": "Memeriksa…",
+        "summary": {
+          "title": "Ringkasan",
+          "total": "Baris",
+          "create": "Produk baru",
+          "createVariant": "Varian baru",
+          "update": "Pembaruan",
+          "unchanged": "Tidak berubah",
+          "rejected": "Ditolak"
+        },
+        "previewTitle": "Uji coba",
+        "committedTitle": "Impor selesai",
+        "previewNote": "Ini hanya pratinjau. Belum ada yang disimpan.",
+        "committedNote": "Ini adalah hasil yang tersimpan.",
+        "rejectedNote": "{count, plural, other {# baris}} memiliki kesalahan. Perbaiki di file lalu periksa lagi; tidak ada yang diimpor selama masih ada baris yang ditolak.",
+        "nothingToDo": "Semua baris sudah sesuai dengan katalog. Tidak ada yang perlu diimpor.",
+        "confirm": "Impor {count, plural, other {# perubahan}}",
+        "confirming": "Mengimpor…",
+        "confirmed": "Impor selesai",
+        "reset": "Impor file lain",
+        "showUnchanged": "Tampilkan baris yang tidak berubah",
+        "tableLabel": "Baris impor",
+        "columns": {
+          "row": "Baris",
+          "sku": "SKU",
+          "product": "Produk",
+          "action": "Aksi",
+          "changes": "Perubahan",
+          "errors": "Kesalahan"
+        },
+        "actions": {
+          "create": "Produk baru",
+          "create_variant": "Varian baru",
+          "update": "Perbarui",
+          "unchanged": "Tidak berubah",
+          "reject": "Ditolak"
+        },
+        "noChanges": "Tidak ada perubahan",
+        "empty": "kosong",
+        "tips": {
+          "title": "Tips untuk Excel",
+          "dataImport": "Buka file ekspor lewat Data › From Text/CSV dan pilih koma sebagai pemisah.",
+          "baseline": "Biarkan stock_baseline seperti hasil ekspor: kolom ini melindungi penjualan yang terjadi sejak ekspor.",
+          "prices": "price adalah harga tampilan dan variant_price adalah harga di keranjang. Ubah keduanya agar tetap sama."
+        },
+        "errors": {
+          "UNSUPPORTED_FILE": "Hanya file CSV yang dapat diimpor. Simpan workbook sebagai CSV terlebih dahulu.",
+          "INVALID_ENCODING": "File bukan UTF-8. Simpan sebagai \"CSV UTF-8\".",
+          "EMPTY_FILE": "File kosong.",
+          "INVALID_CSV": "File bukan CSV yang valid (sekitar baris {row}).",
+          "TOO_MANY_ROWS": "File berisi lebih dari {max, number} baris. Pecah menjadi beberapa file.",
+          "INVALID_HEADER": "Kolom \"{header}\" tidak dikenal. Gunakan nama kolom dari hasil ekspor.",
+          "DUPLICATE_HEADER": "Kolom \"{header}\" muncul lebih dari sekali.",
+          "MISSING_HEADER": "Kolom wajib \"{header}\" tidak ada.",
+          "PAYLOAD_TOO_LARGE": "File lebih besar dari 5 MB.",
+          "CONFLICT": "Katalog sedang diproses oleh perubahan lain. Tidak ada yang diimpor; coba lagi sebentar lagi.",
+          "generic": "File tidak dapat diperiksa."
+        },
+        "rowErrors": {
+          "MISSING": "sku, variant_id, atau product_id wajib diisi.",
+          "INVALID_ROW": "Jumlah kolom pada baris ini tidak sesuai.",
+          "INVALID_NUMBER": "{field} harus bilangan bulat.",
+          "INVALID_UUID": "{field} bukan ID yang valid.",
+          "NEGATIVE": "{field} harus 0 atau lebih.",
+          "OUT_OF_RANGE": "{field} terlalu besar.",
+          "INVALID_STATUS": "status harus draft, published, atau archived.",
+          "INVALID_JSON": "attributes harus berupa objek JSON.",
+          "INVALID_SLUG": "slug hanya boleh berisi huruf kecil, angka, dan tanda hubung.",
+          "DUPLICATE_SKU": "SKU ini muncul lebih dari sekali dalam file.",
+          "DUPLICATE_VARIANT": "variant_id ini muncul lebih dari sekali dalam file.",
+          "SKU_TAKEN": "SKU ini sudah dipakai toko lain.",
+          "SKU_MISMATCH": "SKU berbeda dengan SKU tersimpan untuk variant_id ini (mungkin diubah Excel, mis. 1.23E+12).",
+          "PRODUCT_MISMATCH": "Varian ini milik product_id yang lain.",
+          "SLUG_TAKEN": "Slug ini sudah dipakai produk lain.",
+          "UNKNOWN_SKU": "Tidak ada varian dengan SKU ini.",
+          "UNKNOWN_VARIANT": "Tidak ada varian dengan variant_id ini.",
+          "UNKNOWN_PRODUCT": "Tidak ada produk dengan product_id ini.",
+          "MISSING_FOR_CREATE": "{field} wajib diisi untuk membuat produk.",
+          "UNKNOWN_CATEGORY": "Tidak ada kategori dengan category_slug ini.",
+          "UNKNOWN_BRAND": "Tidak ada merek dengan brand_slug ini.",
+          "CONFLICTING_PRODUCT_VALUES": "Baris dari produk yang sama memiliki nilai {field} yang berbeda.",
+          "NO_VARIANT": "{field} memerlukan varian (isi sku).",
+          "STALE_STOCK": "Stok berubah sejak ekspor (ada penjualan atau perubahan lain). Ekspor ulang lalu ulangi baris ini.",
+          "STOCK_BASELINE_REQUIRED": "Sertakan kolom stock_baseline dari hasil ekspor untuk mengubah stok varian yang sudah ada."
         }
       }
     }

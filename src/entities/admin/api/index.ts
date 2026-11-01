@@ -10,6 +10,7 @@
  */
 import { adminAnalyticsApi } from './analytics';
 import { adminAuditLogsApi } from './audit-logs';
+import { adminCatalogOpsApi } from './catalog-ops';
 import { adminCustomersApi } from './customers';
 import { adminFlashSalesApi } from './flash-sales';
 import { adminInventoryApi } from './inventory';
@@ -38,4 +39,5 @@ export const adminApi = {
   ...adminInventoryApi,
   ...adminCustomersApi,
   ...adminSettingsApi,
+  ...adminCatalogOpsApi,
 };

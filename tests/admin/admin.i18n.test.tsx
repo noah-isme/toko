@@ -21,6 +21,7 @@ import { FORMATS, TIME_ZONE } from '@/i18n/formats';
 vi.mock('next/navigation', () => ({
   usePathname: () => '/admin',
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const auth = vi.hoisted(() => ({
@@ -94,6 +95,12 @@ vi.mock('@/entities/admin/hooks', () => ({
     loaded({ data: [PRODUCT], pagination: { page: 1, limit: 20, totalItems: 1, totalPages: 1 } }),
   useDeleteAdminProduct: () => idle,
   useUpdateAdminProductStock: () => idle,
+  useExportProductsCsv: () => idle,
+  useExportOrdersCsv: () => idle,
+  useBulkUpdatePrice: () => idle,
+  useBulkUpdateStock: () => idle,
+  useBulkUpdateStatus: () => idle,
+  useAdminInventory: () => loaded([]),
 }));
 
 /** `Intl` separates the currency code from the amount with a no-break space. */

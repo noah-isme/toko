@@ -18,10 +18,12 @@ const RECOVERABLE_PAGES = [
   '/admin/analytics',
   '/admin/brands',
   '/admin/categories',
+  '/admin/inventory',
   '/admin/orders',
   '/admin/products',
   '/admin/products/new',
   '/admin/reports',
+  '/admin/settings',
 ];
 
 const ERROR_ONLY_PAGES = [
@@ -30,10 +32,8 @@ const ERROR_ONLY_PAGES = [
   '/admin/flash-sales',
   '/admin/flash-sales/new',
   '/admin/flash-sales/missing-id/edit',
-  '/admin/inventory',
   '/admin/products/missing-id/edit',
   '/admin/returns',
-  '/admin/settings',
   '/admin/support',
   '/admin/vouchers',
   '/admin/webhooks',

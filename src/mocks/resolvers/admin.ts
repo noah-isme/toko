@@ -2,6 +2,22 @@ import { ADMIN_ORDER_STATUSES, buildAdminTaxonomy, toAdminOrderRow } from '../fa
 import { stableUuid } from '../factories/product';
 import { adminOrders, adminProducts, brands, categories } from '../fixtures';
 
+import {
+  adminSettings,
+  bulkPrice,
+  bulkStatus,
+  bulkStock,
+  decorateProduct,
+  exportOrdersCsv,
+  exportProductsCsv,
+  filterAndSortProducts,
+  importCsv,
+  resolveInventory,
+  resolveSettings,
+  stockCounts,
+  syncProductStock,
+  validateProductCatalogFields,
+} from './admin-catalog';
 import { isAdminRequest } from './auth';
 import { isRevenueOrder, resolveReports } from './reports';
 import { adminStore, type AdminStore } from './session';
@@ -61,11 +77,22 @@ function applyProductInput(product: AdminProductDetail, input: AdminProductInput
     }));
   }
   if (specs) product.specs = specs;
-  if (input.variants?.[0]?.stock !== undefined) product.stock = input.variants[0].stock;
+  if (input.variants?.[0]?.stock !== undefined) {
+    product.stock = input.variants[0].stock;
+    if (product.variants[0]) {
+      product.variants[0].stock = input.variants[0].stock;
+      syncProductStock(product);
+    }
+  }
   return product;
 }
 
-function listProducts(admin: AdminStore, searchParams: URLSearchParams) {
+/** Rows matching the shared list/export filters (search, category, brand, inStock, status, stockStatus, sort). */
+function filteredProducts(
+  admin: AdminStore,
+  searchParams: URLSearchParams,
+  settings: Record<string, unknown>,
+) {
   const search = (searchParams.get('search') || searchParams.get('q') || '').toLowerCase();
   const category = searchParams.get('category');
   const brand = searchParams.get('brand');
@@ -80,10 +107,25 @@ function listProducts(admin: AdminStore, searchParams: URLSearchParams) {
     )
     .filter((p) => !category || p.categoryId === categoryId)
     .filter((p) => !brand || p.brandId === brandId)
-    .filter((p) => inStock === null || p.inStock === (inStock === 'true'))
+    .filter((p) => inStock === null || p.inStock === (inStock === 'true'));
+  return filterAndSortProducts(rows, searchParams, settings);
+}
+
+function listProducts(
+  admin: AdminStore,
+  searchParams: URLSearchParams,
+  settings: Record<string, unknown>,
+): MockResult {
+  const filtered = filteredProducts(admin, searchParams, settings);
+  if ('error' in filtered) return filtered.error;
+  return paginate(
     // List rows omit the detail-only collections.
-    .map(({ images: _i, specs: _s, variants: _v, ...row }) => row);
-  return paginate(rows, searchParams);
+    filtered.rows.map((source) => {
+      const { images: _i, specs: _s, variants: _v, ...row } = source;
+      return decorateProduct(row, source, settings);
+    }),
+    searchParams,
+  );
 }
 
 function createProduct(admin: AdminStore, input: AdminProductInput): MockResult {
@@ -93,6 +135,8 @@ function createProduct(admin: AdminStore, input: AdminProductInput): MockResult 
       error: { code: 'VALIDATION_ERROR', message: 'title and price are required' },
     };
   }
+  const invalid = validateProductCatalogFields(input as Record<string, unknown>);
+  if (invalid) return invalid;
   admin.created += 1;
   const slug = input.slug || slugify(input.title);
   const id = stableUuid(`admin-created:${slug}:${admin.created}`);
@@ -112,6 +156,7 @@ function createProduct(admin: AdminStore, input: AdminProductInput): MockResult 
     images: [],
     specs: [],
     variants: [],
+    status: 'published',
   };
   applyProductInput(product, input);
   product.variants = [
@@ -133,19 +178,35 @@ function resolveProducts(
   parts: string[],
 ): MockResult | undefined {
   const { method, body, searchParams } = req;
+  const settings = adminSettings(req.sessionId);
   if (parts.length === 1) {
-    if (method === 'GET') return listProducts(admin, searchParams);
+    if (method === 'GET') return listProducts(admin, searchParams, settings);
     if (method === 'POST') return createProduct(admin, body ?? {});
     return undefined;
+  }
+  if (parts.length === 2 && parts[1] === 'export' && method === 'GET') {
+    const filtered = filteredProducts(admin, searchParams, settings);
+    return 'error' in filtered ? filtered.error : exportProductsCsv(filtered.rows, settings);
+  }
+  if (parts.length === 2 && parts[1] === 'import' && method === 'POST') {
+    return importCsv(admin, body, searchParams);
+  }
+  if (parts.length === 3 && parts[1] === 'bulk' && method === 'POST') {
+    if (parts[2] === 'price') return bulkPrice(admin, body);
+    if (parts[2] === 'stock') return bulkStock(admin, body);
+    if (parts[2] === 'status') return bulkStatus(admin, body);
   }
 
   const product = findProduct(admin, parts[1]);
   if (!product) return NOT_FOUND;
 
   if (parts.length === 2) {
-    if (method === 'GET') return { data: product };
-    if (method === 'PATCH' || method === 'PUT')
-      return { data: applyProductInput(product, body ?? {}) };
+    if (method === 'GET') return { data: decorateProduct(product, product, settings) };
+    if (method === 'PATCH' || method === 'PUT') {
+      const invalid = validateProductCatalogFields(body ?? {});
+      if (invalid) return invalid;
+      return { data: decorateProduct(applyProductInput(product, body ?? {}), product, settings) };
+    }
     if (method === 'DELETE') {
       admin.products = admin.products.filter((p) => p !== product);
       return { data: { id: product.id } };
@@ -156,6 +217,11 @@ function resolveProducts(
     if (typeof body?.stock === 'number') {
       product.stock = body.stock;
       product.inStock = body.stock > 0;
+      // The backend writes the primary variant's stock.
+      if (product.variants[0]) {
+        product.variants[0].stock = body.stock;
+        syncProductStock(product);
+      }
     }
     if (typeof body?.inStock === 'boolean') product.inStock = body.inStock;
     product.updatedAt = new Date().toISOString();
@@ -211,6 +277,9 @@ function resolveOrders(
   if (parts.length === 2 && parts[1] === 'stats' && method === 'GET') {
     return { data: orderStats(admin) };
   }
+  if (parts.length === 2 && parts[1] === 'export' && method === 'GET') {
+    return exportOrdersCsv(admin.orders, searchParams);
+  }
 
   const order = admin.orders.find((o) => o.id === parts[1]);
   if (!order) return NOT_FOUND;
@@ -226,7 +295,7 @@ function resolveOrders(
   return undefined;
 }
 
-function analyticsOverview(admin: AdminStore, range: string) {
+function analyticsOverview(admin: AdminStore, range: string, settings: Record<string, unknown>) {
   const stats = orderStats(admin);
   const sold = new Map<
     string,
@@ -260,6 +329,7 @@ function analyticsOverview(admin: AdminStore, range: string) {
     shippedOrders: stats.shippedOrders,
     deliveredOrders: stats.deliveredOrders,
     cancelledOrders: stats.cancelledOrders,
+    ...stockCounts(admin, settings),
     topProducts: [...sold.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 5),
   };
 }
@@ -288,7 +358,24 @@ export function resolveAdmin(req: MockRequest): MockResult | undefined {
   } else if (parts.length === 1 && req.method === 'GET' && parts[0] === 'brands') {
     result = { data: brands.map((b) => buildAdminTaxonomy(b, countBy('brandId', b.id))) };
   } else if (parts.join('/') === 'analytics/overview' && req.method === 'GET') {
-    result = { data: analyticsOverview(admin, req.searchParams.get('range') || '30d') };
+    result = {
+      data: analyticsOverview(
+        admin,
+        req.searchParams.get('range') || '30d',
+        adminSettings(req.sessionId),
+      ),
+    };
+  } else if (parts[0] === 'inventory') {
+    result = resolveInventory(
+      admin,
+      adminSettings(req.sessionId),
+      req.method,
+      parts,
+      req.body,
+      req.searchParams,
+    );
+  } else if (parts.length === 1 && parts[0] === 'settings') {
+    result = resolveSettings(adminSettings(req.sessionId), req.method, req.body);
   }
   return result ?? NOT_FOUND;
 }

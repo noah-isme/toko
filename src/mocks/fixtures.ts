@@ -49,6 +49,18 @@ export const shippingRates = [
 
 export const users = buildUserList();
 
+/**
+ * Admin seed stock per product index, so the low-stock card, filters and
+ * badges have something to show: a few products sit at or below the default
+ * threshold (5) and one is sold out. Products not listed keep the catalog stock.
+ */
+const ADMIN_SEED_STOCK: Record<number, number> = { 3: 4, 7: 2, 9: 5, 11: 0 };
+
 /** Seed for the per-session admin store (see `resolvers/admin.ts`). */
-export const adminProducts = products.map((product) => buildAdminProduct(product));
+export const adminProducts = products.map((product, index) => {
+  const stock = ADMIN_SEED_STOCK[index];
+  return buildAdminProduct(
+    stock === undefined ? product : { ...product, stock, inStock: stock > 0 },
+  );
+});
 export const adminOrders = buildAdminOrderList(products, 12);

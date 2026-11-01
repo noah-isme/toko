@@ -27,5 +27,9 @@ export interface AdminAnalyticsOverview {
   shippedOrders: number;
   deliveredOrders: number;
   cancelledOrders: number;
+  /** Products whose stockStatus is low (absent on older backends). */
+  lowStockProducts?: number;
+  /** Products whose stockStatus is out (absent on older backends). */
+  outOfStockProducts?: number;
   topProducts: AdminTopProduct[];
 }

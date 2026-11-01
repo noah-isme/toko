@@ -8,6 +8,7 @@ import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
 import { adminReportsHandlers } from './handlers.adminReports';
 import { alertsHandlers } from './handlers.alerts';
+import { adminCatalogHandlers } from './handlers.adminCatalog';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
@@ -94,6 +95,8 @@ function mapCartToApiCart(id: string = cart.id): ApiCart {
   };
 }
 export const handlers = [
+  // First: `*/products/:slug` style patterns would otherwise also match `admin/products/*`.
+  ...adminCatalogHandlers,
   http.get(apiPath('/categories'), () => {
     if (typeof document !== 'undefined') {
       document.cookie = 'X-CSRF-Token=mock-csrf-token; Path=/; SameSite=Lax';

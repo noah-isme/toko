@@ -65,6 +65,35 @@ async function readJsonBody(req: NextRequest) {
   }
 }
 
+/**
+ * Multipart uploads (the CSV import) reach resolvers as
+ * `{ fields: {name: value}, files: {name: {name, type, size, text}} }`; anything
+ * else is read as JSON.
+ */
+async function readBody(req: NextRequest) {
+  if (!req.headers.get('content-type')?.toLowerCase().includes('multipart/form-data')) {
+    return readJsonBody(req);
+  }
+  try {
+    const form = await req.formData();
+    const fields: Record<string, string> = {};
+    const files: Record<string, { name: string; type: string; size: number; text: string }> = {};
+    for (const [key, value] of form.entries()) {
+      if (typeof value === 'string') fields[key] = value;
+      else
+        files[key] = {
+          name: value.name,
+          type: value.type,
+          size: value.size,
+          text: await value.text(),
+        };
+    }
+    return { fields, files };
+  } catch {
+    return null;
+  }
+}
+
 async function handle(req: NextRequest, { params }: Context, method: Method) {
   if (
     process.env.NEXT_PUBLIC_API_URL === 'mock' ||
@@ -74,7 +103,7 @@ async function handle(req: NextRequest, { params }: Context, method: Method) {
     const { handleMockRequest } = await import('@/mocks/route');
     const path = (await params).path?.join('/') || '';
     const { sessionId, isNewSession } = resolveSession(req);
-    const body = method === 'GET' || method === 'DELETE' ? null : await readJsonBody(req);
+    const body = method === 'GET' || method === 'DELETE' ? null : await readBody(req);
     const result = handleMockRequest(path, method, body, sessionId, req.nextUrl.searchParams, req);
     const response = jsonResponse(result, sessionId, isNewSession);
     // Double-submit CSRF cookie: readable by JS (non-HttpOnly) so apiClient can echo it in a header.
