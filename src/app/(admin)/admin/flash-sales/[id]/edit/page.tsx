@@ -8,6 +8,7 @@ import { useState } from 'react';
 
 import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ import type {
   AdminFlashSaleUpdateInput,
 } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { ApiClientError } from '@/lib/api/apiClient';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
@@ -128,6 +130,8 @@ export default function FlashSaleEditPage() {
   const flashSaleId = params.id as string;
 
   const [values, setValues] = useState<FlashSaleFormValues | null>(null);
+  /** Values last persisted; the unsaved-changes guard compares against them. */
+  const [baseline, setBaseline] = useState<FlashSaleFormValues | null>(null);
   const [slugTouched, setSlugTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -135,6 +139,7 @@ export default function FlashSaleEditPage() {
   const flashSaleQuery = useAdminFlashSale(flashSaleId);
   const updateMutation = useUpdateAdminFlashSale();
   const updateStatusMutation = useUpdateAdminFlashSaleStatus();
+  const guard = useUnsavedChangesGuard(values !== null && isFormDirty(values, baseline));
 
   const update = <K extends keyof FlashSaleFormValues>(key: K, value: FlashSaleFormValues[K]) => {
     setValues((current) => (current ? { ...current, [key]: value } : null));
@@ -178,7 +183,9 @@ export default function FlashSaleEditPage() {
   // Initialize form values when flash sale data loads
   const fs = flashSaleQuery.data;
   if (fs && !values) {
-    setValues(flashSaleToFormValues(fs));
+    const initial = flashSaleToFormValues(fs);
+    setValues(initial);
+    setBaseline(initial);
   }
 
   if (flashSaleQuery.error instanceof ApiClientError && flashSaleQuery.error.status === 404) {
@@ -198,6 +205,8 @@ export default function FlashSaleEditPage() {
         variant: 'success',
       });
       setValues((current) => (current ? { ...current, status: newStatus } : null));
+      // The status endpoint already persisted this field.
+      setBaseline((current) => (current ? { ...current, status: newStatus } : null));
     } catch (err) {
       const message = adminErrorMessage(err, t('form.errors.statusFailed'));
       toast({ title: t('toast.statusFailed'), description: message, variant: 'destructive' });
@@ -237,6 +246,7 @@ export default function FlashSaleEditPage() {
 
     try {
       await updateMutation.mutateAsync({ id: flashSaleId, data: formValuesToInput(values) });
+      setBaseline(values);
       toast({ title: t('toast.updated'), variant: 'success' });
     } catch (err) {
       const message = adminErrorMessage(err, t('form.errors.updateFailed'));
@@ -541,13 +551,14 @@ export default function FlashSaleEditPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/admin/flash-sales')}
+            onClick={() => guard.confirmNavigation(() => router.push('/admin/flash-sales'))}
             disabled={updateMutation.isPending}
           >
             {tCommon('cancel')}
           </Button>
         </div>
       </form>
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

@@ -214,4 +214,40 @@ describe('admin flash-sale edit page', () => {
       { id: 'fs-item-1', productId: 'product-1', salePrice: 199000, stockLimit: null },
     ]);
   });
+
+  describe('unsaved-changes guard after a status change', () => {
+    function blocksTabClose() {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    }
+
+    async function changeStatusToActive(user: ReturnType<typeof userEvent.setup>) {
+      await user.click(screen.getByRole('button', { name: 'Aktif' }));
+      await waitFor(() =>
+        expect(toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Status diperbarui' })),
+      );
+    }
+
+    it('stays clean after a status-only change, which the status endpoint already saved', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await screen.findByLabelText('Nama');
+      expect(blocksTabClose()).toBe(false);
+
+      await changeStatusToActive(user);
+      expect(blocksTabClose()).toBe(false);
+    });
+
+    it('stays dirty when other edits are still unsaved', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await user.type(await screen.findByLabelText('Nama'), ' Extended');
+      expect(blocksTabClose()).toBe(true);
+
+      await changeStatusToActive(user);
+      expect(screen.getByLabelText('Nama')).toHaveValue('Payday Sale Extended');
+      expect(blocksTabClose()).toBe(true);
+    });
+  });
 });

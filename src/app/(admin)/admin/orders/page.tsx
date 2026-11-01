@@ -13,6 +13,7 @@ import {
   OrderStatusBadge,
 } from '@/components/admin/admin-ui';
 import { CsvExportButton } from '@/components/admin/catalog/csv-export-button';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -52,6 +53,7 @@ import {
 import type { AdminOrder, AdminOrderStatus } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -132,6 +134,10 @@ export default function OrdersPage() {
   const [shipmentTarget, setShipmentTarget] = useState<AdminOrder | null>(null);
   const [courier, setCourier] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
+  const guard = useUnsavedChangesGuard(
+    shipmentTarget !== null && (courier !== '' || trackingNumber.trim() !== ''),
+  );
+  const closeShipment = () => setShipmentTarget(null);
 
   const query = useAdminOrders({
     page,
@@ -596,7 +602,7 @@ export default function OrdersPage() {
 
       <Dialog
         open={shipmentTarget !== null}
-        onOpenChange={(open) => !open && setShipmentTarget(null)}
+        onOpenChange={(open) => !open && guard.confirmNavigation(closeShipment)}
       >
         <DialogContent>
           <DialogHeader>
@@ -632,7 +638,11 @@ export default function OrdersPage() {
               />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setShipmentTarget(null)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => guard.confirmNavigation(closeShipment)}
+              >
                 {tCommon('cancel')}
               </Button>
               <Button type="submit" disabled={createShipment.isPending}>
@@ -642,6 +652,8 @@ export default function OrdersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

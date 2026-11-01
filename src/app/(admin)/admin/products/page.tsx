@@ -13,6 +13,7 @@ import { BulkActionDialog, type BulkKind } from '@/components/admin/catalog/bulk
 import { CsvExportButton } from '@/components/admin/catalog/csv-export-button';
 import { SortableTableHead } from '@/components/admin/catalog/sortable-head';
 import { ProductStatusBadge, StockStatusBadge } from '@/components/admin/catalog/status-badges';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -63,6 +64,7 @@ import type {
 } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -107,6 +109,8 @@ function ProductsPageContent() {
 
   const [stockTarget, setStockTarget] = useState<AdminProduct | null>(null);
   const [quickStock, setQuickStock] = useState(0);
+  const guard = useUnsavedChangesGuard(stockTarget !== null && quickStock !== stockTarget.stock);
+  const closeStock = () => setStockTarget(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminProduct | null>(null);
   /** Selected products by id; kept across pages so a bulk action can span them. */
   const [selected, setSelected] = useState<Map<string, AdminProduct>>(new Map());
@@ -597,7 +601,10 @@ function ProductsPageContent() {
         }}
       />
 
-      <Dialog open={stockTarget !== null} onOpenChange={(open) => !open && setStockTarget(null)}>
+      <Dialog
+        open={stockTarget !== null}
+        onOpenChange={(open) => !open && guard.confirmNavigation(closeStock)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('stockDialogTitle', { title: stockTarget?.title ?? '' })}</DialogTitle>
@@ -674,6 +681,8 @@ function ProductsPageContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

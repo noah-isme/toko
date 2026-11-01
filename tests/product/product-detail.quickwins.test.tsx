@@ -24,7 +24,10 @@ vi.mock('@/stores/cart-store', () => ({
 vi.mock('@/entities/favorites/ui/FavToggle', () => ({ FavToggle: () => null }));
 vi.mock('@/entities/alerts/ui/BackInStockAlert', () => ({ BackInStockAlert: () => null }));
 vi.mock('@/components/product-recommendations', () => ({ ProductRecommendations: () => null }));
-vi.mock('@/components/product-image-gallery', () => ({ ProductImageGallery: () => null }));
+vi.mock('@/components/product-image-gallery', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/components/product-image-gallery')>()),
+  ProductImageGallery: () => null,
+}));
 
 type ObserverCallback = (entries: Array<{ isIntersecting: boolean }>) => void;
 let observerCallback: ObserverCallback | null = null;

@@ -8,6 +8,7 @@ import { Suspense, useEffect, useId, useState } from 'react';
 import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { StockStatusBadge } from '@/components/admin/catalog/status-badges';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ import {
 } from '@/entities/admin/hooks';
 import { STOCK_STATUSES } from '@/entities/admin/product-list-params';
 import type { AdminInventoryItem, AdminStockStatus } from '@/entities/admin/types';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -140,6 +142,8 @@ function InventoryPageContent() {
   const { toast } = useToast();
   const adminErrorMessage = useAdminErrorMessage();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  // Typed but unsaved stock counts.
+  const guard = useUnsavedChangesGuard(Object.values(drafts).some((draft) => draft.trim() !== ''));
 
   // Normalise the `lowStock=true` alias to the canonical parameter.
   useEffect(() => {
@@ -281,6 +285,7 @@ function InventoryPageContent() {
           </CardContent>
         </Card>
       )}
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

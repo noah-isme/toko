@@ -12,6 +12,7 @@ import {
   AdminLoading,
   AdminPageHeader,
 } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -51,6 +52,7 @@ import {
 import type { AdminVoucher, AdminVoucherInput, AdminVoucherKind } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -131,6 +133,8 @@ export default function VouchersPage() {
   const [editing, setEditing] = useState<AdminVoucher | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminVoucher | null>(null);
   const [form, setForm] = useState<VoucherForm>(EMPTY_FORM);
+  /** What the open dialog started from; the unsaved-changes guard compares against it. */
+  const [baselineForm, setBaselineForm] = useState<VoucherForm>(EMPTY_FORM);
 
   const query = useAdminVouchers({
     page,
@@ -147,15 +151,23 @@ export default function VouchersPage() {
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const saving = createVoucher.isPending || updateVoucher.isPending;
 
+  const guard = useUnsavedChangesGuard(dialogOpen && isFormDirty(form, baselineForm));
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditing(null);
+  };
+
   const openCreate = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
+    setBaselineForm(EMPTY_FORM);
     setDialogOpen(true);
   };
 
   const openEdit = (voucher: AdminVoucher) => {
     setEditing(voucher);
     setForm(voucherToForm(voucher));
+    setBaselineForm(voucherToForm(voucher));
     setDialogOpen(true);
   };
 
@@ -423,10 +435,7 @@ export default function VouchersPage() {
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setEditing(null);
-        }}
+        onOpenChange={(open) => (open ? setDialogOpen(true) : guard.confirmNavigation(closeDialog))}
       >
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
@@ -563,7 +572,7 @@ export default function VouchersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => guard.confirmNavigation(closeDialog)}>
               {tCommon('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
@@ -594,6 +603,8 @@ export default function VouchersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

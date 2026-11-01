@@ -128,4 +128,59 @@ describe('admin vouchers datetime-local fields', () => {
     expect(body.validFrom).toBe('2026-10-25T00:00:00.000Z');
     expect(body.validTo).toBeNull();
   });
+
+  describe('unsaved-changes guard', () => {
+    function fireBeforeUnload() {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    }
+
+    it('closes a clean dialog straight away and asks before dropping edits', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('button', { name: 'Buat Voucher' }));
+      expect(fireBeforeUnload()).toBe(false);
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Buat Voucher' }));
+      await user.type(screen.getByLabelText('Kode'), 'weekend');
+      expect(fireBeforeUnload()).toBe(true);
+
+      await user.keyboard('{Escape}');
+      expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Lanjut mengedit' }));
+      expect(screen.getByLabelText('Kode')).toHaveValue('WEEKEND');
+
+      await user.click(screen.getByRole('button', { name: 'Batal' }));
+      await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      expect(fireBeforeUnload()).toBe(false);
+      expect(apiClient).not.toHaveBeenCalledWith(
+        '/admin/vouchers',
+        expect.objectContaining({ method: 'POST' }),
+      );
+    });
+
+    it('stops warning after the voucher is saved', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(await screen.findByRole('button', { name: 'Ubah PAYDAY' }));
+      await user.type(screen.getByLabelText('Prioritas'), '5');
+      expect(fireBeforeUnload()).toBe(true);
+      await user.click(screen.getByRole('button', { name: 'Perbarui' }));
+
+      await waitFor(() =>
+        expect(apiClient).toHaveBeenCalledWith(
+          '/admin/vouchers/PAYDAY',
+          expect.objectContaining({ method: 'PUT' }),
+        ),
+      );
+      await waitFor(() => expect(fireBeforeUnload()).toBe(false));
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+  });
 });

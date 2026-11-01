@@ -2409,6 +2409,12 @@
       "status": "Status",
       "guest": "Tamu"
     },
+    "unsavedChanges": {
+      "title": "Buang perubahan yang belum disimpan?",
+      "description": "Ada perubahan yang belum disimpan. Jika Anda keluar sekarang, perubahan tersebut akan hilang.",
+      "stay": "Lanjut mengedit",
+      "leave": "Buang perubahan"
+    },
     "status": {
       "PENDING_PAYMENT": "Menunggu Pembayaran",
       "PAID": "Dibayar",
@@ -2537,6 +2543,16 @@
       "noImages": "Belum ada gambar galeri.",
       "imageUrl": "URL gambar {index}",
       "removeImage": "Hapus gambar {index}",
+      "imagesHint": "Jadikan utama memindahkan gambar ke urutan teratas dan menjadikannya URL thumbnail, foto utama di kartu produk dan halaman produk. Lencana Utama menandai gambar yang dipakai sebagai URL thumbnail. Mengubah urutan hanya memperbarui URL thumbnail jika kosong atau sama dengan gambar pertama. Seret baris atau gunakan tombol panah untuk mengubah urutan.",
+      "imagePreview": "Pratinjau gambar {index}",
+      "primaryImage": "Utama",
+      "setPrimary": "Jadikan utama, gambar {index}",
+      "setPrimaryShort": "Jadikan utama",
+      "moveImageUp": "Pindahkan gambar {index} ke atas",
+      "moveImageDown": "Pindahkan gambar {index} ke bawah",
+      "dragImage": "Seret untuk mengubah urutan gambar {index}",
+      "imageMoved": "Gambar dipindahkan ke posisi {position} dari {total}.",
+      "imagePrimarySet": "Gambar dijadikan utama dan dipakai sebagai thumbnail.",
       "specs": "Spesifikasi",
       "addSpec": "Tambah spesifikasi",
       "noSpecs": "Belum ada spesifikasi.",

@@ -5,12 +5,14 @@ import { useState } from 'react';
 
 import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useStoreSettings, useUpdateStoreSettings } from '@/entities/admin/hooks';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { useToast } from '@/shared/ui/toast';
 
 type FormState = {
@@ -48,12 +50,16 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
   const { toast } = useToast();
   const adminErrorMessage = useAdminErrorMessage();
   const [form, setForm] = useState<FormState>(initialForm);
+  /** Last saved values; the unsaved-changes guard compares against them. */
+  const [baseline, setBaseline] = useState<FormState>(initialForm);
+  const guard = useUnsavedChangesGuard(isFormDirty(form, baseline));
 
   const set = (key: keyof FormState, value: string) =>
     setForm((current) => ({ ...current, [key]: value }));
   const save = async () => {
     try {
       await update.mutateAsync(form);
+      setBaseline(form);
       toast({ title: t('toast.saved'), variant: 'success' });
     } catch (error) {
       toast({
@@ -147,6 +153,7 @@ function SettingsForm({ initialForm }: { initialForm: FormState }) {
           </Button>
         </CardContent>
       </Card>
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

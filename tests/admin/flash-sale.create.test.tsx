@@ -172,4 +172,50 @@ describe('admin flash-sale create page', () => {
       { productId: 'product-1', salePrice: 199000, stockLimit: null },
     ]);
   });
+
+  describe('unsaved-changes guard', () => {
+    function fireBeforeUnload() {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    }
+
+    it('asks before cancelling a dirty form and leaves on Discard', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      const nameInput = await screen.findByLabelText('Nama');
+
+      // Untouched: Cancel leaves straight away and tab close is not blocked.
+      expect(fireBeforeUnload()).toBe(false);
+      await user.click(screen.getByRole('button', { name: 'Batal' }));
+      expect(push).toHaveBeenCalledWith('/admin/flash-sales');
+      push.mockClear();
+
+      await user.type(nameInput, 'Payday Sale');
+      expect(fireBeforeUnload()).toBe(true);
+      await user.click(screen.getByRole('button', { name: 'Batal' }));
+      expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
+      expect(push).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('button', { name: 'Lanjut mengedit' }));
+      expect(push).not.toHaveBeenCalled();
+      expect(nameInput).toHaveValue('Payday Sale');
+
+      await user.click(screen.getByRole('button', { name: 'Batal' }));
+      await user.click(await screen.findByRole('button', { name: 'Buang perubahan' }));
+      expect(push).toHaveBeenCalledWith('/admin/flash-sales');
+    });
+
+    it('stops warning once the flash sale is created', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await fillRequiredFields(user);
+      expect(fireBeforeUnload()).toBe(true);
+
+      await user.click(screen.getByRole('button', { name: 'Buat Flash Sale' }));
+      await waitFor(() => expect(push).toHaveBeenCalledWith('/admin/flash-sales/fs-2/edit'));
+      expect(fireBeforeUnload()).toBe(false);
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+  });
 });
