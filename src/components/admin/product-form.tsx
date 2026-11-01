@@ -443,11 +443,16 @@ export function ProductForm({
       <ProductImagesField
         images={values.images}
         thumbnail={values.thumbnail}
-        onChange={(images, reason) =>
+        onChange={(images, reason, editBase) =>
           setValues((current) => ({
             ...current,
             images,
-            thumbnail: nextThumbnail(current.thumbnail, current.images, images, reason),
+            thumbnail: nextThumbnail(
+              editBase?.thumbnail ?? current.thumbnail,
+              editBase?.images ?? current.images,
+              images,
+              reason,
+            ),
           }))
         }
       />

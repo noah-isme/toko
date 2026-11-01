@@ -45,9 +45,14 @@ export type ImagesChangeReason = 'add' | 'edit' | 'remove' | 'move' | 'primary';
  * - `'move'` / `'remove'` that change the first saved image: the thumbnail follows only
  *   when it was empty or matched the previous first image, so a hand-picked thumbnail
  *   is never overwritten by an ordinary reorder.
- * - `'edit'` of the first saved image: the thumbnail follows the corrected URL only when
- *   it matched that image before and the row is still filled in.
+ * - `'edit'` of the first saved image, when the thumbnail matched it: the thumbnail
+ *   follows the new URL; once the row is emptied it follows the image that will now be
+ *   saved first, or becomes empty when there is none (as if the row were removed).
  * - Adding a row, or typing in any other row, leaves the thumbnail alone.
+ *
+ * For `'edit'`, `previous` and `thumbnail` must be the state from before the user
+ * started editing the row (see `ImagesEditBase`), not from the previous keystroke:
+ * otherwise a URL cleared one character at a time leaves a partial URL behind.
  */
 export function nextThumbnail(
   thumbnail: string,
@@ -56,10 +61,7 @@ export function nextThumbnail(
   reason: ImagesChangeReason,
 ): string {
   const nextFirst = firstImageUrl(next);
-  if (!nextFirst) return thumbnail;
-  if (reason === 'primary') return nextFirst;
   const previousFirst = firstImageUrl(previous);
-  if (nextFirst === previousFirst) return thumbnail;
   const current = thumbnail.trim();
   if (reason === 'edit') {
     const previousFirstIndex = previous.findIndex((url) => url.trim() !== '');
@@ -67,10 +69,13 @@ export function nextThumbnail(
     const editedFirst =
       previous.length === next.length &&
       previousFirstIndex !== -1 &&
-      editedIndex === previousFirstIndex &&
-      next[editedIndex].trim() === nextFirst;
-    return editedFirst && current !== '' && current === previousFirst ? nextFirst : thumbnail;
+      editedIndex === previousFirstIndex;
+    if (!editedFirst || current === '' || current !== previousFirst) return thumbnail;
+    return next[editedIndex].trim() || nextFirst;
   }
+  if (!nextFirst) return thumbnail;
+  if (reason === 'primary') return nextFirst;
+  if (nextFirst === previousFirst) return thumbnail;
   if (reason !== 'move' && reason !== 'remove') return thumbnail;
   return current === '' || current === previousFirst ? nextFirst : thumbnail;
 }
@@ -99,11 +104,21 @@ interface RowKeys {
   next: number;
 }
 
+/**
+ * The images and thumbnail from before the user started editing a row. Sent with every
+ * `'edit'` so the thumbnail is derived from where the edit started, whatever keystrokes
+ * led to the current value (see `nextThumbnail`).
+ */
+export interface ImagesEditBase {
+  images: readonly string[];
+  thumbnail: string;
+}
+
 export interface ProductImagesFieldProps {
   images: string[];
   /** The product's thumbnail; the row matching it is labelled as the primary image. */
   thumbnail: string;
-  onChange: (images: string[], reason: ImagesChangeReason) => void;
+  onChange: (images: string[], reason: ImagesChangeReason, editBase?: ImagesEditBase) => void;
 }
 
 export function ProductImagesField({ images, thumbnail, onChange }: ProductImagesFieldProps) {
@@ -118,6 +133,9 @@ export function ProductImagesField({ images, thumbnail, onChange }: ProductImage
   const [announcement, setAnnouncement] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
   const pendingFocus = useRef<{ key: number; target: FocusTarget } | null>(null);
+  // The row being edited and the state before its edit began; cleared on blur and on
+  // any other change to the list (a reset gives every row a new key, ending it too).
+  const editSession = useRef<{ key: number; base: ImagesEditBase } | null>(null);
 
   // Images replaced from outside (e.g. a form reset): start fresh row identities.
   if (rowKeys.keys.length !== images.length) {
@@ -155,6 +173,7 @@ export function ProductImagesField({ images, thumbnail, onChange }: ProductImage
   }, [keys, primaryIndex]);
 
   const move = (from: number, to: number, focus?: FocusTarget) => {
+    editSession.current = null;
     const target = Math.max(0, Math.min(images.length - 1, to));
     const primary = focus === 'primary';
     if (from === target) {
@@ -177,11 +196,13 @@ export function ProductImagesField({ images, thumbnail, onChange }: ProductImage
   };
 
   const add = () => {
+    editSession.current = null;
     setRowKeys((current) => ({ keys: [...current.keys, current.next], next: current.next + 1 }));
     onChange([...images, ''], 'add');
   };
 
   const remove = (index: number) => {
+    editSession.current = null;
     setRowKeys((current) => ({ ...current, keys: current.keys.filter((_, i) => i !== index) }));
     onChange(
       images.filter((_, i) => i !== index),
@@ -190,9 +211,13 @@ export function ProductImagesField({ images, thumbnail, onChange }: ProductImage
   };
 
   const change = (index: number, url: string) => {
+    const key = keys[index] ?? index;
+    if (editSession.current?.key !== key) {
+      editSession.current = { key, base: { images: [...images], thumbnail } };
+    }
     const next = [...images];
     next[index] = url;
-    onChange(next, 'edit');
+    onChange(next, 'edit', editSession.current.base);
   };
 
   const endDrag = () => {
@@ -292,6 +317,11 @@ export function ProductImagesField({ images, thumbnail, onChange }: ProductImage
                     <Input
                       value={url}
                       onChange={(event) => change(index, event.target.value)}
+                      onBlur={() => {
+                        // A later edit starts from the thumbnail as it is then, so a
+                        // hand-typed thumbnail is never overwritten from a stale base.
+                        if (editSession.current?.key === key) editSession.current = null;
+                      }}
                       placeholder="https://..."
                       aria-label={t('imageUrl', { index: position })}
                       className="min-w-0 flex-1 basis-48"

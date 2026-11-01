@@ -115,9 +115,17 @@ describe('nextThumbnail', () => {
     // A hand-picked or empty thumbnail stays.
     expect(nextThumbnail('x', before, ['a2', 'b', 'c'], 'edit')).toBe('x');
     expect(nextThumbnail('', before, ['a2', 'b', 'c'], 'edit')).toBe('');
-    // Another row was edited, or the first row was cleared.
+    // Another row was edited.
     expect(nextThumbnail('a', before, ['a', 'b2', 'c'], 'edit')).toBe('a');
-    expect(nextThumbnail('a', before, ['', 'b', 'c'], 'edit')).toBe('a');
+  });
+
+  it('moves the thumbnail to the next saved image when its row is emptied', () => {
+    expect(nextThumbnail('a', before, ['', 'b', 'c'], 'edit')).toBe('b');
+    expect(nextThumbnail('a', before, ['  ', 'b', 'c'], 'edit')).toBe('b');
+    // No image left: no thumbnail either.
+    expect(nextThumbnail('a', ['a'], [''], 'edit')).toBe('');
+    // A hand-picked thumbnail stays.
+    expect(nextThumbnail('x', before, ['', 'b', 'c'], 'edit')).toBe('x');
   });
 
   it('ignores adding, empty rows and an empty list', () => {
@@ -337,6 +345,63 @@ describe('ProductForm images', () => {
     // It keeps following later reorders.
     await user.click(screen.getByRole('button', { name: 'Pindahkan gambar 1 ke bawah' }));
     expect(screen.getByTestId('product-form-thumbnail')).toHaveValue('https://cdn.test/b.jpg');
+  });
+
+  it.each([
+    [
+      'a multi-image product',
+      ['https://cdn.test/a.jpg', 'https://cdn.test/b.jpg'],
+      ['https://cdn.test/new.jpg', 'https://cdn.test/b.jpg'],
+      'https://cdn.test/b.jpg',
+    ],
+    ['a single-image product', ['https://cdn.test/a.jpg'], ['https://cdn.test/new.jpg'], ''],
+  ])(
+    'follows a first image replaced key by key on %s',
+    async (_label, images, saved, whileEmpty) => {
+      const user = userEvent.setup();
+      const { onSubmit } = renderForm(undefined, {
+        ...VALUES,
+        thumbnail: 'https://cdn.test/a.jpg',
+        images,
+      });
+      const input = screen.getByRole('textbox', { name: 'URL gambar 1' });
+      const thumbnail = screen.getByTestId('product-form-thumbnail');
+
+      // Holding Backspace: one change event per deleted character.
+      await user.type(input, '{Backspace}'.repeat('https://cdn.test/a.jpg'.length - 1));
+      expect(input).toHaveValue('h');
+      expect(thumbnail).toHaveValue('h');
+      await user.type(input, '{Backspace}');
+      expect(input).toHaveValue('');
+      expect(thumbnail).toHaveValue(whileEmpty);
+
+      await user.paste('https://cdn.test/new.jpg');
+      expect(thumbnail).toHaveValue('https://cdn.test/new.jpg');
+      const rows = screen.getAllByTestId('product-form-image-row');
+      expect(within(rows[0]).getByTestId('product-form-image-primary')).toBeInTheDocument();
+
+      await user.click(screen.getByTestId('product-form-submit'));
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      expect(onSubmit.mock.calls[0][0]).toMatchObject({
+        thumbnail: 'https://cdn.test/new.jpg',
+        images: saved,
+      });
+    },
+  );
+
+  it('does not overwrite a thumbnail typed by hand between two edits of the first image', async () => {
+    const user = userEvent.setup();
+    renderForm(undefined, { ...VALUES, thumbnail: 'https://cdn.test/a.jpg' });
+    const input = screen.getByRole('textbox', { name: 'URL gambar 1' });
+    const thumbnail = screen.getByTestId('product-form-thumbnail');
+
+    await user.type(input, '?v=2');
+    await user.clear(thumbnail);
+    await user.type(thumbnail, 'https://cdn.test/hand.jpg');
+    await user.type(input, '3');
+
+    expect(input).toHaveValue('https://cdn.test/a.jpg?v=23');
+    expect(thumbnail).toHaveValue('https://cdn.test/hand.jpg');
   });
 
   it('moves a thumbnail that matched the first image along with reorders', async () => {
