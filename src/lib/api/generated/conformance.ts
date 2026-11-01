@@ -18,13 +18,13 @@
  */
 import type { components } from './schema';
 
-import type { AlertSubscription } from '@/entities/alerts/types';
 import type {
   AdminPermission,
   RoleDefinition,
   StaffMember,
   StaffRole,
 } from '@/entities/admin/types';
+import type { AlertSubscription } from '@/entities/alerts/types';
 import type {
   ApiAddressResponse,
   ApiProduct,
