@@ -2953,7 +2953,8 @@
           "adjustHint": "Adds to every variant of each selected product. Use a negative number to remove stock.",
           "noVariants": "{count, plural, one {# product has} other {# products have}} no variants and will be skipped.",
           "loadingVariants": "Loading variants…",
-          "variantsFailed": "Could not load the variants of the selected products."
+          "variantsFailed": "Could not load the variants of the selected products.",
+          "tooManyVariants": "The selected products have {variants} variants. One bulk update can change at most {max}; select fewer products."
         },
         "status": {
           "label": "New status",

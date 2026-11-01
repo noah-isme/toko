@@ -2953,7 +2953,8 @@
           "adjustHint": "Ditambahkan ke setiap varian dari produk terpilih. Gunakan angka negatif untuk mengurangi stok.",
           "noVariants": "{count, plural, other {# produk}} tidak memiliki varian dan akan dilewati.",
           "loadingVariants": "Memuat varian…",
-          "variantsFailed": "Gagal memuat varian dari produk terpilih."
+          "variantsFailed": "Gagal memuat varian dari produk terpilih.",
+          "tooManyVariants": "Produk terpilih memiliki {variants} varian. Satu pembaruan massal dapat mengubah paling banyak {max}; pilih lebih sedikit produk."
         },
         "status": {
           "label": "Status baru",

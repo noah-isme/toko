@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BULK_MAX_ITEMS } from '@/entities/admin/api/catalog-ops';
 import {
   bulkRowErrors,
   groupRowErrorsByProduct,
@@ -133,6 +134,7 @@ export function BulkActionDialog({
   const { currency } = useAdminFormat();
   const { toast } = useToast();
   const formId = useId();
+  const validationId = `${formId}-validation`;
 
   const [step, setStep] = useState<'edit' | 'confirm'>('edit');
   const [validation, setValidation] = useState<string | null>(null);
@@ -203,6 +205,12 @@ export function BulkActionDialog({
       if (stockMode === 'set' && stockNumber < 0) return t('invalidStockSet');
       if (stockMode === 'adjust' && stockNumber === 0) return t('invalidStock');
       if (!stockPlan || stockPlan.items.length === 0) return t('stock.variantsFailed');
+      // One request item per variant, so a selection under the product cap can still exceed it.
+      if (stockPlan.items.length > BULK_MAX_ITEMS)
+        return t('stock.tooManyVariants', {
+          variants: stockPlan.items.length,
+          max: BULK_MAX_ITEMS,
+        });
     }
     return null;
   };
@@ -309,7 +317,7 @@ export function BulkActionDialog({
 
   return (
     <Dialog open={kind !== null} onOpenChange={(open) => !open && close()}>
-      <DialogContent data-testid="bulk-dialog">
+      <DialogContent data-testid="bulk-dialog" className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{step === 'confirm' ? t('confirmTitle') : title}</DialogTitle>
           <DialogDescription>{t('allOrNothing')}</DialogDescription>
@@ -327,6 +335,7 @@ export function BulkActionDialog({
                     value={price}
                     onChange={(event) => setPrice(event.target.value)}
                     aria-invalid={validation ? true : undefined}
+                    aria-describedby={validation ? validationId : undefined}
                     autoFocus
                   />
                 </div>
@@ -410,6 +419,7 @@ export function BulkActionDialog({
                     value={stockValue}
                     onChange={(event) => setStockValue(event.target.value)}
                     aria-invalid={validation ? true : undefined}
+                    aria-describedby={validation ? validationId : undefined}
                     autoFocus
                   />
                 </div>
@@ -451,7 +461,12 @@ export function BulkActionDialog({
             ) : null}
 
             {validation ? (
-              <p className="text-sm text-destructive" role="alert" data-testid="bulk-validation">
+              <p
+                id={validationId}
+                className="text-sm text-destructive"
+                role="alert"
+                data-testid="bulk-validation"
+              >
                 {validation}
               </p>
             ) : null}
@@ -482,7 +497,10 @@ export function BulkActionDialog({
                         : t('failed')}
                   </p>
                   {failure.type === 'rejected' ? (
-                    <ul className="list-disc pl-4">
+                    <ul
+                      className="max-h-60 list-disc overflow-y-auto pl-4"
+                      data-testid="bulk-failure-lines"
+                    >
                       {failure.lines.map((line) => (
                         <li key={line}>{line}</li>
                       ))}

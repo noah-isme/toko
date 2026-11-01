@@ -2487,6 +2487,10 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     ],
     'admin.catalog.bulk.stock.loadingVariants': 'Memuat varian…',
     'admin.catalog.bulk.stock.variantsFailed': 'Gagal memuat varian dari produk terpilih.',
+    'admin.catalog.bulk.stock.tooManyVariants': [
+      'Produk terpilih memiliki 600 varian. Satu pembaruan massal dapat mengubah paling banyak 500; pilih lebih sedikit produk.',
+      { variants: 600, max: 500 },
+    ],
     'admin.catalog.bulk.status.label': 'Status baru',
     'admin.catalog.bulk.status.hint':
       'Hanya produk berstatus terbit yang tampil dan dapat dibeli di toko.',
@@ -5139,6 +5143,10 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.catalog.bulk.stock.loadingVariants': 'Loading variants…',
     'admin.catalog.bulk.stock.variantsFailed':
       'Could not load the variants of the selected products.',
+    'admin.catalog.bulk.stock.tooManyVariants': [
+      'The selected products have 600 variants. One bulk update can change at most 500; select fewer products.',
+      { variants: 600, max: 500 },
+    ],
     'admin.catalog.bulk.status.label': 'New status',
     'admin.catalog.bulk.status.hint':
       'Only published products are visible and purchasable in the store.',

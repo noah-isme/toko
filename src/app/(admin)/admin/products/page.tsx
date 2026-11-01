@@ -94,6 +94,13 @@ function ProductsPageContent() {
   const { page, sort, status, stockStatus } = urlState;
   const [search, setSearch] = useState(urlState.q);
   const debouncedSearch = useDebouncedValue(search);
+  // Re-seed the box when the URL query changes from outside (nav link, back button).
+  // Our own debounced push lands with q === debouncedSearch, so it is left alone.
+  const [seenQ, setSeenQ] = useState(urlState.q);
+  if (urlState.q !== seenQ) {
+    setSeenQ(urlState.q);
+    if (urlState.q !== debouncedSearch) setSearch(urlState.q);
+  }
   const { toast } = useToast();
 
   const [stockTarget, setStockTarget] = useState<AdminProduct | null>(null);
@@ -129,6 +136,15 @@ function ProductsPageContent() {
   const totalItems = query.data?.pagination.totalItems ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const hasFilters = Boolean(urlState.q || status || stockStatus);
+
+  // A bulk edit or delete can empty the last page; step back to the last page that has rows.
+  const emptyPastEnd = query.isSuccess && products.length === 0 && page > 1;
+  useEffect(() => {
+    if (!emptyPastEnd) return;
+    const lastPage = totalItems > 0 ? totalPages : 1;
+    if (lastPage < page) replaceUrl({ page: lastPage });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to landing on an empty page
+  }, [emptyPastEnd, totalItems, totalPages, page]);
 
   const handleSort = (field: AdminProductSortField) => {
     replaceUrl({ sort: nextSort(sort, field), page: 1 });

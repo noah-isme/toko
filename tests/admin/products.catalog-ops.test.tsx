@@ -102,6 +102,47 @@ describe('admin products: filters and sort', () => {
   });
 });
 
+describe('admin products: page state', () => {
+  it('lets the header actions wrap so the three buttons fit a phone screen', async () => {
+    renderPage();
+    await rows();
+    const actions = screen.getByTestId('admin-page-actions');
+    expect(actions).toHaveClass('flex-wrap');
+    expect(within(actions).getByRole('button', { name: 'Export CSV' })).toBeInTheDocument();
+    expect(within(actions).getByRole('link', { name: 'Import CSV' })).toBeInTheDocument();
+  });
+
+  it('re-seeds the search box when the URL query changes from outside', async () => {
+    nav.search = 'q=abc';
+    const view = renderPage();
+    const box = screen.getByLabelText('Search products');
+    expect(box).toHaveValue('abc');
+
+    // e.g. the Products nav link drops ?q=abc
+    nav.search = '';
+    view.rerender(<ProductsPage />);
+    await waitFor(() => expect(screen.getByLabelText('Search products')).toHaveValue(''));
+    // Clearing the box this way must not push the stale value back into the URL.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(nav.replace).not.toHaveBeenCalledWith(
+      expect.stringContaining('q=abc'),
+      expect.anything(),
+    );
+  });
+
+  it('steps back to the last page when the current page comes back empty', async () => {
+    nav.search = 'page=99';
+    renderPage();
+    const lastPage = Math.max(1, Math.ceil(adminProducts.length / 20));
+    await waitFor(() =>
+      expect(nav.replace).toHaveBeenCalledWith(
+        lastPage > 1 ? `/admin/products?page=${lastPage}` : '/admin/products',
+        { scroll: false },
+      ),
+    );
+  });
+});
+
 describe('admin products: bulk actions', () => {
   it('changes status for the selected products after confirmation', async () => {
     renderPage();
@@ -155,6 +196,13 @@ describe('admin products: bulk actions', () => {
     const failure = await within(dialog).findByTestId('bulk-failure');
     expect(failure).toHaveTextContent('Nothing was changed');
     expect(failure).toHaveTextContent(`${low.title}: Stock would drop below 0.`);
+    // A long rejection list (up to 500 items) must scroll instead of pushing the
+    // title and footer off-screen.
+    expect(dialog).toHaveClass('max-h-[85vh]', 'overflow-y-auto');
+    expect(within(failure).getByTestId('bulk-failure-lines')).toHaveClass(
+      'max-h-60',
+      'overflow-y-auto',
+    );
 
     // The row errors stay on the table after the dialog closes.
     await userEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
@@ -186,6 +234,9 @@ describe('admin products: bulk actions', () => {
     expect(within(dialog).getByTestId('bulk-validation')).toHaveTextContent(
       'Enter a price of 0 or more.',
     );
+    expect(within(dialog).getByLabelText('New price (Rp)')).toHaveAccessibleDescription(
+      'Enter a price of 0 or more.',
+    );
 
     await userEvent.type(within(dialog).getByLabelText('New price (Rp)'), '125000');
     await userEvent.click(within(dialog).getByRole('radio', { name: 'Listing price only' }));
@@ -200,6 +251,46 @@ describe('admin products: bulk actions', () => {
         items: [{ productId: product.id, price: 125000, applyTo: 'product', compareAt: null }],
       }),
     );
+  });
+
+  it('rejects a stock change that would exceed 500 variants before sending it', async () => {
+    const product = adminProducts[0];
+    let posted = false;
+    server.use(
+      http.get('*/admin/inventory', () =>
+        HttpResponse.json({
+          data: Array.from({ length: 501 }, (_, index) => ({
+            variantId: `variant-${index}`,
+            productId: product.id,
+            productTitle: product.title,
+            price: 100000,
+            stock: 10,
+          })),
+        }),
+      ),
+      http.post('*/admin/products/bulk/stock', () => {
+        posted = true;
+        return HttpResponse.json({ data: { updated: 0, items: [] } });
+      }),
+    );
+    renderPage();
+    await rows();
+    await userEvent.click(screen.getByRole('checkbox', { name: `Select ${product.title}` }));
+    await userEvent.click(screen.getByRole('button', { name: 'Adjust stock' }));
+    const dialog = await screen.findByRole('dialog');
+    const quantity = within(dialog).getByLabelText('Quantity');
+    await userEvent.type(quantity, '3');
+    await waitFor(() =>
+      expect(within(dialog).getByRole('button', { name: 'Review changes' })).toBeEnabled(),
+    );
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Review changes' }));
+    const message =
+      'The selected products have 501 variants. One bulk update can change at most 500; select fewer products.';
+    expect(within(dialog).getByTestId('bulk-validation')).toHaveTextContent(message);
+    expect(quantity).toHaveAttribute('aria-invalid', 'true');
+    expect(quantity).toHaveAccessibleDescription(message);
+    expect(within(dialog).queryByTestId('bulk-confirm')).toBeNull();
+    expect(posted).toBe(false);
   });
 
   it('offers a retry when the catalog is busy (409 CONFLICT)', async () => {
@@ -250,9 +341,12 @@ describe('admin products: CSV export', () => {
     nav.search = 'stockStatus=out&status=published';
     renderPage();
     await rows();
-    await userEvent.click(
-      screen.getByRole('button', { name: /export the products that match the current filters/i }),
+    // The accessible name is the visible label (WCAG 2.5.3); the scope is the description.
+    const button = screen.getByRole('button', { name: 'Export CSV' });
+    expect(button).toHaveAccessibleDescription(
+      'Export the products that match the current filters as CSV',
     );
+    await userEvent.click(button);
     await waitFor(() => expect(download.saveBlob).toHaveBeenCalledTimes(1));
     expect(download.saveBlob.mock.calls[0][1]).toBe('products-20261025-080000.csv');
     expect(query).toBe('?status=published&stockStatus=out');
@@ -269,9 +363,9 @@ describe('admin products: CSV export', () => {
       http.get('*/admin/orders/stats', () => HttpResponse.json({ data: null })),
     );
     renderPage(<OrdersPage />);
-    await userEvent.click(
-      screen.getByRole('button', { name: /export the orders that match the current filters/i }),
-    );
+    const button = screen.getByRole('button', { name: 'Export CSV' });
+    expect(button).toHaveAccessibleDescription(/export the orders that match the current filters/i);
+    await userEvent.click(button);
     await waitFor(() => expect(download.saveBlob).toHaveBeenCalledTimes(1));
     const [blob, filename] = download.saveBlob.mock.calls[0] as [Blob, string];
     expect(filename).toMatch(/^orders-\d{8}-\d{6}\.csv$/);
