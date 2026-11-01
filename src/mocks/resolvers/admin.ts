@@ -1,4 +1,4 @@
-import { ADMIN_ORDER_STATUSES, buildAdminTaxonomy, toAdminOrderRow } from '../factories/admin';
+import { buildAdminTaxonomy, toAdminOrderRow } from '../factories/admin';
 import { stableUuid } from '../factories/product';
 import { adminOrders, adminProducts, brands, categories } from '../fixtures';
 
@@ -29,6 +29,15 @@ import type {
   AdminProductDetail,
   AdminProductInput,
 } from '@/entities/admin/types';
+
+/** `AdminOrderStatusPatchRequest`: PENDING_PAYMENT, PAID and EXPIRED are never settable. */
+const ADMIN_SETTABLE_ORDER_STATUSES = [
+  'PACKED',
+  'SHIPPED',
+  'OUT_FOR_DELIVERY',
+  'DELIVERED',
+  'CANCELLED',
+];
 
 function forbidden(message: string, required: string): MockResult {
   return { status: 403, error: { code: 'FORBIDDEN', message, details: { required } } };
@@ -288,7 +297,7 @@ function resolveOrders(
   if (!order) return NOT_FOUND;
   if (parts.length === 2 && method === 'GET') return { data: order };
   if (parts.length === 3 && parts[2] === 'status' && method === 'PATCH') {
-    if (!ADMIN_ORDER_STATUSES.includes(body?.status)) {
+    if (!ADMIN_SETTABLE_ORDER_STATUSES.includes(body?.status)) {
       return { status: 400, error: { code: 'VALIDATION_ERROR', message: 'Invalid order status' } };
     }
     order.status = body.status;

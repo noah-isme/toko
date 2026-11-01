@@ -48,6 +48,11 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, StatusLabel> = {
     color: 'red',
     icon: 'x-circle',
   },
+  expired: {
+    label: 'Kedaluwarsa',
+    color: 'gray',
+    icon: 'clock',
+  },
 };
 
 /**

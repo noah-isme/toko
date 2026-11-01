@@ -21,7 +21,7 @@ import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
 import { accessFor, rolesFor } from './resolvers/auth';
-import { getProduct, listProducts } from './resolvers/catalog';
+import { getProduct, listProducts, productQueryError } from './resolvers/catalog';
 import { resolveOrders } from './resolvers/orders';
 import { apiPath, mockResultResponse, mockSessionId, type MockCart } from './utils';
 
@@ -107,9 +107,11 @@ export const handlers = [
     return HttpResponse.json({ data: categories });
   }),
   http.get(apiPath('/brands'), () => HttpResponse.json({ data: brands })),
-  http.get(apiPath('/products'), ({ request }) =>
-    HttpResponse.json(listProducts(new URL(request.url).searchParams)),
-  ),
+  http.get(apiPath('/products'), ({ request }) => {
+    const searchParams = new URL(request.url).searchParams;
+    const invalid = productQueryError(searchParams);
+    return invalid ? mockResultResponse(invalid) : HttpResponse.json(listProducts(searchParams));
+  }),
   http.get(apiPath('/products/:slug'), ({ params }) => {
     const product = getProduct(String(params.slug));
     if (!product) {

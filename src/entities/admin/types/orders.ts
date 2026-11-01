@@ -8,7 +8,9 @@ export type AdminOrderStatus =
   | 'SHIPPED'
   | 'OUT_FOR_DELIVERY'
   | 'DELIVERED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  /** Set only by the system when the payment window lapses; never settable by an admin. */
+  | 'EXPIRED';
 
 export interface AdminOrder {
   id: string;

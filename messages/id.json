@@ -1754,7 +1754,8 @@
       "out_for_delivery": "Dalam Pengiriman",
       "delivered": "Selesai",
       "cancelled": "Dibatalkan",
-      "failed": "Gagal"
+      "failed": "Gagal",
+      "expired": "Kedaluwarsa"
     },
     "shipmentStatus": {
       "pending": "Menunggu Pengiriman",
@@ -2422,7 +2423,8 @@
       "SHIPPED": "Dikirim",
       "OUT_FOR_DELIVERY": "Dalam Pengiriman",
       "DELIVERED": "Diterima",
-      "CANCELLED": "Dibatalkan"
+      "CANCELLED": "Dibatalkan",
+      "EXPIRED": "Kedaluwarsa"
     },
     "time": {
       "justNow": "Baru saja"

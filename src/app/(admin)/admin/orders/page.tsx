@@ -63,7 +63,8 @@ const COURIERS = ['JNE', 'J&T', 'SiCepat', 'AnterAja', 'POS'];
 
 /**
  * Statuses an admin may set directly, mirroring `isAllowedAdminTarget` in
- * toko-api. PENDING_PAYMENT and PAID are driven by the payment flow instead.
+ * toko-api. PENDING_PAYMENT and PAID are driven by the payment flow and EXPIRED
+ * by the checkout-expiry job instead.
  */
 const SETTABLE_STATUSES: AdminOrderStatus[] = [
   'PACKED',
@@ -82,10 +83,11 @@ const STATUS_RANK: Record<AdminOrderStatus, number> = {
   OUT_FOR_DELIVERY: 4,
   DELIVERED: 5,
   CANCELLED: -1,
+  EXPIRED: -1,
 };
 
 function allowedTargets(current: AdminOrderStatus): AdminOrderStatus[] {
-  if (current === 'CANCELLED' || current === 'DELIVERED') return [];
+  if (current === 'CANCELLED' || current === 'DELIVERED' || current === 'EXPIRED') return [];
   return SETTABLE_STATUSES.filter((target) => {
     if (target === 'CANCELLED') {
       // The SQL guard only allows cancelling from PENDING_PAYMENT or PAID.

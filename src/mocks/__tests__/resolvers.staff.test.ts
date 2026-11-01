@@ -87,6 +87,27 @@ describe('admin route permissions', () => {
     ).toBe(3);
   });
 
+  it('gates catalog operations, reports and exports on their documented permissions', () => {
+    const catalog = staffToken('catalog');
+    const fulfillment = staffToken('fulfillment');
+    const analyst = staffToken('analyst');
+    const required = (method: string, path: string, auth: string, body: unknown = {}) =>
+      call(method, path, { auth, body }).error?.details?.required;
+
+    expect(required('GET', 'admin/reports/conversion', catalog)).toBe('analytics:read');
+    expect(required('GET', 'admin/reports/conversion', analyst)).toBeUndefined();
+    expect(required('POST', 'admin/products/bulk/price', analyst)).toBe('catalog:write');
+    expect(required('POST', 'admin/products/bulk/stock', analyst)).toBe('inventory:write');
+    expect(required('POST', 'admin/products/bulk/status', fulfillment)).toBe('catalog:write');
+    expect(required('GET', 'admin/products/export', fulfillment)).toBe('catalog:read');
+    // RequireAll routes report the first permission the role lacks.
+    expect(required('POST', 'admin/products/import', fulfillment)).toBe('catalog:write');
+    expect(required('POST', 'admin/products/import', catalog)).toBeUndefined();
+    expect(required('GET', 'admin/orders/export', catalog)).toBe('orders:read');
+    expect(required('GET', 'admin/orders/export', fulfillment)).toBeUndefined();
+    expect(required('POST', 'admin/orders/o-1/confirm-payment', fulfillment)).toBe('refunds:write');
+  });
+
   it('keeps platform routes behind the global admin role', () => {
     const manager = staffToken('manager');
     expect(call('GET', 'admin/audit-logs', { auth: manager }).error.details.required).toBe(

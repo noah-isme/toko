@@ -129,6 +129,24 @@ function facetTerms(
  * `meta` for searches (fuzzy title fallback and "did you mean" suggestions)
  * and `facets` with `include=facets` (each dimension ignores its own filter).
  */
+/** Longest `q` the API accepts, in code points after trimming (catalog.MaxQueryRunes). */
+const MAX_QUERY_RUNES = 200;
+
+/** The API's 400 for a `q` over the limit; `undefined` when the query is acceptable. */
+export function productQueryError(searchParams: URLSearchParams): MockResult | undefined {
+  const q = searchParams.get('q')?.trim() ?? '';
+  const runes = [...q].length;
+  if (runes <= MAX_QUERY_RUNES) return undefined;
+  return {
+    status: 400,
+    error: {
+      code: 'BAD_REQUEST',
+      message: `q must be at most ${MAX_QUERY_RUNES} characters`,
+      details: { field: 'q' },
+    },
+  };
+}
+
 export function listProducts(searchParams: URLSearchParams): ProductPage {
   const q = searchParams.get('q')?.trim() ?? '';
   const category = searchParams.get('category');
@@ -256,7 +274,9 @@ export const resolveCatalog: MockResolver = (req): MockResult | undefined => {
   // Same payloads as the MSW handlers; the filter sidebar needs both.
   if (path === 'categories' && method === 'GET') return { data: categories };
   if (path === 'brands' && method === 'GET') return { data: brands };
-  if (path === 'products' && method === 'GET') return listProducts(req.searchParams);
+  if (path === 'products' && method === 'GET') {
+    return productQueryError(req.searchParams) ?? listProducts(req.searchParams);
+  }
 
   const isProductGet = path.startsWith('products/') && method === 'GET';
   if (isProductGet && path.endsWith('/reviews/stats')) return { ...REVIEW_STATS };

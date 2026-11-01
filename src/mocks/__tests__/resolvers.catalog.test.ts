@@ -9,6 +9,25 @@ function list(query: Record<string, string> = {}) {
 }
 
 describe('catalog resolver', () => {
+  it('rejects a q longer than 200 code points like the API', () => {
+    const tooLong = 'é'.repeat(201);
+    expect(
+      handleMockRequest('products', 'GET', null, 'q', new URLSearchParams({ q: tooLong })),
+    ).toEqual({
+      status: 400,
+      error: {
+        code: 'BAD_REQUEST',
+        message: 'q must be at most 200 characters',
+        details: { field: 'q' },
+      },
+    });
+    // Trimmed first, and 200 code points (not UTF-16 units) are fine.
+    const atLimit = `  ${'😀'.repeat(200)}  `;
+    expect(
+      handleMockRequest('products', 'GET', null, 'q', new URLSearchParams({ q: atLimit })),
+    ).toHaveProperty('data');
+  });
+
   it('returns the whole catalog on one default page', () => {
     const page = list();
     expect(page.data.map((p) => p.id)).toEqual(products.map((p) => p.id));

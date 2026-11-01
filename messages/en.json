@@ -1754,7 +1754,8 @@
       "out_for_delivery": "Out for Delivery",
       "delivered": "Completed",
       "cancelled": "Cancelled",
-      "failed": "Failed"
+      "failed": "Failed",
+      "expired": "Expired"
     },
     "shipmentStatus": {
       "pending": "Awaiting Shipment",
@@ -2422,7 +2423,8 @@
       "SHIPPED": "Shipped",
       "OUT_FOR_DELIVERY": "Out for Delivery",
       "DELIVERED": "Delivered",
-      "CANCELLED": "Cancelled"
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
     },
     "time": {
       "justNow": "Just now"

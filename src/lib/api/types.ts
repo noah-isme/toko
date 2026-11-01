@@ -450,7 +450,8 @@ export type OrderStatus =
   | 'shipped'
   | 'out_for_delivery'
   | 'delivered'
-  | 'cancelled';
+  | 'cancelled'
+  | 'expired';
 
 export type PaymentMethod =
   | 'bank_transfer'

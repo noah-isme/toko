@@ -132,6 +132,10 @@ describe('admin resolver', () => {
     const order = adminOrders[0];
     expect(admin('GET', `admin/orders/${order.id}`).data.items.length).toBeGreaterThan(0);
     expect(admin('PATCH', `admin/orders/${order.id}/status`, { status: 'NOPE' }).status).toBe(400);
+    // Payment-driven and system statuses are never settable by an admin.
+    for (const status of ['PENDING_PAYMENT', 'PAID', 'EXPIRED']) {
+      expect(admin('PATCH', `admin/orders/${order.id}/status`, { status }).status).toBe(400);
+    }
     expect(
       admin('PATCH', `admin/orders/${order.id}/status`, { status: 'SHIPPED' }).data.status,
     ).toBe('SHIPPED');

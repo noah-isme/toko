@@ -108,6 +108,7 @@ const ORDER_STATUS_CLASSES: Record<AdminOrderStatus, string> = {
   OUT_FOR_DELIVERY: 'bg-indigo-100 text-indigo-800 border-indigo-200',
   DELIVERED: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   CANCELLED: 'bg-red-100 text-red-800 border-red-200',
+  EXPIRED: 'bg-muted text-muted-foreground border-border',
 };
 
 export function OrderStatusBadge({ status }: { status: AdminOrderStatus }) {

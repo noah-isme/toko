@@ -25,6 +25,7 @@ export const ADMIN_ORDER_STATUSES: AdminOrderStatus[] = [
   'OUT_FOR_DELIVERY',
   'DELIVERED',
   'CANCELLED',
+  'EXPIRED',
 ];
 
 /**
