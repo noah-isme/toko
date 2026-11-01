@@ -272,6 +272,11 @@ describe('mock API route golden responses', () => {
       ).toMatchSnapshot();
       expect(await call('POST', 'auth/register', { body: {} })).toMatchSnapshot();
       expect(
+        await call('POST', 'auth/register', {
+          body: { name: 'Rina', email: 'taken@example.com', password: 'x' },
+        }),
+      ).toMatchObject({ status: 409, body: { error: { code: 'EMAIL_ALREADY_USED' } } });
+      expect(
         await call('POST', 'auth/login', { body: { email: 'budi@example.com', password: 'x' } }),
       ).toMatchSnapshot();
       expect(

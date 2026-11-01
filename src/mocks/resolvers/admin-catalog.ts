@@ -938,6 +938,19 @@ export function importCsv(admin: AdminStore, body: any, searchParams: URLSearchP
             code: 'SKU_MISMATCH',
             message: `sku differs from the stored ${variant.sku}`,
           });
+        } else if (sku && !variant.sku && type === 'stock') {
+          errors.push({
+            field: 'sku',
+            code: 'SKU_MISMATCH',
+            message: 'the variant has no sku; leave sku empty or assign one with type=products',
+          });
+        } else if (sku && !variant.sku && skuIndex.has(sku)) {
+          // SKUs are unique per store: one another variant here already has is never free.
+          errors.push({
+            field: 'sku',
+            code: 'SKU_TAKEN',
+            message: 'sku is already used by another product',
+          });
         }
         if (productId && productId !== product.id) {
           errors.push({

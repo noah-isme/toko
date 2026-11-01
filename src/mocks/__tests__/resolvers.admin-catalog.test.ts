@@ -255,6 +255,25 @@ describe('admin catalog mock: CSV import', () => {
     expect(res.error.details.summary.rejected).toBe(2);
   });
 
+  it('refuses to assign a SKU another variant of this store already has', () => {
+    const created = admin('POST', 'admin/products', { title: 'Tanpa SKU', price: 10000 });
+    const variantId = admin('GET', `admin/products/${created.data.id}`).data.variants[0].id;
+
+    const products = upload(
+      `sku,variant_id\r\n${sku},${variantId}\r\n`,
+      'type=products&dryRun=true',
+    );
+    expect(products.status).toBe(422);
+    expect(products.error.details.rows[0].errors[0].code).toBe('SKU_TAKEN');
+
+    // A stock import never assigns SKUs.
+    const stock = upload(
+      `sku,variant_id,stock\r\nFRESH-1,${variantId},3\r\n`,
+      'type=stock&dryRun=true',
+    );
+    expect(stock.error.details.rows[0].errors[0].code).toBe('SKU_MISMATCH');
+  });
+
   it('creates a product from new rows and requires title and price', () => {
     const csv = 'sku,title,price,stock\r\nNEW-1,Kopi Toraja,90000,5\r\nNEW-2,,,1\r\n';
     const res = upload(csv, 'type=products&dryRun=true');

@@ -1,7 +1,7 @@
 import { HttpResponse, http } from 'msw';
 
 import { mockFaker as faker } from '../factories/faker';
-import { resolveAuth, rolesFor } from '../resolvers/auth';
+import { TAKEN_EMAIL, resolveAuth, rolesFor } from '../resolvers/auth';
 import { apiPath, mockResultResponse, mockSessionId } from '../utils';
 
 import type {
@@ -54,6 +54,13 @@ export const authHandlers = [
           },
         },
         { status: 400 },
+      );
+    }
+
+    if (payload.email === TAKEN_EMAIL) {
+      return HttpResponse.json(
+        { error: { code: 'EMAIL_ALREADY_USED', message: 'email is already registered' } },
+        { status: 409 },
       );
     }
 

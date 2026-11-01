@@ -7,6 +7,9 @@ import type { MockResolver } from './types';
 
 const ACCESS_TOKEN = 'mock-access-token-12345';
 
+/** Registering this email answers `409 EMAIL_ALREADY_USED`, like an existing account. */
+export const TAKEN_EMAIL = 'taken@example.com';
+
 export function isAdminRequest(headers: Headers): boolean {
   return headers.get('authorization') === `Bearer ${MOCK_ADMIN_TOKEN}`;
 }
@@ -97,6 +100,12 @@ export const resolveAuth: MockResolver = ({ path, method, body, headers, session
   const now = new Date().toISOString();
 
   if (path === 'auth/register' && method === 'POST') {
+    if (body?.email === TAKEN_EMAIL) {
+      return {
+        status: 409,
+        error: { code: 'EMAIL_ALREADY_USED', message: 'email is already registered' },
+      };
+    }
     return {
       data: {
         user: {

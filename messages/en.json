@@ -2253,7 +2253,8 @@
       "VOUCHER_INVALID": "The voucher code is invalid or has expired.",
       "VOUCHER_MIN_SPEND": "You have not reached the minimum spend for this voucher.",
       "VOUCHER_ALREADY_USED": "You have already used this voucher.",
-      "RATE_LIMIT_EXCEEDED": "Too many attempts. Please wait a moment."
+      "RATE_LIMIT_EXCEEDED": "Too many attempts. Please wait a moment.",
+      "EMAIL_ALREADY_USED": "This email is already registered. Log in or use another email."
     }
   },
   "notFound": {
@@ -3452,7 +3453,7 @@
           "INVALID_SLUG": "slug may only contain lowercase letters, numbers and hyphens.",
           "DUPLICATE_SKU": "This SKU appears more than once in the file.",
           "DUPLICATE_VARIANT": "This variant_id appears more than once in the file.",
-          "SKU_TAKEN": "This SKU is already used by another store.",
+          "SKU_TAKEN": "Another product in this store already uses this SKU.",
           "SKU_MISMATCH": "The SKU differs from the stored SKU for this variant_id (Excel may have changed it, e.g. 1.23E+12).",
           "PRODUCT_MISMATCH": "The variant belongs to a different product_id.",
           "SLUG_TAKEN": "This slug is already used by another product.",

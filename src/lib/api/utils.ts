@@ -34,6 +34,7 @@ const API_ERROR_MESSAGES: Record<ApiErrorCode, string> = {
   VOUCHER_MIN_SPEND: 'Belum memenuhi minimum pembelian untuk menggunakan voucher ini.',
   VOUCHER_ALREADY_USED: 'Anda sudah menggunakan voucher ini sebelumnya.',
   RATE_LIMIT_EXCEEDED: 'Terlalu banyak percobaan. Silakan tunggu sebentar.',
+  EMAIL_ALREADY_USED: 'Email ini sudah terdaftar. Silakan login atau gunakan email lain.',
 };
 
 const UNKNOWN_ERROR_MESSAGE = 'Terjadi kesalahan yang tidak diketahui';

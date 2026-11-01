@@ -2253,7 +2253,8 @@
       "VOUCHER_INVALID": "Kode voucher tidak valid atau sudah kedaluwarsa.",
       "VOUCHER_MIN_SPEND": "Belum memenuhi minimum pembelian untuk menggunakan voucher ini.",
       "VOUCHER_ALREADY_USED": "Anda sudah menggunakan voucher ini sebelumnya.",
-      "RATE_LIMIT_EXCEEDED": "Terlalu banyak percobaan. Silakan tunggu sebentar."
+      "RATE_LIMIT_EXCEEDED": "Terlalu banyak percobaan. Silakan tunggu sebentar.",
+      "EMAIL_ALREADY_USED": "Email ini sudah terdaftar. Silakan login atau gunakan email lain."
     }
   },
   "notFound": {
@@ -3452,7 +3453,7 @@
           "INVALID_SLUG": "slug hanya boleh berisi huruf kecil, angka, dan tanda hubung.",
           "DUPLICATE_SKU": "SKU ini muncul lebih dari sekali dalam file.",
           "DUPLICATE_VARIANT": "variant_id ini muncul lebih dari sekali dalam file.",
-          "SKU_TAKEN": "SKU ini sudah dipakai toko lain.",
+          "SKU_TAKEN": "SKU ini sudah dipakai produk lain di toko ini.",
           "SKU_MISMATCH": "SKU berbeda dengan SKU tersimpan untuk variant_id ini (mungkin diubah Excel, mis. 1.23E+12).",
           "PRODUCT_MISMATCH": "Varian ini milik product_id yang lain.",
           "SLUG_TAKEN": "Slug ini sudah dipakai produk lain.",

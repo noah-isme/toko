@@ -3999,7 +3999,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Voucher code already exists */
+                /** @description This tenant already has a voucher with this code (`CONFLICT`). Codes are unique per tenant; another tenant's codes never conflict. */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -4251,7 +4251,7 @@ export interface paths {
         };
         /**
          * List webhook endpoints
-         * @description Returns configured webhook endpoints. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
+         * @description Returns the request tenant's webhook endpoints (never another tenant's). Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -4313,10 +4313,10 @@ export interface paths {
          *     webhook uses the order's tenant) and are likewise delivered only to
          *     that tenant's endpoints; an event without a tenant reaches none.
          *
-         *     Known limitation (pre-existing, tracked with the notifications/RBAC
-         *     streams): this endpoint does not yet set `tenant_id` on the new row,
-         *     so tenant-scoped delivery only reaches endpoints whose tenant was
-         *     assigned directly in the database until that lands.
+         *     The endpoint belongs to the request's tenant (`tenant_id` is set from
+         *     the resolved tenant, never from the body), so it receives exactly that
+         *     tenant's events. List, update and delete only ever see the request
+         *     tenant's endpoints.
          *
          *     Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
@@ -4388,7 +4388,7 @@ export interface paths {
         get?: never;
         /**
          * Update webhook endpoint
-         * @description Updates the webhook endpoint identified by id. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
+         * @description Updates the request tenant's webhook endpoint identified by id; an endpoint of another tenant is `404 NOT_FOUND`. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         put: {
             parameters: {
@@ -4436,7 +4436,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Endpoint not found */
+                /** @description Endpoint not found, or owned by another tenant (NOT_FOUND) */
                 404: {
                     headers: {
                         [name: string]: unknown;
@@ -4455,7 +4455,7 @@ export interface paths {
         post?: never;
         /**
          * Delete webhook endpoint
-         * @description Removes the webhook endpoint identified by id. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
+         * @description Removes the request tenant's webhook endpoint identified by id; an unknown id or an endpoint of another tenant is `404 NOT_FOUND` and nothing is deleted. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         delete: {
             parameters: {
@@ -4497,7 +4497,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Endpoint not found */
+                /** @description Endpoint not found, or owned by another tenant (NOT_FOUND) */
                 404: {
                     headers: {
                         [name: string]: unknown;
@@ -6346,7 +6346,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists. Slugs are currently unique across all tenants, so this can also mean another tenant uses it. */
+                /** @description This tenant already has a product with this slug, or a variant with one of the given SKUs (CONFLICT). Slugs and SKUs are unique per tenant; another tenant's values never conflict. On a SKU conflict the product row itself was created ('product created but a variant sku already exists in this store', details.id/slug). */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -6778,8 +6778,13 @@ export interface paths {
          *     Unknown `sku`: with `product_id` it adds a variant (`create_variant`);
          *     without, rows sharing the same `slug` (or slugified `title`) create one
          *     new product (`create`), unless that slug already names a product of
-         *     this store (`create_variant`). A derived slug taken by another store
-         *     gets `-2`..`-20`; an explicit taken slug is `SLUG_TAKEN`. A row with
+         *     this store (`create_variant`). Slugs and SKUs are unique per store, so
+         *     other stores' products never matter. A derived slug that another group
+         *     of the same file claims explicitly gets `-2`..`-20` (skipping slugs
+         *     this store already uses); an explicit slug used twice in the file, or a
+         *     slug change onto another product of this store, is `SLUG_TAKEN`;
+         *     assigning a SKU that another variant of this store already has is
+         *     `SKU_TAKEN`. A row with
          *     empty `sku` and `variant_id` but a `product_id` updates only the
          *     product-level columns (products without variants export this way);
          *     variant columns on such a row are `NO_VARIANT`.
@@ -7079,7 +7084,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists. Slugs are currently unique across all tenants, so this can also mean another tenant uses it. */
+                /** @description This tenant already has another product with this slug, or a variant with one of the given SKUs (CONFLICT). Slugs and SKUs are unique per tenant; another tenant's values never conflict. */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -7287,7 +7292,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description This tenant already has a category with this slug (CONFLICT); slugs are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -7428,7 +7433,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description This tenant already has a category with this slug (CONFLICT); slugs are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -7544,7 +7549,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Brand name or slug already exists */
+                /** @description This tenant already has a brand with this name or slug (CONFLICT); both are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -7685,7 +7690,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Brand name or slug already exists */
+                /** @description This tenant already has a brand with this name or slug (CONFLICT); both are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;

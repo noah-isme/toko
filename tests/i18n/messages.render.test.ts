@@ -1859,6 +1859,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
       'Belum memenuhi minimum pembelian untuk menggunakan voucher ini.',
     'errors.api.VOUCHER_ALREADY_USED': 'Anda sudah menggunakan voucher ini sebelumnya.',
     'errors.api.RATE_LIMIT_EXCEEDED': 'Terlalu banyak percobaan. Silakan tunggu sebentar.',
+    'errors.api.EMAIL_ALREADY_USED':
+      'Email ini sudah terdaftar. Silakan login atau gunakan email lain.',
     'product.detail.variants.selectColor': ['Pilih warna Jane Doe', { name: 'Jane Doe' }],
     'checkout.address.map.permissionDenied':
       'Izin lokasi ditolak. Harap izinkan akses lokasi di browser Anda.',
@@ -2897,7 +2899,7 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.catalog.import.rowErrors.DUPLICATE_SKU': 'SKU ini muncul lebih dari sekali dalam file.',
     'admin.catalog.import.rowErrors.DUPLICATE_VARIANT':
       'variant_id ini muncul lebih dari sekali dalam file.',
-    'admin.catalog.import.rowErrors.SKU_TAKEN': 'SKU ini sudah dipakai toko lain.',
+    'admin.catalog.import.rowErrors.SKU_TAKEN': 'SKU ini sudah dipakai produk lain di toko ini.',
     'admin.catalog.import.rowErrors.SKU_MISMATCH':
       'SKU berbeda dengan SKU tersimpan untuk variant_id ini (mungkin diubah Excel, mis. 1.23E+12).',
     'admin.catalog.import.rowErrors.PRODUCT_MISMATCH': 'Varian ini milik product_id yang lain.',
@@ -4902,6 +4904,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'errors.api.VOUCHER_MIN_SPEND': 'You have not reached the minimum spend for this voucher.',
     'errors.api.VOUCHER_ALREADY_USED': 'You have already used this voucher.',
     'errors.api.RATE_LIMIT_EXCEEDED': 'Too many attempts. Please wait a moment.',
+    'errors.api.EMAIL_ALREADY_USED':
+      'This email is already registered. Log in or use another email.',
     'product.detail.variants.selectColor': ['Select Jane Doe color', { name: 'Jane Doe' }],
     'checkout.address.map.permissionDenied':
       'Location permission denied. Please allow location access in your browser.',
@@ -5919,7 +5923,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.catalog.import.rowErrors.DUPLICATE_SKU': 'This SKU appears more than once in the file.',
     'admin.catalog.import.rowErrors.DUPLICATE_VARIANT':
       'This variant_id appears more than once in the file.',
-    'admin.catalog.import.rowErrors.SKU_TAKEN': 'This SKU is already used by another store.',
+    'admin.catalog.import.rowErrors.SKU_TAKEN':
+      'Another product in this store already uses this SKU.',
     'admin.catalog.import.rowErrors.SKU_MISMATCH':
       'The SKU differs from the stored SKU for this variant_id (Excel may have changed it, e.g. 1.23E+12).',
     'admin.catalog.import.rowErrors.PRODUCT_MISMATCH':

@@ -39,6 +39,10 @@ Content-Type: application/json
 
 **Set-Cookie:** `refresh_token=...; HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth`
 
+**Errors:** `400 VALIDATION_ERROR` for invalid input; `409 EMAIL_ALREADY_USED` when the email is
+already registered (the register page shows a localized "already registered" message). The mock
+API answers `409` for `taken@example.com`.
+
 ---
 
 ## 1.2 Login

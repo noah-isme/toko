@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import RegisterPage from '@/app/(storefront)/register/page';
 import { AuthProvider } from '@/components/providers/AuthProvider';
+import { ApiClientError } from '@/lib/api/apiClient';
 import { authApi, cartApi } from '@/lib/api/services';
 
 const pushMock = vi.fn();
@@ -174,5 +175,27 @@ describe('RegisterPage', () => {
     await user.click(screen.getByRole('button', { name: 'Daftar' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/Email already exists/i);
+  });
+
+  it('explains that an email is already registered (409 EMAIL_ALREADY_USED)', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(authApi.register).mockRejectedValue(
+      new ApiClientError('email is already registered', 'EMAIL_ALREADY_USED', 409) as never,
+    );
+
+    renderWithProviders(<RegisterPage />);
+    await waitForForm();
+
+    await user.type(screen.getByLabelText(/^Nama$/i), 'John Doe');
+    await user.type(screen.getByLabelText(/Email/i), 'taken@example.com');
+    await user.type(screen.getByLabelText(/^Password$/i), 'SecurePass123');
+    await user.type(screen.getByLabelText(/Konfirmasi Password/i), 'SecurePass123');
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(screen.getByRole('button', { name: 'Daftar' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Email ini sudah terdaftar. Silakan login atau gunakan email lain.',
+    );
   });
 });
