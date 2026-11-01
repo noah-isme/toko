@@ -2242,7 +2242,7 @@
         "owner": "Full access, including owners, staff and store settings.",
         "admin": "Full access to the store; cannot grant or change the owner role.",
         "manager": "Runs the store day to day; cannot change settings or staff.",
-        "catalog": "Products, categories, brands and stock.",
+        "catalog": "Products, categories, brands and stock; can view promotions.",
         "fulfillment": "Orders, shipments, returns and stock levels.",
         "support": "Support tickets, orders and returns.",
         "analyst": "Read-only access to analytics, orders, catalog, promotions and customers."
@@ -2775,13 +2775,15 @@
         "INVITED": "Invited",
         "SUSPENDED": "Suspended"
       },
-      "changeRoleLabel": "Role for {name}",
+      "changeRole": "Change role",
+      "changeRoleLabel": "Change role for {name}",
       "ownerLocked": "Only an owner can change an owner.",
       "revoke": "Revoke",
       "revokeLabel": "Revoke staff access for {name}",
       "confirmChange": {
         "title": "Change role?",
-        "description": "Change {name}'s role from {from} to {to}?",
+        "description": "Choose a new role for {name}. Their current role is {from}.",
+        "roleLabel": "New role",
         "selfWarning": "You are changing your own role. You may lose access to some admin pages.",
         "confirm": "Change role",
         "processing": "Saving...",

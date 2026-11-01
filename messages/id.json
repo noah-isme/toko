@@ -2242,7 +2242,7 @@
         "owner": "Akses penuh, termasuk pemilik, staf, dan pengaturan toko.",
         "admin": "Akses penuh ke toko; tidak dapat memberikan atau mengubah peran pemilik.",
         "manager": "Menjalankan toko sehari-hari; tidak dapat mengubah pengaturan atau staf.",
-        "catalog": "Produk, kategori, merek, dan stok.",
+        "catalog": "Produk, kategori, merek, dan stok; dapat melihat promosi.",
         "fulfillment": "Pesanan, pengiriman, retur, dan tingkat stok.",
         "support": "Tiket dukungan, pesanan, dan retur.",
         "analyst": "Akses baca saja ke analitik, pesanan, katalog, promosi, dan pelanggan."
@@ -2775,13 +2775,15 @@
         "INVITED": "Diundang",
         "SUSPENDED": "Ditangguhkan"
       },
-      "changeRoleLabel": "Peran untuk {name}",
+      "changeRole": "Ubah peran",
+      "changeRoleLabel": "Ubah peran untuk {name}",
       "ownerLocked": "Hanya pemilik yang dapat mengubah pemilik.",
       "revoke": "Cabut",
       "revokeLabel": "Cabut akses staf untuk {name}",
       "confirmChange": {
         "title": "Ubah peran?",
-        "description": "Ubah peran {name} dari {from} menjadi {to}?",
+        "description": "Pilih peran baru untuk {name}. Peran saat ini: {from}.",
+        "roleLabel": "Peran baru",
         "selfWarning": "Anda mengubah peran Anda sendiri. Anda mungkin kehilangan akses ke beberapa halaman admin.",
         "confirm": "Ubah peran",
         "processing": "Menyimpan...",

@@ -5,6 +5,7 @@
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { HttpResponse, http } from 'msw';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -17,6 +18,7 @@ import { MOCK_USER } from '@/mocks/factories/user';
 import { MOCK_ADMIN_TOKEN, MOCK_STAFF_TOKEN_PREFIX } from '@/mocks/fixtures';
 import { resetMockState } from '@/mocks/resolvers/session';
 import { permissionsFor, type MockTenantRole } from '@/mocks/resolvers/staff';
+import { server } from '@/mocks/server';
 
 const toast = vi.hoisted(() => vi.fn());
 vi.mock('@/shared/ui/toast', () => ({ useToast: () => ({ toast }) }));
@@ -52,6 +54,10 @@ async function rowFor(email: string) {
   return cell.closest('tr') as HTMLElement;
 }
 
+async function roleOf(email: string) {
+  return within(await rowFor(email)).getByTestId('staff-role').textContent;
+}
+
 beforeEach(() => {
   toast.mockReset();
   resetMockState();
@@ -70,10 +76,13 @@ describe('Staff page', () => {
     expect(within(table).getAllByTestId('staff-row')).toHaveLength(5);
     const me = await rowFor('john.doe@example.com');
     expect(within(me).getByText('You')).toBeInTheDocument();
-    expect(within(me).getByRole('combobox', { name: 'Role for John Doe' })).toHaveValue('owner');
+    expect(within(me).getByTestId('staff-role')).toHaveTextContent('Owner');
+    expect(within(me).getByRole('button', { name: 'Change role for John Doe' })).toBeEnabled();
     const budi = await rowFor('budi@example.com');
-    expect(within(budi).getByRole('combobox')).toHaveValue('support');
+    expect(within(budi).getByTestId('staff-role')).toHaveTextContent('Support');
     expect(within(budi).getByText('Active')).toBeInTheDocument();
+    // Roles change through a dialog, never straight from a control in the row.
+    expect(within(table).queryByRole('combobox')).not.toBeInTheDocument();
   });
 
   it('adds a staff member by email and role', async () => {
@@ -92,8 +101,7 @@ describe('Staff page', () => {
         expect.objectContaining({ title: 'Andi Pratama is now Fulfillment.', variant: 'success' }),
       ),
     );
-    const row = await rowFor('andi@example.com');
-    expect(within(row).getByRole('combobox')).toHaveValue('fulfillment');
+    await waitFor(async () => expect(await roleOf('andi@example.com')).toBe('Fulfillment'));
   });
 
   it('validates the email and explains backend errors inline', async () => {
@@ -119,32 +127,110 @@ describe('Staff page', () => {
     expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('asks for confirmation before changing a role', async () => {
+  it('picks the new role inside a confirmation dialog', async () => {
     signInAs('owner');
     renderPage();
-    const budi = await rowFor('budi@example.com');
-    fireEvent.change(within(budi).getByRole('combobox'), { target: { value: 'manager' } });
+    const openDialog = async () => {
+      fireEvent.click(
+        within(await rowFor('budi@example.com')).getByRole('button', {
+          name: 'Change role for Budi Santoso',
+        }),
+      );
+      return screen.findByRole('dialog', { name: 'Change role?' });
+    };
 
-    const dialog = await screen.findByRole('dialog', { name: 'Change role?' });
-    expect(dialog).toHaveTextContent("Change Budi Santoso's role from Support to Manager?");
+    let dialog = await openDialog();
+    expect(dialog).toHaveTextContent(
+      'Choose a new role for Budi Santoso. Their current role is Support.',
+    );
+    const picker = within(dialog).getByRole('combobox', { name: 'New role' });
+    expect(picker).toHaveValue('support');
+    // Nothing to confirm until a different role is picked.
+    expect(within(dialog).getByRole('button', { name: 'Change role' })).toBeDisabled();
+    // Moving through the options (as arrow keys do) only changes the picker.
+    fireEvent.change(picker, { target: { value: 'manager' } });
+    expect(picker).toHaveAccessibleDescription(
+      'Runs the store day to day; cannot change settings or staff.',
+    );
     fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    expect(within(await rowFor('budi@example.com')).getByRole('combobox')).toHaveValue('support');
+    expect(await roleOf('budi@example.com')).toBe('Support');
 
-    fireEvent.change(within(await rowFor('budi@example.com')).getByRole('combobox'), {
+    dialog = await openDialog();
+    fireEvent.change(within(dialog).getByRole('combobox', { name: 'New role' }), {
       target: { value: 'manager' },
     });
-    fireEvent.click(
-      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Change role' }),
-    );
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Change role' }));
     await waitFor(() =>
       expect(toast).toHaveBeenCalledWith(
         expect.objectContaining({ title: 'Budi Santoso is now Manager.', variant: 'success' }),
       ),
     );
-    await waitFor(async () =>
-      expect(within(await rowFor('budi@example.com')).getByRole('combobox')).toHaveValue('manager'),
+    await waitFor(async () => expect(await roleOf('budi@example.com')).toBe('Manager'));
+  });
+
+  it('refreshes /auth/me after changing your own role', async () => {
+    const refreshUser = signInAs('admin');
+    renderPage();
+    fireEvent.click(
+      within(await rowFor('john.doe@example.com')).getByRole('button', {
+        name: 'Change role for John Doe',
+      }),
     );
+    const dialog = await screen.findByRole('dialog', { name: 'Change role?' });
+    expect(dialog).toHaveTextContent('You are changing your own role.');
+    fireEvent.change(within(dialog).getByRole('combobox', { name: 'New role' }), {
+      target: { value: 'support' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Change role' }));
+    await waitFor(() => expect(refreshUser).toHaveBeenCalledTimes(1));
+  });
+
+  it('steps back a page when the last row of a later page is revoked', async () => {
+    signInAs('owner');
+    // 21 staff: the last one sits alone on page 2 until it is revoked.
+    const roster = Array.from({ length: 21 }, (_, index) => ({
+      userId: `staff-${index}`,
+      name: `Staff ${index}`,
+      email: `staff${index}@example.com`,
+      role: 'analyst',
+      status: 'ACTIVE',
+      createdAt: '2026-01-05T08:00:00.000Z',
+      updatedAt: '2026-01-05T08:00:00.000Z',
+    }));
+    server.use(
+      http.get('*/admin/staff', ({ request }) => {
+        const url = new URL(request.url);
+        const page = Number(url.searchParams.get('page') ?? '1');
+        const limit = Number(url.searchParams.get('limit') ?? '20');
+        return HttpResponse.json({
+          data: roster.slice((page - 1) * limit, page * limit),
+          pagination: { page, perPage: limit, totalItems: roster.length },
+        });
+      }),
+      http.delete('*/admin/staff/:userId', ({ params }) => {
+        roster.splice(
+          roster.findIndex((member) => member.userId === params.userId),
+          1,
+        );
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    renderPage();
+    await screen.findByText('staff0@example.com');
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    fireEvent.click(
+      within(await rowFor('staff20@example.com')).getByRole('button', {
+        name: 'Revoke staff access for Staff 20',
+      }),
+    );
+    fireEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Revoke access' }),
+    );
+
+    expect(await screen.findByText('staff0@example.com')).toBeInTheDocument();
+    expect(screen.queryByText('No staff yet.')).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('staff-row')).toHaveLength(20);
   });
 
   it('confirms a revoke and explains the last-owner rule', async () => {
@@ -194,13 +280,19 @@ describe('Staff page', () => {
     const me = await rowFor('john.doe@example.com');
     expect(within(me).getByText('You')).toBeInTheDocument();
     const owner = await rowFor('admin@toko.com');
-    expect(within(owner).queryByRole('combobox')).not.toBeInTheDocument();
     expect(within(owner).queryByRole('button')).not.toBeInTheDocument();
     expect(within(owner).getAllByText('Only an owner can change an owner.').length).toBeGreaterThan(
       0,
     );
-    const budi = await rowFor('budi@example.com');
-    const options = within(within(budi).getByRole('combobox')).getAllByRole('option');
+    fireEvent.click(
+      within(await rowFor('budi@example.com')).getByRole('button', {
+        name: 'Change role for Budi Santoso',
+      }),
+    );
+    const picker = within(await screen.findByRole('dialog')).getByRole('combobox', {
+      name: 'New role',
+    });
+    const options = within(picker).getAllByRole('option');
     expect(options.map((option) => option.getAttribute('value'))).not.toContain('owner');
   });
 
@@ -213,6 +305,7 @@ describe('Staff page', () => {
     );
     expect(screen.queryByRole('button', { name: 'Add staff' })).not.toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Change role/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Revoke/ })).not.toBeInTheDocument();
   });
 

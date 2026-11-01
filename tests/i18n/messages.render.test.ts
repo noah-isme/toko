@@ -2450,7 +2450,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
       'Akses penuh ke toko; tidak dapat memberikan atau mengubah peran pemilik.',
     'admin.access.roleDescriptions.manager':
       'Menjalankan toko sehari-hari; tidak dapat mengubah pengaturan atau staf.',
-    'admin.access.roleDescriptions.catalog': 'Produk, kategori, merek, dan stok.',
+    'admin.access.roleDescriptions.catalog':
+      'Produk, kategori, merek, dan stok; dapat melihat promosi.',
     'admin.access.roleDescriptions.fulfillment': 'Pesanan, pengiriman, retur, dan tingkat stok.',
     'admin.access.roleDescriptions.support': 'Tiket dukungan, pesanan, dan retur.',
     'admin.access.roleDescriptions.analyst':
@@ -2509,15 +2510,17 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.staff.status.ACTIVE': 'Aktif',
     'admin.staff.status.INVITED': 'Diundang',
     'admin.staff.status.SUSPENDED': 'Ditangguhkan',
-    'admin.staff.changeRoleLabel': ['Peran untuk Budi', { name: 'Budi' }],
+    'admin.staff.changeRole': 'Ubah peran',
+    'admin.staff.changeRoleLabel': ['Ubah peran untuk Budi', { name: 'Budi' }],
     'admin.staff.ownerLocked': 'Hanya pemilik yang dapat mengubah pemilik.',
     'admin.staff.revoke': 'Cabut',
     'admin.staff.revokeLabel': ['Cabut akses staf untuk Budi', { name: 'Budi' }],
     'admin.staff.confirmChange.title': 'Ubah peran?',
     'admin.staff.confirmChange.description': [
-      'Ubah peran Budi dari Support menjadi Manager?',
-      { name: 'Budi', from: 'Support', to: 'Manager' },
+      'Pilih peran baru untuk Budi. Peran saat ini: Support.',
+      { name: 'Budi', from: 'Support' },
     ],
+    'admin.staff.confirmChange.roleLabel': 'Peran baru',
     'admin.staff.confirmChange.selfWarning':
       'Anda mengubah peran Anda sendiri. Anda mungkin kehilangan akses ke beberapa halaman admin.',
     'admin.staff.confirmChange.confirm': 'Ubah peran',
@@ -4964,7 +4967,8 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
       'Full access to the store; cannot grant or change the owner role.',
     'admin.access.roleDescriptions.manager':
       'Runs the store day to day; cannot change settings or staff.',
-    'admin.access.roleDescriptions.catalog': 'Products, categories, brands and stock.',
+    'admin.access.roleDescriptions.catalog':
+      'Products, categories, brands and stock; can view promotions.',
     'admin.access.roleDescriptions.fulfillment': 'Orders, shipments, returns and stock levels.',
     'admin.access.roleDescriptions.support': 'Support tickets, orders and returns.',
     'admin.access.roleDescriptions.analyst':
@@ -5019,15 +5023,17 @@ const EXPECTED: Record<'id' | 'en', Record<string, Expectation>> = {
     'admin.staff.status.ACTIVE': 'Active',
     'admin.staff.status.INVITED': 'Invited',
     'admin.staff.status.SUSPENDED': 'Suspended',
-    'admin.staff.changeRoleLabel': ['Role for Budi', { name: 'Budi' }],
+    'admin.staff.changeRole': 'Change role',
+    'admin.staff.changeRoleLabel': ['Change role for Budi', { name: 'Budi' }],
     'admin.staff.ownerLocked': 'Only an owner can change an owner.',
     'admin.staff.revoke': 'Revoke',
     'admin.staff.revokeLabel': ['Revoke staff access for Budi', { name: 'Budi' }],
     'admin.staff.confirmChange.title': 'Change role?',
     'admin.staff.confirmChange.description': [
-      "Change Budi's role from Support to Manager?",
-      { name: 'Budi', from: 'Support', to: 'Manager' },
+      'Choose a new role for Budi. Their current role is Support.',
+      { name: 'Budi', from: 'Support' },
     ],
+    'admin.staff.confirmChange.roleLabel': 'New role',
     'admin.staff.confirmChange.selfWarning':
       'You are changing your own role. You may lose access to some admin pages.',
     'admin.staff.confirmChange.confirm': 'Change role',

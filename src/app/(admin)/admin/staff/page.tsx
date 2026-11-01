@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Lock, UserMinus, UserPlus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock, UserCog, UserMinus, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useId, useState, type FormEvent } from 'react';
 
@@ -248,6 +248,8 @@ type ChangeTarget = { member: StaffMember; to: StaffRole };
 
 export default function StaffPage() {
   const t = useTranslations('admin.staff');
+  const tAccess = useTranslations('admin.access');
+  const ids = useId();
   const tCommon = useTranslations('admin.common');
   const roleLabel = useRoleLabel();
   const staffErrorMessage = useStaffErrorMessage();
@@ -269,6 +271,9 @@ export default function StaffPage() {
   const members = query.data?.data ?? [];
   const totalItems = query.data?.pagination.totalItems ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  // Revoking the last row of a later page leaves `page` past the end: step
+  // back to the last page that still has staff instead of showing "empty".
+  if (query.data && !query.isFetching && page > totalPages) setPage(totalPages);
   const isSelf = (member: StaffMember | null | undefined) =>
     Boolean(member && user && member.userId === user.id);
   const displayName = (member: StaffMember) => member.name || member.email;
@@ -276,6 +281,7 @@ export default function StaffPage() {
   const confirmChange = async () => {
     if (!changeTarget) return;
     const { member, to } = changeTarget;
+    if (to === member.role) return;
     try {
       await updateRole.mutateAsync({ userId: member.userId, role: to });
       toast({
@@ -316,36 +322,19 @@ export default function StaffPage() {
   };
 
   const renderRoleCell = (member: StaffMember) => {
-    const locked = member.role === 'owner' && !isOwner;
-    if (!canManage) return <span>{roleLabel(member.role)}</span>;
-    if (locked) {
-      return (
-        <span className="inline-flex items-center gap-1.5">
-          <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-          <span>{roleLabel(member.role)}</span>
-          <span className="sr-only">. {t('ownerLocked')}</span>
-        </span>
-      );
-    }
+    const locked = canManage && member.role === 'owner' && !isOwner;
+    if (!locked) return <span data-testid="staff-role">{roleLabel(member.role)}</span>;
     return (
-      <select
-        aria-label={t('changeRoleLabel', { name: displayName(member) })}
-        className={cn(SELECT_CLASS, 'h-9 min-w-[9rem]')}
-        value={member.role}
-        disabled={updateRole.isPending || revoke.isPending}
-        onChange={(event) => {
-          const to = event.target.value as StaffRole;
-          if (to !== member.role) setChangeTarget({ member, to });
-        }}
-      >
-        {assignableRoles.map((option) => (
-          <option key={option} value={option}>
-            {roleLabel(option)}
-          </option>
-        ))}
-      </select>
+      <span className="inline-flex items-center gap-1.5" data-testid="staff-role">
+        <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+        <span>{roleLabel(member.role)}</span>
+        <span className="sr-only">. {t('ownerLocked')}</span>
+      </span>
     );
   };
+
+  const changeRoleSelectId = `${ids}-change-role`;
+  const changeRoleHintId = `${ids}-change-role-hint`;
 
   return (
     <div className="space-y-6">
@@ -359,7 +348,7 @@ export default function StaffPage() {
         </p>
       )}
 
-      {query.isLoading ? (
+      {query.isLoading || page > totalPages ? (
         <AdminLoading label={t('loading')} />
       ) : query.isError ? (
         <AdminError error={query.error} onRetry={() => void query.refetch()} />
@@ -422,17 +411,29 @@ export default function StaffPage() {
                                 {t('ownerLocked')}
                               </span>
                             ) : (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive"
-                                aria-label={t('revokeLabel', { name: displayName(member) })}
-                                disabled={updateRole.isPending || revoke.isPending}
-                                onClick={() => setRevokeTarget(member)}
-                              >
-                                <UserMinus className="mr-1 h-4 w-4" aria-hidden="true" />
-                                {t('revoke')}
-                              </Button>
+                              <div className="flex justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  aria-label={t('changeRoleLabel', { name: displayName(member) })}
+                                  disabled={updateRole.isPending || revoke.isPending}
+                                  onClick={() => setChangeTarget({ member, to: member.role })}
+                                >
+                                  <UserCog className="mr-1 h-4 w-4" aria-hidden="true" />
+                                  {t('changeRole')}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive"
+                                  aria-label={t('revokeLabel', { name: displayName(member) })}
+                                  disabled={updateRole.isPending || revoke.isPending}
+                                  onClick={() => setRevokeTarget(member)}
+                                >
+                                  <UserMinus className="mr-1 h-4 w-4" aria-hidden="true" />
+                                  {t('revoke')}
+                                </Button>
+                              </div>
                             )}
                           </td>
                         ) : null}
@@ -487,11 +488,34 @@ export default function StaffPage() {
                 ? t('confirmChange.description', {
                     name: displayName(changeTarget.member),
                     from: roleLabel(changeTarget.member.role),
-                    to: roleLabel(changeTarget.to),
                   })
                 : null}
             </DialogDescription>
           </DialogHeader>
+          {changeTarget ? (
+            <div className="space-y-2">
+              <Label htmlFor={changeRoleSelectId}>{t('confirmChange.roleLabel')}</Label>
+              <select
+                id={changeRoleSelectId}
+                className={SELECT_CLASS}
+                value={changeTarget.to}
+                disabled={updateRole.isPending}
+                aria-describedby={changeRoleHintId}
+                onChange={(event) =>
+                  setChangeTarget({ ...changeTarget, to: event.target.value as StaffRole })
+                }
+              >
+                {assignableRoles.map((option) => (
+                  <option key={option} value={option}>
+                    {roleLabel(option)}
+                  </option>
+                ))}
+              </select>
+              <p id={changeRoleHintId} className="text-xs text-muted-foreground">
+                {tAccess(`roleDescriptions.${changeTarget.to}`)}
+              </p>
+            </div>
+          ) : null}
           {isSelf(changeTarget?.member) ? (
             <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
               {t('confirmChange.selfWarning')}
@@ -505,7 +529,14 @@ export default function StaffPage() {
             >
               {tCommon('cancel')}
             </Button>
-            <Button onClick={() => void confirmChange()} disabled={updateRole.isPending}>
+            <Button
+              onClick={() => void confirmChange()}
+              disabled={
+                updateRole.isPending ||
+                !changeTarget ||
+                changeTarget.to === changeTarget.member.role
+              }
+            >
               {updateRole.isPending ? t('confirmChange.processing') : t('confirmChange.confirm')}
             </Button>
           </DialogFooter>
