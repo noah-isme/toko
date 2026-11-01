@@ -143,7 +143,8 @@ describe('admin products: page state', () => {
   });
 });
 
-describe('admin products: bulk actions', () => {
+// Long userEvent flows: these exceed the 5 s default on a loaded CI box with coverage on.
+describe('admin products: bulk actions', { timeout: 15_000 }, () => {
   it('changes status for the selected products after confirmation', async () => {
     renderPage();
     await rows();
