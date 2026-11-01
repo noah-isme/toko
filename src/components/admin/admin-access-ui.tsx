@@ -6,6 +6,7 @@
 
 import { ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 
@@ -101,7 +102,13 @@ export function AdminForbidden({
   const tNav = useTranslations('admin.nav.items');
   const permissionLabel = usePermissionLabel();
   const access = useAdminAccess();
-  const fallback = accessibleNavItems(access)[0];
+  const pathname = usePathname();
+  // Never offer a link back to the page that just refused access, and offer
+  // none at all when the user lacks a staff role (every admin page needs one).
+  const fallback =
+    required === 'staff'
+      ? undefined
+      : accessibleNavItems(access).find((item) => item.href !== pathname);
 
   let description: string;
   if (code === 'TENANT_FORBIDDEN') description = t('tenantDescription');

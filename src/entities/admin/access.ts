@@ -3,9 +3,10 @@
  *
  * Tenant-scoped areas are gated on the `permissions` that `GET /auth/me`
  * returns for the caller's role in the current tenant. Platform-global areas
- * (webhooks, audit logs) sit outside that matrix and need the legacy global
- * `roles` to contain `admin`. This is UX gating only: the backend enforces the
- * same rules on every admin request.
+ * (webhooks, audit logs) sit outside that matrix: they need the legacy global
+ * `roles` to contain `admin` in addition to a staff role in the tenant (the
+ * backend mounts them behind `RequireStaff`). This is UX gating only: the
+ * backend enforces the same rules on every admin request.
  */
 import {
   ADMIN_PERMISSIONS,
@@ -41,25 +42,29 @@ export function isStaffRole(value: unknown): value is StaffRole {
   return typeof value === 'string' && (STAFF_ROLES as readonly string[]).includes(value);
 }
 
+/** Exact match, like the backend's `slices.Contains(user.Roles, "admin")`. */
 function hasGlobalAdminRole(user: User | null | undefined): boolean {
-  return Boolean(user?.roles?.some((role) => role.toLowerCase() === 'admin'));
+  return Boolean(user?.roles?.includes('admin'));
 }
 
 /**
- * Derives the admin access of `user`. A payload without `permissions` (an older
- * backend, or a cached login response) falls back to the legacy rule: a global
- * `admin` holds every permission and everyone else holds none.
+ * Derives the admin access of `user`. When `/auth/me` reports `permissions`,
+ * the platform areas also need a staff role in the tenant, as on the backend.
+ * A payload without `permissions` (an older backend, or a cached login
+ * response) falls back to the legacy rule: a global `admin` holds every
+ * permission and everyone else holds none.
  */
 export function getAdminAccess(user: User | null | undefined): AdminAccess {
-  const isPlatformAdmin = hasGlobalAdminRole(user);
+  const role = isStaffRole(user?.role) ? user.role : null;
+  const hasPermissionList = Array.isArray(user?.permissions);
+  const isPlatformAdmin = hasGlobalAdminRole(user) && (!hasPermissionList || role !== null);
   const granted = new Set<AdminPermission>(
-    Array.isArray(user?.permissions)
-      ? user.permissions.filter(isAdminPermission)
+    hasPermissionList
+      ? (user?.permissions ?? []).filter(isAdminPermission)
       : isPlatformAdmin
         ? ADMIN_PERMISSIONS
         : [],
   );
-  const role = isStaffRole(user?.role) ? user.role : null;
 
   return {
     canEnter: Boolean(user) && (granted.size > 0 || isPlatformAdmin),
@@ -112,14 +117,25 @@ export interface AdminForbiddenInfo {
   required: string | null;
 }
 
+const FORBIDDEN_CODES: ReadonlySet<string> = new Set<AdminForbiddenCode>([
+  'FORBIDDEN',
+  'TENANT_FORBIDDEN',
+  'OWNER_REQUIRED',
+]);
+
+function isForbiddenCode(code: unknown): code is AdminForbiddenCode {
+  return typeof code === 'string' && FORBIDDEN_CODES.has(code);
+}
+
 /**
- * Recognises an admin authorization failure. CSRF 403s are retried by the API
- * client and never surface here with these codes.
+ * Recognises an admin authorization failure. Other 403s (a CSRF failure that
+ * survived the API client's retry, for example) return `null` so callers show
+ * their normal error state with a retry instead of a "no access" state.
  */
 export function forbiddenInfo(error: unknown): AdminForbiddenInfo | null {
   if (!(error instanceof ApiClientError) || error.status !== 403) return null;
-  const code: AdminForbiddenCode =
-    error.code === 'TENANT_FORBIDDEN' || error.code === 'OWNER_REQUIRED' ? error.code : 'FORBIDDEN';
+  const code = error.code;
+  if (!isForbiddenCode(code)) return null;
   const required = error.details?.required;
   return { code, required: typeof required === 'string' ? required : null };
 }

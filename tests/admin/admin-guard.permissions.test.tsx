@@ -1,11 +1,11 @@
-import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import { act, renderHook, screen, waitFor, within } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { renderWithIntl } from '../utils/renderWithIntl';
 
-import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
+import { AdminForbidden, useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminGuard, AdminRouteGate } from '@/components/admin/admin-guard';
 import { AdminNav } from '@/components/admin/admin-nav';
 import { AdminPermissionSync } from '@/components/admin/admin-permission-sync';
@@ -99,6 +99,18 @@ describe('AdminGuard', () => {
     expect(screen.queryByText('secret')).not.toBeInTheDocument();
   });
 
+  it('blocks a global admin whose staff role in the tenant was revoked', () => {
+    // /auth/me after the revoke: the platform routes sit behind RequireStaff too.
+    signIn(staffUser('customer', [], ['admin']));
+    renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
+    expect(screen.getByRole('heading', { name: 'Admin access required' })).toBeInTheDocument();
+    expect(screen.queryByText('secret')).not.toBeInTheDocument();
+
+    renderWithIntl(<AdminNav />, { locale: 'en' });
+    expect(screen.queryByRole('link', { name: 'Webhooks' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Audit Logs' })).not.toBeInTheDocument();
+  });
+
   it('lets any staff role in and sends signed-out users to login', () => {
     renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
     expect(screen.getByText('secret')).toBeInTheDocument();
@@ -147,6 +159,25 @@ describe('AdminRouteGate', () => {
   });
 });
 
+describe('AdminForbidden', () => {
+  it('never links back to the page that refused access', () => {
+    signIn(staffUser('admin', ['analytics:read'], ['admin']));
+    nav.pathname = '/admin/webhooks';
+    renderWithIntl(<AdminForbidden required="platform-admin" />, { locale: 'en' });
+    const links = within(screen.getByRole('alert')).getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]).not.toHaveAttribute('href', '/admin/webhooks');
+  });
+
+  it('offers only the storefront when the backend requires a staff role', () => {
+    nav.pathname = '/admin/products';
+    renderWithIntl(<AdminForbidden required="staff" />, { locale: 'en' });
+    const links = within(screen.getByRole('alert')).getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute('href', '/');
+  });
+});
+
 describe('403 responses from admin APIs', () => {
   it('renders the no-access state instead of a retry for a 403', () => {
     const retry = vi.fn();
@@ -160,6 +191,13 @@ describe('403 responses from admin APIs', () => {
   it('keeps the retry state for other errors', () => {
     renderWithIntl(<AdminError error={new Error('boom')} onRetry={vi.fn()} />, { locale: 'en' });
     expect(screen.getByTestId('admin-error')).toHaveTextContent('boom');
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+  });
+
+  it('keeps the retry state for a 403 that is not an authorization failure', () => {
+    const csrf = new ApiClientError('csrf token mismatch', 'CSRF_INVALID', 403);
+    renderWithIntl(<AdminError error={csrf} onRetry={vi.fn()} />, { locale: 'en' });
+    expect(screen.queryByTestId('admin-forbidden')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
   });
 
@@ -208,6 +246,39 @@ describe('AdminPermissionSync', () => {
     const fail = (error: unknown) => act(() => result.current.mutate(error));
     return { refreshUser, fail };
   }
+
+  function setupQuery(queryKey: string[], error: unknown) {
+    const refreshUser = vi.fn().mockResolvedValue(undefined);
+    signIn(CATALOG, { refreshUser });
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>
+        <AdminPermissionSync />
+        {children}
+      </QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () => useQuery({ queryKey, queryFn: () => Promise.reject(error) }),
+      { wrapper },
+    );
+    return { refreshUser, result };
+  }
+
+  it('re-reads /auth/me when an admin query is refused', async () => {
+    const { refreshUser, result } = setupQuery(['admin', 'orders'], forbidden('orders:read'));
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(refreshUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores refused non-admin queries and non-authorization 403s', async () => {
+    const storefront = setupQuery(['products'], forbidden('orders:read'));
+    await waitFor(() => expect(storefront.result.current.isError).toBe(true));
+    expect(storefront.refreshUser).not.toHaveBeenCalled();
+
+    const csrf = setupQuery(['admin', 'orders'], new ApiClientError('csrf', 'CSRF_INVALID', 403));
+    await waitFor(() => expect(csrf.result.current.isError).toBe(true));
+    expect(csrf.refreshUser).not.toHaveBeenCalled();
+  });
 
   it('re-reads /auth/me once when an admin request is refused', async () => {
     const { refreshUser, fail } = setup();

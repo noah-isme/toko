@@ -41,7 +41,7 @@ describe('getAdminAccess', () => {
     expect(access.can(PLATFORM_ADMIN)).toBe(false);
   });
 
-  it('gates platform areas on the legacy global admin role only', () => {
+  it('gates platform areas on the global admin role plus a staff role in the tenant', () => {
     const owner = getAdminAccess({
       ...base,
       roles: ['customer'],
@@ -49,10 +49,43 @@ describe('getAdminAccess', () => {
       permissions: ['staff:manage'],
     });
     expect(owner.can(PLATFORM_ADMIN)).toBe(false);
-    const platform = getAdminAccess({ ...base, roles: ['Admin'], role: 'admin', permissions: [] });
+
+    const platform = getAdminAccess({
+      ...base,
+      roles: ['admin'],
+      role: 'support',
+      permissions: ['support:read'],
+    });
     expect(platform.canEnter).toBe(true);
+    expect(platform.isPlatformAdmin).toBe(true);
     expect(platform.can(PLATFORM_ADMIN)).toBe(true);
     expect(platform.can('catalog:read')).toBe(false);
+  });
+
+  it('keeps a global admin without a staff role out of the admin area', () => {
+    // What /auth/me returns after a global admin's staff role is revoked: the
+    // backend mounts the platform routes behind RequireStaff, so they 403 too.
+    const revoked = getAdminAccess({
+      ...base,
+      roles: ['admin'],
+      role: 'customer',
+      permissions: [],
+    });
+    expect(revoked.canEnter).toBe(false);
+    expect(revoked.isPlatformAdmin).toBe(false);
+    expect(revoked.can(PLATFORM_ADMIN)).toBe(false);
+    expect(revoked.role).toBeNull();
+  });
+
+  it('matches the global admin role exactly, like the backend', () => {
+    const access = getAdminAccess({
+      ...base,
+      roles: ['Admin'],
+      role: 'owner',
+      permissions: ['staff:manage'],
+    });
+    expect(access.can(PLATFORM_ADMIN)).toBe(false);
+    expect(getAdminAccess({ ...base, roles: ['ADMIN'] }).canEnter).toBe(false);
   });
 
   it('falls back to the legacy rule when permissions are missing', () => {
@@ -109,6 +142,9 @@ describe('forbiddenInfo', () => {
 
   it('ignores other errors', () => {
     expect(forbiddenInfo(new ApiClientError('x', 'NOT_FOUND', 404))).toBeNull();
+    // A CSRF 403 that survived the client's retry keeps the normal error state.
+    expect(forbiddenInfo(new ApiClientError('x', 'CSRF_INVALID', 403))).toBeNull();
+    expect(forbiddenInfo(new ApiClientError('x', 'UNKNOWN', 403))).toBeNull();
     expect(forbiddenInfo(new Error('x'))).toBeNull();
     expect(forbiddenInfo(null)).toBeNull();
   });
