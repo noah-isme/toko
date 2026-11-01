@@ -186,6 +186,24 @@ describe('product search results: suggestions, fuzzy mode and facets', () => {
     expect(screen.getByText(/^Price: from /)).toHaveTextContent('10,000,000');
   });
 
+  it('labels a bucket price chip with the bucket edge the sidebar shows', () => {
+    // Selecting the 50k-100k bucket stores the inclusive range 50000-99999.
+    state.params = new URLSearchParams('price=50000,99999');
+    renderWithIntl(<AdvancedSearchResults />, { locale: 'en' });
+    const chip = screen.getByText(/^Price: /);
+    expect(chip).toHaveTextContent('50,000');
+    expect(chip).toHaveTextContent('100,000');
+    expect(chip).not.toHaveTextContent('99,999');
+  });
+
+  it('labels a custom price chip with its own bounds', () => {
+    state.params = new URLSearchParams('price=60000,90000');
+    renderWithIntl(<AdvancedSearchResults />, { locale: 'en' });
+    const chip = screen.getByText(/^Price: /);
+    expect(chip).toHaveTextContent('60,000');
+    expect(chip).toHaveTextContent('90,000');
+  });
+
   it('selects popularity sort from the URL', () => {
     state.params = new URLSearchParams('sort=popularity');
     renderWithIntl(<AdvancedSearchResults />, { locale: 'en' });

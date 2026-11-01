@@ -16,6 +16,7 @@ import {
 import {
   hasPriceFilter,
   isPriceBucketSelected,
+  priceRangeDisplayBounds,
   priceRangeForBucket,
 } from '@/entities/search/lib/facets';
 import type { SearchFilters, SearchFacet } from '@/entities/search/types';
@@ -88,13 +89,10 @@ function matchesOption(option: FacetOption, selectedValue: string): boolean {
  * Keeps the selected value visible even when it is not among the returned
  * options (facets list the top 50 by count), so it can still be cleared.
  */
-function withSelectedOption(
-  options: FacetOption[],
-  selected: string | undefined,
-  missingCount: number | null,
-): FacetOption[] {
+function withSelectedOption(options: FacetOption[], selected: string | undefined): FacetOption[] {
   if (!selected || options.some((option) => matchesOption(option, selected))) return options;
-  return [...options, { value: selected, label: selected, count: missingCount }];
+  // No count: a value outside the top 50 may still have products.
+  return [...options, { value: selected, label: selected, count: null }];
 }
 
 function taxonomyOptions(facets: SearchFacet[], type: 'category' | 'brand'): FacetOption[] {
@@ -175,6 +173,16 @@ function PriceBucketGroup({
   const visible = buckets.filter(
     (bucket) => bucket.count > 0 || isPriceBucketSelected(bucket, value),
   );
+  // A URL range that matches no bucket (e.g. an old slider link) is listed as
+  // its own checked option, so the group never shows nothing selected.
+  const customRange =
+    hasPriceFilter(value) && !buckets.some((bucket) => isPriceBucketSelected(bucket, value))
+      ? priceRangeDisplayBounds(value, [])
+      : null;
+  const rangeLabel = ({ min, max }: { min: number; max: number | null }) =>
+    max === null
+      ? t('priceFrom', { min: fmt.currency(min) })
+      : t('priceBetween', { min: fmt.currency(min), max: fmt.currency(max) });
 
   return (
     <div role="radiogroup" aria-label={t('price')} className="space-y-2">
@@ -198,14 +206,24 @@ function PriceBucketGroup({
             onChange={() => onChange(priceRangeForBucket(bucket))}
             className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
           />
-          <span className="flex-1 truncate text-sm">
-            {bucket.max === null
-              ? t('priceFrom', { min: fmt.currency(bucket.min) })
-              : t('priceBetween', { min: fmt.currency(bucket.min), max: fmt.currency(bucket.max) })}
-          </span>
+          {/* Wraps instead of truncating: the upper bound must stay readable in w-64/w-72. */}
+          <span className="min-w-0 flex-1 break-words text-sm">{rangeLabel(bucket)}</span>
           <FacetCount count={bucket.count} />
         </label>
       ))}
+      {customRange && (
+        <label className="flex cursor-pointer items-center gap-2">
+          <input
+            type="radio"
+            name={name}
+            value="custom"
+            checked
+            readOnly
+            className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          />
+          <span className="min-w-0 flex-1 break-words text-sm">{rangeLabel(customRange)}</span>
+        </label>
+      )}
     </div>
   );
 }
@@ -239,7 +257,6 @@ export function AdvancedFilterSidebar({
 
   const selectedCategory = filters.categories?.[0];
   const selectedBrand = filters.brands?.[0];
-  const missingCount = serverFacets ? 0 : null;
   const categoryOptions = withSelectedOption(
     serverFacets
       ? serverFacets.categories.map(({ slug, name, count }) => ({
@@ -249,14 +266,12 @@ export function AdvancedFilterSidebar({
         }))
       : taxonomyOptions(facets, 'category'),
     selectedCategory,
-    missingCount,
   );
   const brandOptions = withSelectedOption(
     serverFacets
       ? serverFacets.brands.map(({ slug, name, count }) => ({ value: slug, label: name, count }))
       : taxonomyOptions(facets, 'brand'),
     selectedBrand,
-    missingCount,
   );
 
   const saveSearch = useSaveSearchMutation();

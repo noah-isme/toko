@@ -201,7 +201,42 @@ describe('AdvancedFilterSidebar with facet counts from the product response', ()
 
     const brands = within(desktop()).getByRole('radiogroup', { name: 'Merek' });
     expect(within(brands).getByLabelText(/sony/)).toBeChecked();
-    expect(within(brands).getByText('(0)')).toBeVisible();
+    // Facets list only the top 50, so an unlisted value has an unknown count, not zero.
+    expect(within(brands).getByLabelText(/sony/).closest('label')).toHaveTextContent(/^sony$/);
+    expect(within(brands).queryByText('(0)')).not.toBeInTheDocument();
+  });
+
+  it('lists a URL price range that matches no bucket as a checked option', () => {
+    render(
+      <AdvancedFilterSidebar
+        filters={{ ...filters, priceRange: [500000, 10000000] }}
+        onFiltersChange={vi.fn()}
+        facetCounts={{ data: serverFacets, isLoading: false }}
+      />,
+    );
+
+    const price = within(desktop()).getByRole('radiogroup', { name: 'Harga' });
+    expect(within(price).getByLabelText('Semua harga')).not.toBeChecked();
+    const checked = within(price)
+      .getAllByRole('radio')
+      .filter((radio) => (radio as HTMLInputElement).checked);
+    expect(checked).toHaveLength(1);
+    expect(checked[0].closest('label')).toHaveTextContent(/500\.000 ke atas/);
+  });
+
+  it('lets long price labels wrap instead of truncating them', () => {
+    render(
+      <AdvancedFilterSidebar
+        filters={filters}
+        onFiltersChange={vi.fn()}
+        facetCounts={{ data: serverFacets, isLoading: false }}
+      />,
+    );
+
+    const price = within(desktop()).getByRole('radiogroup', { name: 'Harga' });
+    const label = within(price).getByText(/50\.000.*100\.000/);
+    expect(label).not.toHaveClass('truncate');
+    expect(label).toHaveClass('break-words');
   });
 
   it('offers price buckets with counts and hides empty ones', async () => {

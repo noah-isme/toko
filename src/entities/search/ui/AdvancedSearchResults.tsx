@@ -34,7 +34,7 @@ import {
   parseSearchStateFromUrl,
   toProductApiParams,
 } from '@/entities/search/lib/apiParams';
-import { hasPriceFilter } from '@/entities/search/lib/facets';
+import { hasPriceFilter, priceRangeDisplayBounds } from '@/entities/search/lib/facets';
 import type { SearchFilters, SortOption } from '@/entities/search/types';
 import {
   AdvancedFilterSidebar as AdvancedFilterSidebarComponent,
@@ -178,10 +178,11 @@ export function AdvancedSearchResults() {
       });
     });
     if (hasPriceFilter(filters.priceRange)) {
-      const [min, max] = filters.priceRange;
+      // Same bounds as the sidebar's price buckets (exclusive upper edge).
+      const { min, max } = priceRangeDisplayBounds(filters.priceRange);
       items.push({
         label:
-          max >= PRICE_FILTER_MAX
+          max === null
             ? t('chips.priceFrom', { min: fmt.currency(min) })
             : t('chips.price', { min: fmt.currency(min), max: fmt.currency(max) }),
         onRemove: () => handleFiltersChange({ priceRange: undefined }),
