@@ -37,6 +37,20 @@ by the deployment.
 | NEXT_PUBLIC_APP_NAME                             | toko                                 | toko                               | toko                           |
 | NEXT_PUBLIC_RUM_DEST / NEXT_PUBLIC_RUM_SAMPLE    | none / 0                             | none / 0                           | none / 0                       |
 | NEXT_PUBLIC_POSTHOG_KEY / NEXT_PUBLIC_SENTRY_DSN | Unset                                | Unset                              | Unset                          |
+| NEXT_PUBLIC_ORDER_IDEMPOTENCY                    | false                                | false                              | false                          |
+
+`NEXT_PUBLIC_ORDER_IDEMPOTENCY` adds an `Idempotency-Key` header to order
+cancel and return creation. Keep it `false` until the API both lists
+`Idempotency-Key` in `Access-Control-Allow-Headers` and wraps those two routes
+in its idempotency middleware; enabling it earlier makes the cross-origin
+preflight for both requests fail.
+
+Payment proof uploads (`POST /payments/{orderId}/proof`) are checked against
+5 MB in the browser and in the API handler, but the API's global request body
+limit (`SECURITY_BODY_LIMIT_BYTES`, 1 MiB by default) applies first. Until the
+API raises that limit or exempts the proof route (5 MiB plus multipart
+overhead), files above about 1 MB are rejected with a 413; the storefront then
+says the file is too large without naming a size.
 
 Preview builds use the real API with the dedicated test tenant. Protect Preview
 deployments with Vercel Deployment Protection. Use the stable staging hostname

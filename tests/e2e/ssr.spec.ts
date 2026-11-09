@@ -45,15 +45,16 @@ test.describe('server-rendered catalog', () => {
       if (isProductListRequest(request)) productListRequests.push(request.url());
     });
 
-    // The filter sidebar fetches /categories on mount, in the same commit in
-    // which useProducts would fetch, so its response proves the island has
-    // hydrated. (`networkidle` never settles under `pnpm dev`: HMR socket.)
-    const hydrated = page.waitForResponse(
-      (response) => new URL(response.url()).pathname === '/api/v1/categories',
-    );
     await page.goto('/products');
     await expect(page.getByTestId('product-card').first()).toBeVisible();
-    await hydrated;
+    // The filter sidebar reads its facet counts from the same prefetched
+    // response, so no request marks hydration. React attaches its fiber to the
+    // DOM node when the island hydrates, in the commit in which useProducts
+    // would fetch. (`networkidle` never settles under `pnpm dev`: HMR socket.)
+    await page.waitForFunction(() => {
+      const card = document.querySelector('[data-testid="product-card"]');
+      return !!card && Object.keys(card).some((key) => key.startsWith('__reactFiber'));
+    });
     // Allow any trailing mount-time effects to fire a refetch.
     await page.waitForTimeout(1_000);
 

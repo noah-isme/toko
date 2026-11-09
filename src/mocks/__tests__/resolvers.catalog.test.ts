@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { products } from '../fixtures';
-import { getProduct, getRelated, listProducts } from '../resolvers/catalog';
+import { getProduct, getRelated, listProducts, mockUnitsSold } from '../resolvers/catalog';
 import { handleMockRequest } from '../route';
 
 function list(query: Record<string, string> = {}) {
@@ -9,6 +9,25 @@ function list(query: Record<string, string> = {}) {
 }
 
 describe('catalog resolver', () => {
+  it('rejects a q longer than 200 code points like the API', () => {
+    const tooLong = 'é'.repeat(201);
+    expect(
+      handleMockRequest('products', 'GET', null, 'q', new URLSearchParams({ q: tooLong })),
+    ).toEqual({
+      status: 400,
+      error: {
+        code: 'BAD_REQUEST',
+        message: 'q must be at most 200 characters',
+        details: { field: 'q' },
+      },
+    });
+    // Trimmed first, and 200 code points (not UTF-16 units) are fine.
+    const atLimit = `  ${'😀'.repeat(200)}  `;
+    expect(
+      handleMockRequest('products', 'GET', null, 'q', new URLSearchParams({ q: atLimit })),
+    ).toHaveProperty('data');
+  });
+
   it('returns the whole catalog on one default page', () => {
     const page = list();
     expect(page.data.map((p) => p.id)).toEqual(products.map((p) => p.id));
@@ -48,6 +67,72 @@ describe('catalog resolver', () => {
     expect(list({ sort: 'popular' }).data).toEqual(list().data);
   });
 
+  it('filters category and brand by slug', () => {
+    const homeLiving = list({ category: 'home-living' }).data;
+    expect(homeLiving.length).toBeGreaterThan(0);
+    expect(homeLiving.every((p) => p.categoryId === 'cat-home-living')).toBe(true);
+    expect(list({ brand: 'apple' }).data).toEqual(list({ brand: 'brand-apple' }).data);
+  });
+
+  it('sorts by title, popularity and rating like the API', () => {
+    const titles = list({ sort: 'title:asc' }).data.map((p) => p.title);
+    expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b)));
+    expect(list({ sort: 'title:desc' }).data.map((p) => p.title)).toEqual([...titles].reverse());
+    const sold = list({ sort: 'popularity:desc' }).data.map(mockUnitsSold);
+    expect(sold).toEqual([...sold].sort((a, b) => b - a));
+    expect(list({ sort: 'popularity' }).data).toEqual(list({ sort: 'popularity:desc' }).data);
+    expect(list({ sort: 'rating' }).data).toEqual(list({ sort: 'rating:desc' }).data);
+  });
+
+  it('adds meta only for searches, with fuzzy fallback and suggestions', () => {
+    expect(list()).not.toHaveProperty('meta');
+    expect(list({ q: 'macbook' }).meta).toEqual({ searchMode: 'fts' });
+
+    const fuzzy = list({ q: 'macbok' });
+    expect(fuzzy.meta).toEqual({ searchMode: 'fuzzy' });
+    expect(fuzzy.data.map((p) => p.slug)).toEqual(['macbook-pro-14-m3']);
+
+    const none = list({ q: 'macbx' });
+    expect(none.pagination.totalItems).toBe(0);
+    expect(none.meta?.searchMode).toBe('fts');
+    expect(none.meta?.suggestions?.[0]).toEqual({
+      title: 'MacBook Pro 14 M3',
+      slug: 'macbook-pro-14-m3',
+    });
+    expect(none.meta?.suggestions?.length).toBeLessThanOrEqual(5);
+
+    // Too short for the fuzzy pass: no suggestions, and never an empty array.
+    expect(list({ q: 'zq' }).meta).toEqual({ searchMode: 'fts' });
+    expect(list({ q: 'zzz-no-match' }).meta).toEqual({ searchMode: 'fts' });
+  });
+
+  it('returns facets only with include=facets, each ignoring its own filter', () => {
+    expect(list()).not.toHaveProperty('facets');
+
+    const all = list({ include: 'facets' }).facets!;
+    expect(all.categories.reduce((sum, term) => sum + term.count, 0)).toBe(products.length);
+    expect(all.price.buckets).toHaveLength(9);
+    expect(all.price.buckets[0]).toMatchObject({ min: 0, max: 50000 });
+    expect(all.price.buckets[8]).toMatchObject({ min: 10000000, max: null });
+    expect(all.price.buckets.reduce((sum, b) => sum + b.count, 0)).toBe(products.length);
+    expect(all.inStock).toEqual({ true: products.length, false: 0 });
+
+    const electronics = list({ include: 'facets', category: 'electronics' });
+    const facets = electronics.facets!;
+    // The category facet ignores the category filter...
+    expect(facets.categories).toEqual(all.categories);
+    // ...but brand, price and stock counts honour it.
+    expect(facets.brands.reduce((sum, term) => sum + term.count, 0)).toBe(
+      electronics.pagination.totalItems,
+    );
+    expect(facets.inStock.true).toBe(electronics.pagination.totalItems);
+    const counts = facets.categories.map((term) => term.count);
+    expect(counts).toEqual([...counts].sort((a, b) => b - a));
+    expect(facets.categories[0]).toEqual(
+      expect.objectContaining({ id: expect.any(String), slug: expect.any(String) }),
+    );
+  });
+
   it('paginates with page and limit', () => {
     const first = list({ page: '1', limit: '5' });
     const second = list({ page: '2', limit: '5' });
@@ -73,6 +158,20 @@ describe('MSW and route parity', () => {
       data: Array<{ id: string }>;
     };
     expect(msw.data.map((p: { id: string }) => p.id)).toEqual(route.data.map((p) => p.id));
+  });
+
+  it('serve identical facets and search meta for /products', async () => {
+    const query = 'include=facets&q=macbx';
+    const msw = await fetch(`http://localhost/api/v1/products?${query}`).then((res) => res.json());
+    const route = handleMockRequest(
+      'products',
+      'GET',
+      null,
+      'parity',
+      new URLSearchParams(query),
+    ) as Record<string, unknown>;
+    expect(msw).toEqual(route);
+    expect(msw.meta.suggestions.length).toBeGreaterThan(0);
   });
 
   it('serve the same product detail', async () => {

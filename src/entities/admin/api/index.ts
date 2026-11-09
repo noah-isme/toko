@@ -10,13 +10,16 @@
  */
 import { adminAnalyticsApi } from './analytics';
 import { adminAuditLogsApi } from './audit-logs';
+import { adminCatalogOpsApi } from './catalog-ops';
 import { adminCustomersApi } from './customers';
 import { adminFlashSalesApi } from './flash-sales';
 import { adminInventoryApi } from './inventory';
 import { adminOrdersApi } from './orders';
 import { adminProductsApi } from './products';
 import { adminQueueApi } from './queue';
+import { adminReportsApi } from './reports';
 import { adminSettingsApi } from './settings';
+import { adminStaffApi } from './staff';
 import { adminTaxonomyApi } from './taxonomy';
 import { adminVouchersApi } from './vouchers';
 import { adminWebhooksApi } from './webhooks';
@@ -30,10 +33,13 @@ export const adminApi = {
   ...adminVouchersApi,
   ...adminFlashSalesApi,
   ...adminAnalyticsApi,
+  ...adminReportsApi,
   ...adminWebhooksApi,
   ...adminQueueApi,
   ...adminAuditLogsApi,
   ...adminInventoryApi,
   ...adminCustomersApi,
   ...adminSettingsApi,
+  ...adminCatalogOpsApi,
+  ...adminStaffApi,
 };

@@ -8,7 +8,9 @@ export type AdminOrderStatus =
   | 'SHIPPED'
   | 'OUT_FOR_DELIVERY'
   | 'DELIVERED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  /** Set only by the system when the payment window lapses; never settable by an admin. */
+  | 'EXPIRED';
 
 export interface AdminOrder {
   id: string;
@@ -63,14 +65,18 @@ export interface AdminOrderListParams {
 }
 
 export interface AdminOrderStats {
+  /** All orders in range, any status. */
   totalOrders: number;
-  /** Excludes cancelled orders. */
+  /** Net revenue (IDR) of orders matching the revenue rule. */
   totalRevenue: number;
+  /** Orders matching the revenue rule (PAID through DELIVERED, not fully refunded). */
+  revenueOrders: number;
   pendingOrders: number;
   paidOrders: number;
   shippedOrders: number;
   deliveredOrders: number;
   cancelledOrders: number;
+  /** totalRevenue / revenueOrders, rounded; 0 when there are none. */
   averageOrderValue: number;
 }
 

@@ -1,9 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 
 import { fetchWithCreds, type ApiError } from '@/entities/checkout/api/client';
+import {
+  getPaymentPollInterval,
+  isTerminalPaymentStatus,
+  PAYMENT_POLL_SCHEDULE,
+} from '@/entities/payment/polling';
 import {
   PaymentCreateBodySchema,
   PaymentIntentSchema,
@@ -149,13 +154,23 @@ type PaymentStatusQueryOptions = {
   enabled?: boolean;
 };
 
+/**
+ * Polls the payment status of an order. Polling backs off over time (see
+ * `getPaymentPollInterval`), pauses in background tabs, stops on a terminal status, and gives up
+ * after `PAYMENT_POLL_SCHEDULE.maxDurationMs` (`timedOut`). Elapsed time is counted from mount or
+ * the last `restart()`; mount the consumer when polling should begin.
+ */
 export function usePaymentStatusQuery(orderId: string, options: PaymentStatusQueryOptions = {}) {
   const enabled = options.enabled ?? Boolean(orderId);
+  const [startedAt, setStartedAt] = useState(() => Date.now());
+  const [timedOut, setTimedOut] = useState(false);
 
-  return useQuery<PaymentStatus, ApiError>({
+  const query = useQuery<PaymentStatus, ApiError>({
     queryKey: queryKeys.paymentStatus(orderId),
     enabled,
-    refetchInterval: 4000,
+    refetchInterval: (current) =>
+      timedOut ? false : getPaymentPollInterval(current.state.data?.status, Date.now() - startedAt),
+    refetchIntervalInBackground: false,
     queryFn: async () => {
       const validatedOrderId = paymentStatusInputSchema.parse(orderId);
       const response = await fetchWithCreds(
@@ -167,4 +182,25 @@ export function usePaymentStatusQuery(orderId: string, options: PaymentStatusQue
       return response.data;
     },
   });
+
+  const status = query.data?.status;
+  const isTerminal = isTerminalPaymentStatus(status);
+
+  useEffect(() => {
+    if (!enabled || timedOut || isTerminal) {
+      return;
+    }
+    const remaining = Math.max(0, startedAt + PAYMENT_POLL_SCHEDULE.maxDurationMs - Date.now());
+    const timer = window.setTimeout(() => setTimedOut(true), remaining);
+    return () => window.clearTimeout(timer);
+  }, [enabled, isTerminal, startedAt, timedOut]);
+
+  const { refetch } = query;
+  const restart = useCallback(() => {
+    setStartedAt(Date.now());
+    setTimedOut(false);
+    return refetch();
+  }, [refetch]);
+
+  return { ...query, timedOut: timedOut && !isTerminal, restart };
 }

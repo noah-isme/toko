@@ -6,17 +6,24 @@ import { brands, categories, products as catalogProducts } from './fixtures';
 import { addressHandlers } from './handlers/addressHandlers';
 import { authHandlers } from './handlers/authHandlers';
 import { promoHandlers } from './handlers/promoHandlers';
+import { adminCatalogHandlers } from './handlers.adminCatalog';
+import { adminReportsHandlers } from './handlers.adminReports';
+import { adminStaffHandlers } from './handlers.adminStaff';
+import { alertsHandlers } from './handlers.alerts';
 import { checkoutHandlers } from './handlers.checkout';
 import { customerOperationsHandlers } from './handlers.customerOperations';
 import { favoritesHandlers } from './handlers.favorites';
+import { invoiceHandlers } from './handlers.invoice';
 import { newsletterHandlers } from './handlers.newsletter';
 import { notificationsHandlers } from './handlers.notifications';
 import { paymentHandlers } from './handlers.payment';
 import { pushHandlers } from './handlers.push';
 import { qaHandlers } from './handlers.qa';
 import { reviewsHandlers } from './handlers.reviews';
-import { getProduct, listProducts } from './resolvers/catalog';
-import { apiPath, type MockCart } from './utils';
+import { accessFor, rolesFor } from './resolvers/auth';
+import { getProduct, listProducts, productQueryError } from './resolvers/catalog';
+import { resolveOrders } from './resolvers/orders';
+import { apiPath, mockResultResponse, mockSessionId, type MockCart } from './utils';
 
 import { addToCartInputSchema, updateCartItemInputSchema } from '@/lib/api/schemas';
 import type { Cart as ApiCart } from '@/lib/api/types';
@@ -91,6 +98,8 @@ function mapCartToApiCart(id: string = cart.id): ApiCart {
   };
 }
 export const handlers = [
+  // First: `*/products/:slug` style patterns would otherwise also match `admin/products/*`.
+  ...adminCatalogHandlers,
   http.get(apiPath('/categories'), () => {
     if (typeof document !== 'undefined') {
       document.cookie = 'X-CSRF-Token=mock-csrf-token; Path=/; SameSite=Lax';
@@ -98,9 +107,11 @@ export const handlers = [
     return HttpResponse.json({ data: categories });
   }),
   http.get(apiPath('/brands'), () => HttpResponse.json({ data: brands })),
-  http.get(apiPath('/products'), ({ request }) =>
-    HttpResponse.json(listProducts(new URL(request.url).searchParams)),
-  ),
+  http.get(apiPath('/products'), ({ request }) => {
+    const searchParams = new URL(request.url).searchParams;
+    const invalid = productQueryError(searchParams);
+    return invalid ? mockResultResponse(invalid) : HttpResponse.json(listProducts(searchParams));
+  }),
   http.get(apiPath('/products/:slug'), ({ params }) => {
     const product = getProduct(String(params.slug));
     if (!product) {
@@ -210,6 +221,18 @@ export const handlers = [
   http.get(apiPath('/carts'), () => HttpResponse.json({ data: mapCartToApiCart() })),
   http.get(apiPath('/carts/:cartId'), ({ params }) =>
     HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) }),
+  ),
+  http.post(apiPath('/orders/:orderId/cancel'), ({ request, params }) =>
+    mockResultResponse(
+      resolveOrders({
+        path: `orders/${String(params.orderId)}/cancel`,
+        method: 'POST',
+        body: null,
+        sessionId: '',
+        searchParams: new URL(request.url).searchParams,
+        headers: request.headers,
+      }) ?? { status: 404, error: { code: 'NOT_FOUND', message: 'Order not found' } },
+    ),
   ),
   http.get(apiPath('/orders/:orderId/shipment'), ({ params }) =>
     HttpResponse.json({
@@ -422,7 +445,7 @@ export const handlers = [
 
     return HttpResponse.json({ data: mapCartToApiCart(String(params.cartId)) });
   }),
-  http.get(apiPath('/auth/me'), () =>
+  http.get(apiPath('/auth/me'), ({ request }) =>
     HttpResponse.json({
       data: {
         id: faker.string.uuid(),
@@ -431,10 +454,14 @@ export const handlers = [
         emailVerified: faker.datatype.boolean(),
         phone: faker.phone.number(),
         createdAt: new Date().toISOString(),
+        // Tenant role and permissions follow the bearer token, as in the route mock.
+        ...accessFor(request.headers, mockSessionId(request)),
       },
     }),
   ),
   // PATCH /users/me — partial profile update, echoing back the merged user.
+  // Like the backend, it carries the global `roles` but not the tenant
+  // `role`/`permissions`, which only GET /auth/me returns.
   http.patch(apiPath('/users/me'), async ({ request }) => {
     const body = (await request.json()) as { name?: string; phone?: string };
     return HttpResponse.json({
@@ -443,6 +470,7 @@ export const handlers = [
         email: faker.internet.email(),
         name: body.name ?? faker.person.fullName(),
         phone: body.phone,
+        roles: rolesFor(request.headers),
         emailVerified: false,
         createdAt: new Date().toISOString(),
       },
@@ -462,11 +490,15 @@ export const handlers = [
     HttpResponse.json({ data: { message: 'verification email sent' } }),
   ),
   ...checkoutHandlers,
+  ...adminReportsHandlers,
+  ...adminStaffHandlers,
   ...addressHandlers,
   ...paymentHandlers,
   ...customerOperationsHandlers,
   ...favoritesHandlers,
   ...notificationsHandlers,
+  ...alertsHandlers,
+  ...invoiceHandlers,
   ...pushHandlers,
   ...newsletterHandlers,
   ...promoHandlers,

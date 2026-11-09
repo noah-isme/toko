@@ -8,8 +8,10 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
+import { AdminForbidden } from '@/components/admin/admin-access-ui';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { forbiddenInfo } from '@/entities/admin/access';
 import { orderStatusLabel } from '@/entities/admin/format';
 import type { AdminOrderStatus } from '@/entities/admin/types';
 import { cn } from '@/lib/utils';
@@ -29,7 +31,11 @@ export function AdminPageHeader({
         <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">{title}</h1>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       </div>
-      {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+      {actions ? (
+        <div className="flex flex-wrap items-center gap-2" data-testid="admin-page-actions">
+          {actions}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -48,7 +54,17 @@ export function AdminLoading({ label }: { label?: string }) {
   );
 }
 
+/**
+ * Load-error state. A 403 from the admin API renders the friendly no-access
+ * state instead, since retrying cannot help.
+ */
 export function AdminError({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+  const forbidden = forbiddenInfo(error);
+  if (forbidden) return <AdminForbidden required={forbidden.required} code={forbidden.code} />;
+  return <AdminLoadError error={error} onRetry={onRetry} />;
+}
+
+function AdminLoadError({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const t = useTranslations('admin.ui');
   const message = error instanceof Error ? error.message : t('errorFallback');
   return (
@@ -92,6 +108,7 @@ const ORDER_STATUS_CLASSES: Record<AdminOrderStatus, string> = {
   OUT_FOR_DELIVERY: 'bg-indigo-100 text-indigo-800 border-indigo-200',
   DELIVERED: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   CANCELLED: 'bg-red-100 text-red-800 border-red-200',
+  EXPIRED: 'bg-muted text-muted-foreground border-border',
 };
 
 export function OrderStatusBadge({ status }: { status: AdminOrderStatus }) {

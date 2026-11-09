@@ -112,17 +112,19 @@ export type SortLabelKey =
   | 'popularity'
   | 'discount';
 
+/**
+ * Sort choices offered by the product search UI: only orders the product API
+ * supports (`relevance` is its default: best match with a query, otherwise
+ * newest first). Other `SortOption` values remain valid in saved searches.
+ */
 export const SORT_OPTIONS: Array<{ value: SortOption; labelKey: SortLabelKey }> = [
   { value: 'relevance', labelKey: 'relevance' },
-  { value: 'name-asc', labelKey: 'nameAsc' },
-  { value: 'name-desc', labelKey: 'nameDesc' },
+  { value: 'popularity', labelKey: 'popularity' },
+  { value: 'rating', labelKey: 'rating' },
   { value: 'price-asc', labelKey: 'priceAsc' },
   { value: 'price-desc', labelKey: 'priceDesc' },
-  { value: 'newest', labelKey: 'newest' },
-  { value: 'oldest', labelKey: 'oldest' },
-  { value: 'rating', labelKey: 'rating' },
-  { value: 'popularity', labelKey: 'popularity' },
-  { value: 'discount', labelKey: 'discount' },
+  { value: 'name-asc', labelKey: 'nameAsc' },
+  { value: 'name-desc', labelKey: 'nameDesc' },
 ];
 
 export const DEFAULT_SEARCH_FILTERS: SearchFilters = {

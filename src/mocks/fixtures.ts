@@ -9,16 +9,40 @@ import { buildAdminOrderList, buildAdminProduct } from './factories/admin';
 import { buildBrandList } from './factories/brand';
 import { buildCart } from './factories/cart';
 import { buildCategoryList } from './factories/category';
-import { buildProductList } from './factories/product';
+import { buildProduct, buildProductList, stableUuid } from './factories/product';
 import { buildUserList } from './factories/user';
 
-/** Bearer token that the mock API treats as an admin session. */
+/**
+ * Bearer token that the mock API treats as an admin session: tenant role
+ * `owner` plus the global `admin` role (platform admin).
+ */
 export const MOCK_ADMIN_TOKEN = 'mock-admin-token';
+
+/**
+ * Prefix of bearer tokens that sign in as a staff member with one tenant role
+ * and no platform-admin access, e.g. `mock-staff-token-support`.
+ */
+export const MOCK_STAFF_TOKEN_PREFIX = 'mock-staff-token-';
 
 /** Cookie that scopes per-browser mock state (payments, admin edits). */
 export const MOCK_SESSION_COOKIE = 'mockSessionId';
 
 export const products = buildProductList();
+
+/**
+ * A sold-out product for manual and mobile QA of "Notify me when available"
+ * (`/products/sold-out-demo`). It is served by the product detail endpoint
+ * and accepted by the alerts endpoints, but kept out of `products` so
+ * listings, counts and golden snapshots are unchanged.
+ */
+export const SOLD_OUT_DEMO_SLUG = 'sold-out-demo';
+export const soldOutDemoProduct = buildProduct(undefined, {
+  id: stableUuid(SOLD_OUT_DEMO_SLUG),
+  slug: SOLD_OUT_DEMO_SLUG,
+  title: 'MacBook Pro 14 M3 (Sold-out demo)',
+  stock: 0,
+  inStock: false,
+});
 export const categories = buildCategoryList();
 export const brands = buildBrandList();
 
@@ -34,6 +58,18 @@ export const shippingRates = [
 
 export const users = buildUserList();
 
+/**
+ * Admin seed stock per product index, so the low-stock card, filters and
+ * badges have something to show: a few products sit at or below the default
+ * threshold (5) and one is sold out. Products not listed keep the catalog stock.
+ */
+const ADMIN_SEED_STOCK: Record<number, number> = { 3: 4, 7: 2, 9: 5, 11: 0 };
+
 /** Seed for the per-session admin store (see `resolvers/admin.ts`). */
-export const adminProducts = products.map((product) => buildAdminProduct(product));
+export const adminProducts = products.map((product, index) => {
+  const stock = ADMIN_SEED_STOCK[index];
+  return buildAdminProduct(
+    stock === undefined ? product : { ...product, stock, inStock: stock > 0 },
+  );
+});
 export const adminOrders = buildAdminOrderList(products, 12);

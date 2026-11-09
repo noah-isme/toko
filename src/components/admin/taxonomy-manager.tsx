@@ -10,7 +10,9 @@ import { Edit, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState, type ComponentType } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -23,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { AdminTaxonomy, AdminTaxonomyInput } from '@/entities/admin/types';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { useToast } from '@/shared/ui/toast';
 
 /** Mirrors the backend `slugify` closely enough for a form default. */
@@ -69,19 +72,29 @@ export function TaxonomyManager({
   const tKind = useTranslations(`admin.taxonomy.${kind}`);
   const tCommon = useTranslations('admin.common');
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminTaxonomy | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminTaxonomy | null>(null);
   const [form, setForm] = useState({ name: '', slug: '' });
+  /** What the open dialog started from; the unsaved-changes guard compares against it. */
+  const [baselineForm, setBaselineForm] = useState({ name: '', slug: '' });
   /** Once the slug is hand-edited, stop deriving it from the name. */
   const [slugTouched, setSlugTouched] = useState(false);
 
   const items = query.data ?? [];
   const saving = createMutation.isPending || updateMutation.isPending;
 
+  const guard = useUnsavedChangesGuard(dialogOpen && isFormDirty(form, baselineForm));
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditing(null);
+  };
+
   const openCreate = () => {
     setEditing(null);
     setForm({ name: '', slug: '' });
+    setBaselineForm({ name: '', slug: '' });
     setSlugTouched(false);
     setDialogOpen(true);
   };
@@ -89,6 +102,7 @@ export function TaxonomyManager({
   const openEdit = (item: AdminTaxonomy) => {
     setEditing(item);
     setForm({ name: item.name, slug: item.slug });
+    setBaselineForm({ name: item.name, slug: item.slug });
     setSlugTouched(true);
     setDialogOpen(true);
   };
@@ -117,7 +131,7 @@ export function TaxonomyManager({
     } catch (error) {
       toast({
         title: tKind('saveFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -136,7 +150,7 @@ export function TaxonomyManager({
     } catch (error) {
       toast({
         title: tKind('deleteFailed'),
-        description: error instanceof Error ? error.message : t('deleteFailedHint'),
+        description: adminErrorMessage(error, t('deleteFailedHint')),
         variant: 'destructive',
       });
     }
@@ -207,10 +221,7 @@ export function TaxonomyManager({
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setEditing(null);
-        }}
+        onOpenChange={(open) => (open ? setDialogOpen(true) : guard.confirmNavigation(closeDialog))}
       >
         <DialogContent>
           <DialogHeader>
@@ -246,7 +257,7 @@ export function TaxonomyManager({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => guard.confirmNavigation(closeDialog)}>
               {tCommon('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
@@ -281,6 +292,8 @@ export function TaxonomyManager({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

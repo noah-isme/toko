@@ -1,9 +1,27 @@
-import { ADMIN_ORDER_STATUSES, buildAdminTaxonomy, toAdminOrderRow } from '../factories/admin';
+import { buildAdminTaxonomy, toAdminOrderRow } from '../factories/admin';
 import { stableUuid } from '../factories/product';
 import { adminOrders, adminProducts, brands, categories } from '../fixtures';
 
-import { isAdminRequest } from './auth';
+import {
+  adminSettings,
+  bulkPrice,
+  bulkStatus,
+  bulkStock,
+  decorateProduct,
+  exportOrdersCsv,
+  exportProductsCsv,
+  filterAndSortProducts,
+  importCsv,
+  resolveInventory,
+  resolveSettings,
+  stockCounts,
+  syncProductStock,
+  validateProductCatalogFields,
+} from './admin-catalog';
+import { isAdminRequest, tokenTenantRole } from './auth';
+import { isRevenueOrder, resolveReports } from './reports';
 import { adminStore, type AdminStore } from './session';
+import { adminRoutePermission, effectiveTenantRole, ROLE_PERMISSIONS, resolveStaff } from './staff';
 import type { MockRequest, MockResult } from './types';
 
 import type {
@@ -12,7 +30,18 @@ import type {
   AdminProductInput,
 } from '@/entities/admin/types';
 
-const FORBIDDEN = { status: 403, error: { code: 'FORBIDDEN', message: 'Admin access required' } };
+/** `AdminOrderStatusPatchRequest`: PENDING_PAYMENT, PAID and EXPIRED are never settable. */
+const ADMIN_SETTABLE_ORDER_STATUSES = [
+  'PACKED',
+  'SHIPPED',
+  'OUT_FOR_DELIVERY',
+  'DELIVERED',
+  'CANCELLED',
+];
+
+function forbidden(message: string, required: string): MockResult {
+  return { status: 403, error: { code: 'FORBIDDEN', message, details: { required } } };
+}
 const NOT_FOUND = { status: 404, error: { code: 'NOT_FOUND', message: 'Not Found' } };
 
 function store(sessionId: string): AdminStore {
@@ -60,11 +89,22 @@ function applyProductInput(product: AdminProductDetail, input: AdminProductInput
     }));
   }
   if (specs) product.specs = specs;
-  if (input.variants?.[0]?.stock !== undefined) product.stock = input.variants[0].stock;
+  if (input.variants?.[0]?.stock !== undefined) {
+    product.stock = input.variants[0].stock;
+    if (product.variants[0]) {
+      product.variants[0].stock = input.variants[0].stock;
+      syncProductStock(product);
+    }
+  }
   return product;
 }
 
-function listProducts(admin: AdminStore, searchParams: URLSearchParams) {
+/** Rows matching the shared list/export filters (search, category, brand, inStock, status, stockStatus, sort). */
+function filteredProducts(
+  admin: AdminStore,
+  searchParams: URLSearchParams,
+  settings: Record<string, unknown>,
+) {
   const search = (searchParams.get('search') || searchParams.get('q') || '').toLowerCase();
   const category = searchParams.get('category');
   const brand = searchParams.get('brand');
@@ -79,10 +119,25 @@ function listProducts(admin: AdminStore, searchParams: URLSearchParams) {
     )
     .filter((p) => !category || p.categoryId === categoryId)
     .filter((p) => !brand || p.brandId === brandId)
-    .filter((p) => inStock === null || p.inStock === (inStock === 'true'))
+    .filter((p) => inStock === null || p.inStock === (inStock === 'true'));
+  return filterAndSortProducts(rows, searchParams, settings);
+}
+
+function listProducts(
+  admin: AdminStore,
+  searchParams: URLSearchParams,
+  settings: Record<string, unknown>,
+): MockResult {
+  const filtered = filteredProducts(admin, searchParams, settings);
+  if ('error' in filtered) return filtered.error;
+  return paginate(
     // List rows omit the detail-only collections.
-    .map(({ images: _i, specs: _s, variants: _v, ...row }) => row);
-  return paginate(rows, searchParams);
+    filtered.rows.map((source) => {
+      const { images: _i, specs: _s, variants: _v, ...row } = source;
+      return decorateProduct(row, source, settings);
+    }),
+    searchParams,
+  );
 }
 
 function createProduct(admin: AdminStore, input: AdminProductInput): MockResult {
@@ -92,6 +147,8 @@ function createProduct(admin: AdminStore, input: AdminProductInput): MockResult 
       error: { code: 'VALIDATION_ERROR', message: 'title and price are required' },
     };
   }
+  const invalid = validateProductCatalogFields(input as Record<string, unknown>);
+  if (invalid) return invalid;
   admin.created += 1;
   const slug = input.slug || slugify(input.title);
   const id = stableUuid(`admin-created:${slug}:${admin.created}`);
@@ -111,6 +168,7 @@ function createProduct(admin: AdminStore, input: AdminProductInput): MockResult 
     images: [],
     specs: [],
     variants: [],
+    status: 'published',
   };
   applyProductInput(product, input);
   product.variants = [
@@ -132,19 +190,35 @@ function resolveProducts(
   parts: string[],
 ): MockResult | undefined {
   const { method, body, searchParams } = req;
+  const settings = adminSettings(req.sessionId);
   if (parts.length === 1) {
-    if (method === 'GET') return listProducts(admin, searchParams);
+    if (method === 'GET') return listProducts(admin, searchParams, settings);
     if (method === 'POST') return createProduct(admin, body ?? {});
     return undefined;
+  }
+  if (parts.length === 2 && parts[1] === 'export' && method === 'GET') {
+    const filtered = filteredProducts(admin, searchParams, settings);
+    return 'error' in filtered ? filtered.error : exportProductsCsv(filtered.rows, settings);
+  }
+  if (parts.length === 2 && parts[1] === 'import' && method === 'POST') {
+    return importCsv(admin, body, searchParams);
+  }
+  if (parts.length === 3 && parts[1] === 'bulk' && method === 'POST') {
+    if (parts[2] === 'price') return bulkPrice(admin, body);
+    if (parts[2] === 'stock') return bulkStock(admin, body);
+    if (parts[2] === 'status') return bulkStatus(admin, body);
   }
 
   const product = findProduct(admin, parts[1]);
   if (!product) return NOT_FOUND;
 
   if (parts.length === 2) {
-    if (method === 'GET') return { data: product };
-    if (method === 'PATCH' || method === 'PUT')
-      return { data: applyProductInput(product, body ?? {}) };
+    if (method === 'GET') return { data: decorateProduct(product, product, settings) };
+    if (method === 'PATCH' || method === 'PUT') {
+      const invalid = validateProductCatalogFields(body ?? {});
+      if (invalid) return invalid;
+      return { data: decorateProduct(applyProductInput(product, body ?? {}), product, settings) };
+    }
     if (method === 'DELETE') {
       admin.products = admin.products.filter((p) => p !== product);
       return { data: { id: product.id } };
@@ -155,6 +229,11 @@ function resolveProducts(
     if (typeof body?.stock === 'number') {
       product.stock = body.stock;
       product.inStock = body.stock > 0;
+      // The backend writes the primary variant's stock.
+      if (product.variants[0]) {
+        product.variants[0].stock = body.stock;
+        syncProductStock(product);
+      }
     }
     if (typeof body?.inStock === 'boolean') product.inStock = body.inStock;
     product.updatedAt = new Date().toISOString();
@@ -163,14 +242,20 @@ function resolveProducts(
   return undefined;
 }
 
+/**
+ * Order counters. Revenue follows the backend revenue rule (PAID through
+ * DELIVERED, not fully refunded; fixtures carry no refunds), and
+ * averageOrderValue = totalRevenue / revenueOrders.
+ */
 function orderStats(admin: AdminStore) {
   const count = (status: AdminOrderStatus) =>
     admin.orders.filter((o) => o.status === status).length;
-  const billable = admin.orders.filter((o) => o.status !== 'CANCELLED');
+  const billable = admin.orders.filter(isRevenueOrder);
   const totalRevenue = billable.reduce((sum, o) => sum + o.total, 0);
   return {
     totalOrders: admin.orders.length,
     totalRevenue,
+    revenueOrders: billable.length,
     pendingOrders: count('PENDING_PAYMENT'),
     paidOrders: count('PAID'),
     shippedOrders: count('SHIPPED'),
@@ -204,12 +289,15 @@ function resolveOrders(
   if (parts.length === 2 && parts[1] === 'stats' && method === 'GET') {
     return { data: orderStats(admin) };
   }
+  if (parts.length === 2 && parts[1] === 'export' && method === 'GET') {
+    return exportOrdersCsv(admin.orders, searchParams);
+  }
 
   const order = admin.orders.find((o) => o.id === parts[1]);
   if (!order) return NOT_FOUND;
   if (parts.length === 2 && method === 'GET') return { data: order };
   if (parts.length === 3 && parts[2] === 'status' && method === 'PATCH') {
-    if (!ADMIN_ORDER_STATUSES.includes(body?.status)) {
+    if (!ADMIN_SETTABLE_ORDER_STATUSES.includes(body?.status)) {
       return { status: 400, error: { code: 'VALIDATION_ERROR', message: 'Invalid order status' } };
     }
     order.status = body.status;
@@ -219,13 +307,13 @@ function resolveOrders(
   return undefined;
 }
 
-function analyticsOverview(admin: AdminStore, range: string) {
+function analyticsOverview(admin: AdminStore, range: string, settings: Record<string, unknown>) {
   const stats = orderStats(admin);
   const sold = new Map<
     string,
     { productId: string; title: string; slug: string; unitsSold: number; revenue: number }
   >();
-  for (const order of admin.orders.filter((o) => o.status !== 'CANCELLED')) {
+  for (const order of admin.orders.filter(isRevenueOrder)) {
     for (const item of order.items) {
       const key = item.productId ?? item.slug;
       const entry = sold.get(key) ?? {
@@ -243,6 +331,7 @@ function analyticsOverview(admin: AdminStore, range: string) {
   return {
     range,
     totalRevenue: stats.totalRevenue,
+    revenueOrders: stats.revenueOrders,
     totalOrders: stats.totalOrders,
     totalCustomers: new Set(admin.orders.map((o) => o.userId)).size,
     totalProducts: admin.products.length,
@@ -252,33 +341,69 @@ function analyticsOverview(admin: AdminStore, range: string) {
     shippedOrders: stats.shippedOrders,
     deliveredOrders: stats.deliveredOrders,
     cancelledOrders: stats.cancelledOrders,
+    ...stockCounts(admin, settings),
     topProducts: [...sold.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 5),
   };
 }
 
 /**
  * Admin endpoints backed by a per-session store seeded from the fixtures.
- * Every `admin/*` path needs the `MOCK_ADMIN_TOKEN` bearer token (403
- * otherwise); admin endpoints that are not implemented here return 404.
+ * Authorization follows the backend: a staff tenant role is required (403
+ * `details.required = "staff"`), then the route's permission, or the global
+ * admin role (`MOCK_ADMIN_TOKEN`) for platform routes. Admin endpoints that
+ * are not implemented here return 404.
  */
 export function resolveAdmin(req: MockRequest): MockResult | undefined {
   if (req.path !== 'admin' && !req.path.startsWith('admin/')) return undefined;
-  if (!isAdminRequest(req.headers)) return FORBIDDEN;
+  const tokenRole = tokenTenantRole(req.headers);
+  const role = effectiveTenantRole(req.sessionId, tokenRole);
+  if (role === 'customer') return forbidden('staff role required', 'staff');
+
+  const parts = req.path.split('/').slice(1);
+  const required = adminRoutePermission(parts, req.method);
+  if (required === 'platform-admin' && !isAdminRequest(req.headers)) {
+    return forbidden('insufficient permissions', required);
+  }
+  if (required && required !== 'platform-admin') {
+    const missing = required.find((permission) => !ROLE_PERMISSIONS[role].includes(permission));
+    if (missing) return forbidden('insufficient permissions', missing);
+  }
+
+  const staff = resolveStaff(req, parts, role, tokenRole);
+  if (staff) return staff;
 
   const admin = store(req.sessionId);
-  const parts = req.path.split('/').slice(1);
   const countBy = (key: 'categoryId' | 'brandId', id: string) =>
     admin.products.filter((p) => p[key] === id).length;
 
   let result: MockResult | undefined;
   if (parts[0] === 'products') result = resolveProducts(admin, req, parts);
   else if (parts[0] === 'orders') result = resolveOrders(admin, req, parts);
+  else if (parts[0] === 'reports')
+    result = resolveReports(admin, req.method, parts, req.searchParams);
   else if (parts.length === 1 && req.method === 'GET' && parts[0] === 'categories') {
     result = { data: categories.map((c) => buildAdminTaxonomy(c, countBy('categoryId', c.id))) };
   } else if (parts.length === 1 && req.method === 'GET' && parts[0] === 'brands') {
     result = { data: brands.map((b) => buildAdminTaxonomy(b, countBy('brandId', b.id))) };
   } else if (parts.join('/') === 'analytics/overview' && req.method === 'GET') {
-    result = { data: analyticsOverview(admin, req.searchParams.get('range') || '30d') };
+    result = {
+      data: analyticsOverview(
+        admin,
+        req.searchParams.get('range') || '30d',
+        adminSettings(req.sessionId),
+      ),
+    };
+  } else if (parts[0] === 'inventory') {
+    result = resolveInventory(
+      admin,
+      adminSettings(req.sessionId),
+      req.method,
+      parts,
+      req.body,
+      req.searchParams,
+    );
+  } else if (parts.length === 1 && parts[0] === 'settings') {
+    result = resolveSettings(adminSettings(req.sessionId), req.method, req.body);
   }
   return result ?? NOT_FOUND;
 }

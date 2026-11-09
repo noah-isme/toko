@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -19,6 +20,11 @@ import { useAuthErrorMessage } from '@/entities/auth/hooks';
 import type { LoginInput } from '@/entities/auth/schemas';
 import { loginInputSchema } from '@/entities/auth/schemas';
 import { getErrorMessage } from '@/lib/api/utils';
+import {
+  readRedirectParam,
+  useRedirectParam,
+  withRedirectParam,
+} from '@/shared/lib/use-redirect-param';
 import { fieldA11y } from '@/shared/ui/forms/accessibility';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { AuthFormSkeleton } from '@/shared/ui/skeletons/AuthFormSkeleton';
@@ -31,6 +37,7 @@ export default function LoginPage() {
   const tErrors = useTranslations('errors');
   const errorText = useAuthErrorMessage();
   const { login, isLoading: authLoading } = useAuth();
+  const redirect = useRedirectParam();
   const { register, handleSubmit, formState, setError } = useForm<LoginInput>({
     resolver: zodResolver(loginInputSchema),
     defaultValues: {
@@ -44,7 +51,9 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginInput) => {
     try {
       await login(values);
-      router.push('/');
+      // `?redirect=` comes from route guards and sign-in prompts (e.g. product
+      // alerts); read at submit time so the page needs no Suspense boundary.
+      router.push(readRedirectParam() as Route);
     } catch (error) {
       const message = getErrorMessage(error, tErrors);
       setError('root', { message });
@@ -143,7 +152,7 @@ export default function LoginPage() {
           register: (chunks) => (
             <Link
               className="font-semibold text-primary underline-offset-4 hover:underline"
-              href="/register"
+              href={withRedirectParam('/register', redirect) as Route}
             >
               {chunks}
             </Link>

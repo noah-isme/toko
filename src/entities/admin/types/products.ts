@@ -1,5 +1,17 @@
 /** Admin product DTOs (`/api/v1/admin/products`). */
 
+/** Only `published` products are visible and purchasable on the storefront. */
+export type AdminProductStatus = 'draft' | 'published' | 'archived';
+
+/**
+ * Stock classification computed by the backend against the effective low-stock
+ * threshold: `out` at 0, `low` at 1..threshold, `in` above.
+ */
+export type AdminStockStatus = 'in' | 'low' | 'out';
+
+export type AdminProductSortField = 'name' | 'price' | 'stock' | 'created' | 'updated';
+export type AdminProductSort = AdminProductSortField | `${AdminProductSortField}:${'asc' | 'desc'}`;
+
 export interface AdminProduct {
   id: string;
   title: string;
@@ -19,6 +31,11 @@ export interface AdminProduct {
   variantCount: number;
   /** Primary (first) variant SKU, when the product has variants. */
   sku?: string | null;
+  /** Absent on backends older than the catalog-ops release; treat as `published`. */
+  status?: AdminProductStatus;
+  stockStatus?: AdminStockStatus;
+  /** Product override; null means the store default applies. */
+  lowStockThreshold?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,6 +86,9 @@ export interface AdminProductInput {
   description?: string | null;
   categoryId?: string | null;
   brandId?: string | null;
+  status?: AdminProductStatus;
+  /** 0..1000000; null clears the override (store default applies). */
+  lowStockThreshold?: number | null;
   /** Replaces the whole image collection when present. */
   images?: string[];
   /** Replaces the whole spec collection when present. */
@@ -85,4 +105,7 @@ export interface AdminProductListParams {
   /** Brand slug. */
   brand?: string;
   inStock?: boolean;
+  sort?: AdminProductSort;
+  status?: AdminProductStatus;
+  stockStatus?: AdminStockStatus;
 }

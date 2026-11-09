@@ -3,7 +3,9 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminEmpty, AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -14,6 +16,7 @@ import {
 } from '@/entities/admin/hooks';
 import type { TicketStatus } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 
 const statuses: TicketStatus[] = [
   'OPEN',
@@ -44,18 +47,21 @@ function TicketMessages({ ticketId }: { ticketId: string }) {
 
 export default function AdminSupportPage() {
   const t = useTranslations('admin.support');
+  const adminErrorMessage = useAdminErrorMessage({ preferFallback: true });
   const ticketsQuery = useAdminTickets();
   const updateTicket = useUpdateAdminTicket();
   const sendMessage = useSendAdminTicketMessage();
   const [reply, setReply] = useState<Record<string, string>>({});
+  // Drafted but unsent replies.
+  const guard = useUnsavedChangesGuard(Object.values(reply).some((text) => text.trim() !== ''));
   const [error, setError] = useState<string | null>(null);
   const items = ticketsQuery.data ?? [];
 
   const update = async (id: string, status: TicketStatus) => {
     try {
       await updateTicket.mutateAsync({ id, status });
-    } catch {
-      setError(t('updateFailed'));
+    } catch (error) {
+      setError(adminErrorMessage(error, t('updateFailed')));
     }
   };
 
@@ -65,8 +71,8 @@ export default function AdminSupportPage() {
     try {
       await sendMessage.mutateAsync({ id, message: text });
       setReply((value) => ({ ...value, [id]: '' }));
-    } catch {
-      setError(t('sendFailed'));
+    } catch (error) {
+      setError(adminErrorMessage(error, t('sendFailed')));
     }
   };
 
@@ -125,6 +131,7 @@ export default function AdminSupportPage() {
           ))}
         </div>
       )}
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

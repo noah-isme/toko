@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +25,7 @@ import { useAdminProducts } from '@/entities/admin/hooks';
 import { useCreateAdminFlashSale } from '@/entities/admin/hooks';
 import type { AdminFlashSaleStatus } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -62,14 +65,21 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/** `''` means no limit; anything else must be a whole number >= 1. */
+function isValidStockLimit(raw: number | ''): boolean {
+  if (raw === '') return true;
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 1;
+}
+
 function formValuesToInput(values: FlashSaleFormValues) {
   const items = values.items
     .filter((item) => item.productId !== NONE)
     .map((item) => ({
       productId: item.productId,
       salePrice: Math.max(0, Math.round(item.salePrice)),
-      stockLimit:
-        item.stockLimit === '' ? null : Math.max(0, Math.round(Number(item.stockLimit))) || null,
+      // Validated in handleSubmit; empty is sent as an explicit null (no limit).
+      stockLimit: item.stockLimit === '' ? null : Number(item.stockLimit),
     }));
 
   return {
@@ -88,8 +98,12 @@ export default function FlashSaleNewPage() {
   const { currency } = useAdminFormat();
   const router = useRouter();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const [values, setValues] = useState<FlashSaleFormValues>(EMPTY_VALUES);
+  /** Values last persisted; the unsaved-changes guard compares against them. */
+  const [baseline, setBaseline] = useState<FlashSaleFormValues>(EMPTY_VALUES);
+  const guard = useUnsavedChangesGuard(isFormDirty(values, baseline));
   const [slugTouched, setSlugTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -150,14 +164,19 @@ export default function FlashSaleNewPage() {
       setError(t('form.errors.salePrice'));
       return;
     }
+    if (values.items.some((i) => i.productId !== NONE && !isValidStockLimit(i.stockLimit))) {
+      setError(t('form.errors.stockLimitInvalid'));
+      return;
+    }
 
     try {
       const input = formValuesToInput(values);
       const result = await createMutation.mutateAsync(input);
+      setBaseline(values);
       toast({ title: t('toast.created'), variant: 'success' });
       router.push(`/admin/flash-sales/${result.id}/edit`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('form.errors.createFailed');
+      const message = adminErrorMessage(err, t('form.errors.createFailed'));
       setError(message);
       toast({ title: t('toast.createFailed'), description: message, variant: 'destructive' });
     }
@@ -361,7 +380,6 @@ export default function FlashSaleNewPage() {
                       <Input
                         id={`fs-item-stock-limit-${index}`}
                         type="number"
-                        min={0}
                         value={item.stockLimit}
                         onChange={(event) => updateItem(index, 'stockLimit', event.target.value)}
                         placeholder={t('form.stockLimitPlaceholder')}
@@ -392,13 +410,14 @@ export default function FlashSaleNewPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/admin/flash-sales')}
+            onClick={() => guard.confirmNavigation(() => router.push('/admin/flash-sales'))}
             disabled={createMutation.isPending}
           >
             {tCommon('cancel')}
           </Button>
         </div>
       </form>
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

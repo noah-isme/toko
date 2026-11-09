@@ -393,7 +393,10 @@
       "emptyQuery": "Coba kata kunci lain atau hapus beberapa filter",
       "emptyDefault": "Belum ada produk yang tersedia",
       "previous": "Sebelumnya",
-      "next": "Berikutnya"
+      "next": "Berikutnya",
+      "fuzzyNotice": "Tidak ada hasil yang persis untuk \"{query}\". Menampilkan produk yang mirip.",
+      "didYouMean": "Mungkin maksud Anda:",
+      "suggestionsLabel": "Saran pencarian"
     },
     "chips": {
       "query": "Pencarian: \"{query}\"",
@@ -404,7 +407,8 @@
       "inStock": "Stok Tersedia",
       "discount": "Promo/Diskon",
       "remove": "Hapus filter",
-      "clearAll": "Hapus Semua ({count})"
+      "clearAll": "Hapus Semua ({count})",
+      "priceFrom": "Harga: mulai {min}"
     },
     "sort": {
       "label": "Urutkan",
@@ -437,7 +441,14 @@
       "apply": "Terapkan",
       "save": "Simpan",
       "notify": "Notif",
-      "savedSearchName": "Pencarian {date}"
+      "savedSearchName": "Pencarian {date}",
+      "allCategories": "Semua kategori",
+      "allBrands": "Semua merek",
+      "allPrices": "Semua harga",
+      "priceBetween": "{min} - {max}",
+      "priceFrom": "{min} ke atas",
+      "availability": "Ketersediaan",
+      "inStockOnly": "Hanya yang tersedia"
     },
     "savedSearch": {
       "saved": "Pencarian disimpan",
@@ -661,11 +672,16 @@
         "label": "Pilih varian",
         "available": "{count} tersedia",
         "soldOut": "Habis",
-        "selectColor": "Pilih warna {name}"
+        "selectColor": "Pilih warna {name}",
+        "lowStock": "Hanya tersisa {count}"
       },
       "adding": "Menambahkan…",
       "addToCart": "Tambah ke keranjang",
-      "outOfStock": "Stok habis"
+      "outOfStock": "Stok habis",
+      "stickyBar": {
+        "label": "Tambah cepat ke keranjang",
+        "from": "Mulai"
+      }
     },
     "gallery": {
       "noImage": "Gambar tidak tersedia",
@@ -917,6 +933,37 @@
         "answerFailed": "Gagal mengirim jawaban",
         "voteFailed": "Gagal voting"
       }
+    },
+    "alerts": {
+      "saving": "Menyimpan...",
+      "backInStock": {
+        "hint": "Stok sedang habis. Kami bisa mengabari Anda lewat notifikasi dan email saat tersedia lagi.",
+        "subscribe": "Ingatkan saya saat tersedia",
+        "active": "Kami akan mengabari Anda saat stok tersedia.",
+        "cancel": "Batalkan pengingat",
+        "subscribedTitle": "Pengingat stok aktif",
+        "subscribedDescription": "Anda akan menerima notifikasi dan email saat produk tersedia.",
+        "cancelled": "Pengingat stok dibatalkan."
+      },
+      "priceDrop": {
+        "label": "Kabari jika harga turun",
+        "labelFor": "Kabari jika harga turun: {product}",
+        "enabled": "Kami akan mengabari Anda jika harganya turun.",
+        "disabled": "Pantauan harga dimatikan."
+      },
+      "errors": {
+        "alreadyInStock": "Produk ini sudah tersedia lagi. Silakan langsung dibeli.",
+        "notFound": "Produk tidak ditemukan.",
+        "alertNotFound": "Pengingat ini sudah dihapus.",
+        "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi.",
+        "failed": "Gagal menyimpan pengingat. Silakan coba lagi."
+      },
+      "login": {
+        "title": "Masuk untuk mengaktifkan pengingat",
+        "description": "Setelah masuk, Anda akan kembali ke halaman ini.",
+        "signIn": "Masuk",
+        "cancel": "Nanti saja"
+      }
     }
   },
   "cart": {
@@ -1167,7 +1214,10 @@
         "checking": "Memeriksa status pembayaran...",
         "contacting": "Menghubungi penyedia pembayaran.",
         "current": "Status saat ini: <strong>{status}</strong>",
-        "checkError": "Tidak dapat memeriksa status pembayaran. Silakan coba lagi."
+        "checkError": "Tidak dapat memeriksa status pembayaran. Silakan coba lagi.",
+        "stillWaiting": "Masih menunggu konfirmasi pembayaran",
+        "stillWaitingDescription": "Kami berhenti memeriksa otomatis. Jika Anda sudah membayar, periksa lagi sekarang atau kembali beberapa saat lagi.",
+        "checkAgain": "Periksa lagi"
       },
       "instructions": {
         "title": "Instruksi pembayaran",
@@ -1182,7 +1232,16 @@
         "proofUploaded": "Bukti terkirim",
         "uploading": "Mengunggah...",
         "upload": "Unggah bukti",
-        "uploadFailed": "Bukti pembayaran gagal diunggah."
+        "uploadFailed": "Bukti pembayaran gagal diunggah.",
+        "proofHint": "JPG, PNG, WebP, GIF, HEIC, atau PDF, maksimal {max} MB.",
+        "proofUnsupported": "Format file tidak didukung. Gunakan gambar (JPG, PNG, WebP, GIF, HEIC) atau PDF.",
+        "proofTooLarge": "Ukuran file melebihi {max} MB.",
+        "proofRequestTooLarge": "File terlalu besar untuk diunggah. Pilih file yang lebih kecil.",
+        "proofSelected": "File dipilih: {name}",
+        "proofPreviewAlt": "Pratinjau bukti pembayaran",
+        "proofErrorUnauthorized": "Sesi Anda telah berakhir. Masuk kembali, lalu unggah bukti pembayaran.",
+        "proofErrorNotFound": "Pesanan ini tidak ditemukan. Muat ulang halaman lalu coba lagi.",
+        "proofErrorRejected": "File tidak diterima. Pilih file lain lalu coba lagi."
       }
     },
     "success": {
@@ -1505,7 +1564,8 @@
       "orders": "Pesanan",
       "loyalty": "Loyalitas",
       "pushSettings": "Notifikasi Push",
-      "searches": "Riwayat Pencarian"
+      "searches": "Riwayat Pencarian",
+      "alerts": "Pengingat Produk"
     },
     "backToAccount": "Kembali ke akun",
     "login": "Login",
@@ -1526,7 +1586,8 @@
         "searches": "Riwayat Pencarian",
         "loyalty": "Loyalitas",
         "push": "Notifikasi Push",
-        "logout": "Keluar"
+        "logout": "Keluar",
+        "alerts": "Pengingat Produk"
       }
     },
     "addresses": {
@@ -1651,6 +1712,39 @@
         "viewAll": "Lihat semua"
       }
     },
+    "alerts": {
+      "title": "Pengingat produk",
+      "description": "Kami akan mengabari Anda saat produk kembali tersedia atau harganya turun.",
+      "loadFailed": "Gagal memuat pengingat.",
+      "retry": "Coba lagi",
+      "emptyTitle": "Belum ada pengingat",
+      "emptyDescription": "Aktifkan “Ingatkan saya” pada produk yang habis, atau pantau harga dari halaman Favorit.",
+      "browse": "Jelajahi produk",
+      "types": {
+        "BACK_IN_STOCK": "Stok kembali",
+        "PRICE_DROP": "Harga turun"
+      },
+      "status": {
+        "active": "Aktif",
+        "notified": "Terkirim {date}",
+        "notifiedNoDate": "Terkirim"
+      },
+      "variant": "Varian {sku}",
+      "prices": "Harga saat dipantau {then} · sekarang {now}",
+      "availableNow": "Sudah tersedia lagi",
+      "stillSoldOut": "Masih habis",
+      "createdAt": "Dibuat {date}",
+      "remove": "Hapus",
+      "removeLabel": "Hapus pengingat {product}",
+      "rearm": "Aktifkan lagi",
+      "rearmLabel": "Aktifkan lagi: {product}",
+      "removed": "Pengingat dihapus.",
+      "rearmed": "Pengingat diaktifkan lagi.",
+      "pagination": "Navigasi halaman pengingat",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "pageOf": "Halaman {page} dari {total}"
+    },
     "orderStatus": {
       "all": "Semua Status",
       "pending_payment": "Menunggu Pembayaran",
@@ -1660,7 +1754,8 @@
       "out_for_delivery": "Dalam Pengiriman",
       "delivered": "Selesai",
       "cancelled": "Dibatalkan",
-      "failed": "Gagal"
+      "failed": "Gagal",
+      "expired": "Kedaluwarsa"
     },
     "shipmentStatus": {
       "pending": "Menunggu Pengiriman",
@@ -1693,11 +1788,11 @@
       "createdAt": "Dibuat {date}",
       "payNow": "Bayar sekarang",
       "trackShipment": "Lacak pengiriman",
-      "downloadInvoice": "Unduh invoice",
       "cancelOrder": "Batalkan pesanan",
       "items": "Produk dalam pesanan",
       "qtyPrice": "Jml {qty} - {price}",
       "subtotal": "Subtotal",
+      "rateProduct": "Beri ulasan",
       "statusTitle": "Status pesanan",
       "paymentSummary": "Ringkasan pembayaran",
       "status": "Status",
@@ -1718,24 +1813,21 @@
       "toast": {
         "cancelled": "Pesanan dibatalkan",
         "cancelledDescription": "Pesanan Anda sudah dibatalkan.",
-        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi."
+        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi.",
+        "cancelAlreadySubmitted": "Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui."
       }
     },
     "invoice": {
-      "title": "Faktur #{number}",
-      "date": "Tanggal: {date}",
-      "customer": "Pelanggan: {name}",
-      "email": "Email: {email}",
-      "address": "Alamat pengiriman:",
-      "products": "Produk:",
-      "subtotal": "Subtotal: {amount}",
-      "discount": "Diskon: {amount}",
-      "tax": "Pajak: {amount}",
-      "shipping": "Ongkir: {amount}",
-      "total": "Total: {amount}",
-      "courier": "Kurir: {courier} - {service}",
-      "trackingNumber": "Nomor resi: {number}",
-      "eta": "Estimasi tiba: {date}"
+      "download": "Unduh invoice",
+      "downloading": "Mengunduh invoice...",
+      "errorTitle": "Invoice tidak dapat diunduh",
+      "errors": {
+        "notAvailable": "Invoice tersedia setelah pesanan dibayar.",
+        "notAvailableCancelled": "Tidak ada invoice yang diterbitkan sebelum pesanan ini dibatalkan.",
+        "notFound": "Pesanan tidak ditemukan.",
+        "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi.",
+        "failed": "Gagal mengunduh invoice. Silakan coba lagi."
+      }
     },
     "cancelModal": {
       "reasons": {
@@ -1868,7 +1960,7 @@
       "save": "Simpan perubahan",
       "security": {
         "title": "Keamanan Akun",
-        "description": "Kelola sesi aktif dan keluarkan perangkat lain.",
+        "description": "Tinjau perangkat tempat Anda masuk dan keluar dari semua perangkat.",
         "processing": "Memproses...",
         "logoutAll": "Logout semua perangkat",
         "loggedOutAll": "Semua sesi telah keluar.",
@@ -1876,7 +1968,12 @@
         "empty": "Belum ada sesi aktif.",
         "thisDevice": "Perangkat ini",
         "ip": "IP: {ip}",
-        "lastActive": "Terakhir aktif: {date}"
+        "signedIn": "Masuk: {date}",
+        "expiredHint": "Sesi yang sudah kedaluwarsa masih dapat tercantum sampai dibersihkan.",
+        "confirmTitle": "Keluar dari semua perangkat?",
+        "confirmDescription": "Tindakan ini mengeluarkan Anda dari semua perangkat, termasuk perangkat ini. Anda perlu masuk kembali.",
+        "confirm": "Keluar dari semua perangkat",
+        "cancel": "Batal"
       }
     },
     "push": {
@@ -2071,7 +2168,8 @@
       "toast": {
         "cancelled": "Pesanan dibatalkan",
         "cancelledDescription": "Pesanan Anda sudah dibatalkan. Tim kami akan memproses pengembalian dana jika diperlukan.",
-        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi."
+        "cancelFailed": "Gagal membatalkan pesanan. Silakan coba lagi.",
+        "cancelAlreadySubmitted": "Pembatalan Anda sudah dikirim. Status pesanan akan segera diperbarui."
       }
     },
     "tracking": {
@@ -2126,7 +2224,8 @@
       "submit": "Kirim permintaan",
       "listTitle": "Permintaan saya",
       "empty": "Belum ada permintaan pengembalian.",
-      "order": "Pesanan {orderId}"
+      "order": "Pesanan {orderId}",
+      "alreadySubmitted": "Permintaan ini sudah dikirim. Cek daftar di bawah untuk statusnya."
     }
   },
   "errors": {
@@ -2154,7 +2253,8 @@
       "VOUCHER_INVALID": "Kode voucher tidak valid atau sudah kedaluwarsa.",
       "VOUCHER_MIN_SPEND": "Belum memenuhi minimum pembelian untuk menggunakan voucher ini.",
       "VOUCHER_ALREADY_USED": "Anda sudah menggunakan voucher ini sebelumnya.",
-      "RATE_LIMIT_EXCEEDED": "Terlalu banyak percobaan. Silakan tunggu sebentar."
+      "RATE_LIMIT_EXCEEDED": "Terlalu banyak percobaan. Silakan tunggu sebentar.",
+      "EMAIL_ALREADY_USED": "Email ini sudah terdaftar. Silakan login atau gunakan email lain."
     }
   },
   "notFound": {
@@ -2206,8 +2306,65 @@
     "guard": {
       "checking": "Memeriksa izin akses...",
       "title": "Akses admin diperlukan",
-      "description": "Akun Anda tidak memiliki peran admin. Minta pemilik toko untuk memberikannya, lalu muat ulang halaman ini.",
+      "description": "Akun Anda belum memiliki peran staf di toko ini. Minta pemilik atau admin toko menambahkan Anda sebagai staf, lalu muat ulang halaman ini.",
       "backToStore": "Kembali ke toko"
+    },
+    "access": {
+      "title": "Anda tidak memiliki akses ke halaman ini",
+      "description": "Peran Anda tidak mencakup izin yang dibutuhkan halaman ini: {permission}. Minta pemilik atau admin toko jika Anda membutuhkannya.",
+      "descriptionGeneric": "Peran Anda tidak mengizinkan tindakan ini. Minta pemilik atau admin toko jika Anda membutuhkan akses.",
+      "platformDescription": "Bagian ini hanya tersedia untuk administrator platform.",
+      "tenantDescription": "Anda tidak lagi menjadi anggota aktif toko ini. Masuk kembali atau hubungi pemilik toko.",
+      "goTo": "Buka {section}",
+      "backToStore": "Kembali ke toko",
+      "actionForbidden": "Anda tidak memiliki izin untuk melakukan ini ({permission}).",
+      "actionForbiddenGeneric": "Anda tidak memiliki izin untuk melakukan ini.",
+      "platformOnly": "Hanya administrator platform yang dapat melakukan ini.",
+      "tenantForbidden": "Anda tidak lagi menjadi anggota aktif toko ini.",
+      "ownerRequired": "Hanya pemilik yang dapat memberikan atau mengubah peran pemilik.",
+      "yourRole": "Peran: {role}",
+      "platformAdmin": "Administrator platform",
+      "roles": {
+        "owner": "Pemilik",
+        "admin": "Admin",
+        "manager": "Manajer",
+        "catalog": "Katalog",
+        "fulfillment": "Pemenuhan pesanan",
+        "support": "Dukungan pelanggan",
+        "analyst": "Analis"
+      },
+      "roleDescriptions": {
+        "owner": "Akses penuh, termasuk pemilik, staf, dan pengaturan toko.",
+        "admin": "Akses penuh ke toko; tidak dapat memberikan atau mengubah peran pemilik.",
+        "manager": "Menjalankan toko sehari-hari; tidak dapat mengubah pengaturan atau staf.",
+        "catalog": "Produk, kategori, merek, dan stok; dapat melihat promosi.",
+        "fulfillment": "Pesanan, pengiriman, retur, dan tingkat stok; dapat melihat pelanggan.",
+        "support": "Tiket dukungan, pesanan, dan retur; dapat melihat pelanggan.",
+        "analyst": "Akses baca saja ke analitik, pesanan, katalog, promosi, dan pelanggan."
+      },
+      "permissions": {
+        "catalogRead": "Melihat katalog",
+        "catalogWrite": "Mengubah katalog",
+        "inventoryRead": "Melihat inventaris",
+        "inventoryWrite": "Menyesuaikan inventaris",
+        "ordersRead": "Melihat pesanan",
+        "ordersWrite": "Memperbarui pesanan dan pengiriman",
+        "returnsRead": "Melihat retur",
+        "returnsWrite": "Memproses retur",
+        "refundsWrite": "Mengembalikan dana",
+        "customersRead": "Melihat pelanggan",
+        "supportRead": "Melihat tiket dukungan",
+        "supportWrite": "Membalas tiket dukungan",
+        "promotionsRead": "Melihat promosi",
+        "promotionsWrite": "Mengelola promosi",
+        "analyticsRead": "Melihat analitik",
+        "settingsRead": "Melihat pengaturan",
+        "settingsWrite": "Mengubah pengaturan",
+        "staffRead": "Melihat staf",
+        "staffManage": "Mengelola staf",
+        "platformAdmin": "Administrator platform",
+        "staff": "Peran staf"
+      }
     },
     "nav": {
       "label": "Bagian admin",
@@ -2224,9 +2381,11 @@
         "returns": "Retur",
         "support": "Dukungan",
         "analytics": "Analitik",
+        "reports": "Laporan",
         "webhooks": "Webhook",
         "auditLogs": "Log Audit",
-        "settings": "Pengaturan"
+        "settings": "Pengaturan",
+        "staff": "Staf"
       }
     },
     "ui": {
@@ -2252,6 +2411,12 @@
       "status": "Status",
       "guest": "Tamu"
     },
+    "unsavedChanges": {
+      "title": "Buang perubahan yang belum disimpan?",
+      "description": "Ada perubahan yang belum disimpan. Jika Anda keluar sekarang, perubahan tersebut akan hilang.",
+      "stay": "Lanjut mengedit",
+      "leave": "Buang perubahan"
+    },
     "status": {
       "PENDING_PAYMENT": "Menunggu Pembayaran",
       "PAID": "Dibayar",
@@ -2259,7 +2424,8 @@
       "SHIPPED": "Dikirim",
       "OUT_FOR_DELIVERY": "Dalam Pengiriman",
       "DELIVERED": "Diterima",
-      "CANCELLED": "Dibatalkan"
+      "CANCELLED": "Dibatalkan",
+      "EXPIRED": "Kedaluwarsa"
     },
     "time": {
       "justNow": "Baru saja"
@@ -2287,7 +2453,14 @@
         "averageOrderValue": "Rata-rata Nilai Pesanan",
         "pending": "Tertunda",
         "shipped": "Dikirim",
-        "delivered": "Diterima"
+        "delivered": "Diterima",
+        "lowStock": "Stok menipis",
+        "outOfStock": "Stok habis",
+        "lowStockLink": "Lihat inventaris stok menipis",
+        "outOfStockLink": "Lihat inventaris stok habis",
+        "productsCount": "{count, plural, other {# produk}}",
+        "revenueBasis": "Bersih setelah refund, pesanan dibayar hingga diterima",
+        "averageOrderValueBasis": "Dari {count, number} pesanan dibayar"
       },
       "recentOrders": "Pesanan Terbaru",
       "loadingOrders": "Memuat pesanan...",
@@ -2373,6 +2546,16 @@
       "noImages": "Belum ada gambar galeri.",
       "imageUrl": "URL gambar {index}",
       "removeImage": "Hapus gambar {index}",
+      "imagesHint": "Jadikan utama memindahkan gambar ke urutan teratas dan menjadikannya URL thumbnail, foto utama di kartu produk dan halaman produk. Lencana Utama menandai gambar yang dipakai sebagai URL thumbnail. Mengubah urutan hanya memperbarui URL thumbnail jika kosong atau sama dengan gambar pertama. Seret baris atau gunakan tombol panah untuk mengubah urutan.",
+      "imagePreview": "Pratinjau gambar {index}",
+      "primaryImage": "Utama",
+      "setPrimary": "Jadikan utama, gambar {index}",
+      "setPrimaryShort": "Jadikan utama",
+      "moveImageUp": "Pindahkan gambar {index} ke atas",
+      "moveImageDown": "Pindahkan gambar {index} ke bawah",
+      "dragImage": "Seret untuk mengubah urutan gambar {index}",
+      "imageMoved": "Gambar dipindahkan ke posisi {position} dari {total}.",
+      "imagePrimarySet": "Gambar dijadikan utama dan dipakai sebagai thumbnail.",
       "specs": "Spesifikasi",
       "addSpec": "Tambah spesifikasi",
       "noSpecs": "Belum ada spesifikasi.",
@@ -2391,8 +2574,14 @@
       "errors": {
         "titleRequired": "Judul wajib diisi",
         "invalid": "Isian formulir tidak valid",
-        "variantAttributes": "Varian {index}: atribut harus berupa objek JSON"
-      }
+        "variantAttributes": "Varian {index}: atribut harus berupa objek JSON",
+        "lowStockThreshold": "Batas stok menipis harus bilangan bulat dari 0 sampai 1.000.000."
+      },
+      "status": "Status",
+      "statusHint": "Hanya produk berstatus terbit yang tampil dan dapat dibeli di toko.",
+      "lowStockThreshold": "Batas stok menipis",
+      "lowStockPlaceholder": "Bawaan toko",
+      "lowStockHint": "Kosongkan untuk memakai bawaan toko. 0 menonaktifkan peringatan stok menipis untuk produk ini."
     },
     "taxonomy": {
       "name": "Nama",
@@ -2443,7 +2632,9 @@
         "total": "Total Pesanan",
         "revenue": "Pendapatan",
         "pending": "Tertunda",
-        "averageOrderValue": "Rata-rata Nilai Pesanan"
+        "averageOrderValue": "Rata-rata Nilai Pesanan",
+        "revenueBasis": "Bersih setelah refund, pesanan dibayar hingga diterima",
+        "averageOrderValueBasis": "Dari {count, number} pesanan dibayar"
       },
       "all": "Semua Pesanan",
       "searchPlaceholder": "Cari pesanan...",
@@ -2580,7 +2771,9 @@
         "orders": "Pesanan",
         "averageOrderValue": "Rata-rata Nilai Pesanan",
         "customers": "Pelanggan",
-        "products": "Produk"
+        "products": "Produk",
+        "revenueBasis": "Bersih setelah refund, pesanan dibayar hingga diterima",
+        "averageOrderValueBasis": "Dari {count, number} pesanan dibayar"
       },
       "ordersByStatus": "Pesanan per Status",
       "revenueShare": "Porsi Pendapatan Produk Teratas",
@@ -2590,6 +2783,111 @@
         "product": "Produk",
         "unitsSold": "Unit Terjual",
         "revenue": "Pendapatan"
+      }
+    },
+    "reports": {
+      "title": "Laporan",
+      "description": "Laporan penjualan, konversi, dan pelanggan untuk rentang tanggal apa pun",
+      "revenueNote": "Pendapatan menghitung pesanan dibayar hingga diterima yang tidak dikembalikan penuh. Angka kategori dan produk adalah nilai item kotor, sehingga bisa lebih tinggi dari pendapatan bersih pesanan.",
+      "timezone": "Hari dihitung dalam zona waktu {timezone}",
+      "loading": "Memuat laporan...",
+      "tabsLabel": "Laporan",
+      "tabs": {
+        "category": "Penjualan per kategori",
+        "product": "Penjualan per produk",
+        "conversion": "Konversi",
+        "customers": "Pelanggan"
+      },
+      "range": {
+        "label": "Rentang tanggal",
+        "custom": "Kustom",
+        "from": "Dari",
+        "to": "Sampai",
+        "errors": {
+          "invalid": "Isi kedua tanggal.",
+          "order": "Tanggal mulai harus sama dengan atau sebelum tanggal akhir.",
+          "tooLong": "Pilih rentang paling lama 366 hari."
+        }
+      },
+      "export": {
+        "button": "Ekspor CSV",
+        "label": "Ekspor {report} sebagai CSV",
+        "exporting": "Mengekspor…",
+        "success": "{filename} telah diunduh",
+        "failed": "Ekspor gagal"
+      },
+      "category": {
+        "totalRevenue": "Pendapatan item",
+        "totalUnits": "Unit terjual",
+        "categories": "Kategori dengan penjualan",
+        "empty": "Tidak ada penjualan kategori pada rentang ini.",
+        "uncategorized": "Tanpa kategori",
+        "viewProducts": "Lihat produk di {category}",
+        "columns": {
+          "category": "Kategori",
+          "units": "Unit",
+          "orders": "Pesanan",
+          "revenue": "Pendapatan",
+          "share": "Porsi pendapatan"
+        }
+      },
+      "product": {
+        "empty": "Tidak ada penjualan produk pada rentang ini.",
+        "filterLabel": "Kategori",
+        "allCategories": "Semua kategori",
+        "filteredBy": "Menampilkan produk di {category}",
+        "clearFilter": "Tampilkan semua kategori",
+        "columns": {
+          "product": "Produk",
+          "category": "Kategori",
+          "units": "Unit",
+          "orders": "Pesanan",
+          "revenue": "Pendapatan"
+        }
+      },
+      "conversion": {
+        "funnelTitle": "Corong checkout",
+        "carts": "Keranjang dibuat",
+        "checkouts": "Checkout dimulai",
+        "paid": "Pesanan dibayar",
+        "checkoutRate": "Tingkat checkout",
+        "paymentRate": "Tingkat pembayaran",
+        "conversionRate": "Tingkat konversi",
+        "stepRate": "{rate} dari langkah sebelumnya",
+        "rateNote": "Tingkat bisa melebihi 100% karena satu keranjang dapat di-checkout lebih dari sekali.",
+        "outcomesTitle": "Hasil checkout",
+        "pending": "Menunggu pembayaran",
+        "cancelled": "Dibatalkan",
+        "refunded": "Dikembalikan penuh",
+        "paidRevenue": "Pendapatan bersih dibayar",
+        "refundedAmount": "Jumlah pengembalian dana",
+        "empty": "Tidak ada keranjang atau checkout pada rentang ini."
+      },
+      "customers": {
+        "new": "Pelanggan baru",
+        "returning": "Pelanggan kembali",
+        "total": "Pelanggan",
+        "repeatRate": "Tingkat pembelian ulang",
+        "guestOrders": "Pesanan tamu",
+        "ordersCount": "{count, number} pesanan",
+        "revenueSplitTitle": "Pendapatan bersih per jenis pelanggan",
+        "segmentNew": "Baru",
+        "segmentReturning": "Kembali",
+        "segmentGuest": "Tamu",
+        "dailyTitle": "Pelanggan per hari",
+        "dailyNote": "Hanya pelanggan yang masuk, jadi baris harian tidak sama dengan total di atas.",
+        "chartLabel": "Pelanggan baru dan kembali per hari",
+        "barLabel": "{day}: {new, number} baru, {returning, number} kembali, {orders, number} pesanan, {revenue}",
+        "showTable": "Tampilkan tabel",
+        "hideTable": "Sembunyikan tabel",
+        "empty": "Tidak ada pesanan pelanggan pada rentang ini.",
+        "columns": {
+          "day": "Hari",
+          "new": "Baru",
+          "returning": "Kembali",
+          "orders": "Pesanan",
+          "revenue": "Pendapatan bersih"
+        }
       }
     },
     "inventory": {
@@ -2603,6 +2901,20 @@
         "invalid": "Masukkan jumlah stok yang tidak negatif",
         "updated": "Inventaris diperbarui",
         "failed": "Gagal memperbarui inventaris"
+      },
+      "filterLabel": "Tingkat stok",
+      "filterAll": "Semua varian",
+      "emptyFiltered": "Tidak ada varian yang sesuai filter ini.",
+      "thresholdHint": "Menipis pada {threshold, number} atau kurang",
+      "thresholdOff": "Peringatan stok menipis nonaktif",
+      "threshold": {
+        "title": "Batas stok menipis",
+        "description": "Nilai bawaan toko untuk produk yang tidak punya batas sendiri. 0 menonaktifkan peringatan stok menipis.",
+        "label": "Batas bawaan",
+        "save": "Simpan batas",
+        "saved": "Batas stok menipis disimpan",
+        "failed": "Gagal menyimpan batas",
+        "invalid": "Masukkan bilangan bulat dari 0 sampai 1.000.000."
       }
     },
     "customers": {
@@ -2678,6 +2990,79 @@
         "saveFailed": "Gagal menyimpan pengaturan",
         "onboardingComplete": "Onboarding ditandai selesai"
       }
+    },
+    "staff": {
+      "title": "Staf",
+      "description": "Atur siapa yang dapat bekerja di admin toko ini dan apa yang dapat dilakukan setiap orang.",
+      "loading": "Memuat staf...",
+      "empty": "Belum ada staf.",
+      "readOnly": "Anda dapat melihat staf, tetapi hanya pemilik dan admin yang dapat mengubah peran.",
+      "add": {
+        "title": "Tambah anggota staf",
+        "description": "Orang tersebut harus sudah memiliki akun pelanggan di toko ini. Masukkan email yang digunakan saat mendaftar.",
+        "email": "Email",
+        "emailPlaceholder": "nama@contoh.com",
+        "role": "Peran",
+        "submit": "Tambah staf",
+        "submitting": "Menambahkan...",
+        "emailRequired": "Masukkan alamat email.",
+        "emailInvalid": "Masukkan alamat email yang valid.",
+        "success": "{name} sekarang menjadi {role}.",
+        "failed": "Gagal menambahkan anggota staf"
+      },
+      "table": {
+        "caption": "Anggota staf",
+        "name": "Nama",
+        "role": "Peran",
+        "status": "Status",
+        "added": "Ditambahkan",
+        "actions": "Aksi",
+        "you": "Anda"
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "INVITED": "Diundang",
+        "SUSPENDED": "Ditangguhkan"
+      },
+      "changeRole": "Ubah peran",
+      "changeRoleLabel": "Ubah peran untuk {name}",
+      "ownerLocked": "Hanya pemilik yang dapat mengubah pemilik.",
+      "revoke": "Cabut",
+      "revokeLabel": "Cabut akses staf untuk {name}",
+      "confirmChange": {
+        "title": "Ubah peran?",
+        "description": "Pilih peran baru untuk {name}. Peran saat ini: {from}.",
+        "roleLabel": "Peran baru",
+        "selfWarning": "Anda mengubah peran Anda sendiri. Anda mungkin kehilangan akses ke beberapa halaman admin.",
+        "confirm": "Ubah peran",
+        "processing": "Menyimpan...",
+        "success": "{name} sekarang menjadi {role}.",
+        "failed": "Gagal mengubah peran"
+      },
+      "confirmRevoke": {
+        "title": "Cabut akses staf?",
+        "description": "{name} akan kehilangan akses ke area admin. Akun pelanggannya tetap aktif.",
+        "selfWarning": "Anda mencabut akses Anda sendiri. Anda akan langsung keluar dari area admin.",
+        "confirm": "Cabut akses",
+        "processing": "Mencabut...",
+        "success": "{name} tidak lagi memiliki akses staf.",
+        "failed": "Gagal mencabut akses"
+      },
+      "errors": {
+        "USER_NOT_FOUND": "Tidak ada akun pelanggan di toko ini dengan email tersebut. Minta orang tersebut mendaftar terlebih dahulu, lalu coba lagi.",
+        "STAFF_EXISTS": "Orang ini sudah menjadi staf. Ubah perannya di daftar.",
+        "LAST_OWNER": "Toko harus memiliki setidaknya satu pemilik aktif. Jadikan orang lain pemilik terlebih dahulu.",
+        "STAFF_NOT_FOUND": "Orang ini sudah bukan staf. Daftar telah diperbarui.",
+        "VALIDATION_ERROR": "Periksa email dan peran, lalu coba lagi."
+      },
+      "matrix": {
+        "title": "Apa yang dapat dilakukan setiap peran",
+        "loading": "Memuat peran...",
+        "none": "Tidak ada izin"
+      },
+      "pageSummary": "Halaman {page} dari {total} ({count} staf)",
+      "previousPage": "Halaman sebelumnya",
+      "nextPage": "Halaman berikutnya"
     },
     "webhooks": {
       "title": "Webhook",
@@ -2858,9 +3243,230 @@
           "endBeforeStart": "Tanggal selesai harus setelah tanggal mulai",
           "productRequired": "Minimal satu produk wajib dipilih",
           "salePrice": "Harga promo harus lebih dari 0 untuk semua item",
+          "stockLimitInvalid": "Batas stok harus bilangan bulat minimal 1, atau kosongkan jika tanpa batas",
           "createFailed": "Gagal membuat flash sale",
           "updateFailed": "Gagal memperbarui flash sale",
           "statusFailed": "Gagal memperbarui status"
+        }
+      }
+    },
+    "catalog": {
+      "status": {
+        "draft": "Draf",
+        "published": "Terbit",
+        "archived": "Diarsipkan"
+      },
+      "stockStatus": {
+        "in": "Stok tersedia",
+        "low": "Stok menipis",
+        "out": "Stok habis"
+      },
+      "filters": {
+        "status": "Status produk",
+        "stockStatus": "Tingkat stok",
+        "allStatuses": "Semua status",
+        "allStock": "Semua tingkat stok",
+        "clear": "Hapus filter"
+      },
+      "sort": {
+        "by": "Urutkan menurut {column}"
+      },
+      "columns": {
+        "status": "Status",
+        "updated": "Diperbarui"
+      },
+      "selection": {
+        "selectPage": "Pilih semua produk di halaman ini",
+        "selectRow": "Pilih {title}",
+        "selected": "{count, plural, other {# produk dipilih}}",
+        "clear": "Batalkan pilihan",
+        "limit": "Anda dapat memilih hingga {max, number} produk sekaligus."
+      },
+      "bulk": {
+        "toolbar": "Aksi massal",
+        "setPrice": "Atur harga",
+        "adjustStock": "Sesuaikan stok",
+        "changeStatus": "Ubah status",
+        "titles": {
+          "price": "Atur harga untuk {count, plural, other {# produk}}",
+          "stock": "Sesuaikan stok untuk {count, plural, other {# produk}}",
+          "status": "Ubah status {count, plural, other {# produk}}"
+        },
+        "price": {
+          "label": "Harga baru (Rp)",
+          "applyTo": "Terapkan ke",
+          "applyBoth": "Produk dan semua varian (disarankan)",
+          "applyProduct": "Harga tampilan saja",
+          "applyProductHint": "Keranjang tetap memakai harga masing-masing varian, sehingga harga tampilan dan keranjang bisa berbeda.",
+          "compareAt": "Harga coret",
+          "compareKeep": "Biarkan",
+          "compareSet": "Atur nilai baru",
+          "compareClear": "Hapus",
+          "compareValue": "Harga coret baru (Rp)"
+        },
+        "stock": {
+          "mode": "Perubahan",
+          "modeSet": "Atur stok menjadi",
+          "modeAdjust": "Ubah stok sebanyak",
+          "value": "Jumlah",
+          "setHint": "Mengatur setiap varian dari produk terpilih ke jumlah ini.",
+          "adjustHint": "Ditambahkan ke setiap varian dari produk terpilih. Gunakan angka negatif untuk mengurangi stok.",
+          "noVariants": "{count, plural, other {# produk}} tidak memiliki varian dan akan dilewati.",
+          "loadingVariants": "Memuat varian…",
+          "variantsFailed": "Gagal memuat varian dari produk terpilih.",
+          "tooManyVariants": "Produk terpilih memiliki {variants} varian. Satu pembaruan massal dapat mengubah paling banyak {max}; pilih lebih sedikit produk."
+        },
+        "status": {
+          "label": "Status baru",
+          "hint": "Hanya produk berstatus terbit yang tampil dan dapat dibeli di toko."
+        },
+        "review": "Tinjau perubahan",
+        "back": "Kembali",
+        "confirmTitle": "Konfirmasi pembaruan massal",
+        "confirmPrice": "Atur harga {count, plural, other {# produk}} menjadi {price}.",
+        "confirmApplyBoth": "Harga semua varian ikut berubah.",
+        "confirmApplyProduct": "Harga varian tidak berubah.",
+        "confirmCompareSet": "Harga coret menjadi {price}.",
+        "confirmCompareClear": "Harga coret dihapus.",
+        "confirmStockSet": "Atur stok {variants, plural, other {# varian}} menjadi {value, number}.",
+        "confirmStockAdjust": "Ubah stok {variants, plural, other {# varian}} sebanyak {value, number}.",
+        "confirmStatus": "Ubah {count, plural, other {# produk}} menjadi {status}.",
+        "allOrNothing": "Semua perubahan diterapkan bersamaan. Jika ada item yang ditolak, tidak ada yang berubah.",
+        "apply": "Terapkan perubahan",
+        "applying": "Menerapkan…",
+        "success": "{count, plural, other {# item diperbarui}}",
+        "failed": "Pembaruan massal gagal",
+        "rejected": "Tidak ada yang diubah. Perbaiki produk yang ditandai di bawah lalu coba lagi.",
+        "conflict": "Katalog sedang diproses oleh perubahan lain. Tidak ada yang diubah; coba lagi sebentar lagi.",
+        "retry": "Coba lagi",
+        "invalidPrice": "Masukkan harga 0 atau lebih.",
+        "invalidStock": "Masukkan bilangan bulat selain 0.",
+        "invalidStockSet": "Masukkan stok 0 atau lebih.",
+        "rowErrorsLabel": "Masalah pada {title}",
+        "unknownItem": "Item {index, number}",
+        "rowErrors": {
+          "MISSING": "Ada nilai wajib yang belum diisi.",
+          "AMBIGUOUS": "Nilai yang dikirim untuk item ini saling bertentangan.",
+          "INVALID_UUID": "ID tidak valid.",
+          "NEGATIVE": "Nilai harus 0 atau lebih.",
+          "NOT_FOUND": "Produk atau varian ini sudah tidak ada.",
+          "DUPLICATE": "Item ini muncul lebih dari sekali dalam permintaan.",
+          "INVALID_STATUS": "Status tidak valid.",
+          "INVALID_APPLY_TO": "Target harga tidak valid.",
+          "NEGATIVE_RESULT": "Stok akan menjadi kurang dari 0.",
+          "OUT_OF_RANGE": "Nilainya terlalu besar.",
+          "NOT_ALLOWED": "Perubahan ini tidak diizinkan untuk item ini."
+        }
+      },
+      "export": {
+        "button": "Ekspor CSV",
+        "exporting": "Mengekspor…",
+        "success": "{filename} diunduh",
+        "failed": "Ekspor gagal",
+        "productsLabel": "Ekspor produk yang sesuai filter saat ini sebagai CSV",
+        "ordersLabel": "Ekspor pesanan yang sesuai filter saat ini sebagai CSV"
+      },
+      "import": {
+        "button": "Impor CSV",
+        "title": "Impor produk",
+        "description": "Unggah CSV, tinjau hasil uji coba, lalu konfirmasi. Tidak ada yang berubah sebelum Anda mengonfirmasi.",
+        "back": "Kembali ke produk",
+        "type": "Yang diimpor",
+        "typeProducts": "Produk",
+        "typeProductsHint": "Buat dan perbarui produk serta varian (kolom dari ekspor produk).",
+        "typeStock": "Stok saja",
+        "typeStockHint": "Atur jumlah stok per SKU (kolom sku, stock, opsional stock_baseline).",
+        "file": "File CSV",
+        "fileHint": "Hanya CSV, maksimal 5 MB dan 5.000 baris. Dipisahkan koma atau titik koma.",
+        "selected": "Dipilih: {name}",
+        "tooLarge": "File lebih besar dari 5 MB.",
+        "notCsv": "Pilih file .csv. Simpan workbook Excel sebagai CSV terlebih dahulu.",
+        "noFile": "Pilih file CSV terlebih dahulu.",
+        "preview": "Periksa file",
+        "previewing": "Memeriksa…",
+        "summary": {
+          "title": "Ringkasan",
+          "total": "Baris",
+          "create": "Produk baru",
+          "createVariant": "Varian baru",
+          "update": "Pembaruan",
+          "unchanged": "Tidak berubah",
+          "rejected": "Ditolak"
+        },
+        "previewTitle": "Uji coba",
+        "committedTitle": "Impor selesai",
+        "previewNote": "Ini hanya pratinjau. Belum ada yang disimpan.",
+        "committedNote": "Ini adalah hasil yang tersimpan.",
+        "rejectedNote": "{count, plural, other {# baris}} memiliki kesalahan. Perbaiki di file lalu periksa lagi; tidak ada yang diimpor selama masih ada baris yang ditolak.",
+        "nothingToDo": "Semua baris sudah sesuai dengan katalog. Tidak ada yang perlu diimpor.",
+        "confirm": "Impor {count, plural, other {# perubahan}}",
+        "confirming": "Mengimpor…",
+        "confirmed": "Impor selesai",
+        "reset": "Impor file lain",
+        "showUnchanged": "Tampilkan baris yang tidak berubah",
+        "tableLabel": "Baris impor",
+        "columns": {
+          "row": "Baris",
+          "sku": "SKU",
+          "product": "Produk",
+          "action": "Aksi",
+          "changes": "Perubahan",
+          "errors": "Kesalahan"
+        },
+        "actions": {
+          "create": "Produk baru",
+          "create_variant": "Varian baru",
+          "update": "Perbarui",
+          "unchanged": "Tidak berubah",
+          "reject": "Ditolak"
+        },
+        "noChanges": "Tidak ada perubahan",
+        "empty": "kosong",
+        "tips": {
+          "title": "Tips untuk Excel",
+          "dataImport": "Buka file ekspor lewat Data › From Text/CSV dan pilih koma sebagai pemisah.",
+          "baseline": "Biarkan stock_baseline seperti hasil ekspor: kolom ini melindungi penjualan yang terjadi sejak ekspor.",
+          "prices": "price adalah harga tampilan dan variant_price adalah harga di keranjang. Ubah keduanya agar tetap sama."
+        },
+        "errors": {
+          "UNSUPPORTED_FILE": "Hanya file CSV yang dapat diimpor. Simpan workbook sebagai CSV terlebih dahulu.",
+          "INVALID_ENCODING": "File bukan UTF-8. Simpan sebagai \"CSV UTF-8\".",
+          "EMPTY_FILE": "File kosong.",
+          "INVALID_CSV": "File bukan CSV yang valid (sekitar baris {row}).",
+          "TOO_MANY_ROWS": "File berisi lebih dari {max, number} baris. Pecah menjadi beberapa file.",
+          "INVALID_HEADER": "Kolom \"{header}\" tidak dikenal. Gunakan nama kolom dari hasil ekspor.",
+          "DUPLICATE_HEADER": "Kolom \"{header}\" muncul lebih dari sekali.",
+          "MISSING_HEADER": "Kolom wajib \"{header}\" tidak ada.",
+          "PAYLOAD_TOO_LARGE": "File lebih besar dari 5 MB.",
+          "CONFLICT": "Katalog sedang diproses oleh perubahan lain. Tidak ada yang diimpor; coba lagi sebentar lagi.",
+          "generic": "File tidak dapat diperiksa."
+        },
+        "rowErrors": {
+          "MISSING": "sku, variant_id, atau product_id wajib diisi.",
+          "INVALID_ROW": "Jumlah kolom pada baris ini tidak sesuai.",
+          "INVALID_NUMBER": "{field} harus bilangan bulat.",
+          "INVALID_UUID": "{field} bukan ID yang valid.",
+          "NEGATIVE": "{field} harus 0 atau lebih.",
+          "OUT_OF_RANGE": "{field} terlalu besar.",
+          "INVALID_STATUS": "status harus draft, published, atau archived.",
+          "INVALID_JSON": "attributes harus berupa objek JSON.",
+          "INVALID_SLUG": "slug hanya boleh berisi huruf kecil, angka, dan tanda hubung.",
+          "DUPLICATE_SKU": "SKU ini muncul lebih dari sekali dalam file.",
+          "DUPLICATE_VARIANT": "variant_id ini muncul lebih dari sekali dalam file.",
+          "SKU_TAKEN": "SKU ini sudah dipakai produk lain di toko ini.",
+          "SKU_MISMATCH": "SKU berbeda dengan SKU tersimpan untuk variant_id ini (mungkin diubah Excel, mis. 1.23E+12).",
+          "PRODUCT_MISMATCH": "Varian ini milik product_id yang lain.",
+          "SLUG_TAKEN": "Slug ini sudah dipakai produk lain.",
+          "UNKNOWN_SKU": "Tidak ada varian dengan SKU ini.",
+          "UNKNOWN_VARIANT": "Tidak ada varian dengan variant_id ini.",
+          "UNKNOWN_PRODUCT": "Tidak ada produk dengan product_id ini.",
+          "MISSING_FOR_CREATE": "{field} wajib diisi untuk membuat produk.",
+          "UNKNOWN_CATEGORY": "Tidak ada kategori dengan category_slug ini.",
+          "UNKNOWN_BRAND": "Tidak ada merek dengan brand_slug ini.",
+          "CONFLICTING_PRODUCT_VALUES": "Baris dari produk yang sama memiliki nilai {field} yang berbeda.",
+          "NO_VARIANT": "{field} memerlukan varian (isi sku).",
+          "STALE_STOCK": "Stok berubah sejak ekspor (ada penjualan atau perubahan lain). Ekspor ulang lalu ulangi baris ini.",
+          "STOCK_BASELINE_REQUIRED": "Sertakan kolom stock_baseline dari hasil ekspor untuk mengubah stok varian yang sudah ada."
         }
       }
     }

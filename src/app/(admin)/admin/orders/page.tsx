@@ -4,6 +4,7 @@ import { Eye, Package, Search, Truck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import {
   AdminEmpty,
   AdminError,
@@ -11,6 +12,8 @@ import {
   AdminPageHeader,
   OrderStatusBadge,
 } from '@/components/admin/admin-ui';
+import { CsvExportButton } from '@/components/admin/catalog/csv-export-button';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -44,11 +47,13 @@ import {
   useAdminOrders,
   useAdminOrderStats,
   useCreateAdminShipment,
+  useExportOrdersCsv,
   useUpdateAdminOrderStatus,
 } from '@/entities/admin/hooks';
 import type { AdminOrder, AdminOrderStatus } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -58,7 +63,8 @@ const COURIERS = ['JNE', 'J&T', 'SiCepat', 'AnterAja', 'POS'];
 
 /**
  * Statuses an admin may set directly, mirroring `isAllowedAdminTarget` in
- * toko-api. PENDING_PAYMENT and PAID are driven by the payment flow instead.
+ * toko-api. PENDING_PAYMENT and PAID are driven by the payment flow and EXPIRED
+ * by the checkout-expiry job instead.
  */
 const SETTABLE_STATUSES: AdminOrderStatus[] = [
   'PACKED',
@@ -77,10 +83,11 @@ const STATUS_RANK: Record<AdminOrderStatus, number> = {
   OUT_FOR_DELIVERY: 4,
   DELIVERED: 5,
   CANCELLED: -1,
+  EXPIRED: -1,
 };
 
 function allowedTargets(current: AdminOrderStatus): AdminOrderStatus[] {
-  if (current === 'CANCELLED' || current === 'DELIVERED') return [];
+  if (current === 'CANCELLED' || current === 'DELIVERED' || current === 'EXPIRED') return [];
   return SETTABLE_STATUSES.filter((target) => {
     if (target === 'CANCELLED') {
       // The SQL guard only allows cancelling from PENDING_PAYMENT or PAID.
@@ -114,6 +121,8 @@ function paymentStatusClass(status: string): string {
 export default function OrdersPage() {
   const t = useTranslations('admin.orders');
   const tAdmin = useTranslations('admin');
+  const tExport = useTranslations('admin.catalog.export');
+  const exportOrders = useExportOrdersCsv();
   const tCommon = useTranslations('admin.common');
   const { currency, date } = useAdminFormat();
   const [search, setSearch] = useState('');
@@ -121,11 +130,16 @@ export default function OrdersPage() {
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const [detailId, setDetailId] = useState<string | null>(null);
   const [shipmentTarget, setShipmentTarget] = useState<AdminOrder | null>(null);
   const [courier, setCourier] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
+  const guard = useUnsavedChangesGuard(
+    shipmentTarget !== null && (courier !== '' || trackingNumber.trim() !== ''),
+  );
+  const closeShipment = () => setShipmentTarget(null);
 
   const query = useAdminOrders({
     page,
@@ -161,7 +175,7 @@ export default function OrdersPage() {
     } catch (error) {
       toast({
         title: t('toast.statusFailed'),
-        description: error instanceof Error ? error.message : t('toast.transitionNotAllowed'),
+        description: adminErrorMessage(error, t('toast.transitionNotAllowed')),
         variant: 'destructive',
       });
     }
@@ -187,7 +201,7 @@ export default function OrdersPage() {
     } catch (error) {
       toast({
         title: t('toast.shipmentFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -195,7 +209,22 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title={t('title')} description={t('description')} />
+      <AdminPageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <CsvExportButton
+            label={tExport('ordersLabel')}
+            onExport={() =>
+              exportOrders.mutateAsync({
+                search: debouncedSearch || undefined,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+              })
+            }
+            testId="admin-orders-export"
+          />
+        }
+      />
 
       {stats.data ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -213,8 +242,9 @@ export default function OrdersPage() {
                 {t('stats.revenue')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-2xl font-bold">
-              {currency(stats.data.totalRevenue)}
+            <CardContent>
+              <p className="text-2xl font-bold">{currency(stats.data.totalRevenue)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t('stats.revenueBasis')}</p>
             </CardContent>
           </Card>
           <Card>
@@ -231,8 +261,13 @@ export default function OrdersPage() {
                 {t('stats.averageOrderValue')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-2xl font-bold">
-              {currency(Math.round(stats.data.averageOrderValue))}
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {currency(Math.round(stats.data.averageOrderValue))}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t('stats.averageOrderValueBasis', { count: stats.data.revenueOrders ?? 0 })}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -569,7 +604,7 @@ export default function OrdersPage() {
 
       <Dialog
         open={shipmentTarget !== null}
-        onOpenChange={(open) => !open && setShipmentTarget(null)}
+        onOpenChange={(open) => !open && guard.confirmNavigation(closeShipment)}
       >
         <DialogContent>
           <DialogHeader>
@@ -605,7 +640,11 @@ export default function OrdersPage() {
               />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setShipmentTarget(null)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => guard.confirmNavigation(closeShipment)}
+              >
                 {tCommon('cancel')}
               </Button>
               <Button type="submit" disabled={createShipment.isPending}>
@@ -615,6 +654,8 @@ export default function OrdersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

@@ -393,7 +393,10 @@
       "emptyQuery": "Try another keyword or remove some filters",
       "emptyDefault": "No products are available yet",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "fuzzyNotice": "No exact matches for \"{query}\". Showing similar products.",
+      "didYouMean": "Did you mean:",
+      "suggestionsLabel": "Search suggestions"
     },
     "chips": {
       "query": "Search: \"{query}\"",
@@ -404,7 +407,8 @@
       "inStock": "In Stock",
       "discount": "Promo/Discount",
       "remove": "Remove filter",
-      "clearAll": "Clear All ({count})"
+      "clearAll": "Clear All ({count})",
+      "priceFrom": "Price: from {min}"
     },
     "sort": {
       "label": "Sort",
@@ -437,7 +441,14 @@
       "apply": "Apply",
       "save": "Save",
       "notify": "Alert",
-      "savedSearchName": "Search {date}"
+      "savedSearchName": "Search {date}",
+      "allCategories": "All categories",
+      "allBrands": "All brands",
+      "allPrices": "Any price",
+      "priceBetween": "{min} - {max}",
+      "priceFrom": "{min} and above",
+      "availability": "Availability",
+      "inStockOnly": "In stock only"
     },
     "savedSearch": {
       "saved": "Search saved",
@@ -661,11 +672,16 @@
         "label": "Choose a variant",
         "available": "{count} available",
         "soldOut": "Sold out",
-        "selectColor": "Select {name} color"
+        "selectColor": "Select {name} color",
+        "lowStock": "Only {count} left"
       },
       "adding": "Adding…",
       "addToCart": "Add to cart",
-      "outOfStock": "Out of stock"
+      "outOfStock": "Out of stock",
+      "stickyBar": {
+        "label": "Quick add to cart",
+        "from": "From"
+      }
     },
     "gallery": {
       "noImage": "No image available",
@@ -917,6 +933,37 @@
         "answerFailed": "Failed to send answer",
         "voteFailed": "Failed to vote"
       }
+    },
+    "alerts": {
+      "saving": "Saving...",
+      "backInStock": {
+        "hint": "Out of stock right now. We can let you know by notification and email when it's back.",
+        "subscribe": "Notify me when available",
+        "active": "We'll notify you when it's back in stock.",
+        "cancel": "Cancel alert",
+        "subscribedTitle": "Back-in-stock alert on",
+        "subscribedDescription": "You'll get a notification and an email when it's available.",
+        "cancelled": "Back-in-stock alert cancelled."
+      },
+      "priceDrop": {
+        "label": "Alert me if the price drops",
+        "labelFor": "Alert me if the price drops: {product}",
+        "enabled": "We'll let you know if the price drops.",
+        "disabled": "Price alert turned off."
+      },
+      "errors": {
+        "alreadyInStock": "This product is back in stock. You can buy it now.",
+        "notFound": "Product not found.",
+        "alertNotFound": "This alert was already removed.",
+        "sessionExpired": "Your session has expired. Please sign in again.",
+        "failed": "Could not save the alert. Please try again."
+      },
+      "login": {
+        "title": "Sign in to turn on alerts",
+        "description": "After signing in you'll come right back to this page.",
+        "signIn": "Sign in",
+        "cancel": "Not now"
+      }
     }
   },
   "cart": {
@@ -1167,7 +1214,10 @@
         "checking": "Checking payment status...",
         "contacting": "Contacting the payment provider.",
         "current": "Current status: <strong>{status}</strong>",
-        "checkError": "Could not check the payment status. Please try again."
+        "checkError": "Could not check the payment status. Please try again.",
+        "stillWaiting": "Still waiting for payment confirmation",
+        "stillWaitingDescription": "We stopped checking automatically. If you have already paid, check again now or come back in a little while.",
+        "checkAgain": "Check again"
       },
       "instructions": {
         "title": "Payment instructions",
@@ -1182,7 +1232,16 @@
         "proofUploaded": "Proof sent",
         "uploading": "Uploading...",
         "upload": "Upload proof",
-        "uploadFailed": "Failed to upload the proof of payment."
+        "uploadFailed": "Failed to upload the proof of payment.",
+        "proofHint": "JPG, PNG, WebP, GIF, HEIC, or PDF, up to {max} MB.",
+        "proofUnsupported": "Unsupported file format. Use an image (JPG, PNG, WebP, GIF, HEIC) or a PDF.",
+        "proofTooLarge": "File size exceeds {max} MB.",
+        "proofRequestTooLarge": "The file is too large to upload. Choose a smaller file.",
+        "proofSelected": "Selected file: {name}",
+        "proofPreviewAlt": "Payment proof preview",
+        "proofErrorUnauthorized": "Your session has ended. Sign in again, then upload the proof.",
+        "proofErrorNotFound": "We could not find this order. Refresh the page and try again.",
+        "proofErrorRejected": "The file was not accepted. Choose another file and try again."
       }
     },
     "success": {
@@ -1505,7 +1564,8 @@
       "orders": "Orders",
       "loyalty": "Loyalty",
       "pushSettings": "Push notifications",
-      "searches": "Search history"
+      "searches": "Search history",
+      "alerts": "Product Alerts"
     },
     "backToAccount": "Back to account",
     "login": "Log in",
@@ -1526,7 +1586,8 @@
         "searches": "Search History",
         "loyalty": "Loyalty",
         "push": "Push Notifications",
-        "logout": "Logout"
+        "logout": "Logout",
+        "alerts": "Product Alerts"
       }
     },
     "addresses": {
@@ -1651,6 +1712,39 @@
         "viewAll": "View all"
       }
     },
+    "alerts": {
+      "title": "My alerts",
+      "description": "We'll let you know when a product is back in stock or its price drops.",
+      "loadFailed": "Could not load your alerts.",
+      "retry": "Try again",
+      "emptyTitle": "No alerts yet",
+      "emptyDescription": "Turn on “Notify me” for a sold-out product, or watch prices from your favorites.",
+      "browse": "Browse products",
+      "types": {
+        "BACK_IN_STOCK": "Back in stock",
+        "PRICE_DROP": "Price drop"
+      },
+      "status": {
+        "active": "Active",
+        "notified": "Sent {date}",
+        "notifiedNoDate": "Sent"
+      },
+      "variant": "Variant {sku}",
+      "prices": "Price when set {then} · now {now}",
+      "availableNow": "Available now",
+      "stillSoldOut": "Still sold out",
+      "createdAt": "Created {date}",
+      "remove": "Remove",
+      "removeLabel": "Remove alert for {product}",
+      "rearm": "Turn on again",
+      "rearmLabel": "Turn on again: {product}",
+      "removed": "Alert removed.",
+      "rearmed": "Alert turned on again.",
+      "pagination": "Alert pages",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {total}"
+    },
     "orderStatus": {
       "all": "All Statuses",
       "pending_payment": "Awaiting Payment",
@@ -1660,7 +1754,8 @@
       "out_for_delivery": "Out for Delivery",
       "delivered": "Completed",
       "cancelled": "Cancelled",
-      "failed": "Failed"
+      "failed": "Failed",
+      "expired": "Expired"
     },
     "shipmentStatus": {
       "pending": "Awaiting Shipment",
@@ -1693,11 +1788,11 @@
       "createdAt": "Placed {date}",
       "payNow": "Pay now",
       "trackShipment": "Track shipment",
-      "downloadInvoice": "Download invoice",
       "cancelOrder": "Cancel order",
       "items": "Items in this order",
       "qtyPrice": "Qty {qty} - {price}",
       "subtotal": "Subtotal",
+      "rateProduct": "Rate this product",
       "statusTitle": "Order status",
       "paymentSummary": "Payment summary",
       "status": "Status",
@@ -1718,24 +1813,21 @@
       "toast": {
         "cancelled": "Order cancelled",
         "cancelledDescription": "Your order has been cancelled.",
-        "cancelFailed": "Failed to cancel the order. Please try again."
+        "cancelFailed": "Failed to cancel the order. Please try again.",
+        "cancelAlreadySubmitted": "Your cancellation was already submitted. The order status will update shortly."
       }
     },
     "invoice": {
-      "title": "Invoice #{number}",
-      "date": "Date: {date}",
-      "customer": "Customer: {name}",
-      "email": "Email: {email}",
-      "address": "Shipping address:",
-      "products": "Products:",
-      "subtotal": "Subtotal: {amount}",
-      "discount": "Discount: {amount}",
-      "tax": "Tax: {amount}",
-      "shipping": "Shipping: {amount}",
-      "total": "Total: {amount}",
-      "courier": "Courier: {courier} - {service}",
-      "trackingNumber": "Tracking number: {number}",
-      "eta": "Estimated arrival: {date}"
+      "download": "Download invoice",
+      "downloading": "Downloading invoice...",
+      "errorTitle": "Invoice unavailable",
+      "errors": {
+        "notAvailable": "The invoice is available once the order is paid.",
+        "notAvailableCancelled": "No invoice was issued before this order was cancelled.",
+        "notFound": "Order not found.",
+        "sessionExpired": "Your session has expired. Please sign in again.",
+        "failed": "Could not download the invoice. Please try again."
+      }
     },
     "cancelModal": {
       "reasons": {
@@ -1868,7 +1960,7 @@
       "save": "Save changes",
       "security": {
         "title": "Account Security",
-        "description": "Manage active sessions and sign out other devices.",
+        "description": "Review where you are signed in and sign out of every device.",
         "processing": "Processing...",
         "logoutAll": "Log out all devices",
         "loggedOutAll": "All sessions have been signed out.",
@@ -1876,7 +1968,12 @@
         "empty": "No active sessions yet.",
         "thisDevice": "This device",
         "ip": "IP: {ip}",
-        "lastActive": "Last active: {date}"
+        "signedIn": "Signed in: {date}",
+        "expiredHint": "Sessions that have already expired can still be listed until they are cleaned up.",
+        "confirmTitle": "Log out of all devices?",
+        "confirmDescription": "This signs you out everywhere, including this device. You will need to sign in again.",
+        "confirm": "Log out everywhere",
+        "cancel": "Cancel"
       }
     },
     "push": {
@@ -2071,7 +2168,8 @@
       "toast": {
         "cancelled": "Order cancelled",
         "cancelledDescription": "Your order has been cancelled. Our team will process a refund if needed.",
-        "cancelFailed": "Failed to cancel the order. Please try again."
+        "cancelFailed": "Failed to cancel the order. Please try again.",
+        "cancelAlreadySubmitted": "Your cancellation was already submitted. The order status will update shortly."
       }
     },
     "tracking": {
@@ -2126,7 +2224,8 @@
       "submit": "Submit request",
       "listTitle": "My requests",
       "empty": "No return requests yet.",
-      "order": "Order {orderId}"
+      "order": "Order {orderId}",
+      "alreadySubmitted": "This request was already submitted. Check the list below for its status."
     }
   },
   "errors": {
@@ -2154,7 +2253,8 @@
       "VOUCHER_INVALID": "The voucher code is invalid or has expired.",
       "VOUCHER_MIN_SPEND": "You have not reached the minimum spend for this voucher.",
       "VOUCHER_ALREADY_USED": "You have already used this voucher.",
-      "RATE_LIMIT_EXCEEDED": "Too many attempts. Please wait a moment."
+      "RATE_LIMIT_EXCEEDED": "Too many attempts. Please wait a moment.",
+      "EMAIL_ALREADY_USED": "This email is already registered. Log in or use another email."
     }
   },
   "notFound": {
@@ -2206,8 +2306,65 @@
     "guard": {
       "checking": "Checking permissions...",
       "title": "Admin access required",
-      "description": "Your account does not have the admin role. Ask a store owner to grant it, then reload this page.",
+      "description": "Your account has no staff role in this store. Ask a store owner or admin to add you as staff, then reload this page.",
       "backToStore": "Back to store"
+    },
+    "access": {
+      "title": "You don't have access to this page",
+      "description": "Your role doesn't include the permission this page needs: {permission}. Ask a store owner or admin if you need it.",
+      "descriptionGeneric": "Your role doesn't allow this. Ask a store owner or admin if you need access.",
+      "platformDescription": "This area is only available to platform administrators.",
+      "tenantDescription": "You are no longer an active member of this store. Sign in again or contact the store owner.",
+      "goTo": "Go to {section}",
+      "backToStore": "Back to store",
+      "actionForbidden": "You don't have permission to do this ({permission}).",
+      "actionForbiddenGeneric": "You don't have permission to do this.",
+      "platformOnly": "Only platform administrators can do this.",
+      "tenantForbidden": "You are no longer an active member of this store.",
+      "ownerRequired": "Only an owner can grant or change the owner role.",
+      "yourRole": "Role: {role}",
+      "platformAdmin": "Platform administrator",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "manager": "Manager",
+        "catalog": "Catalog",
+        "fulfillment": "Fulfillment",
+        "support": "Support",
+        "analyst": "Analyst"
+      },
+      "roleDescriptions": {
+        "owner": "Full access, including owners, staff and store settings.",
+        "admin": "Full access to the store; cannot grant or change the owner role.",
+        "manager": "Runs the store day to day; cannot change settings or staff.",
+        "catalog": "Products, categories, brands and stock; can view promotions.",
+        "fulfillment": "Orders, shipments, returns and stock levels; can view customers.",
+        "support": "Support tickets, orders and returns; can view customers.",
+        "analyst": "Read-only access to analytics, orders, catalog, promotions and customers."
+      },
+      "permissions": {
+        "catalogRead": "View catalog",
+        "catalogWrite": "Edit catalog",
+        "inventoryRead": "View inventory",
+        "inventoryWrite": "Adjust inventory",
+        "ordersRead": "View orders",
+        "ordersWrite": "Update orders and shipments",
+        "returnsRead": "View returns",
+        "returnsWrite": "Process returns",
+        "refundsWrite": "Issue refunds",
+        "customersRead": "View customers",
+        "supportRead": "View support tickets",
+        "supportWrite": "Reply to support tickets",
+        "promotionsRead": "View promotions",
+        "promotionsWrite": "Manage promotions",
+        "analyticsRead": "View analytics",
+        "settingsRead": "View settings",
+        "settingsWrite": "Change settings",
+        "staffRead": "View staff",
+        "staffManage": "Manage staff",
+        "platformAdmin": "Platform administrator",
+        "staff": "Staff role"
+      }
     },
     "nav": {
       "label": "Admin sections",
@@ -2224,9 +2381,11 @@
         "returns": "Returns",
         "support": "Support",
         "analytics": "Analytics",
+        "reports": "Reports",
         "webhooks": "Webhooks",
         "auditLogs": "Audit Logs",
-        "settings": "Settings"
+        "settings": "Settings",
+        "staff": "Staff"
       }
     },
     "ui": {
@@ -2252,6 +2411,12 @@
       "status": "Status",
       "guest": "Guest"
     },
+    "unsavedChanges": {
+      "title": "Discard unsaved changes?",
+      "description": "You have changes that have not been saved. If you leave now, they will be lost.",
+      "stay": "Keep editing",
+      "leave": "Discard changes"
+    },
     "status": {
       "PENDING_PAYMENT": "Pending Payment",
       "PAID": "Paid",
@@ -2259,7 +2424,8 @@
       "SHIPPED": "Shipped",
       "OUT_FOR_DELIVERY": "Out for Delivery",
       "DELIVERED": "Delivered",
-      "CANCELLED": "Cancelled"
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
     },
     "time": {
       "justNow": "Just now"
@@ -2287,7 +2453,14 @@
         "averageOrderValue": "Average Order Value",
         "pending": "Pending",
         "shipped": "Shipped",
-        "delivered": "Delivered"
+        "delivered": "Delivered",
+        "lowStock": "Low stock",
+        "outOfStock": "Out of stock",
+        "lowStockLink": "View low-stock inventory",
+        "outOfStockLink": "View out-of-stock inventory",
+        "productsCount": "{count, plural, one {# product} other {# products}}",
+        "revenueBasis": "Net of refunds, paid to delivered orders",
+        "averageOrderValueBasis": "Across {count, plural, one {# paid order} other {# paid orders}}"
       },
       "recentOrders": "Recent Orders",
       "loadingOrders": "Loading orders...",
@@ -2373,6 +2546,16 @@
       "noImages": "No gallery images.",
       "imageUrl": "Image URL {index}",
       "removeImage": "Remove image {index}",
+      "imagesHint": "Set as primary moves an image to the top and makes it the Thumbnail URL, the main photo on product cards and the product page. The Primary badge marks the image used as the Thumbnail URL. Reordering only updates the Thumbnail URL when it is empty or matches the first image. Drag rows or use the arrow buttons to reorder.",
+      "imagePreview": "Preview of image {index}",
+      "primaryImage": "Primary",
+      "setPrimary": "Set as primary, image {index}",
+      "setPrimaryShort": "Set as primary",
+      "moveImageUp": "Move image {index} up",
+      "moveImageDown": "Move image {index} down",
+      "dragImage": "Drag to reorder image {index}",
+      "imageMoved": "Image moved to position {position} of {total}.",
+      "imagePrimarySet": "Image set as primary and used as the thumbnail.",
       "specs": "Specifications",
       "addSpec": "Add spec",
       "noSpecs": "No specifications.",
@@ -2391,8 +2574,14 @@
       "errors": {
         "titleRequired": "Title is required",
         "invalid": "Invalid form values",
-        "variantAttributes": "Variant {index}: attributes must be a JSON object"
-      }
+        "variantAttributes": "Variant {index}: attributes must be a JSON object",
+        "lowStockThreshold": "Low-stock threshold must be a whole number from 0 to 1,000,000."
+      },
+      "status": "Status",
+      "statusHint": "Only published products are visible and purchasable in the store.",
+      "lowStockThreshold": "Low-stock threshold",
+      "lowStockPlaceholder": "Store default",
+      "lowStockHint": "Leave empty to use the store default. 0 turns low-stock alerts off for this product."
     },
     "taxonomy": {
       "name": "Name",
@@ -2443,7 +2632,9 @@
         "total": "Total Orders",
         "revenue": "Revenue",
         "pending": "Pending",
-        "averageOrderValue": "Avg. Order Value"
+        "averageOrderValue": "Avg. Order Value",
+        "revenueBasis": "Net of refunds, paid to delivered orders",
+        "averageOrderValueBasis": "Across {count, plural, one {# paid order} other {# paid orders}}"
       },
       "all": "All Orders",
       "searchPlaceholder": "Search orders...",
@@ -2580,7 +2771,9 @@
         "orders": "Orders",
         "averageOrderValue": "Average Order Value",
         "customers": "Customers",
-        "products": "Products"
+        "products": "Products",
+        "revenueBasis": "Net of refunds, paid to delivered orders",
+        "averageOrderValueBasis": "Across {count, plural, one {# paid order} other {# paid orders}}"
       },
       "ordersByStatus": "Orders by Status",
       "revenueShare": "Revenue Share of Top Products",
@@ -2590,6 +2783,111 @@
         "product": "Product",
         "unitsSold": "Units Sold",
         "revenue": "Revenue"
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Sales, conversion and customer reports for any date range",
+      "revenueNote": "Revenue counts paid to delivered orders that are not fully refunded. Category and product figures are gross item values, so they can be higher than net order revenue.",
+      "timezone": "Days are counted in {timezone}",
+      "loading": "Loading report...",
+      "tabsLabel": "Report",
+      "tabs": {
+        "category": "Sales by category",
+        "product": "Sales by product",
+        "conversion": "Conversion",
+        "customers": "Customers"
+      },
+      "range": {
+        "label": "Date range",
+        "custom": "Custom",
+        "from": "From",
+        "to": "To",
+        "errors": {
+          "invalid": "Enter both dates.",
+          "order": "The start date must be on or before the end date.",
+          "tooLong": "Choose a range of at most 366 days."
+        }
+      },
+      "export": {
+        "button": "Export CSV",
+        "label": "Export {report} as CSV",
+        "exporting": "Exporting…",
+        "success": "Downloaded {filename}",
+        "failed": "Export failed"
+      },
+      "category": {
+        "totalRevenue": "Item revenue",
+        "totalUnits": "Units sold",
+        "categories": "Categories with sales",
+        "empty": "No category sales in this range.",
+        "uncategorized": "Uncategorized",
+        "viewProducts": "View products in {category}",
+        "columns": {
+          "category": "Category",
+          "units": "Units",
+          "orders": "Orders",
+          "revenue": "Revenue",
+          "share": "Share of revenue"
+        }
+      },
+      "product": {
+        "empty": "No product sales in this range.",
+        "filterLabel": "Category",
+        "allCategories": "All categories",
+        "filteredBy": "Showing products in {category}",
+        "clearFilter": "Show all categories",
+        "columns": {
+          "product": "Product",
+          "category": "Category",
+          "units": "Units",
+          "orders": "Orders",
+          "revenue": "Revenue"
+        }
+      },
+      "conversion": {
+        "funnelTitle": "Checkout funnel",
+        "carts": "Carts created",
+        "checkouts": "Checkouts started",
+        "paid": "Paid orders",
+        "checkoutRate": "Checkout rate",
+        "paymentRate": "Payment rate",
+        "conversionRate": "Conversion rate",
+        "stepRate": "{rate} of the previous step",
+        "rateNote": "Rates can exceed 100% because one cart can be checked out more than once.",
+        "outcomesTitle": "Checkout outcomes",
+        "pending": "Pending payment",
+        "cancelled": "Cancelled",
+        "refunded": "Fully refunded",
+        "paidRevenue": "Net paid revenue",
+        "refundedAmount": "Refunded amount",
+        "empty": "No carts or checkouts in this range."
+      },
+      "customers": {
+        "new": "New customers",
+        "returning": "Returning customers",
+        "total": "Customers",
+        "repeatRate": "Repeat rate",
+        "guestOrders": "Guest orders",
+        "ordersCount": "{count, plural, one {# order} other {# orders}}",
+        "revenueSplitTitle": "Net revenue by customer type",
+        "segmentNew": "New",
+        "segmentReturning": "Returning",
+        "segmentGuest": "Guests",
+        "dailyTitle": "Customers per day",
+        "dailyNote": "Signed-in customers only, so daily rows do not add up to the totals above.",
+        "chartLabel": "New and returning customers per day",
+        "barLabel": "{day}: {new, number} new, {returning, number} returning, {orders, number} orders, {revenue}",
+        "showTable": "Show table",
+        "hideTable": "Hide table",
+        "empty": "No customer orders in this range.",
+        "columns": {
+          "day": "Day",
+          "new": "New",
+          "returning": "Returning",
+          "orders": "Orders",
+          "revenue": "Net revenue"
+        }
       }
     },
     "inventory": {
@@ -2603,6 +2901,20 @@
         "invalid": "Enter a non-negative stock quantity",
         "updated": "Inventory updated",
         "failed": "Could not update inventory"
+      },
+      "filterLabel": "Stock level",
+      "filterAll": "All variants",
+      "emptyFiltered": "No variants match this filter.",
+      "thresholdHint": "Low at {threshold, number} or fewer",
+      "thresholdOff": "Low-stock alerts off",
+      "threshold": {
+        "title": "Low-stock threshold",
+        "description": "Store default used when a product has no threshold of its own. 0 turns low-stock alerts off.",
+        "label": "Default threshold",
+        "save": "Save threshold",
+        "saved": "Low-stock threshold saved",
+        "failed": "Could not save the threshold",
+        "invalid": "Enter a whole number from 0 to 1,000,000."
       }
     },
     "customers": {
@@ -2678,6 +2990,79 @@
         "saveFailed": "Could not save settings",
         "onboardingComplete": "Onboarding marked complete"
       }
+    },
+    "staff": {
+      "title": "Staff",
+      "description": "Choose who can work in this store's admin and what each person can do.",
+      "loading": "Loading staff...",
+      "empty": "No staff yet.",
+      "readOnly": "You can view staff, but only owners and admins can change roles.",
+      "add": {
+        "title": "Add staff member",
+        "description": "The person needs a customer account on this store first. Enter the email they signed up with.",
+        "email": "Email",
+        "emailPlaceholder": "name@example.com",
+        "role": "Role",
+        "submit": "Add staff",
+        "submitting": "Adding...",
+        "emailRequired": "Enter an email address.",
+        "emailInvalid": "Enter a valid email address.",
+        "success": "{name} is now {role}.",
+        "failed": "Could not add staff member"
+      },
+      "table": {
+        "caption": "Staff members",
+        "name": "Name",
+        "role": "Role",
+        "status": "Status",
+        "added": "Added",
+        "actions": "Actions",
+        "you": "You"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "INVITED": "Invited",
+        "SUSPENDED": "Suspended"
+      },
+      "changeRole": "Change role",
+      "changeRoleLabel": "Change role for {name}",
+      "ownerLocked": "Only an owner can change an owner.",
+      "revoke": "Revoke",
+      "revokeLabel": "Revoke staff access for {name}",
+      "confirmChange": {
+        "title": "Change role?",
+        "description": "Choose a new role for {name}. Their current role is {from}.",
+        "roleLabel": "New role",
+        "selfWarning": "You are changing your own role. You may lose access to some admin pages.",
+        "confirm": "Change role",
+        "processing": "Saving...",
+        "success": "{name} is now {role}.",
+        "failed": "Could not change the role"
+      },
+      "confirmRevoke": {
+        "title": "Revoke staff access?",
+        "description": "{name} will lose access to the admin area. Their customer account stays active.",
+        "selfWarning": "You are revoking your own access. You will leave the admin area right away.",
+        "confirm": "Revoke access",
+        "processing": "Revoking...",
+        "success": "{name} no longer has staff access.",
+        "failed": "Could not revoke access"
+      },
+      "errors": {
+        "USER_NOT_FOUND": "No customer account on this store uses that email. Ask them to sign up first, then try again.",
+        "STAFF_EXISTS": "This person is already staff. Change their role in the list instead.",
+        "LAST_OWNER": "The store must keep at least one active owner. Make someone else an owner first.",
+        "STAFF_NOT_FOUND": "This person is no longer staff. The list has been refreshed.",
+        "VALIDATION_ERROR": "Check the email and role, then try again."
+      },
+      "matrix": {
+        "title": "What each role can do",
+        "loading": "Loading roles...",
+        "none": "No permissions"
+      },
+      "pageSummary": "Page {page} of {total} ({count} staff)",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     },
     "webhooks": {
       "title": "Webhooks",
@@ -2858,9 +3243,230 @@
           "endBeforeStart": "End date must be after start date",
           "productRequired": "At least one product is required",
           "salePrice": "Sale price must be greater than 0 for all items",
+          "stockLimitInvalid": "Stock limit must be a whole number of at least 1, or empty for no limit",
           "createFailed": "Failed to create flash sale",
           "updateFailed": "Failed to update flash sale",
           "statusFailed": "Failed to update status"
+        }
+      }
+    },
+    "catalog": {
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "stockStatus": {
+        "in": "In stock",
+        "low": "Low stock",
+        "out": "Out of stock"
+      },
+      "filters": {
+        "status": "Product status",
+        "stockStatus": "Stock level",
+        "allStatuses": "All statuses",
+        "allStock": "All stock levels",
+        "clear": "Clear filters"
+      },
+      "sort": {
+        "by": "Sort by {column}"
+      },
+      "columns": {
+        "status": "Status",
+        "updated": "Updated"
+      },
+      "selection": {
+        "selectPage": "Select all products on this page",
+        "selectRow": "Select {title}",
+        "selected": "{count, plural, one {# product selected} other {# products selected}}",
+        "clear": "Clear selection",
+        "limit": "You can select up to {max, number} products at once."
+      },
+      "bulk": {
+        "toolbar": "Bulk actions",
+        "setPrice": "Set price",
+        "adjustStock": "Adjust stock",
+        "changeStatus": "Change status",
+        "titles": {
+          "price": "Set price for {count, plural, one {# product} other {# products}}",
+          "stock": "Adjust stock for {count, plural, one {# product} other {# products}}",
+          "status": "Change status of {count, plural, one {# product} other {# products}}"
+        },
+        "price": {
+          "label": "New price (Rp)",
+          "applyTo": "Apply to",
+          "applyBoth": "Product and all variants (recommended)",
+          "applyProduct": "Listing price only",
+          "applyProductHint": "The cart keeps charging each variant's own price, so the listing and cart prices can differ.",
+          "compareAt": "Compare-at price",
+          "compareKeep": "Keep current",
+          "compareSet": "Set a new value",
+          "compareClear": "Remove",
+          "compareValue": "New compare-at price (Rp)"
+        },
+        "stock": {
+          "mode": "Change",
+          "modeSet": "Set stock to",
+          "modeAdjust": "Adjust stock by",
+          "value": "Quantity",
+          "setHint": "Sets every variant of each selected product to this quantity.",
+          "adjustHint": "Adds to every variant of each selected product. Use a negative number to remove stock.",
+          "noVariants": "{count, plural, one {# product has} other {# products have}} no variants and will be skipped.",
+          "loadingVariants": "Loading variants…",
+          "variantsFailed": "Could not load the variants of the selected products.",
+          "tooManyVariants": "The selected products have {variants} variants. One bulk update can change at most {max}; select fewer products."
+        },
+        "status": {
+          "label": "New status",
+          "hint": "Only published products are visible and purchasable in the store."
+        },
+        "review": "Review changes",
+        "back": "Back",
+        "confirmTitle": "Confirm bulk update",
+        "confirmPrice": "Set the price of {count, plural, one {# product} other {# products}} to {price}.",
+        "confirmApplyBoth": "Every variant price changes too.",
+        "confirmApplyProduct": "Variant prices stay as they are.",
+        "confirmCompareSet": "The compare-at price becomes {price}.",
+        "confirmCompareClear": "The compare-at price is removed.",
+        "confirmStockSet": "Set the stock of {variants, plural, one {# variant} other {# variants}} to {value, number}.",
+        "confirmStockAdjust": "Change the stock of {variants, plural, one {# variant} other {# variants}} by {value, number}.",
+        "confirmStatus": "Change {count, plural, one {# product} other {# products}} to {status}.",
+        "allOrNothing": "All changes are applied together. If any item is rejected, nothing changes.",
+        "apply": "Apply changes",
+        "applying": "Applying…",
+        "success": "{count, plural, one {# item updated} other {# items updated}}",
+        "failed": "Bulk update failed",
+        "rejected": "Nothing was changed. Fix the products marked below and try again.",
+        "conflict": "The catalog is busy with another change. Nothing was changed; try again in a moment.",
+        "retry": "Try again",
+        "invalidPrice": "Enter a price of 0 or more.",
+        "invalidStock": "Enter a whole number other than 0.",
+        "invalidStockSet": "Enter a stock of 0 or more.",
+        "rowErrorsLabel": "Problems with {title}",
+        "unknownItem": "Item {index, number}",
+        "rowErrors": {
+          "MISSING": "A required value is missing.",
+          "AMBIGUOUS": "Conflicting values were sent for this item.",
+          "INVALID_UUID": "The id is not valid.",
+          "NEGATIVE": "The value must be 0 or more.",
+          "NOT_FOUND": "This product or variant no longer exists.",
+          "DUPLICATE": "This item appears more than once in the request.",
+          "INVALID_STATUS": "The status is not valid.",
+          "INVALID_APPLY_TO": "The price target is not valid.",
+          "NEGATIVE_RESULT": "Stock would drop below 0.",
+          "OUT_OF_RANGE": "The value is too large.",
+          "NOT_ALLOWED": "This change is not allowed for this item."
+        }
+      },
+      "export": {
+        "button": "Export CSV",
+        "exporting": "Exporting…",
+        "success": "Downloaded {filename}",
+        "failed": "Export failed",
+        "productsLabel": "Export the products that match the current filters as CSV",
+        "ordersLabel": "Export the orders that match the current filters as CSV"
+      },
+      "import": {
+        "button": "Import CSV",
+        "title": "Import products",
+        "description": "Upload a CSV, review the dry run, then confirm. Nothing changes until you confirm.",
+        "back": "Back to products",
+        "type": "What to import",
+        "typeProducts": "Products",
+        "typeProductsHint": "Create and update products and variants (columns from the product export).",
+        "typeStock": "Stock only",
+        "typeStockHint": "Set stock counts by SKU (columns sku, stock, optional stock_baseline).",
+        "file": "CSV file",
+        "fileHint": "CSV only, up to 5 MB and 5,000 rows. Comma or semicolon separated.",
+        "selected": "Selected: {name}",
+        "tooLarge": "The file is larger than 5 MB.",
+        "notCsv": "Choose a .csv file. Save Excel workbooks as CSV first.",
+        "noFile": "Choose a CSV file first.",
+        "preview": "Check file",
+        "previewing": "Checking…",
+        "summary": {
+          "title": "Summary",
+          "total": "Rows",
+          "create": "New products",
+          "createVariant": "New variants",
+          "update": "Updates",
+          "unchanged": "Unchanged",
+          "rejected": "Rejected"
+        },
+        "previewTitle": "Dry run",
+        "committedTitle": "Import complete",
+        "previewNote": "This is a preview. Nothing has been saved yet.",
+        "committedNote": "These are the saved results.",
+        "rejectedNote": "{count, plural, one {# row has} other {# rows have}} errors. Fix them in the file and check it again; nothing is imported while any row is rejected.",
+        "nothingToDo": "Every row already matches the catalog. There is nothing to import.",
+        "confirm": "Import {count, plural, one {# change} other {# changes}}",
+        "confirming": "Importing…",
+        "confirmed": "Import complete",
+        "reset": "Import another file",
+        "showUnchanged": "Show unchanged rows",
+        "tableLabel": "Import rows",
+        "columns": {
+          "row": "Row",
+          "sku": "SKU",
+          "product": "Product",
+          "action": "Action",
+          "changes": "Changes",
+          "errors": "Errors"
+        },
+        "actions": {
+          "create": "New product",
+          "create_variant": "New variant",
+          "update": "Update",
+          "unchanged": "Unchanged",
+          "reject": "Rejected"
+        },
+        "noChanges": "No changes",
+        "empty": "empty",
+        "tips": {
+          "title": "Tips for Excel",
+          "dataImport": "Open exported files with Data › From Text/CSV and choose comma as the delimiter.",
+          "baseline": "Leave stock_baseline as exported: it protects sales made since the export.",
+          "prices": "price is the listing price and variant_price is what the cart charges. Change both to keep them in sync."
+        },
+        "errors": {
+          "UNSUPPORTED_FILE": "Only CSV files can be imported. Save the workbook as CSV first.",
+          "INVALID_ENCODING": "The file is not UTF-8. Save it as \"CSV UTF-8\".",
+          "EMPTY_FILE": "The file is empty.",
+          "INVALID_CSV": "The file is not valid CSV (around row {row}).",
+          "TOO_MANY_ROWS": "The file has more than {max, number} rows. Split it into smaller files.",
+          "INVALID_HEADER": "Unknown column \"{header}\". Use the column names from an export.",
+          "DUPLICATE_HEADER": "The column \"{header}\" appears more than once.",
+          "MISSING_HEADER": "The required column \"{header}\" is missing.",
+          "PAYLOAD_TOO_LARGE": "The file is larger than 5 MB.",
+          "CONFLICT": "The catalog is busy with another change. Nothing was imported; try again in a moment.",
+          "generic": "The file could not be checked."
+        },
+        "rowErrors": {
+          "MISSING": "sku, variant_id or product_id is required.",
+          "INVALID_ROW": "The row has the wrong number of columns.",
+          "INVALID_NUMBER": "{field} must be a whole number.",
+          "INVALID_UUID": "{field} is not a valid id.",
+          "NEGATIVE": "{field} must be 0 or more.",
+          "OUT_OF_RANGE": "{field} is too large.",
+          "INVALID_STATUS": "status must be draft, published or archived.",
+          "INVALID_JSON": "attributes must be a JSON object.",
+          "INVALID_SLUG": "slug may only contain lowercase letters, numbers and hyphens.",
+          "DUPLICATE_SKU": "This SKU appears more than once in the file.",
+          "DUPLICATE_VARIANT": "This variant_id appears more than once in the file.",
+          "SKU_TAKEN": "Another product in this store already uses this SKU.",
+          "SKU_MISMATCH": "The SKU differs from the stored SKU for this variant_id (Excel may have changed it, e.g. 1.23E+12).",
+          "PRODUCT_MISMATCH": "The variant belongs to a different product_id.",
+          "SLUG_TAKEN": "This slug is already used by another product.",
+          "UNKNOWN_SKU": "No variant has this SKU.",
+          "UNKNOWN_VARIANT": "No variant has this variant_id.",
+          "UNKNOWN_PRODUCT": "No product has this product_id.",
+          "MISSING_FOR_CREATE": "{field} is required to create a product.",
+          "UNKNOWN_CATEGORY": "No category has this category_slug.",
+          "UNKNOWN_BRAND": "No brand has this brand_slug.",
+          "CONFLICTING_PRODUCT_VALUES": "Rows of the same product have different {field} values.",
+          "NO_VARIANT": "{field} needs a variant (add a sku).",
+          "STALE_STOCK": "Stock changed since the export (sales or another edit). Export again and redo this row.",
+          "STOCK_BASELINE_REQUIRED": "Add the stock_baseline column from an export to change the stock of an existing variant."
         }
       }
     }

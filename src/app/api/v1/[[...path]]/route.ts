@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import type { MockResult } from '@/mocks/route';
+import type { MockBinaryResult, MockResult } from '@/mocks/route';
 
 // The built-in API is a development/test fixture (implementation in src/mocks/).
 // Development keeps mocks on unless NEXT_PUBLIC_API_MOCKING=false; production
@@ -13,8 +13,28 @@ const SESSION_COOKIE = 'mockSessionId';
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 type Context = { params: Promise<{ path?: string[] }> };
 
+function isBinary(result: MockResult): result is MockBinaryResult {
+  return !Array.isArray(result) && ArrayBuffer.isView(result.__binary?.body);
+}
+
 function buildResponse(result: MockResult | null): NextResponse {
   if (!result) return NextResponse.json({ message: 'Not Found' }, { status: 404 });
+  // A `{ file }` result (see MockFile in src/mocks/resolvers/types.ts) is an attachment.
+  if (!Array.isArray(result) && typeof result.file?.body === 'string') {
+    const { body, contentType, filename } = result.file;
+    return new NextResponse(body, {
+      status: 200,
+      headers: {
+        'Content-Type': contentType,
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
+    });
+  }
+  // Non-JSON payloads (invoice PDFs) are sent as-is with their own headers.
+  if (isBinary(result)) {
+    const { body, headers } = result.__binary;
+    return new NextResponse(body.slice().buffer, { status: result.status, headers });
+  }
   if (!Array.isArray(result) && typeof result.status === 'number') {
     const { status, ...rest } = result;
     // 204 No Content must not carry a body (NextResponse.json throws for it).
@@ -26,7 +46,7 @@ function buildResponse(result: MockResult | null): NextResponse {
 
 function jsonResponse(result: MockResult | null, sessionId: string, isNewSession: boolean) {
   const response = buildResponse(result);
-  response.headers.set('Cache-Control', NO_STORE);
+  if (!response.headers.has('Cache-Control')) response.headers.set('Cache-Control', NO_STORE);
   if (isNewSession) response.cookies.set(SESSION_COOKIE, sessionId, { path: '/', httpOnly: false });
   return response;
 }
@@ -45,6 +65,35 @@ async function readJsonBody(req: NextRequest) {
   }
 }
 
+/**
+ * Multipart uploads (the CSV import) reach resolvers as
+ * `{ fields: {name: value}, files: {name: {name, type, size, text}} }`; anything
+ * else is read as JSON.
+ */
+async function readBody(req: NextRequest) {
+  if (!req.headers.get('content-type')?.toLowerCase().includes('multipart/form-data')) {
+    return readJsonBody(req);
+  }
+  try {
+    const form = await req.formData();
+    const fields: Record<string, string> = {};
+    const files: Record<string, { name: string; type: string; size: number; text: string }> = {};
+    for (const [key, value] of form.entries()) {
+      if (typeof value === 'string') fields[key] = value;
+      else
+        files[key] = {
+          name: value.name,
+          type: value.type,
+          size: value.size,
+          text: await value.text(),
+        };
+    }
+    return { fields, files };
+  } catch {
+    return null;
+  }
+}
+
 async function handle(req: NextRequest, { params }: Context, method: Method) {
   if (
     process.env.NEXT_PUBLIC_API_URL === 'mock' ||
@@ -54,7 +103,7 @@ async function handle(req: NextRequest, { params }: Context, method: Method) {
     const { handleMockRequest } = await import('@/mocks/route');
     const path = (await params).path?.join('/') || '';
     const { sessionId, isNewSession } = resolveSession(req);
-    const body = method === 'GET' || method === 'DELETE' ? null : await readJsonBody(req);
+    const body = method === 'GET' || method === 'DELETE' ? null : await readBody(req);
     const result = handleMockRequest(path, method, body, sessionId, req.nextUrl.searchParams, req);
     const response = jsonResponse(result, sessionId, isNewSession);
     // Double-submit CSRF cookie: readable by JS (non-HttpOnly) so apiClient can echo it in a header.

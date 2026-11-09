@@ -21,22 +21,10 @@ import {
   useNotifications,
   useUnreadNotificationCount,
 } from '@/entities/notifications/hooks';
+import { notificationHref } from '@/entities/notifications/href';
 import type { Notification } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { useFormat } from '@/shared/i18n/use-format';
-
-/**
- * Resolve the in-app destination for a notification from its `data` payload.
- * Order/shipment notifications carry an `orderId`; everything else falls back
- * to the notifications page.
- */
-function notificationHref(notification: Notification): Route {
-  const orderId = notification.data?.orderId;
-  if (orderId) {
-    return `/account/orders/${orderId}` as Route;
-  }
-  return '/account/notifications' as Route;
-}
 
 export function NotificationBell() {
   const t = useTranslations('account.notifications');
@@ -61,7 +49,7 @@ export function NotificationBell() {
     if (!notification.read) {
       markRead.mutate(notification.id);
     }
-    router.push(notificationHref(notification));
+    router.push(notificationHref(notification) as Route);
   };
 
   return (

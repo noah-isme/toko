@@ -7,6 +7,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useState } from 'react';
 
+import { getAdminAccess } from '../../entities/admin/access';
+import { adminKeys } from '../../entities/admin/keys';
+import { alertsKeys } from '../../entities/alerts/keys';
 import { AuthError, getAccessToken, setAccessToken } from '../../lib/api/apiClient';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { authApi, cartApi } from '../../lib/api/services';
@@ -17,11 +20,20 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  /** True when the signed-in user carries the `admin` role. */
+  /**
+   * True when the signed-in user may enter the admin area: any staff role in the
+   * current tenant (`permissions` from `/auth/me`) or the global `admin` role.
+   * Per-section access comes from `useAdminAccess()`.
+   */
   isAdmin: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
+  /**
+   * Revokes every session of the user (`POST /auth/logout/all`), including this
+   * one, then clears the local session like `logout`.
+   */
+  logoutAll: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateProfile: (data: { name: string; phone?: string }) => Promise<User>;
 }
@@ -94,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await authApi.login(data);
-      setUser(response.user);
+      setUser(await withTenantRole(response.user));
 
       // Merge guest cart after login
       await mergeGuestCart();
@@ -110,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await authApi.register(data);
-      setUser(response.user);
+      setUser(await withTenantRole(response.user));
 
       // Merge guest cart after registration
       await mergeGuestCart();
@@ -122,20 +134,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const clearLocalSession = () => {
+    setUser(null);
+
+    // Clear cart on logout
+    useCartStore.getState().clearCart();
+
+    // Remove cart queries to clear sensitive data and ensure fresh state
+    queryClient.removeQueries({ queryKey: queryKeys.cart() });
+    // Admin data is role-scoped: never show it to the next user of this tab.
+    queryClient.removeQueries({ queryKey: adminKeys.all() });
+    // Alerts are per user; the next account in this tab must not see them.
+    queryClient.removeQueries({ queryKey: alertsKeys.all });
+  };
+
   const logout = async () => {
     setIsLoading(true);
     try {
       await authApi.logout();
-      setUser(null);
-
-      // Clear cart on logout
-      useCartStore.getState().clearCart();
-
-      // Remove cart queries to clear sensitive data and ensure fresh state
-      queryClient.removeQueries({ queryKey: queryKeys.cart() });
+      clearLocalSession();
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const logoutAll = async () => {
+    // The backend revokes this device's refresh session too and clears the
+    // refresh cookie; the access token would otherwise stay usable until it
+    // expires, so drop it and the local session right away.
+    await authApi.logoutAllSessions();
+    setAccessToken(null);
+    clearLocalSession();
+    queryClient.removeQueries({ queryKey: ['auth'] });
   };
 
   const refreshUser = async () => {
@@ -152,8 +182,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (data: { name: string; phone?: string }) => {
     const updatedUser = await authApi.updateProfile(data);
-    setUser(updatedUser);
-    return updatedUser;
+    // PATCH /users/me returns the user without the tenant `role`/`permissions`
+    // (only GET /auth/me sets them); keep the ones already known so admin
+    // access does not fall back to the legacy global-role rule.
+    const merged = withKnownTenantRole(updatedUser, user);
+    setUser((prev) => withKnownTenantRole(updatedUser, prev));
+    return merged;
   };
 
   return (
@@ -162,10 +196,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
-        isAdmin: hasRole(user, 'admin'),
+        isAdmin: getAdminAccess(user).canEnter,
         login,
         register,
         logout,
+        logoutAll,
         refreshUser,
         updateProfile,
       }}
@@ -183,6 +218,32 @@ export function hasRole(user: User | null, role: string): boolean {
   if (!user?.roles) return false;
   const target = role.toLowerCase();
   return user.roles.some((entry) => entry.toLowerCase() === target);
+}
+
+/**
+ * Login and register responses omit the tenant `role`/`permissions`, which only
+ * `GET /auth/me` returns; read them so admin access is known right after sign-in.
+ * Falls back to the auth response user when `/auth/me` fails.
+ */
+async function withTenantRole(user: User): Promise<User> {
+  try {
+    return await authApi.getCurrentUser();
+  } catch {
+    return user;
+  }
+}
+
+/**
+ * `updated` (the signed-in user's own profile) with the tenant
+ * `role`/`permissions` of `previous` when `updated` lacks them.
+ */
+function withKnownTenantRole(updated: User, previous: User | null): User {
+  if (!previous) return updated;
+  return {
+    ...updated,
+    role: updated.role ?? previous.role,
+    permissions: updated.permissions ?? previous.permissions,
+  };
 }
 
 function shouldEvictAccessToken(error: unknown): boolean {

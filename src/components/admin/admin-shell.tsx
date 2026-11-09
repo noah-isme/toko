@@ -1,6 +1,6 @@
 /**
  * Admin shell: fixed sidebar on desktop, slide-over sheet on mobile, wrapped in
- * the client-side admin role guard.
+ * the client-side staff guard; each page is gated on its permission.
  */
 'use client';
 
@@ -10,11 +10,15 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, type ReactNode } from 'react';
 
-import { AdminGuard } from '@/components/admin/admin-guard';
+import { useRoleLabel } from '@/components/admin/admin-access-ui';
+import { AdminGuard, AdminRouteGate } from '@/components/admin/admin-guard';
 import { AdminNav } from '@/components/admin/admin-nav';
+import { AdminPermissionSync } from '@/components/admin/admin-permission-sync';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useAdminAccess } from '@/entities/admin/use-admin-access';
+import { confirmLeaveUnsaved } from '@/hooks/use-unsaved-changes-guard';
 
 function SidebarBrand() {
   const t = useTranslations('admin.shell');
@@ -31,12 +35,21 @@ function SidebarBrand() {
 
 function SidebarFooter() {
   const t = useTranslations('admin.shell');
+  const tAccess = useTranslations('admin.access');
+  const roleLabel = useRoleLabel();
   const { user, logout } = useAuth();
+  const { role, isPlatformAdmin } = useAdminAccess();
   const router = useRouter();
+  const roleText = role ? roleLabel(role) : isPlatformAdmin ? tAccess('platformAdmin') : null;
 
-  const handleLogout = async () => {
-    await logout();
-    router.replace('/');
+  const handleLogout = () => {
+    // A dirty admin form gets to ask before sign-out throws its changes away.
+    confirmLeaveUnsaved(() => {
+      void (async () => {
+        await logout();
+        router.replace('/');
+      })();
+    });
   };
 
   return (
@@ -45,6 +58,11 @@ function SidebarFooter() {
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{user.name}</p>
           <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+          {roleText ? (
+            <p className="truncate text-xs text-muted-foreground" data-testid="admin-role">
+              {tAccess('yourRole', { role: roleText })}
+            </p>
+          ) : null}
         </div>
       ) : null}
       <div className="flex flex-col gap-2">
@@ -66,6 +84,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <AdminGuard>
+      <AdminPermissionSync />
       <div className="flex min-h-screen bg-muted/20">
         <aside className="hidden w-64 shrink-0 flex-col border-r bg-background lg:flex">
           <SidebarBrand />
@@ -93,7 +112,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
             <span className="text-sm font-semibold">{t('brand')}</span>
           </header>
 
-          <main className="min-w-0 flex-1 p-4 lg:p-8">{children}</main>
+          <main className="min-w-0 flex-1 p-4 lg:p-8">
+            <AdminRouteGate>{children}</AdminRouteGate>
+          </main>
         </div>
       </div>
     </AdminGuard>

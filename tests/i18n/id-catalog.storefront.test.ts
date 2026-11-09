@@ -10,9 +10,6 @@ import idMessages from '../../messages/id.json';
  * out of scope here.
  */
 const SHARED_WITH_ENGLISH = [
-  'account.invoice.email',
-  'account.invoice.subtotal',
-  'account.invoice.total',
   'account.loyalty.history.filter',
   'account.loyalty.history.reference',
   'account.loyalty.history.types.bonus',
@@ -31,6 +28,7 @@ const SHARED_WITH_ENGLISH = [
   'cart.view.summary.total',
   'catalog.chips.rating',
   'catalog.comparePage.rows.rating',
+  'catalog.filters.priceBetween',
   'catalog.listing.chips.discount',
   'checkout.header.breadcrumbCheckout',
   'checkout.header.title',

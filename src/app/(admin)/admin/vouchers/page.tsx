@@ -4,6 +4,7 @@ import { Calendar, DollarSign, Edit, Percent, Plus, Search, Trash2 } from 'lucid
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import {
   ActiveBadge,
   AdminEmpty,
@@ -11,6 +12,7 @@ import {
   AdminLoading,
   AdminPageHeader,
 } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -38,6 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { datetimeLocalToIso, isoToDatetimeLocal } from '@/entities/admin/datetime-local';
 import { isVoucherActive, voucherValueLabel } from '@/entities/admin/format';
 import {
   useAdminVouchers,
@@ -49,6 +52,7 @@ import {
 import type { AdminVoucher, AdminVoucherInput, AdminVoucherKind } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -81,21 +85,6 @@ const EMPTY_FORM: VoucherForm = {
   priority: 0,
 };
 
-/** `datetime-local` needs `YYYY-MM-DDTHH:mm`, the API returns RFC3339. */
-function toLocalInput(value: string | null | undefined): string {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-function toRfc3339(value: string): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
-}
-
 function formToPayload(form: VoucherForm): AdminVoucherInput {
   const percent = form.kind === 'percent';
   return {
@@ -107,8 +96,8 @@ function formToPayload(form: VoucherForm): AdminVoucherInput {
     minSpend: Math.max(0, Math.round(form.minSpend)),
     usageLimit: form.usageLimit === '' ? null : Number(form.usageLimit),
     perUserLimit: form.perUserLimit === '' ? null : Number(form.perUserLimit),
-    validFrom: toRfc3339(form.validFrom),
-    validTo: toRfc3339(form.validTo),
+    validFrom: datetimeLocalToIso(form.validFrom) || null,
+    validTo: datetimeLocalToIso(form.validTo) || null,
     combinable: form.combinable,
     priority: form.priority,
   };
@@ -122,8 +111,8 @@ function voucherToForm(voucher: AdminVoucher): VoucherForm {
     minSpend: voucher.minSpend,
     usageLimit: voucher.usageLimit == null ? '' : String(voucher.usageLimit),
     perUserLimit: voucher.perUserLimit == null ? '' : String(voucher.perUserLimit),
-    validFrom: toLocalInput(voucher.validFrom),
-    validTo: toLocalInput(voucher.validTo),
+    validFrom: isoToDatetimeLocal(voucher.validFrom),
+    validTo: isoToDatetimeLocal(voucher.validTo),
     combinable: voucher.combinable,
     priority: voucher.priority,
   };
@@ -138,11 +127,14 @@ export default function VouchersPage() {
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search);
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminVoucher | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminVoucher | null>(null);
   const [form, setForm] = useState<VoucherForm>(EMPTY_FORM);
+  /** What the open dialog started from; the unsaved-changes guard compares against it. */
+  const [baselineForm, setBaselineForm] = useState<VoucherForm>(EMPTY_FORM);
 
   const query = useAdminVouchers({
     page,
@@ -159,15 +151,23 @@ export default function VouchersPage() {
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const saving = createVoucher.isPending || updateVoucher.isPending;
 
+  const guard = useUnsavedChangesGuard(dialogOpen && isFormDirty(form, baselineForm));
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditing(null);
+  };
+
   const openCreate = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
+    setBaselineForm(EMPTY_FORM);
     setDialogOpen(true);
   };
 
   const openEdit = (voucher: AdminVoucher) => {
     setEditing(voucher);
     setForm(voucherToForm(voucher));
+    setBaselineForm(voucherToForm(voucher));
     setDialogOpen(true);
   };
 
@@ -190,7 +190,7 @@ export default function VouchersPage() {
     } catch (error) {
       toast({
         title: t('toast.saveFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -205,7 +205,7 @@ export default function VouchersPage() {
     } catch (error) {
       toast({
         title: t('toast.deleteFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -435,10 +435,7 @@ export default function VouchersPage() {
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setEditing(null);
-        }}
+        onOpenChange={(open) => (open ? setDialogOpen(true) : guard.confirmNavigation(closeDialog))}
       >
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
@@ -575,7 +572,7 @@ export default function VouchersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => guard.confirmNavigation(closeDialog)}>
               {tCommon('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
@@ -606,6 +603,8 @@ export default function VouchersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }

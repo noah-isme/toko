@@ -4,6 +4,7 @@ import { adminApi } from '../api';
 import { adminKeys } from '../keys';
 import type { AdminProductInput, AdminProductListParams } from '../types';
 
+import { invalidateCatalog } from './catalog-ops';
 import { ADMIN_STALE_TIME as STALE_TIME } from './shared';
 
 export function useAdminProducts(params: AdminProductListParams = {}) {
@@ -27,9 +28,8 @@ export function useCreateAdminProduct() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: AdminProductInput) => adminApi.createProduct(data),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
-    },
+    // New products add inventory rows and can change the dashboard stock counts.
+    onSuccess: () => invalidateCatalog(queryClient),
   });
 }
 
@@ -38,10 +38,8 @@ export function useUpdateAdminProduct() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: AdminProductInput }) =>
       adminApi.updateProduct(id, data),
-    onSuccess: (_result, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
-      void queryClient.invalidateQueries({ queryKey: adminKeys.product(id) });
-    },
+    // Status and low-stock threshold edits change inventory rows and dashboard counts.
+    onSuccess: () => invalidateCatalog(queryClient),
   });
 }
 
@@ -49,9 +47,7 @@ export function useDeleteAdminProduct() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => adminApi.deleteProduct(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
-    },
+    onSuccess: () => invalidateCatalog(queryClient),
   });
 }
 
@@ -60,9 +56,7 @@ export function useUpdateAdminProductStock() {
   return useMutation({
     mutationFn: ({ id, stock, inStock }: { id: string; stock?: number; inStock?: boolean }) =>
       adminApi.updateProductStock(id, { stock, inStock }),
-    onSuccess: (_result, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
-      void queryClient.invalidateQueries({ queryKey: adminKeys.product(id) });
-    },
+    // Quick stock edits move the inventory list and the dashboard low-stock cards.
+    onSuccess: () => invalidateCatalog(queryClient),
   });
 }

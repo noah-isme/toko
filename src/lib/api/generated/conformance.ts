@@ -19,6 +19,13 @@
 import type { components } from './schema';
 
 import type {
+  AdminPermission,
+  RoleDefinition,
+  StaffMember,
+  StaffRole,
+} from '@/entities/admin/types';
+import type { AlertSubscription } from '@/entities/alerts/types';
+import type {
   ApiAddressResponse,
   ApiProduct,
   Brand,
@@ -54,6 +61,13 @@ type _PaginationMatches = Expect<IsExactly<Required<Wire['Pagination']>, Paginat
 // ---------------------------------------------------------------------------
 type _UserSatisfiesClient = Expect<IsAssignable<Wire['User'], User>>;
 
+// The client's role/permission vocabularies must match the documented enums
+// exactly, so a role or permission added on either side fails the build.
+type _StaffRoleMatches = Expect<IsExactly<Wire['Role'], StaffRole>>;
+type _PermissionMatches = Expect<IsExactly<Wire['Permission'], AdminPermission>>;
+type _StaffMemberMatches = Expect<IsExactly<Required<Wire['StaffMember']>, StaffMember>>;
+type _RoleDefinitionMatches = Expect<IsExactly<Wire['RoleDefinition'], RoleDefinition>>;
+
 // ---------------------------------------------------------------------------
 // Catalog
 // ---------------------------------------------------------------------------
@@ -80,6 +94,15 @@ type _CartItemMatches = Expect<IsExactly<Required<Wire['CartItem']>, Required<Ca
 type _AddressSatisfiesClient = Expect<
   IsAssignable<Wire['Address'], Omit<ApiAddressResponse, 'createdAt' | 'updatedAt'>>
 >;
+
+// ---------------------------------------------------------------------------
+// Product alerts
+//
+// The wire payload is camelCase and parsed as-is (no mapper), so the key sets
+// must match exactly: a renamed field would otherwise parse to a zod error or
+// silently fall back.
+// ---------------------------------------------------------------------------
+type _AlertSubscriptionMatches = Expect<IsExactly<Wire['AlertSubscription'], AlertSubscription>>;
 
 // A named export keeps this a module rather than a global script, and gives the
 // file a reason to be imported by the type-only barrel below.

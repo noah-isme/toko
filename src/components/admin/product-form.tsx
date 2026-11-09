@@ -11,6 +11,8 @@ import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { nextThumbnail, ProductImagesField } from '@/components/admin/product-images-field';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,8 +30,10 @@ import { useAdminBrands, useAdminCategories } from '@/entities/admin/hooks';
 import type {
   AdminProductDetail,
   AdminProductInput,
+  AdminProductStatus,
   AdminProductVariantInput,
 } from '@/entities/admin/types';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 
 /** Mirrors the backend `slugify` closely enough for a form default. */
 export function slugify(value: string): string {
@@ -42,6 +46,9 @@ export function slugify(value: string): string {
 
 /** Sentinel for "no category/brand", since Radix Select cannot hold an empty value. */
 const NONE = '__none__';
+
+const PRODUCT_STATUSES: AdminProductStatus[] = ['published', 'draft', 'archived'];
+const MAX_LOW_STOCK_THRESHOLD = 1_000_000;
 
 interface SpecRow {
   key: string;
@@ -69,6 +76,9 @@ export interface ProductFormValues {
   description: string;
   categoryId: string;
   brandId: string;
+  status: AdminProductStatus;
+  /** Empty means "use the store default". */
+  lowStockThreshold: string;
   images: string[];
   specs: SpecRow[];
   variants: VariantRow[];
@@ -85,6 +95,8 @@ const EMPTY_VALUES: ProductFormValues = {
   description: '',
   categoryId: NONE,
   brandId: NONE,
+  status: 'published',
+  lowStockThreshold: '',
   images: [],
   specs: [],
   variants: [],
@@ -102,6 +114,8 @@ export function productToFormValues(product: AdminProductDetail): ProductFormVal
     description: product.description ?? '',
     categoryId: product.categoryId ?? NONE,
     brandId: product.brandId ?? NONE,
+    status: product.status ?? 'published',
+    lowStockThreshold: product.lowStockThreshold == null ? '' : String(product.lowStockThreshold),
     images: product.images.map((image) => image.url),
     specs: product.specs.map((spec) => ({ key: spec.key, value: spec.value })),
     variants: product.variants.map((variant) => ({
@@ -120,6 +134,12 @@ export class VariantAttributesError extends Error {
     super(`Variant ${index}: attributes must be a JSON object`);
     this.name = 'VariantAttributesError';
   }
+}
+
+/** True when the threshold field is empty or a whole number in 0..1000000. */
+export function isValidLowStockThreshold(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed === '' || (/^\d+$/.test(trimmed) && Number(trimmed) <= MAX_LOW_STOCK_THRESHOLD);
 }
 
 /** Throws `VariantAttributesError` when a variant carries unparseable JSON attributes. */
@@ -161,6 +181,10 @@ export function formValuesToInput(values: ProductFormValues): AdminProductInput 
     description: values.description.trim() || null,
     categoryId: values.categoryId === NONE ? null : values.categoryId,
     brandId: values.brandId === NONE ? null : values.brandId,
+    status: values.status,
+    // Empty clears the override (null), so the store default applies.
+    lowStockThreshold:
+      values.lowStockThreshold.trim() === '' ? null : Number(values.lowStockThreshold.trim()),
     images: values.images.map((url) => url.trim()).filter(Boolean),
     specs: values.specs
       .map((spec) => ({ key: spec.key.trim(), value: spec.value.trim() }))
@@ -173,7 +197,8 @@ export interface ProductFormProps {
   initialValues?: ProductFormValues;
   submitLabel: string;
   saving: boolean;
-  onSubmit: (input: AdminProductInput) => void | Promise<void>;
+  /** Resolve `true` once the product is saved, so the unsaved-changes guard stands down. */
+  onSubmit: (input: AdminProductInput) => boolean | void | Promise<boolean | void>;
   onError: (message: string) => void;
   onCancel: () => void;
 }
@@ -187,8 +212,12 @@ export function ProductForm({
   onCancel,
 }: ProductFormProps) {
   const t = useTranslations('admin.productForm');
+  const tStatus = useTranslations('admin.catalog.status');
   const tCommon = useTranslations('admin.common');
   const [values, setValues] = useState<ProductFormValues>(initialValues ?? EMPTY_VALUES);
+  /** Last saved (or initial) values; the guard compares against these. */
+  const [baseline, setBaseline] = useState<ProductFormValues>(values);
+  const guard = useUnsavedChangesGuard(isFormDirty(values, baseline));
   // Once the slug is hand-edited, stop deriving it from the title.
   const [slugTouched, setSlugTouched] = useState(Boolean(initialValues?.slug));
 
@@ -205,6 +234,10 @@ export function ProductForm({
       onError(t('errors.titleRequired'));
       return;
     }
+    if (!isValidLowStockThreshold(values.lowStockThreshold)) {
+      onError(t('errors.lowStockThreshold'));
+      return;
+    }
     let input: AdminProductInput;
     try {
       input = formValuesToInput(values);
@@ -216,7 +249,8 @@ export function ProductForm({
       );
       return;
     }
-    await onSubmit(input);
+    const saved = await onSubmit(input);
+    if (saved === true) setBaseline(values);
   };
 
   return (
@@ -339,6 +373,47 @@ export function ProductForm({
               />
               <p className="text-xs text-muted-foreground">{t('badgesHint')}</p>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="product-status">{t('status')}</Label>
+              <Select
+                value={values.status}
+                onValueChange={(value) => update('status', value as AdminProductStatus)}
+              >
+                <SelectTrigger
+                  id="product-status"
+                  data-testid="product-form-status"
+                  aria-describedby="product-status-hint"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRODUCT_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {tStatus(status)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p id="product-status-hint" className="text-xs text-muted-foreground">
+                {t('statusHint')}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="product-low-stock">{t('lowStockThreshold')}</Label>
+              <Input
+                id="product-low-stock"
+                data-testid="product-form-low-stock"
+                inputMode="numeric"
+                value={values.lowStockThreshold}
+                onChange={(event) => update('lowStockThreshold', event.target.value)}
+                placeholder={t('lowStockPlaceholder')}
+                aria-invalid={!isValidLowStockThreshold(values.lowStockThreshold) || undefined}
+                aria-describedby="product-low-stock-hint"
+              />
+              <p id="product-low-stock-hint" className="text-xs text-muted-foreground">
+                {t('lowStockHint')}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -365,54 +440,22 @@ export function ProductForm({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{t('images')}</CardTitle>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => update('images', [...values.images, ''])}
-          >
-            <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            {t('addImage')}
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {values.images.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('noImages')}</p>
-          ) : (
-            values.images.map((url, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <Input
-                  value={url}
-                  onChange={(event) => {
-                    const next = [...values.images];
-                    next[index] = event.target.value;
-                    update('images', next);
-                  }}
-                  placeholder="https://..."
-                  aria-label={t('imageUrl', { index: index + 1 })}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('removeImage', { index: index + 1 })}
-                  onClick={() =>
-                    update(
-                      'images',
-                      values.images.filter((_, i) => i !== index),
-                    )
-                  }
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <ProductImagesField
+        images={values.images}
+        thumbnail={values.thumbnail}
+        onChange={(images, reason, editBase) =>
+          setValues((current) => ({
+            ...current,
+            images,
+            thumbnail: nextThumbnail(
+              editBase?.thumbnail ?? current.thumbnail,
+              editBase?.images ?? current.images,
+              images,
+              reason,
+            ),
+          }))
+        }
+      />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -586,10 +629,16 @@ export function ProductForm({
           )}
           {submitLabel}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => guard.confirmNavigation(onCancel)}
+          disabled={saving}
+        >
           {tCommon('cancel')}
         </Button>
       </div>
+      <UnsavedChangesDialog guard={guard} />
     </form>
   );
 }

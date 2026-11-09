@@ -1,16 +1,23 @@
 'use client';
 
+import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useState } from 'react';
 
 import { Price } from '@/components/price';
-import { ProductImageGallery } from '@/components/product-image-gallery';
+import { galleryImages, ProductImageGallery } from '@/components/product-image-gallery';
 import { ProductRecommendations } from '@/components/product-recommendations';
+import { ProductStickyAddToCart } from '@/components/product-sticky-add-to-cart';
 import { Rating } from '@/components/rating';
 import { SocialShare } from '@/components/social-share';
+import { isTargetSellable } from '@/entities/alerts/sellable';
+import { BackInStockAlert } from '@/entities/alerts/ui/BackInStockAlert';
 import { useAddToCartMutation } from '@/entities/cart/hooks';
 import { useProduct } from '@/entities/catalog/hooks';
 import { FavToggle } from '@/entities/favorites/ui/FavToggle';
+import { useIsOffScreen } from '@/hooks/use-is-off-screen';
+import type { ProductVariant } from '@/lib/api/types';
+import { cn } from '@/lib/utils';
 import { normalizeError } from '@/shared/lib/normalizeError';
 import { GuardedButton } from '@/shared/ui/GuardedButton';
 import { ProductDetailSkeleton } from '@/shared/ui/skeletons/ProductDetailSkeleton';
@@ -22,6 +29,13 @@ interface ProductDetailProps {
   slug: string;
 }
 
+/** Variants at or below this stock show an "Only N left" emphasis. */
+export const LOW_STOCK_THRESHOLD = 5;
+
+function variantLabel(variant: ProductVariant) {
+  return Object.values(variant.attributes).join(' / ') || variant.sku || variant.id;
+}
+
 function ProductDetailContent({ slug }: ProductDetailProps) {
   const t = useTranslations('product.detail');
   const { toast: pushToast } = useToast();
@@ -29,6 +43,9 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const { mutate, isProductInFlight } = useAddToCartMutation();
   const { cartId } = useCartStore();
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [addToCartElement, setAddToCartElement] = useState<HTMLDivElement | null>(null);
+  const [variantPickerElement, setVariantPickerElement] = useState<HTMLDivElement | null>(null);
+  const isAddToCartOffScreen = useIsOffScreen(addToCartElement);
 
   useEffect(() => {
     if (!error) {
@@ -62,7 +79,37 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
   const selectedVariant = variants.find((variant) => variant.id === activeVariantId);
   const availableStock = selectedVariant?.stock ?? data.stock;
   const displayPrice = selectedVariant?.price ?? data.price;
-  const isOutOfStock = !data.inStock || availableStock <= 0;
+  // Same rule as the cart and the alerts API: a variant is sellable when its
+  // stock is above zero, a product without variants when it is in stock.
+  const isSellable = isTargetSellable(data, selectedVariant);
+  const isOutOfStock = !isSellable || availableStock <= 0;
+  // With several buyable variants and no explicit pick, the sticky bar leads to the picker instead
+  // of silently adding the default variant the shopper may never have seen.
+  const needsVariantChoice =
+    selectedVariantId === null && variants.filter((variant) => variant.stock > 0).length > 1;
+  // Until a variant is picked, the bar must not show the default variant's price as if chosen:
+  // when buyable variants differ in price it shows the lowest one as "From ...".
+  const buyablePrices = needsVariantChoice
+    ? variants.filter((variant) => variant.stock > 0).map((variant) => variant.price)
+    : [];
+  const stickyFromPrice =
+    buyablePrices.length > 0 && Math.min(...buyablePrices) !== Math.max(...buyablePrices)
+      ? Math.min(...buyablePrices)
+      : null;
+
+  const showVariantPicker = () => {
+    if (!variantPickerElement) return;
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    variantPickerElement.scrollIntoView?.({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'center',
+    });
+    variantPickerElement
+      .querySelector<HTMLButtonElement>('button[aria-pressed="true"], button:not([data-state="sold-out"])')
+      ?.focus({ preventScroll: true });
+  };
 
   const handleAddToCart = async () => {
     // Ensure cart exists before adding
@@ -92,7 +139,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] lg:gap-14">
         <div className="space-y-4">
           <ProductImageGallery
-            images={data.imageUrl ? [data.imageUrl, ...(data.images || [])] : data.images || []}
+            images={galleryImages(data.imageUrl, data.images)}
             productName={data.title}
           />
           <div className="flex gap-2 text-sm text-muted-foreground">
@@ -144,29 +191,56 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             image={data.imageUrl || (data.images && data.images[0])}
           />
           {variants.length > 0 && (
-            <div className="space-y-2" aria-label={t('variants.label')}>
+            <div
+              ref={setVariantPickerElement}
+              className="space-y-2"
+              aria-label={t('variants.label')}
+            >
               <p className="text-sm font-semibold">{t('variants.label')}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {variants.map((variant) => {
-                  const label =
-                    Object.values(variant.attributes).join(' / ') || variant.sku || variant.id;
+                  const label = variantLabel(variant);
+                  const isSelected = activeVariantId === variant.id;
+                  const isSoldOut = variant.stock <= 0;
+                  const isLowStock = !isSoldOut && variant.stock <= LOW_STOCK_THRESHOLD;
                   return (
                     <button
                       key={variant.id}
                       type="button"
-                      disabled={variant.stock <= 0}
+                      aria-pressed={isSelected}
+                      // Sold-out variants stay selectable so shoppers can ask to be notified.
+                      data-state={isSelected ? 'selected' : isSoldOut ? 'sold-out' : 'idle'}
                       onClick={() => setSelectedVariantId(variant.id)}
-                      className={`rounded-xl border px-3 py-3 text-left text-sm transition ${
-                        activeVariantId === variant.id
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border hover:border-primary/60'
-                      } ${variant.stock <= 0 ? 'cursor-not-allowed opacity-45' : ''}`}
+                      className={cn(
+                        'relative rounded-xl border px-3 py-3 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                        isSelected
+                          ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                          : 'border-border hover:border-primary/60',
+                        isSoldOut && 'border-dashed bg-muted/60 text-muted-foreground',
+                      )}
                     >
-                      <span className="block font-medium">{label}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {variant.stock > 0
-                          ? t('variants.available', { count: variant.stock })
-                          : t('variants.soldOut')}
+                      {isSelected ? (
+                        <Check
+                          aria-hidden="true"
+                          className="absolute right-3 top-3 h-4 w-4 text-primary"
+                        />
+                      ) : null}
+                      <span className={cn('block pr-6 font-medium', isSoldOut && 'line-through')}>
+                        {label}
+                      </span>
+                      <span
+                        className={cn(
+                          'text-xs',
+                          isLowStock
+                            ? 'font-semibold text-amber-700 dark:text-amber-400'
+                            : 'text-muted-foreground',
+                        )}
+                      >
+                        {isSoldOut
+                          ? t('variants.soldOut')
+                          : isLowStock
+                            ? t('variants.lowStock', { count: variant.stock })
+                            : t('variants.available', { count: variant.stock })}
                       </span>
                     </button>
                   );
@@ -174,7 +248,7 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
               </div>
             </div>
           )}
-          <div className="space-y-2">
+          <div ref={setAddToCartElement} className="space-y-2">
             <GuardedButton
               data-testid="add-to-cart"
               size="lg"
@@ -186,12 +260,36 @@ function ProductDetailContent({ slug }: ProductDetailProps) {
             >
               {isOutOfStock ? t('outOfStock') : t('addToCart')}
             </GuardedButton>
+            {!isSellable ? (
+              <BackInStockAlert
+                productId={data.id}
+                productSlug={slug}
+                variantId={selectedVariant?.id ?? null}
+              />
+            ) : null}
           </div>
         </div>
       </div>
       <Suspense fallback={<div className="h-48 animate-pulse rounded-xl bg-muted" />}>
         <ProductRecommendations productId={data.id} />
       </Suspense>
+      {/* Keeps the end of the page clear of the fixed mobile add-to-cart bar. */}
+      <div aria-hidden="true" className="h-20 lg:hidden" />
+      {isAddToCartOffScreen ? (
+        <ProductStickyAddToCart
+          title={data.title}
+          price={stickyFromPrice ?? displayPrice}
+          isFromPrice={stickyFromPrice !== null}
+          currency={data.currency || 'IDR'}
+          variantLabel={
+            selectedVariant && !needsVariantChoice ? variantLabel(selectedVariant) : null
+          }
+          actionLabel={needsVariantChoice ? t('variants.label') : undefined}
+          isOutOfStock={isOutOfStock}
+          isLoading={isProductInFlight(data.id, activeVariantId)}
+          onAddToCart={needsVariantChoice ? showVariantPicker : handleAddToCart}
+        />
+      ) : null}
     </>
   );
 }

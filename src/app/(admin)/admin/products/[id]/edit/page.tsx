@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import { AdminError, AdminLoading, AdminPageHeader } from '@/components/admin/admin-ui';
 import { ProductForm, productToFormValues } from '@/components/admin/product-form';
 import { Button } from '@/components/ui/button';
@@ -20,22 +21,25 @@ export default function EditProductPage() {
   const t = useTranslations('admin.products');
   const tCommon = useTranslations('admin.common');
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
 
   const query = useAdminProduct(productId);
   const updateProduct = useUpdateAdminProduct();
 
-  const handleSubmit = async (input: AdminProductInput) => {
-    if (!productId) return;
+  const handleSubmit = async (input: AdminProductInput): Promise<boolean> => {
+    if (!productId) return false;
     try {
       await updateProduct.mutateAsync({ id: productId, data: input });
       toast({ title: t('toast.updated'), description: input.title, variant: 'success' });
       router.push('/admin/products' as never);
+      return true;
     } catch (error) {
       toast({
         title: t('toast.updateFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
+      return false;
     }
   };
 

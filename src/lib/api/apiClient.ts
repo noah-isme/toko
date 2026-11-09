@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { ApiError } from './types';
 
+import { parseContentDispositionFilename } from '@/lib/download';
 import { getApiBaseUrl, getPublicEnv } from '@/shared/config/env';
 
 // Environment variables are embedded into the Next.js bundle at build time.
@@ -182,15 +183,12 @@ async function refreshAccessToken(): Promise<string | null> {
   return newToken;
 }
 
-export async function apiClient<T>(path: string, options: ApiClientSchemaOptions<T>): Promise<T>;
-export async function apiClient<T = unknown>(
-  path: string,
-  options?: ApiClientBaseOptions,
-): Promise<T>;
-export async function apiClient<T = unknown>(
-  path: string,
-  options: ApiClientSchemaOptions<T> | ApiClientBaseOptions = {},
-): Promise<T> {
+/**
+ * The shared request pipeline: tenant header, bearer token, double-submit CSRF,
+ * one refresh on 401 and one CSRF retry on 403. Resolves with the successful
+ * `Response` (body unread) and throws the mapped error for any non-2xx.
+ */
+async function sendRequest(path: string, options: ApiClientBaseOptions = {}): Promise<Response> {
   const { headers, requiresAuth = false, ...init } = options;
   const isCsrfRetry = Boolean((options as Record<string, unknown>)._isCsrfRetry);
   const requestHeaders = new Headers(headers);
@@ -263,17 +261,31 @@ export async function apiClient<T = unknown>(
     const refreshedCsrf = await ensureCsrfToken(true);
     if (refreshedCsrf) {
       requestHeaders.set(CSRF_HEADER_NAME, refreshedCsrf);
-      return apiClient(path, {
+      return sendRequest(path, {
         ...options,
         _isCsrfRetry: true,
         headers: requestHeaders,
-      } as any);
+      } as ApiClientBaseOptions);
     }
   }
 
   if (!response.ok) {
     throw await createResponseError(response);
   }
+
+  return response;
+}
+
+export async function apiClient<T>(path: string, options: ApiClientSchemaOptions<T>): Promise<T>;
+export async function apiClient<T = unknown>(
+  path: string,
+  options?: ApiClientBaseOptions,
+): Promise<T>;
+export async function apiClient<T = unknown>(
+  path: string,
+  options: ApiClientSchemaOptions<T> | ApiClientBaseOptions = {},
+): Promise<T> {
+  const response = await sendRequest(path, options);
 
   if (response.status === 204) {
     return undefined as T;
@@ -286,6 +298,39 @@ export async function apiClient<T = unknown>(
 
   return data as T;
 }
+
+export interface ApiDownload {
+  blob: Blob;
+  /** From `Content-Disposition`; null when absent or not exposed to the page (CORS). */
+  filename: string | null;
+  /** The raw Content-Disposition header, or null when absent or not exposed by CORS. */
+  contentDisposition: string | null;
+}
+
+/**
+ * GETs a file (an invoice PDF, a CSV export) through the same auth, tenant,
+ * refresh and error pipeline as `apiClient`, returning the body untouched as a
+ * Blob. Error responses still carry the JSON error envelope and surface as
+ * `ApiClientError` / `AuthError`.
+ */
+export async function apiDownload(
+  path: string,
+  options: ApiClientBaseOptions & { accept?: string } = {},
+): Promise<ApiDownload> {
+  const { accept, headers, ...rest } = options;
+  const requestHeaders = new Headers(headers);
+  if (accept) requestHeaders.set('Accept', accept);
+  const response = await sendRequest(path, { ...rest, method: 'GET', headers: requestHeaders });
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get('Content-Disposition');
+  return {
+    blob,
+    filename: parseContentDispositionFilename(contentDisposition),
+    contentDisposition,
+  };
+}
+
+export { parseContentDispositionFilename };
 
 async function executeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   try {

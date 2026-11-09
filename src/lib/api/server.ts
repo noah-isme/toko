@@ -8,6 +8,9 @@ import { getPublicEnv } from '@/shared/config/env';
 /** Session id used for in-process mock calls: seed data only, no cart/admin state. */
 export const SSR_MOCK_SESSION = 'ssr';
 
+/** Upper bound for an SSR request to the API, including reading the body. */
+export const SERVER_API_TIMEOUT_MS = 10_000;
+
 export interface ServerApiGetOptions {
   searchParams?: URLSearchParams | Record<string, string | number | boolean | undefined>;
   /** Seconds for Next's data cache; `false`/omitted means `cache: 'no-store'`. */
@@ -78,25 +81,35 @@ export async function serverApiGet<T>(path: string, options: ServerApiGetOptions
   const headers = new Headers({ Accept: 'application/json' });
   if (tenantId) headers.set('X-Tenant-ID', tenantId);
 
-  const response = await fetch(
-    url,
-    typeof options.revalidate === 'number'
-      ? { headers, next: { revalidate: options.revalidate } }
-      : { headers, cache: 'no-store' },
-  );
+  try {
+    const signal = AbortSignal.timeout(SERVER_API_TIMEOUT_MS);
+    const response = await fetch(
+      url,
+      typeof options.revalidate === 'number'
+        ? { headers, next: { revalidate: options.revalidate }, signal }
+        : { headers, cache: 'no-store', signal },
+    );
 
-  if (!response.ok) {
-    let message = response.statusText || 'Request failed';
-    let code = 'UNKNOWN';
-    try {
-      const body = (await response.json()) as { error?: { message?: string; code?: string } };
-      message = body.error?.message ?? message;
-      code = body.error?.code ?? code;
-    } catch {
-      // Non-JSON error body: keep the status text.
+    if (!response.ok) {
+      let message = response.statusText || 'Request failed';
+      let code = 'UNKNOWN';
+      try {
+        const body = (await response.json()) as { error?: { message?: string; code?: string } };
+        message = body.error?.message ?? message;
+        code = body.error?.code ?? code;
+      } catch {
+        // Non-JSON error body: keep the status text.
+      }
+      throw new ApiClientError(message, code, response.status);
     }
-    throw new ApiClientError(message, code, response.status);
-  }
 
-  return (await response.json()) as T;
+    return (await response.json()) as T;
+  } catch (error) {
+    // Match by name: depending on the fetch implementation the abort surfaces
+    // as a DOMException or a plain Error.
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+      throw new ApiClientError('Upstream timeout', 'TIMEOUT', 504);
+    }
+    throw error;
+  }
 }

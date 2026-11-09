@@ -317,6 +317,120 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/logout/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke every session of the current user
+         * @description Revokes all refresh tokens of the authenticated user on every device and clears the refresh cookie on this response. Access tokens already issued stay valid until they expire.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description All sessions revoked; refresh cookie cleared */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing or invalid token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Not an active member of the current tenant (TENANT_FORBIDDEN) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the active sessions of the current user
+         * @description One entry per stored refresh-token session of the user, newest first. Expired sessions are only purged when they are next used, so they can still appear. `lastActive` is the session's creation time and `current` is always false today (the current session is not tracked). `location` is never set yet.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Active sessions */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["SessionInfo"][];
+                        };
+                    };
+                };
+                /** @description Missing or invalid token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Not an active member of the current tenant (TENANT_FORBIDDEN) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -968,17 +1082,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List products */
+        /**
+         * List products
+         * @description Lists products with filters, sorting and pagination. When `q` is set the search uses full-text matching (`simple` config, no stemming) over title and description; if that finds nothing and `q` has 3 to 64 characters, it falls back to typo-tolerant trigram matching on the title (`meta.searchMode = fuzzy`). When both find nothing, `meta.suggestions` offers up to 5 closest titles. Longer queries (65-200 characters) get full-text matching only. The fuzzy pass and suggestions run under a short server-side time limit; if it is exceeded the response is the (empty) full-text result with `searchMode = fts` and no suggestions, never an error. `include=facets` adds facet counts. `meta` is present only when `q` is non-empty and `facets` only when requested, so the response is unchanged for clients that send neither.
+         */
         get: {
             parameters: {
                 query?: {
+                    /** @description Search text (websearch syntax), trimmed. At most 200 characters (Unicode code points) after trimming; longer values return 400 with `error.details.field = "q"`. Typo-tolerant fallback and suggestions apply to 3-64 characters. */
                     q?: string;
                     category?: string;
                     brand?: string;
                     minPrice?: number;
                     maxPrice?: number;
                     inStock?: boolean;
-                    sort?: "price:asc" | "price:desc" | "title:asc" | "title:desc";
+                    /** @description Sort order. `popularity:desc` = units sold in paid orders of this tenant (PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED), recomputed by the worker every few minutes, so it can lag slightly. `rating:desc` = average review rating, ties broken by review count. Bare `popularity` / `rating` are aliases of the `:desc` forms. Unknown values fall back to the default order (relevance when `q` is set, otherwise newest first). */
+                    sort?: "price:asc" | "price:desc" | "title:asc" | "title:desc" | "popularity:desc" | "rating:desc" | "popularity" | "rating";
+                    /** @description Comma-separated extras. Only `facets` is recognised; any other token returns 400 with `details.field = "include"`. Empty tokens are ignored. */
+                    include?: string;
                     page?: number;
                     limit?: number;
                 };
@@ -997,7 +1118,18 @@ export interface paths {
                         "application/json": {
                             data?: components["schemas"]["ProductListItem"][];
                             pagination?: components["schemas"]["Pagination"];
+                            meta?: components["schemas"]["ProductSearchMeta"];
+                            facets?: components["schemas"]["ProductFacets"];
                         };
+                    };
+                };
+                /** @description Invalid filter (`q` longer than 200 characters, `page`, `limit`, `minPrice`, `maxPrice`, `price`, `inStock` or `include`); `error.details.field` names it. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
                     };
                 };
             };
@@ -1850,7 +1982,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get VAPID public key for web push */
+        /**
+         * Get VAPID public key for web push
+         * @description Returns the VAPID application server key (base64url, uncompressed P-256 point)
+         *     to pass as `applicationServerKey` to `PushManager.subscribe`. Both field
+         *     spellings carry the same value; clients should prefer `publicKey`.
+         *     Answers `503 PUSH_DISABLED` when the server has no VAPID keys configured;
+         *     clients should then hide or disable push UI.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1866,9 +2005,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            public_key: string;
-                        };
+                        "application/json": components["schemas"]["PushVapidKeyResponse"];
                     };
                 };
                 /** @description Unauthorized */
@@ -1876,12 +2013,138 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Web push is not configured on this server (`PUSH_DISABLED`). */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
             };
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/push/send-test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a test push notification to the caller
+         * @description Synchronously sends a test push (`{"title":"Notifikasi uji","body":"Push notification berfungsi.","tag":"test","data":{"url":"/account/notifications"}}`)
+         *     to every stored subscription of the authenticated user. Per-type
+         *     preferences are ignored (explicit debug action). Subscriptions that can
+         *     never receive a push are deleted and counted in `pruned`: the push
+         *     service answered 404/410, the stored endpoint is not https, or the
+         *     stored keys are unusable (`p256dh` not an uncompressed P-256 point,
+         *     `auth` not 16 bytes). Server-side failures (e.g. misconfigured VAPID
+         *     keys, or the push host resolving to an address the server's outbound
+         *     guard refuses) count as `failed` and never delete a subscription.
+         *     Rate-limited per user (default 5 calls per 60 seconds,
+         *     `RATE_LIMIT_PUSH_TEST_MAX` / `RATE_LIMIT_PUSH_TEST_WINDOW_SEC`).
+         *     No request body.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description At least one push service accepted the notification. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PushSendTestResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description The user has no stored subscription (`NO_SUBSCRIPTION`); subscribe first. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Rate limit exceeded. Carries `Retry-After` and `X-RateLimit-*` headers. */
+                429: {
+                    headers: {
+                        /** @description Seconds until the next call is allowed. */
+                        "Retry-After"?: number;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                    };
+                };
+                /**
+                 * @description Subscriptions could not be loaded (`PUSH_SEND_FAILED`, no details), or
+                 *     the token's user id is not a UUID (`INVALID_USER_ID`).
+                 */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /**
+                 * @description No push service accepted the notification (`PUSH_SEND_FAILED`).
+                 *     `error.details` is `{ "sent": 0, "failed": <int>, "pruned": <int> }`
+                 *     with the same meaning as in the 200 response (`pruned` subscriptions
+                 *     were deleted: 404/410, non-https endpoint or unusable keys;
+                 *     `failed` ones were kept).
+                 */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Web push is not configured on this server (`PUSH_DISABLED`). */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1897,7 +2160,19 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Subscribe to web push notifications */
+        /**
+         * Subscribe to web push notifications
+         * @description Stores (upserts) a browser push subscription for the authenticated user.
+         *     The endpoint must be an absolute `https://` URL without credentials whose
+         *     host is a DNS name (no IP literals) of a known push service. Default
+         *     allowlist: `fcm.googleapis.com`, `*.push.services.mozilla.com`,
+         *     `*.notify.windows.com`, `web.push.apple.com`, `*.push.apple.com`
+         *     (operators extend it with `PUSH_ENDPOINT_ALLOWED_HOSTS`). `endpoint` is
+         *     limited to 2048 bytes and each key to 512 bytes. At most
+         *     `PUSH_MAX_SUBSCRIPTIONS_PER_USER` (default 10) subscriptions are kept per
+         *     user; subscribing another endpoint silently evicts the one least
+         *     recently (re)subscribed.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1929,12 +2204,20 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Missing fields */
+                /**
+                 * @description `MISSING_FIELDS` (endpoint or keys empty), `INVALID_BODY` (malformed JSON,
+                 *     endpoint > 2048 bytes or a key > 512 bytes) or `INVALID_ENDPOINT`
+                 *     (endpoint is not an https URL of an allowlisted push service;
+                 *     `error.details` is the validation reason, e.g.
+                 *     `push: invalid subscription endpoint: scheme must be https`).
+                 */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
                 /** @description Unauthorized */
                 401: {
@@ -1942,6 +2225,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Storing the subscription failed (`SUBSCRIBE_FAILED`). */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
             };
         };
@@ -2220,6 +2512,220 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my product alert subscriptions
+         * @description Returns the caller's back-in-stock / price-drop subscriptions in the active tenant, newest first. Prices are whole currency units (rupiah).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    /** @description Clamped to 100 */
+                    limit?: number;
+                    /** @description Optional filter to one product */
+                    productId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Paginated subscriptions */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlertListResponse"];
+                    };
+                };
+                /** @description Invalid productId (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Subscribe to (or re-arm) a product alert
+         * @description Creates a BACK_IN_STOCK or PRICE_DROP subscription for a product or one of its variants. Posting again for the same (product, variant, type) re-arms it (status active, notifiedAt null, priceAtSubscribe refreshed for PRICE_DROP) and returns 200. BACK_IN_STOCK is rejected with 409 ALREADY_IN_STOCK while the target is sellable, using the cart rule (variant: stock > 0; product-level: inStock). Alerts fire once, delivered as an in-app notification (type back_in_stock / price_drop) and a queued, retried email; they are never sent to webhooks.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AlertSubscribeRequest"];
+                };
+            };
+            responses: {
+                /** @description Existing subscription re-armed */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlertSubscriptionResponse"];
+                    };
+                };
+                /** @description Subscription created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlertSubscriptionResponse"];
+                    };
+                };
+                /** @description Invalid payload, ids or type (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Product not in tenant or variant not of product (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description BACK_IN_STOCK requested while the target is sellable (ALREADY_IN_STOCK) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/alerts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete one of my product alert subscriptions */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Subscription ID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid id (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not found for this user in this tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/carts": {
         parameters: {
             query?: never;
@@ -2257,7 +2763,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2348,7 +2857,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
                 path: {
                     id: string;
                 };
@@ -2371,7 +2883,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Validation failed */
+                /** @description Validation failed, including "product is not available" for draft or archived products */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -2479,16 +2991,60 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Apply voucher */
+        /**
+         * Apply voucher
+         * @description Vouchers belong to one tenant. A code that belongs to another tenant is treated exactly like an unknown code (404).
+         */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: string;
+                };
                 cookie?: never;
             };
-            requestBody?: never;
-            responses: never;
+            requestBody: {
+                content: {
+                    "application/json": {
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Voucher applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                /** Format: int64 */
+                                discount?: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Invalid payload, or the voucher is not active, expired, used up or below minimum spend (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Cart not found, or voucher code unknown or owned by another tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
         };
         delete?: never;
         options?: never;
@@ -2618,7 +3174,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2653,6 +3212,24 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /**
+                 * @description `PRODUCT_UNAVAILABLE`: a cart line's product was set to draft or
+                 *     archived (or deleted) after it was added. Nothing is reserved or
+                 *     ordered. `details: {productId, slug}`.
+                 *
+                 *     `CONFLICT`: the checkout lost a row-lock race (deadlock, lock
+                 *     timeout or serialization failure) with another checkout or an
+                 *     admin catalog write. Nothing was committed; retry the request.
+                 *     `details: {retryable: true}`.
+                 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
                 /** @description Address not found, cart empty, or tenant missing */
                 500: {
                     headers: {
@@ -2681,7 +3258,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2838,16 +3418,73 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cancel order if pending */
+        /**
+         * Cancel order if pending
+         * @description Runs under the order row lock with the status guard; only pending_payment orders can be cancelled (expired, paid or cancelled orders return 400 INVALID_STATE).
+         */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
-                path?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
+                path: {
+                    orderId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
-            responses: never;
+            responses: {
+                /** @description Order cancelled */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `INVALID_STATE` when the order is not `pending_payment` (only pending orders can be cancelled), or `BAD_REQUEST` for an invalid order or user id. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `NOT_FOUND`: no order with this id for the current user. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description `IDEMPOTENT_REPLAY`: the same `Idempotency-Key` was used within the TTL and the first response was not a 5xx. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
         };
         delete?: never;
         options?: never;
@@ -2872,6 +3509,92 @@ export interface paths {
             };
             requestBody?: never;
             responses: never;
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{orderId}/invoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download invoice PDF for my order
+         * @description Order owner only, tenant-scoped. A number (INV-YYYY-NNNNNN, per-tenant counter, year in tenant timezone) is assigned on first download and never changes. New invoices require status PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED; an already issued invoice stays downloadable. Amounts are whole rupiah.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    orderId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Invoice PDF (attachment) */
+                200: {
+                    headers: {
+                        /** @description attachment; filename="INV-YYYY-NNNNNN.pdf" */
+                        "Content-Disposition"?: string;
+                        /** @description private, no-store */
+                        "Cache-Control"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": string;
+                    };
+                };
+                /** @description Invalid order id (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Order not found, not owned by caller, or other tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Order not paid yet / cancelled and no invoice issued (INVOICE_NOT_AVAILABLE) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
         };
         put?: never;
         post?: never;
@@ -3057,7 +3780,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/api/v1/admin/vouchers": {
+    "/api/v1/admin/orders/{id}/confirm-payment": {
         parameters: {
             query?: never;
             header?: never;
@@ -3065,6 +3788,167 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        put?: never;
+        /**
+         * Confirm a manual payment (admin)
+         * @description Settles a PENDING_PAYMENT order after an admin verified a manual bank transfer, exactly like a
+         *     provider PAID callback under the order row lock: latest payment PAID (a "manual" payment is
+         *     created when none exists) with a payment_events row {source: admin, reason: manual_confirmation,
+         *     actorId, note}, order PAID via the status guard, reservations and flash-sale quota committed,
+         *     voucher settled, order.paid emitted. Admin role required; audit-logged. Tenant-scoped.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Order ID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminConfirmPaymentRequest"];
+                };
+            };
+            responses: {
+                /** @description Payment confirmed and order settled */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminConfirmPaymentResponse"];
+                        };
+                    };
+                };
+                /** @description BAD_REQUEST (invalid id or payload), VALIDATION_ERROR (note too long) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Order not found in the caller's tenant */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description INVALID_STATE - the order is not PENDING_PAYMENT (paid, cancelled or expired) or its latest payment was refunded */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/vouchers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List vouchers (admin)
+         * @description Paginated voucher list for the current tenant.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    limit?: number;
+                    /** @description Match on voucher code */
+                    search?: string;
+                    /** @description Discount kind filter */
+                    kind?: "fixed_amount" | "percent";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Voucher page */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminVoucher"][];
+                            pagination: components["schemas"]["Pagination"];
+                        };
+                    };
+                };
+                /** @description Invalid kind filter (`BAD_REQUEST`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         put?: never;
         /**
          * Create voucher
@@ -3115,7 +3999,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Voucher code already exists */
+                /** @description This tenant already has a voucher with this code (`CONFLICT`). Codes are unique per tenant; another tenant's codes never conflict. */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3214,7 +4098,72 @@ export interface paths {
             };
         };
         post?: never;
-        delete?: never;
+        /**
+         * Delete voucher (admin)
+         * @description Deletes an unused voucher of the current tenant.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    code: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Voucher deleted */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing code (`BAD_REQUEST`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Voucher not found in this tenant (`NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Voucher has been used and cannot be deleted (`CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -3302,7 +4251,7 @@ export interface paths {
         };
         /**
          * List webhook endpoints
-         * @description Returns configured webhook endpoints.
+         * @description Returns the request tenant's webhook endpoints (never another tenant's). Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3355,7 +4304,21 @@ export interface paths {
         put?: never;
         /**
          * Create webhook endpoint
-         * @description Registers a new webhook endpoint.
+         * @description Registers a new webhook endpoint. Catalog topics `product.price_changed`,
+         *     `product.stock_changed` and `product.status_changed` (payload
+         *     `{tenantId, productId, slug?, variantId?, sku?, field, old, new,
+         *     source: single|bulk|import, requestId, actorUserId?}`) are delivered
+         *     only to endpoints of the emitting tenant. Order, payment and shipment
+         *     events are stamped with the emitting request's tenant (the payment
+         *     webhook uses the order's tenant) and are likewise delivered only to
+         *     that tenant's endpoints; an event without a tenant reaches none.
+         *
+         *     The endpoint belongs to the request's tenant (`tenant_id` is set from
+         *     the resolved tenant, never from the body), so it receives exactly that
+         *     tenant's events. List, update and delete only ever see the request
+         *     tenant's endpoints.
+         *
+         *     Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         post: {
             parameters: {
@@ -3425,7 +4388,7 @@ export interface paths {
         get?: never;
         /**
          * Update webhook endpoint
-         * @description Updates the webhook endpoint identified by id.
+         * @description Updates the request tenant's webhook endpoint identified by id; an endpoint of another tenant is `404 NOT_FOUND`. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         put: {
             parameters: {
@@ -3473,7 +4436,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Endpoint not found */
+                /** @description Endpoint not found, or owned by another tenant (NOT_FOUND) */
                 404: {
                     headers: {
                         [name: string]: unknown;
@@ -3492,7 +4455,7 @@ export interface paths {
         post?: never;
         /**
          * Delete webhook endpoint
-         * @description Removes the webhook endpoint identified by id.
+         * @description Removes the request tenant's webhook endpoint identified by id; an unknown id or an endpoint of another tenant is `404 NOT_FOUND` and nothing is deleted. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         delete: {
             parameters: {
@@ -3534,7 +4497,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Endpoint not found */
+                /** @description Endpoint not found, or owned by another tenant (NOT_FOUND) */
                 404: {
                     headers: {
                         [name: string]: unknown;
@@ -3564,7 +4527,7 @@ export interface paths {
         };
         /**
          * List webhook deliveries
-         * @description Returns webhook delivery attempts with optional filtering.
+         * @description Returns webhook delivery attempts with optional filtering. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3640,7 +4603,7 @@ export interface paths {
         put?: never;
         /**
          * Replay a webhook delivery
-         * @description Resets the delivery for retry and releases any related DLQ lock.
+         * @description Resets the delivery for retry and releases any related DLQ lock. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         post: {
             parameters: {
@@ -3715,7 +4678,7 @@ export interface paths {
         };
         /**
          * List dead-letter queue items
-         * @description Returns DLQ entries filtered by kind with pagination.
+         * @description Returns DLQ entries filtered by kind with pagination. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3784,7 +4747,7 @@ export interface paths {
         put?: never;
         /**
          * Replay DLQ items
-         * @description Re-enqueues DLQ entries either by ID list or by batch kind.
+         * @description Re-enqueues DLQ entries either by ID list or by batch kind. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         post: {
             parameters: {
@@ -3853,7 +4816,7 @@ export interface paths {
         };
         /**
          * Queue depth and DLQ metrics
-         * @description Returns queue depth, in-flight count, DLQ size, and oldest lag for a given queue kind.
+         * @description Returns queue depth, in-flight count, DLQ size, and oldest lag for a given queue kind. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3923,7 +4886,7 @@ export interface paths {
         };
         /**
          * List audit logs (admin)
-         * @description Returns a paginated list of audit logs.
+         * @description Returns a paginated list of audit logs. Requires the global `admin` role (`users.roles`); not granted by any tenant role.
          */
         get: {
             parameters: {
@@ -3988,7 +4951,7 @@ export interface paths {
         };
         /**
          * Sales trend (daily)
-         * @description Returns daily sales aggregates for the requested date range. Range is inclusive of `from` and exclusive of `to`.
+         * @description Returns daily sales aggregates for the requested date range, bucketed by tenant-local day (tenants.timezone). Range is inclusive of `from` and exclusive of `to`. When `from`/`to` are omitted the `days` window ends at the next tenant-local midnight. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md. Requires a staff role with `analytics:read`.
          */
         get: {
             parameters: {
@@ -4003,7 +4966,7 @@ export interface paths {
                      * @example 2025-12-01T00:00:00Z
                      */
                     to?: string;
-                    /** @description Number of days to look back when from/to are omitted */
+                    /** @description Number of whole tenant-local days to look back when from/to are omitted */
                     days?: number;
                 };
                 header?: never;
@@ -4023,7 +4986,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid date range */
+                /** @description Invalid date range or missing tenant (TENANT_REQUIRED) */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -4037,7 +5000,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Forbidden (admin required) */
+                /** @description Forbidden (not staff or missing the x-permission) */
                 403: {
                     headers: {
                         [name: string]: unknown;
@@ -4070,15 +5033,19 @@ export interface paths {
         };
         /**
          * Top products by qty
-         * @description Returns top-selling products ordered by quantity sold.
+         * @description Returns the tenant's top-selling products ordered by quantity sold (all time unless `from`/`to` are given). Item-level gross: sums order_items.subtotal of orders matching the revenue rule (partially refunded orders keep their full item value, fully refunded orders are excluded). Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md. Requires a staff role with `analytics:read`.
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description Number of items to return */
+                    /** @description Number of items to return (values above 100 are clamped) */
                     limit?: number;
                     /** @description Number of items to skip */
                     offset?: number;
+                    /** @description Optional inclusive lower bound on order created_at (RFC3339) */
+                    from?: string;
+                    /** @description Optional exclusive upper bound on order created_at (RFC3339); must be after `from` */
+                    to?: string;
                 };
                 header?: never;
                 path?: never;
@@ -4097,6 +5064,13 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Invalid range or missing tenant (TENANT_REQUIRED) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
                 /** @description Unauthorized */
                 401: {
                     headers: {
@@ -4104,7 +5078,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Forbidden (admin required) */
+                /** @description Forbidden (not staff or missing the x-permission) */
                 403: {
                     headers: {
                         [name: string]: unknown;
@@ -4137,11 +5111,15 @@ export interface paths {
         };
         /**
          * Overview for dashboard
-         * @description Aggregated order and revenue metrics for the requested date range.
+         * @description Aggregated order and revenue metrics for the requested date range (sum of /analytics/sales rows). Default window is `days` (default 30) whole tenant-local days. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md. Requires a staff role with `analytics:read`.
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    days?: number;
+                    from?: string;
+                    to?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -4361,7 +5339,54 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List flash-sale campaigns */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Campaign page (each campaign includes its items) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["FlashSaleCampaign"][];
+                            pagination: components["schemas"]["Pagination"];
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         put?: never;
         /** Create a flash-sale campaign */
         post: {
@@ -4385,6 +5410,7 @@ export interface paths {
                             /** Format: uuid */
                             productId: string;
                             salePrice: number;
+                            /** @description null or absent means unlimited; 0 is rejected with 400 */
                             stockLimit?: number | null;
                         }[];
                     };
@@ -4413,7 +5439,59 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get a flash-sale campaign */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The campaign with all its items */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["FlashSaleCampaign"];
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Campaign not found for this tenant (`NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         put?: never;
         post?: never;
         delete?: never;
@@ -4493,7 +5571,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -4534,6 +5615,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description INVALID_STATE - the order is no longer pending_payment (expired, cancelled or paid), including when that happened during the provider call */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
                 /** @description Payment provider error */
                 500: {
@@ -4595,7 +5685,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Upload payment proof */
+        /**
+         * Upload payment proof
+         * @description Stores a transfer proof for a pending_payment order. A proof keeps the order from expiring for
+         *     JOB_CHECKOUT_PROOF_HOLD_HOURS (default 72h) counted from the first proof, so an admin can confirm it.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -4616,6 +5710,43 @@ export interface paths {
             responses: {
                 /** @description Payment proof stored */
                 201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing file or file larger than 5 MB */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Order not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INVALID_STATE - payment proof can only be uploaded for pending orders */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -4775,6 +5906,10 @@ export interface paths {
         /**
          * Payment webhook receiver
          * @description Payment provider callback that verifies the provider signature and updates the order payment status. Request body and signature header are provider-specific.
+         *     Locks the order first; payment rows and events change only on real state transitions (idempotent retries).
+         *     A PAID callback for an EXPIRED/CANCELLED order records the payment as PAID, leaves the order unchanged,
+         *     emits the ops-only payment.late event and returns 204. Provider EXPIRED moves a pending order to EXPIRED.
+         *     The replay key is kept only for successful (2xx) requests.
          */
         post: {
             parameters: {
@@ -4795,14 +5930,14 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description Webhook processed */
-                200: {
+                /** @description Webhook processed (including no-op duplicates and late payments) */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Invalid body or order identifier */
+                /** @description Invalid body, order identifier or amount mismatch */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -4816,14 +5951,14 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Provider not supported or payment not found */
+                /** @description Provider not supported, order not found or payment not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Duplicate webhook or amount mismatch */
+                /** @description Duplicate webhook (REPLAY) */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5095,6 +6230,22 @@ export interface paths {
                     /** @description Brand slug filter */
                     brand?: string;
                     inStock?: boolean;
+                    /**
+                     * @description `field[:asc|desc]` with field `name|price|stock|created|updated`.
+                     *     Bare `name|price|stock` sort ascending, bare `created|updated`
+                     *     descending. Default `created:desc` (the previous fixed order).
+                     *     `stock` is the sum of variant stock. Unknown values return 400.
+                     */
+                    sort?: string;
+                    /** @description Product status filter (omit for all) */
+                    status?: "draft" | "published" | "archived";
+                    /**
+                     * @description Product-level stock status (see AdminProduct.stockStatus): `out` when
+                     *     the summed variant stock is 0, `low` when it is at most the effective
+                     *     low-stock threshold, `in` otherwise. A product without variants
+                     *     follows its inStock flag.
+                     */
+                    stockStatus?: "in" | "low" | "out";
                 };
                 header?: never;
                 path?: never;
@@ -5113,6 +6264,13 @@ export interface paths {
                             pagination: components["schemas"]["Pagination"];
                         };
                     };
+                };
+                /** @description Invalid sort */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
                 /** @description Unauthorized */
                 401: {
@@ -5167,7 +6325,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or brandId/categoryId unknown or owned by another tenant (BAD_REQUEST, 'unknown brand or category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -5188,7 +6346,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description This tenant already has a product with this slug, or a variant with one of the given SKUs (CONFLICT). Slugs and SKUs are unique per tenant; another tenant's values never conflict. On a SKU conflict the product row itself was created ('product created but a variant sku already exists in this store', details.id/slug). */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5201,6 +6359,541 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/bulk/price": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk price update (admin)
+         * @description All-or-nothing update of up to 500 items (request body at most 1 MiB).
+         *     A `productId` item sets the product price (and `compareAt` when sent)
+         *     and, with the default `applyTo: both`, every variant price of that
+         *     product, so the storefront listing and the cart agree (the cart charges
+         *     the variant price). `applyTo: product` changes only the listing price
+         *     (the cart keeps charging each variant's own price); `applyTo: variants`
+         *     changes only the variants. A `variantId` item sets one variant price.
+         *     Every target is locked (id order, lock_timeout 5 s) before writing.
+         *     Emits one `product.price_changed` event per changed value after commit
+         *     and writes one audit row (`catalog.bulk.price`, per-item from/to)
+         *     inside the transaction.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "productId": "7f9c2d1e-0000-4000-8000-000000000001",
+                     *           "price": 125000,
+                     *           "compareAt": 150000
+                     *         },
+                     *         {
+                     *           "productId": "7f9c2d1e-0000-4000-8000-000000000002",
+                     *           "price": 99000,
+                     *           "applyTo": "product"
+                     *         },
+                     *         {
+                     *           "variantId": "7f9c2d1e-0000-4000-8000-0000000000a1",
+                     *           "price": 105000
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["BulkPriceRequest"];
+                };
+            };
+            responses: {
+                /** @description Applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** @description Items that changed at least one value */
+                                updated: number;
+                                items: ({
+                                    /** Format: uuid */
+                                    productId: string;
+                                    slug: string;
+                                    /** @description Product price after the update */
+                                    price: number;
+                                    compareAt: number | null;
+                                    /** @enum {string} */
+                                    applyTo: "both" | "product" | "variants";
+                                    variantsUpdated: number;
+                                } | {
+                                    /** Format: uuid */
+                                    variantId: string;
+                                    /** Format: uuid */
+                                    productId: string;
+                                    sku: string | null;
+                                    price: number;
+                                })[];
+                            };
+                        };
+                    };
+                };
+                400: components["responses"]["BulkBadRequest"];
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                422: components["responses"]["BulkValidationFailed"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/bulk/stock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk variant stock update (admin)
+         * @description All-or-nothing, up to 500 items. Each item targets one variant and sends
+         *     either an absolute `stock` or a `delta`. Deltas are applied atomically
+         *     against the live stock after locking the row, so concurrent checkout
+         *     reservations are respected; a result below zero rejects the row
+         *     (`NEGATIVE_RESULT`, nothing is clamped) and a result above
+         *     2147483647 is `OUT_OF_RANGE`. `products.in_stock` is
+         *     recomputed for every touched product. Emits `product.stock_changed`
+         *     per changed variant and writes one `catalog.bulk.stock` audit row.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BulkStockRequest"];
+                };
+            };
+            responses: {
+                /** @description Applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                updated: number;
+                                items: {
+                                    /** Format: uuid */
+                                    variantId: string;
+                                    /** Format: uuid */
+                                    productId: string;
+                                    sku: string | null;
+                                    /** @description Stock after the update */
+                                    stock: number;
+                                    /** @description Recomputed product flag; null when the product was not changed */
+                                    inStock: boolean | null;
+                                }[];
+                            };
+                        };
+                    };
+                };
+                400: components["responses"]["BulkBadRequest"];
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                422: components["responses"]["BulkValidationFailed"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/bulk/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk product status (publish / draft / archive)
+         * @description All-or-nothing, up to 500 items. Non-published (draft, archived)
+         *     products disappear from public listing, detail, search, related
+         *     products, recommendations, favourites and flash sales; they cannot be
+         *     added to a cart (400 "product is not available"), and existing cart
+         *     lines fail at checkout with 409 `PRODUCT_UNAVAILABLE`. Emits
+         *     `product.status_changed` and writes one `catalog.bulk.status` audit row.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BulkStatusRequest"];
+                };
+            };
+            responses: {
+                /** @description Applied */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                updated: number;
+                                items: {
+                                    /** Format: uuid */
+                                    productId: string;
+                                    slug: string;
+                                    /** @enum {string} */
+                                    status: "draft" | "published" | "archived";
+                                }[];
+                            };
+                        };
+                    };
+                };
+                400: components["responses"]["BulkBadRequest"];
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                422: components["responses"]["BulkValidationFailed"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export products as CSV (one row per variant)
+         * @description Streams every product matching the list filters (no pagination), one
+         *     row per variant; a product without variants yields one row with empty
+         *     variant columns. Format: UTF-8 **with BOM** (Excel with Indonesian
+         *     regional settings garbles BOM-less UTF-8), comma delimiter, CRLF line
+         *     endings, RFC 4180 quoting. Text cells starting with `=`, `+`, `-`, `@`,
+         *     TAB or CR are prefixed with `'` (formula-injection safety); numeric
+         *     columns are never prefixed. Timestamps are RFC3339 UTC. Money in minor
+         *     units. Columns, in order:
+         *     `sku, product_id, variant_id, title, slug, status, price, compare_at,
+         *     variant_price, stock, stock_baseline, low_stock_threshold, in_stock,
+         *     stock_status, category_slug, brand_slug, description, attributes,
+         *     created_at, updated_at`. `stock_baseline` repeats the stock at export
+         *     time; keep it unchanged so a later import can detect sales made since
+         *     the export (see import). `attributes` is a JSON object.
+         *     Errors before streaming starts return JSON; a database failure after
+         *     the first rows were sent truncates the file (the status is already
+         *     200), so clients should compare the row count with the list total.
+         *     Download with fetch + blob (the endpoint needs the bearer token).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    search?: string;
+                    /** @description Category slug */
+                    category?: string;
+                    /** @description Brand slug */
+                    brand?: string;
+                    inStock?: boolean;
+                    status?: "draft" | "published" | "archived";
+                    stockStatus?: "in" | "low" | "out";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV file */
+                200: {
+                    headers: {
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Invalid filter */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import products or stock from CSV (dry run by default)
+         * @description Multipart upload (field `file`, at most 5 MiB, at most 5000 data rows,
+         *     CSV only; .xlsx is rejected). This route is exempt from the global
+         *     request-body cap (`SECURITY_BODY_LIMIT_BYTES`, 1 MiB by default); the
+         *     handler enforces the 5 MiB file cap (5 MiB + 64 KiB for the whole
+         *     multipart body) and answers 413 `PAYLOAD_TOO_LARGE` as JSON. The file is held in memory only and its
+         *     contents are never logged. `dryRun` defaults to `true`; send
+         *     `dryRun=false` to apply. Both modes plan the whole file inside one
+         *     transaction against locked current values and return the planned
+         *     writes; nothing is written when any row is rejected (422), and a dry
+         *     run always rolls back.
+         *
+         *     **File format**: optional UTF-8 BOM, `,` or `;` delimiter (detected on
+         *     the header line), lower-case headers in any order. Unknown, duplicate
+         *     or missing required headers fail the whole file with 400
+         *     `INVALID_HEADER | DUPLICATE_HEADER | MISSING_HEADER` (`details.header`).
+         *     A leading `'` before a formula trigger is removed, so exported files
+         *     round-trip (consequence: text that literally starts with `'` followed
+         *     by `=`, `+`, `-`, `@`, TAB or CR cannot be stored through an import).
+         *     `title` and `description` are compared ignoring CR characters, since
+         *     a CSV round trip turns CRLF into LF and drops a lone CR; an unchanged
+         *     export therefore re-imports as `unchanged`. Rows consisting only of empty cells are skipped; `row` in
+         *     the response is the spreadsheet row (header = row 1).
+         *
+         *     **type=products** requires `sku`; optional `variant_id, product_id,
+         *     title, slug, status, price, compare_at, variant_price, stock,
+         *     stock_baseline, low_stock_threshold, category_slug, brand_slug,
+         *     description, attributes`; ignored (accepted for round trip):
+         *     `in_stock, stock_status, created_at, updated_at`.
+         *     **type=stock** requires `sku, stock`; optional `variant_id,
+         *     stock_baseline`. It never creates products or variants.
+         *
+         *     **Row identity**: `variant_id` wins (a non-empty `sku` that differs
+         *     from the stored one is `SKU_MISMATCH`, which catches SKUs mangled by a
+         *     spreadsheet app; a variant without SKU gets the row's `sku`
+         *     assigned). Otherwise `sku` is looked up in the store (`update`).
+         *     Unknown `sku`: with `product_id` it adds a variant (`create_variant`);
+         *     without, rows sharing the same `slug` (or slugified `title`) create one
+         *     new product (`create`), unless that slug already names a product of
+         *     this store (`create_variant`). Slugs and SKUs are unique per store, so
+         *     other stores' products never matter. A derived slug that another group
+         *     of the same file claims explicitly gets `-2`..`-20` (skipping slugs
+         *     this store already uses); an explicit slug used twice in the file, or a
+         *     slug change onto another product of this store, is `SLUG_TAKEN`;
+         *     assigning a SKU that another variant of this store already has is
+         *     `SKU_TAKEN`. A row with
+         *     empty `sku` and `variant_id` but a `product_id` updates only the
+         *     product-level columns (products without variants export this way);
+         *     variant columns on such a row are `NO_VARIANT`.
+         *
+         *     **Prices**: `price` is the product (listing) price only;
+         *     `variant_price` is what the cart charges for that variant. Editing
+         *     `price` alone leaves the variant prices unchanged, so listing and cart
+         *     disagree; edit `variant_price` on every row of the product as well
+         *     (bulk price `applyTo=both` does this in one call).
+         *
+         *     **Empty cells**: for `compare_at`, `low_stock_threshold`,
+         *     `description`, `category_slug`, `brand_slug` an empty cell clears the
+         *     value; for every other column it leaves the value unchanged (or uses
+         *     the default on create: status `published`, stock 0, variant price =
+         *     product price, attributes `{}`). `0` is a value, not empty. Rows of
+         *     the same product must carry identical product-level cells
+         *     (`CONFLICTING_PRODUCT_VALUES`); product-level changes are reported on
+         *     the product's first row.
+         *
+         *     **Stock and sales since the export**: with `stock_baseline` (as
+         *     exported), a stock cell equal to the baseline is treated as untouched
+         *     (no write, whatever the live stock is now); an edited cell is applied
+         *     only while the live stock still equals the baseline, otherwise the row
+         *     is `STALE_STOCK` (export again, or use bulk stock deltas). Without a
+         *     baseline, `type=stock` sets absolute counts, and `type=products`
+         *     refuses to change the stock of an existing variant
+         *     (`STOCK_BASELINE_REQUIRED`); stock always applies on create.
+         *
+         *     Re-importing an unchanged file reports every row `unchanged`, writes
+         *     nothing, emits no events and writes no audit row. A committed import
+         *     writes one `catalog.import.commit` audit row with per-row from/to (in
+         *     the same transaction); a rejected run (either mode) writes
+         *     `catalog.import.rejected`. Price, stock and status changes emit
+         *     `product.*` events after commit.
+         */
+        post: {
+            parameters: {
+                query: {
+                    type: "products" | "stock";
+                    dryRun?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** Format: binary */
+                        file: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Planned (dry run) or applied (dryRun=false); also a no-op commit */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["ImportResult"];
+                        };
+                    };
+                };
+                /**
+                 * @description Bad type/dryRun, missing file, unreadable file (`UNSUPPORTED_FILE`,
+                 *     `INVALID_ENCODING`, `EMPTY_FILE`, `INVALID_CSV` with `details.row`),
+                 *     `TOO_MANY_ROWS`, or a header error (`details.header`). Nothing written.
+                 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                409: components["responses"]["CatalogConflict"];
+                413: components["responses"]["PayloadTooLarge"];
+                /** @description One or more rows rejected; nothing written. `error.details` is the ImportResult. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error?: {
+                                /** @enum {string} */
+                                code?: "VALIDATION_FAILED";
+                                message?: string;
+                                details?: components["schemas"]["ImportResult"];
+                            };
+                        };
+                    };
                 };
             };
         };
@@ -5363,7 +7056,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or brandId/categoryId unknown or owned by another tenant (BAD_REQUEST, 'unknown brand or category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -5391,7 +7084,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description This tenant already has another product with this slug, or a variant with one of the given SKUs (CONFLICT). Slugs and SKUs are unique per tenant; another tenant's values never conflict. */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5578,7 +7271,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or parentId unknown or owned by another tenant (BAD_REQUEST, 'unknown parent category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -5599,7 +7292,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description This tenant already has a category with this slug (CONFLICT); slugs are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5712,7 +7405,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description Invalid request */
+                /** @description Invalid request, or parentId unknown or owned by another tenant (BAD_REQUEST, 'unknown parent category') */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -5740,7 +7433,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Slug already exists */
+                /** @description This tenant already has a category with this slug (CONFLICT); slugs are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5856,7 +7549,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Brand name or slug already exists */
+                /** @description This tenant already has a brand with this name or slug (CONFLICT); both are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5997,7 +7690,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Brand name or slug already exists */
+                /** @description This tenant already has a brand with this name or slug (CONFLICT); both are unique per tenant */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -6032,7 +7725,7 @@ export interface paths {
                     page?: number;
                     limit?: number;
                     /** @description Order status filter. Omit or pass "all" for no filter. */
-                    status?: "all" | "PENDING_PAYMENT" | "PAID" | "PACKED" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED";
+                    status?: "all" | "PENDING_PAYMENT" | "PAID" | "PACKED" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED" | "EXPIRED";
                     /** @description Match on order number, customer name, or customer email */
                     search?: string;
                     startDate?: string;
@@ -6094,6 +7787,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/orders/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export orders as CSV (one row per order)
+         * @description Streams every order matching the list filters (no pagination), newest
+         *     first. Same CSV conventions as the products export (UTF-8 BOM, comma,
+         *     CRLF, formula-injection escaping of text cells, RFC3339 UTC). Dates are
+         *     UTC day boundaries exactly like `GET /admin/orders`: `startDate`
+         *     inclusive, `endDate` exclusive (`endDate=2026-03-03` ends at
+         *     2026-03-03T00:00:00Z). Columns, in order: `order_number, order_id,
+         *     status, payment_status, customer_name, customer_email, currency,
+         *     subtotal, discount, tax, shipping, total, voucher_code, items_count,
+         *     courier, tracking_number, created_at, updated_at`. The file contains
+         *     customer personal data (name, email).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    search?: string;
+                    startDate?: string;
+                    endDate?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description CSV file */
+                200: {
+                    headers: {
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Invalid status or date */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/orders/stats": {
         parameters: {
             query?: never;
@@ -6101,11 +7869,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Order statistics (admin) */
+        /**
+         * Order statistics (admin)
+         * @description Order counters for the tenant in [startDate, endDate). totalRevenue, revenueOrders and averageOrderValue follow the revenue rule; totalOrders and the status counters count every order. Note: a date-only startDate/endDate is UTC midnight here (unlike the /admin/reports endpoints, which use tenant-local midnight), so pass RFC3339 bounds with the tenant offset to get tenant-day totals. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md.
+         */
         get: {
             parameters: {
                 query?: {
+                    /** @description Inclusive lower bound, RFC3339 or YYYY-MM-DD (UTC midnight) */
                     startDate?: string;
+                    /** @description Exclusive upper bound, RFC3339 or YYYY-MM-DD (UTC midnight) */
                     endDate?: string;
                 };
                 header?: never;
@@ -6238,6 +8011,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/orders/{id}/invoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download invoice PDF for an order (admin)
+         * @description Same document and numbering as GET /api/v1/orders/{orderId}/invoice, for any order in the active tenant. Requires `orders:read`; audited.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Invoice PDF (attachment) */
+                200: {
+                    headers: {
+                        /** @description attachment; filename="INV-YYYY-NNNNNN.pdf" */
+                        "Content-Disposition"?: string;
+                        /** @description private, no-store */
+                        "Cache-Control"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": string;
+                    };
+                };
+                /** @description Invalid order id (BAD_REQUEST) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Order not in this tenant (NOT_FOUND) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Order not paid yet / cancelled and no invoice issued (INVOICE_NOT_AVAILABLE) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/vouchers/stats": {
         parameters: {
             query?: never;
@@ -6310,7 +8176,7 @@ export interface paths {
         };
         /**
          * Dashboard overview (admin)
-         * @description Revenue, order, customer, and product counters plus top products by revenue.
+         * @description Revenue, order, customer, and product counters plus top products by revenue (item-level gross of revenue-rule orders). totalRevenue, revenueOrders and averageOrderValue follow the revenue rule. Tenant-scoped (tenant from X-Tenant-ID/subdomain; 400 TENANT_REQUIRED without one). Revenue rule: an order counts iff status is PAID, PACKED, SHIPPED, OUT_FOR_DELIVERY or DELIVERED and it is not fully refunded; order-level revenue is net (pricing_total minus PENDING and SUCCEEDED refunds; FAILED refunds ignored). See docs/contracts/analytics.md.
          */
         get: {
             parameters: {
@@ -6350,6 +8216,348 @@ export interface paths {
                     content?: never;
                 };
                 /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/sales-by-category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sales by category (admin report)
+         * @description Item-level sales per category for the tenant in [from, to): units, distinct orders and gross item revenue (order_items.subtotal) of orders matching the revenue rule. Partially refunded orders keep their full item value; fully refunded orders are excluded, so totals can differ from order-level revenue. Products without a category are grouped as Uncategorized (categoryId null). Sorted by revenue desc.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="sales-by-category_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportSalesByCategory"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (not staff or missing the x-permission) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/sales-by-product": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sales by product (admin report, paginated)
+         * @description Item-level sales per product for the tenant in [from, to), same rule and amount basis as sales-by-category, sorted by revenue desc. format=csv ignores page/limit and streams up to 100,000 rows.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                    page?: number;
+                    limit?: number;
+                    /** @description Only products in this category (400 BAD_REQUEST if not a UUID) */
+                    categoryId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="sales-by-product_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportProductRow"][];
+                            pagination: components["schemas"]["Pagination"];
+                            range: components["schemas"]["AdminReportRange"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (not staff or missing the x-permission) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/conversion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Checkout conversion funnel (admin report)
+         * @description Carts created -> checkouts started (orders created) -> paid orders for the tenant in [from, to). checkoutsStarted = paidOrders + pendingOrders + cancelledOrders + refundedOrders. Rates are 4-decimal fractions, 0 when the denominator is 0, and can exceed 1 (a cart can be checked out several times). Approximation: anonymous carts that never reach checkout are included.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="conversion_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportConversion"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (not staff or missing the x-permission) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * New vs returning customers (admin report)
+         * @description Customers (signed-in users with at least one revenue-rule order in [from, to)) split into new (first revenue-rule order at this tenant is at or after from) and returning; each user counted once. revenueFromNew + revenueFromReturning + guestRevenue equals the range's net revenue. daily is per tenant-local day over customer orders only; daily rows do not sum to the summary.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+                     * @example 2026-10-01
+                     */
+                    from?: components["parameters"]["ReportFrom"];
+                    /**
+                     * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+                     * @example 2026-11-01
+                     */
+                    to?: components["parameters"]["ReportTo"];
+                    format?: components["parameters"]["ReportFormat"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Report (JSON), or a CSV attachment when format=csv */
+                200: {
+                    headers: {
+                        /** @description Only for format=csv: attachment; filename="customers_<from>_<to>.csv" (tenant-local dates) */
+                        "Content-Disposition"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["AdminReportCustomers"];
+                        };
+                        "text/csv": string;
+                    };
+                };
+                /** @description BAD_REQUEST (invalid from/to/format/categoryId, from >= to, range > 366 days) or TENANT_REQUIRED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden (not staff or missing the x-permission) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description INTERNAL */
                 500: {
                     headers: {
                         [name: string]: unknown;
@@ -6468,7 +8676,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
                 path: {
                     orderId: string;
                 };
@@ -6487,12 +8698,14 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Order is not eligible or has an active return */
+                /** @description `RETURN_NOT_ALLOWED` (order is not eligible), `RETURN_EXISTS` (an active return already exists) or `IDEMPOTENT_REPLAY` (same `Idempotency-Key` within the TTL). */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
             };
         };
@@ -6555,12 +8768,16 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Return request detail */
+                /** @description Return request detail, including its refund (null when none). */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            data?: components["schemas"]["ReturnDetail"];
+                        };
+                    };
                 };
             };
         };
@@ -6733,10 +8950,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List variant inventory */
+        /**
+         * List variant inventory
+         * @description Every variant of the tenant with its stock status against the effective
+         *     low-stock threshold (product `lowStockThreshold`, else the tenant
+         *     default `settings.inventory.lowStockThreshold`, else 5): `out` at 0,
+         *     `low` at 1..threshold, `in` above. A threshold of 0 never reports `low`.
+         */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    stockStatus?: "in" | "low" | "out";
+                    /** @description true is an alias for stockStatus=low */
+                    lowStock?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -6745,6 +8972,30 @@ export interface paths {
             responses: {
                 /** @description Inventory list */
                 200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                /** Format: uuid */
+                                variantId: string;
+                                /** Format: uuid */
+                                productId: string;
+                                sku: string | null;
+                                productTitle: string;
+                                price: number;
+                                stock: number;
+                                /** @enum {string} */
+                                stockStatus: "in" | "low" | "out";
+                                /** @description Effective threshold for this variant's product */
+                                lowStockThreshold: number;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Invalid stockStatus or lowStock */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -6773,7 +9024,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Set or adjust variant stock */
+        /**
+         * Set or adjust variant stock
+         * @description Emits `product.stock_changed` (source `single`) when the stock changes.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -6820,12 +9074,16 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Return requests */
+                /** @description Return requests, each with its refund (null when none). */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            data?: components["schemas"]["AdminReturn"][];
+                        };
+                    };
                 };
             };
         };
@@ -6850,7 +9108,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update return workflow status */
+        /**
+         * Update return workflow status
+         * @description `status` must be one of `APPROVED`, `REJECTED`, `RECEIVED`, `CANCELLED`. Refused while the return has a refund that is in flight, has an unknown gateway outcome, or was accepted by the gateway but not yet recorded, and once the return is `REFUNDED`.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -6873,6 +9134,29 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Invalid return id */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Return not found in this tenant */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `RETURN_REFUND_PENDING`: the return has an unsettled refund; retry the refund first (details `{refundId, refundStatus}`). `REFUND_ALREADY_ISSUED`: the return is `REFUNDED`; its status can no longer change. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
             };
         };
         trace?: never;
@@ -6886,24 +9170,83 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Issue a provider-backed refund for a return */
+        /**
+         * Issue (or complete) a provider-backed refund for a return
+         * @description Refunds `amount` (default: the whole remaining refundable amount of the order's payment) through the payment's gateway (Midtrans or Xendit). One refund per return; an order with several returns over time can be refunded in parts (partial refunds), and the payment becomes `PARTIALLY_REFUNDED` until the paid amount is fully refunded (`REFUNDED`). Safe to retry: every attempt uses a stable gateway key, an unknown gateway outcome is checked with the gateway before the same key is sent again, and a refund the gateway accepted but that could not be recorded (500 `REFUND_RECORD_FAILED`) is completed by retrying the same request without calling the gateway again.
+         */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+                    "Idempotency-Key"?: components["parameters"]["IdempotencyKey"];
+                };
                 path: {
                     returnId: string;
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RefundRequest"];
+                };
+            };
             responses: {
-                /** @description Refund issued */
+                /** @description Refund accepted by the gateway and recorded. */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            data?: components["schemas"]["RefundResponse"];
+                        };
+                    };
+                };
+                /** @description `BAD_REQUEST`: invalid return id, malformed body, `amount <= 0`, or `reason` longer than 500 characters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description `NOT_FOUND`: return not found in this tenant. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description `REFUND_NOT_ALLOWED` (return is not `APPROVED`/`RECEIVED`); `REFUND_ALREADY_ISSUED` (this return already has a recorded refund); `PAYMENT_NOT_REFUNDABLE` (no `PAID`/`PARTIALLY_REFUNDED` payment for the order); `REFUND_EXCEEDS_REFUNDABLE` (`amount` larger than what is left, or nothing left; details `{requested, refundable}`); `REFUND_IN_PROGRESS` (another request for this return is calling the gateway, retry in about 60 s; or the previous attempt has an unknown outcome and the body `amount` differs from it: details `{refundId, pendingAmount}`, retry with that amount or without a body; or, with message "refund state requires reconciliation by an operator" and details `{refundId}`, the refunds row is in a state the API cannot resolve on its own (e.g. the payment provider changed since the unknown-outcome attempt, or no payment exists for an accepted refund): retrying does not help, an operator must reconcile it with the gateway); `REFUND_UNSUPPORTED` (the payment provider has no refund support); `IDEMPOTENT_REPLAY` (same `Idempotency-Key` within the TTL after a 2xx/4xx response). */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description `REFUND_RECORD_FAILED`: the gateway accepted the refund but local records could not be finalised. Details `{refundId, providerRef}`. Retry the same request (same or new `Idempotency-Key`; a 5xx releases the key) to complete it; the gateway is not called again. `INTERNAL`: nothing was sent to the gateway. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description `REFUND_FAILED`: the gateway rejected the refund or did not answer; `message` carries the gateway error. Details `{refundId, retryable}`. `retryable: false` means the gateway definitively rejected it (e.g. Midtrans `412`, Xendit `INSUFFICIENT_BALANCE`): fix the cause, then retry (a new gateway key is used). `retryable: true` means the outcome is unknown (timeout, 5xx, duplicate/in-progress answer): retry as is; the same gateway key is checked and re-sent, so money cannot move twice. No money moved unless a later retry reports success. */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
                 };
             };
         };
@@ -7058,7 +9401,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read tenant store configuration */
+        /**
+         * Read tenant store configuration
+         * @description Free-form per-key settings. Key `inventory` holds
+         *     `{"lowStockThreshold": n}`, the tenant default low-stock threshold
+         *     (absent means 5).
+         */
         get: {
             parameters: {
                 query?: never;
@@ -7082,7 +9430,12 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update tenant store configuration */
+        /**
+         * Update tenant store configuration
+         * @description Upserts each top-level key. `inventory.lowStockThreshold` must be an
+         *     integer 0..1000000 (0 disables "low"); anything else is 400.
+         *     Example: `{"inventory": {"lowStockThreshold": 10}}`.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -7149,15 +9502,540 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List staff roles and their permissions
+         * @description The seven staff roles in rank order (owner first) with the permissions each grants. `owner` can only be granted by an owner; every other role can be granted by any holder of `staff:manage`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Role matrix */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["RoleDefinition"][];
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing permission (`FORBIDDEN`, `details.required`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List staff of the current tenant
+         * @description Memberships of the current tenant whose role is not `customer`, ordered by role rank (owner, admin, manager, then the rest) and then email.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    /** @description Values above 100 are clamped to 100 */
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Staff page */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["StaffMember"][];
+                            pagination: components["schemas"]["Pagination"];
+                        };
+                    };
+                };
+                /** @description Missing tenant (`MISSING_TENANT`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing permission (`FORBIDDEN`, `details.required`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Grant a staff role to an existing member
+         * @description Looks the user up by email (case-insensitive) among the members of the current tenant only: a person must first have an account on this tenant's storefront. An unknown email and a user who is not a member of this tenant both return `404 USER_NOT_FOUND`. A SUSPENDED membership is reactivated. Runs in a transaction serialized per tenant; the actor's role is re-read inside it.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StaffAssignRequest"];
+                };
+            };
+            responses: {
+                /** @description Role granted */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["StaffMember"];
+                        };
+                    };
+                };
+                /** @description Invalid payload, missing email, unknown role or role `customer` (`VALIDATION_ERROR`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `FORBIDDEN` (no `staff:manage`, `details.required = "staff:manage"`), `OWNER_REQUIRED` (role `owner` requested by a non-owner) or `TENANT_FORBIDDEN` (actor's membership is no longer ACTIVE) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description No member of this tenant has that email (`USER_NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description The user is already staff; use PATCH (`STAFF_EXISTS`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Revoke a staff role
+         * @description Sets the membership role back to `customer`; the membership itself is kept.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Role revoked */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid user id (`VALIDATION_ERROR`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `FORBIDDEN`, `OWNER_REQUIRED` or `TENANT_FORBIDDEN` (see PATCH) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description No staff membership for that user in this tenant (`STAFF_NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description The target is the only ACTIVE owner (`LAST_OWNER`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** Change a staff member's role */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StaffRoleUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description Role changed */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["StaffMember"];
+                        };
+                    };
+                };
+                /** @description Invalid user id, unknown role or role `customer` (use DELETE) (`VALIDATION_ERROR`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description `FORBIDDEN` (no `staff:manage`), `OWNER_REQUIRED` (target is an owner or the new role is `owner`, and the actor is not an owner) or `TENANT_FORBIDDEN` */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description No staff membership for that user in this tenant (`STAFF_NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description The target is the only ACTIVE owner (`LAST_OWNER`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ApiError"];
+                    };
+                };
+                /** @description Server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AlertSubscribeRequest: {
+            /** Format: uuid */
+            productId: string;
+            /**
+             * Format: uuid
+             * @description Omit or null for a product-level subscription
+             */
+            variantId?: string | null;
+            /**
+             * @description Case-insensitive on input
+             * @enum {string}
+             */
+            type: "BACK_IN_STOCK" | "PRICE_DROP";
+        };
+        AlertSubscription: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            productId: string;
+            /** Format: uuid */
+            variantId: string | null;
+            /** @enum {string} */
+            type: "BACK_IN_STOCK" | "PRICE_DROP";
+            /**
+             * Format: int64
+             * @description Whole currency units; null for BACK_IN_STOCK
+             */
+            priceAtSubscribe: number | null;
+            /** @enum {string} */
+            status: "active" | "notified";
+            /** Format: date-time */
+            notifiedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            product: {
+                title: string;
+                slug: string;
+                thumbnail: string | null;
+                /** Format: int64 */
+                price: number;
+                inStock: boolean;
+            };
+            /** @description Omitted when variantId is null */
+            variant?: {
+                /** Format: uuid */
+                id: string;
+                sku: string | null;
+                /** Format: int64 */
+                price: number;
+                stock: number;
+            };
+        };
+        AlertSubscriptionResponse: {
+            data: components["schemas"]["AlertSubscription"];
+        };
+        AlertListResponse: {
+            data: components["schemas"]["AlertSubscription"][];
+            pagination: components["schemas"]["Pagination"];
+        };
+        BulkRowError: {
+            /** @description Zero-based position in items */
+            index: number;
+            field: string;
+            /** @enum {string} */
+            code: "MISSING" | "AMBIGUOUS" | "INVALID_UUID" | "NEGATIVE" | "NOT_FOUND" | "DUPLICATE" | "INVALID_STATUS" | "INVALID_APPLY_TO" | "NEGATIVE_RESULT" | "OUT_OF_RANGE" | "NOT_ALLOWED";
+            message: string;
+        };
+        BulkPriceItem: {
+            /** Format: uuid */
+            productId: string;
+            price: number;
+            /** @description Omit to keep, null to clear; not allowed with applyTo=variants */
+            compareAt?: number | null;
+            /**
+             * @default both
+             * @enum {string}
+             */
+            applyTo: "both" | "product" | "variants";
+        } | {
+            /** Format: uuid */
+            variantId: string;
+            price: number;
+        };
+        BulkPriceRequest: {
+            items: components["schemas"]["BulkPriceItem"][];
+        };
+        BulkStockRequest: {
+            items: ({
+                /** Format: uuid */
+                variantId: string;
+                stock: number;
+            } | {
+                /** Format: uuid */
+                variantId: string;
+                delta: number;
+            })[];
+        };
+        BulkStatusRequest: {
+            items: {
+                /** Format: uuid */
+                productId: string;
+                /** @enum {string} */
+                status: "draft" | "published" | "archived";
+            }[];
+        };
+        ImportRow: {
+            /** @description Spreadsheet row (header is row 1) */
+            row: number;
+            sku: string;
+            /** Format: uuid */
+            variantId?: string;
+            /** Format: uuid */
+            productId?: string;
+            /** @description Product slug; for create rows the slug that will be (or was) used */
+            slug?: string;
+            /** @enum {string} */
+            action: "create" | "create_variant" | "update" | "unchanged" | "reject";
+            /** @description field -> {from, to}; fields: title, slug, status, price, compare_at, low_stock_threshold, category_slug, brand_slug, description, sku, variant_price, stock, attributes */
+            changes: {
+                [key: string]: {
+                    from?: unknown;
+                    to?: unknown;
+                };
+            };
+            errors: {
+                field: string;
+                /** @enum {string} */
+                code: "MISSING" | "INVALID_ROW" | "INVALID_NUMBER" | "INVALID_UUID" | "NEGATIVE" | "OUT_OF_RANGE" | "INVALID_STATUS" | "INVALID_JSON" | "INVALID_SLUG" | "DUPLICATE_SKU" | "DUPLICATE_VARIANT" | "SKU_TAKEN" | "SKU_MISMATCH" | "PRODUCT_MISMATCH" | "SLUG_TAKEN" | "UNKNOWN_SKU" | "UNKNOWN_VARIANT" | "UNKNOWN_PRODUCT" | "MISSING_FOR_CREATE" | "UNKNOWN_CATEGORY" | "UNKNOWN_BRAND" | "CONFLICTING_PRODUCT_VALUES" | "NO_VARIANT" | "STALE_STOCK" | "STOCK_BASELINE_REQUIRED";
+                message: string;
+            }[];
+        };
+        ImportResult: {
+            dryRun: boolean;
+            /** @enum {string} */
+            type: "products" | "stock";
+            summary: {
+                total: number;
+                /** @description Rows creating a new product (several rows may create one product) */
+                create: number;
+                createVariant: number;
+                update: number;
+                unchanged: number;
+                rejected: number;
+            };
+            rows: components["schemas"]["ImportRow"][];
+        };
         ReturnRequest: {
             reason: string;
             notes?: string;
         };
-        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
+        /** @description All fields are optional but at least one must be present; absent fields are unchanged. `startsAt` and `endsAt` must be RFC 3339 timestamps with a timezone (e.g. `2026-12-01T00:00:00Z` or `2026-12-10T23:59:59+07:00`); values without a timezone (e.g. `2026-12-01T00:00`) are rejected with 400. `status` may be any of the four values but must not be empty. `items`, when present, is a full replacement keyed by `id`: entries with `id` update that existing item, entries without `id` are added, and existing items missing from the list are removed. At least one item is required (`items: []` is rejected). `salePrice` must be lower than the product's current price. An item with sales (`soldCount > 0`) cannot be removed (409) or moved to another product (400), and its `stockLimit` cannot drop below `soldCount`. `stockLimit` is tri-state: `null` means unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry, absent means unlimited. `0` is rejected with 400. Removing an item without sales also discards its released reservation history (`RELEASED` order rows). */
         FlashSaleCampaignUpdateRequest: {
             name?: string;
             slug?: string;
@@ -7177,7 +10055,7 @@ export interface components {
                 productId: string;
                 /** @description Must be lower than the product price */
                 salePrice: number;
-                /** @description null or absent means unlimited */
+                /** @description `null` = unlimited; for an entry with `id`, an absent key keeps the item's current limit; for a new entry absent = unlimited; integer must be >= 1 and >= `soldCount`; `0` is rejected with 400 */
                 stockLimit?: number | null;
             }[];
         };
@@ -7219,6 +10097,82 @@ export interface components {
         };
         StatusRequest: {
             status: string;
+        };
+        /** @description Optional body; omit it (or send `{}`) to refund the whole remaining amount. */
+        RefundRequest: {
+            /** @description Amount to refund in IDR (same unit as order totals). Defaults to the remaining refundable amount; must be `<= refundableAmount`. When retrying an attempt whose outcome is unknown, it must equal the pending amount (or be omitted). */
+            amount?: number;
+            /** @description Free-text note, default `customer return`. Sent to the gateway (Midtrans `reason`, Xendit `metadata.note`). Ignored when retrying an attempt whose outcome is unknown (the original request is re-sent unchanged). */
+            reason?: string;
+        };
+        RefundResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            returnId: string;
+            /** Format: uuid */
+            orderId: string;
+            /** @example xendit */
+            provider: string;
+            /** @description Gateway refund reference (Xendit refund id */
+            providerRef: string;
+            /** @description Amount of this refund. */
+            amount: number;
+            /**
+             * @description `PENDING` = accepted by the gateway, settles asynchronously (money is committed; local records are final).
+             * @enum {string}
+             */
+            status: "SUCCEEDED" | "PENDING";
+            /** @description Cumulative refunded amount of the order's payment. */
+            refundedAmount: number;
+            /** @description What can still be refunded after this refund. */
+            refundableAmount: number;
+            /** @enum {string} */
+            paymentStatus: "PARTIALLY_REFUNDED" | "REFUNDED";
+            /** Format: date-time */
+            createdAt: string;
+        };
+        /** @description The return's refund. Only `settled: true` means local records were finalised (money moved); `amount` may be less than the order total (partial refund). */
+        ReturnRefundSummary: {
+            /** Format: uuid */
+            id: string;
+            /**
+             * @description `PENDING` with `settled: false`: gateway call in flight or outcome unknown (retry the refund). `FAILED`: the gateway rejected the last attempt (a retry uses a new gateway key).
+             * @enum {string}
+             */
+            status: "PENDING" | "SUCCEEDED" | "FAILED";
+            amount: number;
+            /** @description Empty until the gateway accepted the refund. */
+            providerRef: string;
+            settled: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description Admin endpoints only. `UNKNOWN` when the last gateway call had no definite outcome; otherwise the gateway status or rejection code. */
+            providerStatus?: string | null;
+            /** @description Admin endpoints only. Number of gateway keys used before the current one (starts at 0). */
+            attempt?: number;
+        };
+        ReturnDetail: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            orderId?: string;
+            /** @enum {string} */
+            status?: "REQUESTED" | "APPROVED" | "REJECTED" | "RECEIVED" | "REFUNDED" | "CANCELLED";
+            reason?: string;
+            notes?: string | null;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @description Null when the return has no refund. Customer view (no `providerStatus`/`attempt`). */
+            refund?: components["schemas"]["ReturnRefundSummary"] | null;
+        };
+        AdminReturn: components["schemas"]["ReturnDetail"] & {
+            /** Format: uuid */
+            userId?: string;
+            /** @description Null when the return has no refund. Includes `providerStatus` and `attempt`. */
+            refund?: components["schemas"]["ReturnRefundSummary"] | null;
         };
         SupportTicketRequest: {
             subject: string;
@@ -7265,6 +10219,18 @@ export interface components {
             variantCount: number;
             /** @description Primary variant SKU */
             sku?: string | null;
+            /**
+             * @description Only published products are visible and purchasable on the storefront
+             * @enum {string}
+             */
+            status?: "draft" | "published" | "archived";
+            /**
+             * @description Summed variant stock vs the effective threshold; products without variants follow inStock
+             * @enum {string}
+             */
+            stockStatus?: "in" | "low" | "out";
+            /** @description Product override; null means the tenant default */
+            lowStockThreshold?: number | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -7308,6 +10274,12 @@ export interface components {
             title: string;
             /** @description Derived from title when omitted */
             slug?: string;
+            /**
+             * @default published
+             * @enum {string}
+             */
+            status: "draft" | "published" | "archived";
+            lowStockThreshold?: number | null;
             price: number;
             compareAt?: number | null;
             /** @default true */
@@ -7326,11 +10298,16 @@ export interface components {
         /**
          * @description All properties are optional. Absent keys are left unchanged; an explicit
          *     null clears the corresponding nullable column. Supplying images or specs
-         *     replaces the whole collection.
+         *     replaces the whole collection. Price and status changes emit
+         *     product.price_changed / product.status_changed (source `single`).
          */
         AdminProductUpdateRequest: {
             title?: string;
             slug?: string;
+            /** @enum {string} */
+            status?: "draft" | "published" | "archived";
+            /** @description null clears the override */
+            lowStockThreshold?: number | null;
             price?: number;
             compareAt?: number | null;
             inStock?: boolean;
@@ -7379,8 +10356,11 @@ export interface components {
             userId?: string | null;
             customerName?: string | null;
             customerEmail?: string | null;
-            /** @enum {string} */
-            status: "PENDING_PAYMENT" | "PAID" | "PACKED" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED";
+            /**
+             * @description EXPIRED is a system-only terminal status (payment deadline passed); an EXPIRED order with paymentStatus PAID received a late payment that needs a manual refund.
+             * @enum {string}
+             */
+            status: "PENDING_PAYMENT" | "PAID" | "PACKED" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED" | "EXPIRED";
             /** @description Latest payment status; empty string when no payment row exists */
             paymentStatus: string;
             currency: string;
@@ -7421,14 +10401,20 @@ export interface components {
             }[];
         };
         AdminOrderStats: {
+            /** @description All orders in range, any status */
             totalOrders: number;
-            /** @description Excludes cancelled orders */
+            /** @description Net revenue (IDR) of orders matching the revenue rule */
             totalRevenue: number;
+            /** @description Orders matching the revenue rule */
+            revenueOrders: number;
             pendingOrders: number;
             paidOrders: number;
             shippedOrders: number;
             deliveredOrders: number;
             cancelledOrders: number;
+            /** @description Orders in EXPIRED (payment deadline passed) */
+            expiredOrders: number;
+            /** @description totalRevenue / revenueOrders (rounded), 0 when none */
             averageOrderValue: number;
         };
         AdminVoucher: {
@@ -7460,16 +10446,27 @@ export interface components {
         AdminAnalyticsOverview: {
             /** @enum {string} */
             range: "7d" | "30d" | "90d" | "all";
+            /** @description Net revenue (IDR) of orders matching the revenue rule */
             totalRevenue: number;
+            /** @description Orders matching the revenue rule */
+            revenueOrders: number;
+            /** @description All orders in range, any status */
             totalOrders: number;
             totalCustomers: number;
             totalProducts: number;
+            /** @description totalRevenue / revenueOrders (rounded), 0 when none */
             averageOrderValue: number;
             pendingOrders?: number;
             paidOrders?: number;
             shippedOrders?: number;
             deliveredOrders?: number;
             cancelledOrders?: number;
+            /** @description Orders in EXPIRED (payment deadline passed) */
+            expiredOrders?: number;
+            /** @description Products whose stockStatus is low */
+            lowStockProducts?: number;
+            /** @description Products whose stockStatus is out */
+            outOfStockProducts?: number;
             topProducts: {
                 /** Format: uuid */
                 productId: string;
@@ -7478,6 +10475,109 @@ export interface components {
                 unitsSold: number;
                 revenue: number;
             }[];
+        };
+        AdminReportRange: {
+            /**
+             * Format: date-time
+             * @description Resolved start, RFC3339 with the tenant offset
+             */
+            from: string;
+            /**
+             * Format: date-time
+             * @description Resolved exclusive end, RFC3339 with the tenant offset
+             */
+            to: string;
+            /** @description IANA timezone used (UTC when the tenant value is empty or invalid) */
+            timezone: string;
+        };
+        AdminReportCategoryRow: {
+            /**
+             * Format: uuid
+             * @description null for Uncategorized
+             */
+            categoryId: string | null;
+            categoryName: string;
+            categorySlug: string | null;
+            unitsSold: number;
+            /** @description Distinct orders containing the category */
+            orders: number;
+            /** @description Gross item revenue (IDR) */
+            revenue: number;
+            /** @description revenue / totalRevenue, 4 decimals */
+            share: number;
+        };
+        AdminReportSalesByCategory: components["schemas"]["AdminReportRange"] & {
+            totalRevenue: number;
+            totalUnits: number;
+            rows: components["schemas"]["AdminReportCategoryRow"][];
+        };
+        AdminReportProductRow: {
+            /** Format: uuid */
+            productId: string | null;
+            /** @description Title as recorded on the order items */
+            title: string;
+            slug: string;
+            /** Format: uuid */
+            categoryId: string | null;
+            /** @description Uncategorized when the product has no category */
+            categoryName: string;
+            unitsSold: number;
+            orders: number;
+            /** @description Gross item revenue (IDR) */
+            revenue: number;
+        };
+        AdminReportConversion: components["schemas"]["AdminReportRange"] & {
+            /** @description Carts (incl. anonymous) created in range */
+            cartsCreated: number;
+            /** @description Orders created in range (one per checkout) */
+            checkoutsStarted: number;
+            /** @description Orders matching the revenue rule (includes partially refunded) */
+            paidOrders: number;
+            /** @description PENDING_PAYMENT */
+            pendingOrders: number;
+            /** @description CANCELLED */
+            cancelledOrders: number;
+            /** @description Revenue-status orders fully refunded (PENDING+SUCCEEDED refunds >= total) */
+            refundedOrders: number;
+            /** @description Net revenue (IDR) of paidOrders */
+            paidRevenue: number;
+            /** @description PENDING+SUCCEEDED refunds recorded against orders created in range */
+            refundedAmount: number;
+            /** @description checkoutsStarted / cartsCreated */
+            checkoutRate: number;
+            /** @description paidOrders / checkoutsStarted */
+            paymentRate: number;
+            /** @description paidOrders / cartsCreated */
+            conversionRate: number;
+        };
+        AdminReportCustomersDay: {
+            /**
+             * Format: date
+             * @description Tenant-local date
+             */
+            day: string;
+            /** @description Users whose first revenue-rule order at this tenant is on this day */
+            newCustomers: number;
+            /** @description Users ordering this day whose first order was on an earlier day */
+            returningCustomers: number;
+            /** @description Customer (non-guest) revenue-rule orders */
+            orders: number;
+            /** @description Net revenue (IDR) of those orders */
+            revenue: number;
+        };
+        AdminReportCustomers: components["schemas"]["AdminReportRange"] & {
+            newCustomers: number;
+            returningCustomers: number;
+            totalCustomers: number;
+            /** @description returningCustomers / totalCustomers, 4 decimals */
+            repeatRate: number;
+            ordersFromNew: number;
+            ordersFromReturning: number;
+            revenueFromNew: number;
+            revenueFromReturning: number;
+            guestOrders: number;
+            guestRevenue: number;
+            daily: components["schemas"]["AdminReportCustomersDay"][];
         };
         CheckoutRequest: {
             /**
@@ -7558,22 +10658,23 @@ export interface components {
         };
         PaymentStatus: {
             /**
-             * @description Consolidated payment status (uppercase)
+             * @description Consolidated payment status (uppercase). `PARTIALLY_REFUNDED`: part of the paid amount was refunded; `REFUNDED`: all of it. Only the admin refund flow sets these; refund webhooks are recorded as payment events and do not change the status.
              * @enum {string}
              */
-            status: "PENDING" | "PAID" | "FAILED" | "EXPIRED" | "REFUNDED";
+            status: "PENDING" | "PAID" | "FAILED" | "EXPIRED" | "PARTIALLY_REFUNDED" | "REFUNDED";
         };
         AnalyticsSalesDay: {
             /**
              * Format: date-time
-             * @description Aggregation day
+             * @description Tenant-local midnight of the aggregation day, with the tenant offset (e.g. 2026-10-01T00:00:00+07:00)
+             * @example 2026-10-01T00:00:00+07:00
              */
             day: string;
-            /** @description Paid orders in the period */
+            /** @description Orders matching the revenue rule (PAID through DELIVERED, not fully refunded) */
             paid_orders: number;
-            /** @description Total orders in the period */
+            /** @description Total orders in the period (any status) */
             all_orders: number;
-            /** @description Gross revenue from paid orders in IDR */
+            /** @description Net revenue in IDR (pricing_total minus PENDING/SUCCEEDED refunds) of revenue-rule orders */
             revenue: number;
         };
         AnalyticsTopProduct: {
@@ -7582,9 +10683,9 @@ export interface components {
              * @description Product ID
              */
             product_id: string;
-            /** @description Total units sold */
+            /** @description Total units sold in revenue-rule orders */
             qty_sold: number;
-            /** @description Gross revenue for the product in IDR */
+            /** @description Sum of order_items.subtotal (gross item value, IDR) in revenue-rule orders */
             gross: number;
         };
         Review: {
@@ -7692,6 +10793,24 @@ export interface components {
                 stock_updates?: boolean;
             };
         };
+        PushVapidKeyResponse: {
+            /** @description VAPID public key (base64url). Same value as `publicKey`. */
+            public_key: string;
+            /** @description VAPID public key (base64url). Preferred field. */
+            publicKey: string;
+        };
+        PushSendTestResponse: {
+            /** @example true */
+            success: boolean;
+            /** @example Test notification sent */
+            message: string;
+            /** @description Subscriptions accepted by their push service. */
+            sent: number;
+            /** @description Subscriptions rejected by their push service, unreachable, or not sendable because of a server-side error (e.g. misconfigured VAPID keys, or the push host resolving to an address the server's outbound guard refuses). Never deleted. */
+            failed: number;
+            /** @description Subscriptions deleted because they can never receive a push (push service answered 404/410, endpoint not https, or unusable p256dh/auth keys). Never caused by server-side problems. */
+            pruned: number;
+        };
         Favorite: {
             /** Format: uuid */
             product_id: string;
@@ -7717,7 +10836,15 @@ export interface components {
             email: string;
             /** @description Omitted when the user has not set a phone number. */
             phone?: string;
+            /** @description Legacy global roles. Containing `admin` grants the platform-admin routes. */
             roles: string[];
+            /**
+             * @description Caller's role in the resolved tenant. Present on GET /auth/me only (absent from login/register responses); `customer` for non-staff.
+             * @enum {string}
+             */
+            role?: "owner" | "admin" | "manager" | "catalog" | "fulfillment" | "support" | "analyst" | "customer";
+            /** @description Permissions of `role` (empty for `customer`). Present on GET /auth/me only. Gate tenant-scoped UI on this list. `roles` (legacy, global) containing `admin` is still what grants the platform-admin routes. */
+            permissions?: components["schemas"]["Permission"][];
             emailVerified: boolean;
             /** Format: date-time */
             createdAt: string;
@@ -7800,6 +10927,55 @@ export interface components {
             id: string;
             name: string;
             slug: string;
+        };
+        /** @description Present only when `q` is non-empty. */
+        ProductSearchMeta: {
+            /**
+             * @description `fts` = full-text matches (or nothing matched); `fuzzy` = full-text found nothing and `data` holds typo-tolerant title matches (show "results for similar products").
+             * @enum {string}
+             */
+            searchMode: "fts" | "fuzzy";
+            /** @description Closest titles; present only when `pagination.totalItems` is 0, `q` has 3-64 characters and suggestions exist. */
+            suggestions?: components["schemas"]["Suggestion"][];
+        };
+        Suggestion: {
+            title: string;
+            slug: string;
+        };
+        /** @description Present only when `include=facets`. Each dimension honours `q` (in the same `searchMode` as `data`) and every other active filter, but ignores its own filter. */
+        ProductFacets: {
+            /** @description Top 50 by count desc, then name. Ignores `category`. */
+            categories: components["schemas"]["FacetTerm"][];
+            /** @description Top 50 by count desc, then name. Ignores `brand`. */
+            brands: components["schemas"]["FacetTerm"][];
+            price: {
+                /** @description Always all 9 buckets in ascending order, zero counts included. Edges (IDR): 50000, 100000, 250000, 500000, 1000000, 2500000, 5000000, 10000000. Ignores `minPrice`/`maxPrice`. */
+                buckets: components["schemas"]["PriceBucket"][];
+            };
+            /** @description Ignores `inStock`. */
+            inStock: {
+                /** Format: int64 */
+                true: number;
+                /** Format: int64 */
+                false: number;
+            };
+        };
+        FacetTerm: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            slug: string;
+            /** Format: int64 */
+            count: number;
+        };
+        /** @description Covers `min <= price < max`; `max` is null for the last, open-ended bucket. */
+        PriceBucket: {
+            /** Format: int64 */
+            min: number;
+            /** Format: int64 */
+            max: number | null;
+            /** Format: int64 */
+            count: number;
         };
         /** @description Summary shape returned by list endpoints. description, images, variants and specs are only present on GET /products/{slug}. */
         ProductListItem: {
@@ -7957,6 +11133,51 @@ export interface components {
                 details?: unknown;
             };
         };
+        /**
+         * @description Tenant staff role slug.
+         * @enum {string}
+         */
+        Role: "owner" | "admin" | "manager" | "catalog" | "fulfillment" | "support" | "analyst";
+        /**
+         * @description Stable permission identifier. Gate UI on these, not on the role.
+         * @enum {string}
+         */
+        Permission: "catalog:read" | "catalog:write" | "inventory:read" | "inventory:write" | "orders:read" | "orders:write" | "returns:read" | "returns:write" | "refunds:write" | "customers:read" | "support:read" | "support:write" | "promotions:read" | "promotions:write" | "analytics:read" | "settings:read" | "settings:write" | "staff:read" | "staff:manage";
+        RoleDefinition: {
+            role: components["schemas"]["Role"];
+            permissions: components["schemas"]["Permission"][];
+        };
+        StaffMember: {
+            /** Format: uuid */
+            userId: string;
+            name: string;
+            /** Format: email */
+            email: string;
+            role: components["schemas"]["Role"];
+            /**
+             * @description Membership status
+             * @enum {string}
+             */
+            status: "INVITED" | "ACTIVE" | "SUSPENDED";
+            /**
+             * Format: date-time
+             * @description Membership creation time
+             */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        StaffAssignRequest: {
+            /**
+             * Format: email
+             * @description Email of an existing member of this tenant (case-insensitive)
+             */
+            email: string;
+            role: components["schemas"]["Role"];
+        };
+        StaffRoleUpdateRequest: {
+            role: components["schemas"]["Role"];
+        };
         Pagination: {
             page: number;
             perPage: number;
@@ -7971,7 +11192,7 @@ export interface components {
              * @description Order status (lowercase)
              * @enum {string}
              */
-            status?: "pending_payment" | "paid" | "packed" | "shipped" | "out_for_delivery" | "delivered" | "cancelled";
+            status?: "pending_payment" | "paid" | "packed" | "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "expired";
             /** @description Indonesian human-readable status label */
             statusLabel?: string;
             /** @description Total amount in IDR */
@@ -8132,6 +11353,20 @@ export interface components {
             discount: number;
             eligible_amount: number;
             code: string;
+        };
+        AdminConfirmPaymentRequest: {
+            /** @description Optional verification note stored on the payment event */
+            note?: string;
+        };
+        AdminConfirmPaymentResponse: {
+            /** Format: uuid */
+            orderId: string;
+            /** @enum {string} */
+            orderStatus: "PAID";
+            /** Format: uuid */
+            paymentId: string;
+            /** @enum {string} */
+            paymentStatus: "PAID";
         };
         AdminOrderStatusPatchRequest: {
             /** @enum {string} */
@@ -8331,8 +11566,74 @@ export interface components {
             read: boolean;
         };
     };
-    responses: never;
-    parameters: never;
+    responses: {
+        /** @description Malformed JSON, unknown field, empty items, or more than 500 items (`TOO_MANY_ROWS`). Nothing written. */
+        BulkBadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /** @description One or more items are invalid or not found in this store; nothing was changed. */
+        BulkValidationFailed: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    error?: {
+                        /** @enum {string} */
+                        code?: "VALIDATION_FAILED";
+                        message?: string;
+                        details?: {
+                            rows?: components["schemas"]["BulkRowError"][];
+                        };
+                    };
+                };
+            };
+        };
+        /** @description A concurrent change held a row lock longer than 5 s, a deadlock was detected, or a unique slug/SKU was taken concurrently. Nothing was changed; retry. */
+        CatalogConflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+        /**
+         * @description Request body over the limit; code PAYLOAD_TOO_LARGE in the standard
+         *     JSON error envelope. Every route is capped by the global
+         *     `SECURITY_BODY_LIMIT_BYTES` (1 MiB by default), which bulk endpoints
+         *     also enforce themselves (1 MiB); the CSV import is exempt from the
+         *     global cap and allows a 5 MiB file.
+         */
+        PayloadTooLarge: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ApiError"];
+            };
+        };
+    };
+    parameters: {
+        /**
+         * @description Inclusive start. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: 30 days before `to`.
+         * @example 2026-10-01
+         */
+        ReportFrom: string;
+        /**
+         * @description Exclusive end. RFC3339 is used as-is; YYYY-MM-DD is midnight in the tenant timezone. Default: the next tenant-local midnight. Must be after `from`; at most 366 days after it.
+         * @example 2026-11-01
+         */
+        ReportTo: string;
+        ReportFormat: "json" | "csv";
+        /** @description Optional client-generated key (e.g. a UUID) that makes a write safe to resend. Without the header the request is processed normally. Within `IDEMPOTENCY_TTL_SEC` (default 600 s) a request repeating a key gets `409 IDEMPOTENT_REPLAY` without being processed, **except** that a 5xx response releases the key immediately, so the same key may be reused to retry a failed request (a handler panic, which ends as a 500, also releases it). Keys are global (not scoped per user or route): generate a fresh one per logical operation. */
+        IdempotencyKey: string;
+    };
     requestBodies: never;
     headers: never;
     pathItems: never;

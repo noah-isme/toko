@@ -21,8 +21,15 @@ import { FORMATS, TIME_ZONE } from '@/i18n/formats';
 vi.mock('next/navigation', () => ({
   usePathname: () => '/admin',
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
+const PLATFORM_ADMIN_USER = {
+  id: 'user-1',
+  name: 'Admin',
+  email: 'admin@toko.com',
+  roles: ['admin'],
+};
 const auth = vi.hoisted(() => ({
   current: { isLoading: false, isAuthenticated: true, isAdmin: true } as Record<string, unknown>,
 }));
@@ -70,6 +77,7 @@ vi.mock('@/entities/admin/hooks', () => ({
     loaded({
       range: '30d',
       totalRevenue: 1500000,
+      revenueOrders: 1,
       totalOrders: 1,
       totalCustomers: 1,
       totalProducts: 1,
@@ -93,6 +101,12 @@ vi.mock('@/entities/admin/hooks', () => ({
     loaded({ data: [PRODUCT], pagination: { page: 1, limit: 20, totalItems: 1, totalPages: 1 } }),
   useDeleteAdminProduct: () => idle,
   useUpdateAdminProductStock: () => idle,
+  useExportProductsCsv: () => idle,
+  useExportOrdersCsv: () => idle,
+  useBulkUpdatePrice: () => idle,
+  useBulkUpdateStock: () => idle,
+  useBulkUpdateStatus: () => idle,
+  useAdminInventory: () => loaded([]),
 }));
 
 /** `Intl` separates the currency code from the amount with a no-break space. */
@@ -100,7 +114,12 @@ const money = (text: string) => new RegExp(text.replace(/\s/g, '\\s').replace(/\
 
 describe('admin UI in English', () => {
   beforeEach(() => {
-    auth.current = { isLoading: false, isAuthenticated: true, isAdmin: true };
+    auth.current = {
+      isLoading: false,
+      isAuthenticated: true,
+      isAdmin: true,
+      user: PLATFORM_ADMIN_USER,
+    };
   });
 
   it('renders the dashboard with English copy and IDR formatting', () => {
@@ -108,6 +127,9 @@ describe('admin UI in English', () => {
 
     expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
     expect(screen.getByText('Total Revenue')).toBeInTheDocument();
+    // Revenue is net under the revenue rule and AOV divides by revenue orders.
+    expect(screen.getByText('Net of refunds, paid to delivered orders')).toBeInTheDocument();
+    expect(screen.getByText('Across 1 paid order')).toBeInTheDocument();
     expect(screen.getByText('Recent Orders')).toBeInTheDocument();
     expect(screen.getByText('3 sold')).toBeInTheDocument();
     expect(screen.getAllByText(money('IDR 1,500,000')).length).toBeGreaterThan(0);
@@ -148,8 +170,17 @@ describe('admin UI in English', () => {
       'page',
     );
     expect(within(nav).getByRole('link', { name: 'Audit Logs' })).toBeInTheDocument();
+    expect(within(nav).getByRole('link', { name: 'Reports' })).toHaveAttribute(
+      'href',
+      '/admin/reports',
+    );
 
-    auth.current = { isLoading: false, isAuthenticated: true, isAdmin: false };
+    auth.current = {
+      isLoading: false,
+      isAuthenticated: true,
+      isAdmin: false,
+      user: { ...PLATFORM_ADMIN_USER, roles: ['customer'], role: 'customer', permissions: [] },
+    };
     renderWithIntl(<AdminGuard>secret</AdminGuard>, { locale: 'en' });
     expect(screen.getByRole('heading', { name: 'Admin access required' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to store' })).toBeInTheDocument();
@@ -166,6 +197,15 @@ describe('admin UI in English', () => {
 });
 
 describe('admin UI in Indonesian (default)', () => {
+  beforeEach(() => {
+    auth.current = {
+      isLoading: false,
+      isAuthenticated: true,
+      isAdmin: true,
+      user: PLATFORM_ADMIN_USER,
+    };
+  });
+
   it('renders the dashboard in Indonesian with rupiah formatting', () => {
     render(<AdminDashboard />);
 
@@ -194,6 +234,7 @@ describe('admin UI in Indonesian (default)', () => {
     const nav = screen.getByRole('navigation', { name: 'Bagian admin' });
     expect(within(nav).getByRole('link', { name: 'Dasbor' })).toBeInTheDocument();
     expect(within(nav).getByRole('link', { name: 'Log Audit' })).toBeInTheDocument();
+    expect(within(nav).getByRole('link', { name: 'Laporan' })).toBeInTheDocument();
   });
 });
 

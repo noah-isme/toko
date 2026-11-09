@@ -6,6 +6,8 @@
  * @lastUpdated 2025-12-07
  */
 
+import type { components } from './generated/schema';
+
 // ============================================================================
 // Common Types
 // ============================================================================
@@ -49,6 +51,8 @@ export type NotificationType =
   | 'shipment_shipped'
   | 'shipment_out_for_delivery'
   | 'shipment_delivered'
+  | 'back_in_stock'
+  | 'price_drop'
   | (string & {});
 
 export interface Notification {
@@ -81,6 +85,16 @@ export interface User {
    * payloads without it still typecheck.
    */
   roles?: string[];
+  /**
+   * Caller's role in the resolved tenant (`owner` ... `analyst`, or `customer`).
+   * Only `GET /auth/me` sends it; login/register responses omit it.
+   */
+  role?: string;
+  /**
+   * Permissions of `role` in the resolved tenant (empty for `customer`). Only
+   * `GET /auth/me` sends it. Gate tenant-scoped admin UI on this list.
+   */
+  permissions?: string[];
   emailVerified?: boolean;
   phone?: string;
   createdAt: string;
@@ -284,18 +298,49 @@ export interface ProductDetail extends Product {
   updatedAt: string;
 }
 
-export type ProductSortOption = 'price:asc' | 'price:desc' | 'name:asc' | 'name:desc';
+/**
+ * `sort` values for GET /products. The API accepts `title:*`,
+ * `popularity:desc` and `rating:desc`; `name:*` is kept for older callers
+ * (the API treats it as unknown and falls back to its default order).
+ */
+export type ProductSortOption =
+  | 'price:asc'
+  | 'price:desc'
+  | 'title:asc'
+  | 'title:desc'
+  | 'popularity:desc'
+  | 'rating:desc'
+  | 'name:asc'
+  | 'name:desc';
 
 export interface ProductFilters {
   q?: string;
+  /** Category slug (one value). */
   category?: string;
+  /** Brand slug (one value). */
   brand?: string;
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
   sort?: ProductSortOption;
+  /** Comma-separated extras; the API only accepts `facets`. */
+  include?: 'facets';
   page?: number;
   limit?: number;
+}
+
+/** Facet counts returned by GET /products?include=facets. */
+export type ProductFacets = components['schemas']['ProductFacets'];
+export type ProductFacetTerm = components['schemas']['FacetTerm'];
+export type ProductPriceBucket = components['schemas']['PriceBucket'];
+/** Search metadata returned by GET /products when `q` is non-empty. */
+export type ProductSearchMeta = components['schemas']['ProductSearchMeta'];
+export type ProductSearchSuggestion = components['schemas']['Suggestion'];
+
+/** GET /products: the paginated list plus the additive `meta` and `facets`. */
+export interface ProductListResponse extends PaginatedResponse<Product> {
+  meta?: ProductSearchMeta;
+  facets?: ProductFacets;
 }
 
 // ============================================================================
@@ -405,7 +450,8 @@ export type OrderStatus =
   | 'shipped'
   | 'out_for_delivery'
   | 'delivered'
-  | 'cancelled';
+  | 'cancelled'
+  | 'expired';
 
 export type PaymentMethod =
   | 'bank_transfer'
@@ -576,4 +622,5 @@ export type ApiErrorCode =
   | 'VOUCHER_INVALID'
   | 'VOUCHER_MIN_SPEND'
   | 'VOUCHER_ALREADY_USED'
-  | 'RATE_LIMIT_EXCEEDED';
+  | 'RATE_LIMIT_EXCEEDED'
+  | 'EMAIL_ALREADY_USED';

@@ -271,6 +271,8 @@ exports[`mock API route golden responses > auth > auth routes 7`] = `
       "emailVerified": true,
       "id": "user-123",
       "name": "John Doe",
+      "permissions": [],
+      "role": "customer",
       "roles": [],
     },
   },
@@ -289,6 +291,8 @@ exports[`mock API route golden responses > auth > auth routes 8`] = `
       "emailVerified": true,
       "id": "user-123",
       "name": "John Doe",
+      "permissions": [],
+      "role": "customer",
       "roles": [],
     },
   },
@@ -308,6 +312,7 @@ exports[`mock API route golden responses > auth > auth routes 9`] = `
       "id": "user-123",
       "name": "Johnny",
       "phone": "0812",
+      "roles": [],
     },
   },
   "cacheControl": "private, no-store, max-age=0, must-revalidate",
@@ -373,12 +378,18 @@ exports[`mock API route golden responses > auth > auth routes 14`] = `
   "body": {
     "data": [
       {
-        "current": true,
-        "device": "Chrome",
-        "id": "session-1",
-        "ipAddress": "127.0.0.1",
-        "lastActive": "2026-03-15T09:30:00.000Z",
-        "location": "Jakarta, ID",
+        "current": false,
+        "device": "Chrome on macOS",
+        "id": "5e55a0e1-0000-4000-8000-000000000001",
+        "ipAddress": "203.0.113.9",
+        "lastActive": "2026-10-25T08:00:00.000Z",
+      },
+      {
+        "current": false,
+        "device": "Safari on iOS",
+        "id": "5e55a0e1-0000-4000-8000-000000000002",
+        "ipAddress": "198.51.100.24",
+        "lastActive": "2026-10-24T19:30:00.000Z",
       },
     ],
   },
@@ -390,14 +401,10 @@ exports[`mock API route golden responses > auth > auth routes 14`] = `
 
 exports[`mock API route golden responses > auth > auth routes 15`] = `
 {
-  "body": {
-    "data": {
-      "message": "Semua sesi telah keluar.",
-    },
-  },
+  "body": null,
   "cacheControl": "private, no-store, max-age=0, must-revalidate",
   "setCookie": [],
-  "status": 200,
+  "status": 204,
 }
 `;
 
@@ -1774,6 +1781,9 @@ exports[`mock API route golden responses > catalog > GET products (combined) 1`]
         "title": "iPhone 15 Pro",
       },
     ],
+    "meta": {
+      "searchMode": "fts",
+    },
     "pagination": {
       "page": 1,
       "perPage": 3,
@@ -2460,6 +2470,190 @@ exports[`mock API route golden responses > catalog > GET products (inStock) 1`] 
       "page": 1,
       "perPage": 20,
       "totalItems": 12,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (include facets) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for iPhone 15 Pro",
+        "discountPercent": 20,
+        "id": "11174045-4aaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 24000000,
+        "price": 20000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "iphone-15-pro",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "iPhone 15 Pro",
+      },
+    ],
+    "facets": {
+      "brands": [
+        {
+          "count": 2,
+          "id": "brand-apple",
+          "name": "Apple",
+          "slug": "apple",
+        },
+        {
+          "count": 2,
+          "id": "brand-sony",
+          "name": "Sony",
+          "slug": "sony",
+        },
+        {
+          "count": 1,
+          "id": "brand-canon",
+          "name": "Canon",
+          "slug": "canon",
+        },
+        {
+          "count": 1,
+          "id": "brand-dell",
+          "name": "Dell",
+          "slug": "dell",
+        },
+        {
+          "count": 1,
+          "id": "brand-samsung",
+          "name": "Samsung",
+          "slug": "samsung",
+        },
+      ],
+      "categories": [
+        {
+          "count": 7,
+          "id": "cat-electronics",
+          "name": "Electronics",
+          "slug": "electronics",
+        },
+        {
+          "count": 2,
+          "id": "cat-fashion",
+          "name": "Fashion",
+          "slug": "fashion",
+        },
+        {
+          "count": 2,
+          "id": "cat-home-living",
+          "name": "Home & Living",
+          "slug": "home-living",
+        },
+        {
+          "count": 1,
+          "id": "cat-toys",
+          "name": "Toys",
+          "slug": "toys",
+        },
+      ],
+      "inStock": {
+        "false": 0,
+        "true": 7,
+      },
+      "price": {
+        "buckets": [
+          {
+            "count": 0,
+            "max": 50000,
+            "min": 0,
+          },
+          {
+            "count": 0,
+            "max": 100000,
+            "min": 50000,
+          },
+          {
+            "count": 0,
+            "max": 250000,
+            "min": 100000,
+          },
+          {
+            "count": 0,
+            "max": 500000,
+            "min": 250000,
+          },
+          {
+            "count": 0,
+            "max": 1000000,
+            "min": 500000,
+          },
+          {
+            "count": 0,
+            "max": 2500000,
+            "min": 1000000,
+          },
+          {
+            "count": 0,
+            "max": 5000000,
+            "min": 2500000,
+          },
+          {
+            "count": 2,
+            "max": 10000000,
+            "min": 5000000,
+          },
+          {
+            "count": 5,
+            "max": null,
+            "min": 10000000,
+          },
+        ],
+      },
+    },
+    "pagination": {
+      "page": 1,
+      "perPage": 2,
+      "totalItems": 7,
     },
   },
   "cacheControl": "private, no-store, max-age=0, must-revalidate",
@@ -3248,6 +3442,9 @@ exports[`mock API route golden responses > catalog > GET products (q category na
         "title": "Adidas Ultraboost",
       },
     ],
+    "meta": {
+      "searchMode": "fts",
+    },
     "pagination": {
       "page": 1,
       "perPage": 20,
@@ -3260,10 +3457,85 @@ exports[`mock API route golden responses > catalog > GET products (q category na
 }
 `;
 
+exports[`mock API route golden responses > catalog > GET products (q fuzzy fallback) 1`] = `
+{
+  "body": {
+    "data": [
+      {
+        "brandId": "brand-apple",
+        "brandName": "Apple",
+        "categoryId": "cat-electronics",
+        "categoryName": "Electronics",
+        "createdAt": "2026-01-01T00:00:00.000Z",
+        "currency": "IDR",
+        "description": "Description for MacBook Pro 14 M3",
+        "discountPercent": 20,
+        "id": "abb0d8a5-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        "images": [
+          "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800",
+        ],
+        "inStock": true,
+        "originalPrice": 30000000,
+        "price": 25000000,
+        "rating": 4.5,
+        "reviewCount": 150,
+        "slug": "macbook-pro-14-m3",
+        "stock": 20,
+        "tags": [
+          "new",
+          "electronics",
+        ],
+        "title": "MacBook Pro 14 M3",
+      },
+    ],
+    "meta": {
+      "searchMode": "fuzzy",
+    },
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 1,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
 exports[`mock API route golden responses > catalog > GET products (q no match) 1`] = `
 {
   "body": {
     "data": [],
+    "meta": {
+      "searchMode": "fts",
+    },
+    "pagination": {
+      "page": 1,
+      "perPage": 20,
+      "totalItems": 0,
+    },
+  },
+  "cacheControl": "private, no-store, max-age=0, must-revalidate",
+  "setCookie": [],
+  "status": 200,
+}
+`;
+
+exports[`mock API route golden responses > catalog > GET products (q suggestions) 1`] = `
+{
+  "body": {
+    "data": [],
+    "meta": {
+      "searchMode": "fts",
+      "suggestions": [
+        {
+          "slug": "macbook-pro-14-m3",
+          "title": "MacBook Pro 14 M3",
+        },
+      ],
+    },
     "pagination": {
       "page": 1,
       "perPage": 20,
@@ -3308,6 +3580,9 @@ exports[`mock API route golden responses > catalog > GET products (q title) 1`] 
         "title": "MacBook Pro 14 M3",
       },
     ],
+    "meta": {
+      "searchMode": "fts",
+    },
     "pagination": {
       "page": 1,
       "perPage": 20,

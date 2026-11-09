@@ -120,4 +120,66 @@ describe('serverApiGet against a real API', () => {
       message: 'gone',
     });
   });
+
+  it('passes an AbortSignal in both cache branches', async () => {
+    const fetchSpy = vi.fn(async () => Response.json({}));
+    vi.stubGlobal('fetch', fetchSpy);
+    const { serverApiGet } = await load();
+
+    await serverApiGet('categories');
+    await serverApiGet('categories', { revalidate: 300 });
+    const calls = fetchSpy.mock.calls as unknown as [string, RequestInit][];
+    expect(calls[0][1].cache).toBe('no-store');
+    expect(calls[0][1].signal).toBeInstanceOf(AbortSignal);
+    expect(calls[1][1].cache).toBeUndefined();
+    expect(calls[1][1].signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('maps a fetch TimeoutError to ApiClientError(504, TIMEOUT)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        const error = new Error('The operation was aborted due to timeout');
+        error.name = 'TimeoutError';
+        throw error;
+      }),
+    );
+    const { serverApiGet } = await load();
+    const { ApiClientError } = await import('@/lib/api/apiClient');
+
+    const pending = serverApiGet('/products');
+    await expect(pending).rejects.toBeInstanceOf(ApiClientError);
+    await expect(pending).rejects.toMatchObject({ status: 504, code: 'TIMEOUT' });
+  });
+
+  it('maps an AbortError while reading the body to ApiClientError(504)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => {
+          throw new DOMException('This operation was aborted', 'AbortError');
+        },
+      })),
+    );
+    const { serverApiGet } = await load();
+    const { ApiClientError } = await import('@/lib/api/apiClient');
+
+    const pending = serverApiGet('/products');
+    await expect(pending).rejects.toBeInstanceOf(ApiClientError);
+    await expect(pending).rejects.toMatchObject({ status: 504, code: 'TIMEOUT' });
+  });
+
+  it('rethrows other fetch failures unchanged', async () => {
+    const failure = new TypeError('fetch failed');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw failure;
+      }),
+    );
+    const { serverApiGet } = await load();
+    await expect(serverApiGet('/products')).rejects.toBe(failure);
+  });
 });

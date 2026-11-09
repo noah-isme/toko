@@ -146,6 +146,31 @@ export function useReviewListQuery(productId: string | undefined, params?: Revie
   });
 }
 
+/** Page size the API allows at most; the "already reviewed" check scans this many recent reviews. */
+const HAS_REVIEWED_PAGE_SIZE = 50;
+
+/**
+ * Whether `userId` already reviewed `productId`, from the product's most recent reviews (the list
+ * API has no per-user filter). `undefined` while unknown (loading, failed, or no user); a review
+ * older than the most recent page counts as not found.
+ */
+export function useHasReviewedProduct(productId: string | undefined, userId: string | undefined) {
+  const params = useMemo<Required<ReviewListParams>>(
+    () => ({ page: 1, pageSize: HAS_REVIEWED_PAGE_SIZE, sort: 'recent' }),
+    [],
+  );
+  const query = useQuery<ReviewListResponse>({
+    queryKey: getReviewListKey(productId ?? '', params),
+    enabled: Boolean(productId && userId),
+    queryFn: () => listReviews(productId!, params),
+    staleTime: 60 * 1000,
+  });
+
+  const hasReviewed =
+    userId && query.data ? query.data.data.some((review) => review.author === userId) : undefined;
+  return { hasReviewed, isLoading: query.isLoading };
+}
+
 export function useCreateReviewMutation(productId: string | undefined) {
   const queryClient = useQueryClient();
   const { toast } = useToast();

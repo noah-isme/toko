@@ -90,6 +90,9 @@ describe('mock API route golden responses', () => {
       ['page 2 limit 5', { page: '2', limit: '5' }],
       ['page beyond range', { page: '9', limit: '5' }],
       ['combined', { q: 'pro', category: 'cat-electronics', sort: 'price:desc', limit: '3' }],
+      ['q fuzzy fallback', { q: 'macbok' }],
+      ['q suggestions', { q: 'macbx' }],
+      ['include facets', { include: 'facets', category: 'electronics', limit: '2' }],
     ];
 
     it.each(productQueries)('GET products (%s)', async (_label, query) => {
@@ -268,6 +271,11 @@ describe('mock API route golden responses', () => {
         await call('POST', 'auth/register', { body: { name: 'Rina', email: 'rina@example.com' } }),
       ).toMatchSnapshot();
       expect(await call('POST', 'auth/register', { body: {} })).toMatchSnapshot();
+      expect(
+        await call('POST', 'auth/register', {
+          body: { name: 'Rina', email: 'taken@example.com', password: 'x' },
+        }),
+      ).toMatchObject({ status: 409, body: { error: { code: 'EMAIL_ALREADY_USED' } } });
       expect(
         await call('POST', 'auth/login', { body: { email: 'budi@example.com', password: 'x' } }),
       ).toMatchSnapshot();

@@ -14,6 +14,7 @@ The storefront consumes the versioned REST API at `NEXT_PUBLIC_API_URL`. The bac
 - [Payment](payment.md)
 - [Promotions](promotions.md)
 - [Notifications](notifications.md)
+- [Product Alerts](alerts.md)
 - [User Addresses](user.md)
 - [Privacy & Account](privacy.md)
 - [Returns & Support](customer-operations.md)

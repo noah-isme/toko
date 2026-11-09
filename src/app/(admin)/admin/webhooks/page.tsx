@@ -4,6 +4,7 @@ import { Plus, RefreshCw, Repeat, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { useAdminErrorMessage } from '@/components/admin/admin-access-ui';
 import {
   ActiveBadge,
   AdminEmpty,
@@ -11,6 +12,7 @@ import {
   AdminLoading,
   AdminPageHeader,
 } from '@/components/admin/admin-ui';
+import { UnsavedChangesDialog } from '@/components/admin/unsaved-changes-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,6 +52,7 @@ import {
 } from '@/entities/admin/hooks';
 import type { AdminWebhookEndpoint, AdminWebhookEndpointInput } from '@/entities/admin/types';
 import { useAdminFormat } from '@/entities/admin/use-admin-format';
+import { isFormDirty, useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/shared/ui/toast';
 
@@ -109,10 +112,13 @@ export default function WebhooksPage() {
   const tCommon = useTranslations('admin.common');
   const { relative } = useAdminFormat();
   const { toast } = useToast();
+  const adminErrorMessage = useAdminErrorMessage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminWebhookEndpoint | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminWebhookEndpoint | null>(null);
   const [form, setForm] = useState<WebhookForm>(EMPTY_FORM);
+  /** What the open dialog started from; the unsaved-changes guard compares against it. */
+  const [baselineForm, setBaselineForm] = useState<WebhookForm>(EMPTY_FORM);
   const [endpointFilter, setEndpointFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState<(typeof DELIVERY_STATUSES)[number]>('all');
 
@@ -129,21 +135,30 @@ export default function WebhooksPage() {
 
   const saving = createWebhook.isPending || updateWebhook.isPending;
 
+  const guard = useUnsavedChangesGuard(dialogOpen && isFormDirty(form, baselineForm));
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditing(null);
+  };
+
   const openCreate = () => {
     setEditing(null);
     setForm(EMPTY_FORM);
+    setBaselineForm(EMPTY_FORM);
     setDialogOpen(true);
   };
 
   const openEdit = (endpoint: AdminWebhookEndpoint) => {
-    setEditing(endpoint);
-    setForm({
+    const initial: WebhookForm = {
       name: endpoint.name,
       url: endpoint.url,
       secret: endpoint.secret,
       active: endpoint.active,
       topics: endpoint.topics ?? [],
-    });
+    };
+    setEditing(endpoint);
+    setForm(initial);
+    setBaselineForm(initial);
     setDialogOpen(true);
   };
 
@@ -176,7 +191,7 @@ export default function WebhooksPage() {
     } catch (error) {
       toast({
         title: t('toast.saveFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -191,7 +206,7 @@ export default function WebhooksPage() {
     } catch (error) {
       toast({
         title: t('toast.deleteFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -204,7 +219,7 @@ export default function WebhooksPage() {
     } catch (error) {
       toast({
         title: t('toast.replayFailed'),
-        description: error instanceof Error ? error.message : tCommon('unknownError'),
+        description: adminErrorMessage(error, tCommon('unknownError')),
         variant: 'destructive',
       });
     }
@@ -431,10 +446,7 @@ export default function WebhooksPage() {
 
       <Dialog
         open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setEditing(null);
-        }}
+        onOpenChange={(open) => (open ? setDialogOpen(true) : guard.confirmNavigation(closeDialog))}
       >
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
@@ -498,7 +510,7 @@ export default function WebhooksPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" onClick={() => guard.confirmNavigation(closeDialog)}>
               {tCommon('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
@@ -529,6 +541,8 @@ export default function WebhooksPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <UnsavedChangesDialog guard={guard} />
     </div>
   );
 }
